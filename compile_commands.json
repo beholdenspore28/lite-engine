@@ -12,9 +12,9 @@
       "build/obj/src/main.o",
       "src/main.c"
     ],
-    "directory": "/home/benis/code/code-dump/3dengine-v1",
-    "file": "/home/benis/code/code-dump/3dengine-v1/src/main.c",
-    "output": "/home/benis/code/code-dump/3dengine-v1/build/obj/src/main.o"
+    "directory": "/home/benis/code/3dengine-v1",
+    "file": "/home/benis/code/3dengine-v1/src/main.c",
+    "output": "/home/benis/code/3dengine-v1/build/obj/src/main.o"
   },
   {
     "arguments": [
@@ -29,9 +29,9 @@
       "build/obj/src/glad.o",
       "src/glad.c"
     ],
-    "directory": "/home/benis/code/code-dump/3dengine-v1",
-    "file": "/home/benis/code/code-dump/3dengine-v1/src/glad.c",
-    "output": "/home/benis/code/code-dump/3dengine-v1/build/obj/src/glad.o"
+    "directory": "/home/benis/code/3dengine-v1",
+    "file": "/home/benis/code/3dengine-v1/src/glad.c",
+    "output": "/home/benis/code/3dengine-v1/build/obj/src/glad.o"
   },
   {
     "arguments": [
@@ -46,8 +46,8 @@
       "build/obj/src/blib_file.o",
       "src/blib_file.c"
     ],
-    "directory": "/home/benis/code/code-dump/3dengine-v1",
-    "file": "/home/benis/code/code-dump/3dengine-v1/src/blib_file.c",
-    "output": "/home/benis/code/code-dump/3dengine-v1/build/obj/src/blib_file.o"
+    "directory": "/home/benis/code/3dengine-v1",
+    "file": "/home/benis/code/3dengine-v1/src/blib_file.c",
+    "output": "/home/benis/code/3dengine-v1/build/obj/src/blib_file.o"
   }
 ]

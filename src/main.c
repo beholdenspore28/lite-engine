@@ -40,7 +40,6 @@ struct lite_engine_instance_t {
 };
 
 static void _lite_glPreDraw(lite_engine_instance_t* instance){
-	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	
 }
@@ -69,7 +68,7 @@ static void _lite_glUpdate(lite_engine_instance_t* instance){
 	}
 }
 
-void lite_glInitialize(lite_engine_instance_t* instance){
+static void _lite_glInitialize(lite_engine_instance_t* instance){
 	//Set lite-engine function pointers
 	instance->update = &_lite_glUpdate;
 
@@ -114,6 +113,7 @@ void lite_glInitialize(lite_engine_instance_t* instance){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.0f,0.3f,0.5f,1.0f);
+	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 	
 	printf("Vendor\t%s\n", glGetString(GL_VENDOR));
 	printf("Renderer\t%s\n", glGetString(GL_RENDERER));
@@ -131,7 +131,7 @@ lite_engine_instance_t lite_engine_instance_construct(
 	
 	switch (instance.renderApi){
 		case LITE_RENDER_API_OPENGL:
-				lite_glInitialize(&instance);	
+				_lite_glInitialize(&instance);	
 			break;
 		case LITE_RENDER_API_VULKAN:
 				lite_printError("VULKAN api is not supported yet!", 
@@ -190,10 +190,15 @@ const GLuint _TEST_indexData[_TEST_indexDataLength] = {
 
 typedef struct lite_mesh_t lite_mesh_t;
 struct lite_mesh_t {
+	//vertex positions and attriibutes
 	float* vertexData;
-	unsigned int vertexDataLength;
+	//the total number of vertices in the mesh
+	unsigned int numVertices;
+	//winding order data
 	int* indexData;
-	unsigned int indexDataLength;
+	//the total number of indices in this mesh
+	unsigned int numIndices;
+
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
@@ -201,8 +206,8 @@ struct lite_mesh_t {
 
 void lite_mesh_setup(lite_mesh_t* mesh) {
 	//TODO remove hard-coded data
-	mesh->indexDataLength = _TEST_indexDataLength;
-	mesh->vertexDataLength = _TEST_vertexDataLength;
+	mesh->numIndices = _TEST_indexDataLength;
+	mesh->numVertices = _TEST_vertexDataLength;
 	mesh->indexData = &_TEST_indexData;
 	mesh->vertexData = &_TEST_vertexData;
 
@@ -215,7 +220,7 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
 	glBufferData(
 			GL_ARRAY_BUFFER,
-			sizeof(GLfloat) * mesh->vertexDataLength,
+			sizeof(GLfloat) * mesh->numVertices,
 			mesh->vertexData,
 			GL_STATIC_DRAW);
 
@@ -224,7 +229,7 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
 	glBufferData(
 			GL_ELEMENT_ARRAY_BUFFER,
-			mesh->indexDataLength * sizeof(GLuint),
+			mesh->numIndices * sizeof(GLuint),
 			mesh->indexData,
 			GL_STATIC_DRAW);
 	
@@ -245,6 +250,8 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	glBindVertexArray(0);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+
+	//TODO add the new mesh to the drawing queue
 };
 
 /*END-Mesh-------------------------------------------------------------------*/
@@ -254,8 +261,8 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 int main(int argc, char** argv) {
 	printf("\nRev up those fryers!\n\n");
 
-	lite_engine_instance_t instance = lite_engine_instance_construct(
-		LITE_RENDER_API_OPENGL,640,480);
+	lite_engine_instance_t instance = 
+		lite_engine_instance_construct(LITE_RENDER_API_OPENGL,640,480);
 
 	lite_mesh_t mesh;
 	lite_mesh_setup(&mesh);
