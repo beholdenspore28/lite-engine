@@ -8,18 +8,24 @@
 
 #include "blib_file.h"
 
-#include <assimp/cimport.h> // C-api
-#include <assimp/scene.h>   // output data structure
-#include <assimp/postprocess.h> //post processing flags
+/*BEGIN-TYPE-DEF-------------------------------------------------------------*/
 
-/*BEGIN-Lite-Engine-Instance-------------------------------------------------*/
+typedef struct lite_mesh_t lite_mesh_t;
+struct lite_mesh_t {
+	//vertex positions and attriibutes
+	float* vertexData;
+	//the total number of vertices in the mesh
+	unsigned int numVertices;
+	//winding order data
+	int* indexData;
+	//the total number of indices in this mesh
+	unsigned int numIndices;
 
-void lite_printError(
-		const char* message, const char* file, unsigned int line){
-	fprintf(stderr, "[ERROR] in file \"%s\" line# %i \t%s\n"
-			, file, line, message);
-	exit(1);
-}
+	GLuint VAO;
+	GLuint VBO;
+	GLuint EBO;
+};
+
 
 typedef enum { 
 	LITE_RENDER_API_OPENGL, 
@@ -36,12 +42,43 @@ struct lite_engine_instance_t {
 	SDL_GLContext glContext;
 	bool engineRunning;
 	
+	lite_mesh_t* renderList;
+	int renderListLength;
+
 	void (*update) (struct lite_engine_instance_t*);
 };
 
-static void _lite_glPreDraw(lite_engine_instance_t* instance){
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	
+/*END-TYPE-DEF---------------------------------------------------------------*/
+
+//TODO remove these!
+lite_mesh_t TESTmesh;
+GLuint TESTshader = 0;
+
+/*BEGIN-FUNC-DEF-------------------------------------------------------------*/
+
+void lite_printError();
+
+lite_engine_instance_t lite_engine_instance_construct();
+static void _lite_glHandleSDLEvents(lite_engine_instance_t* instance);
+static void _lite_glPreRender(lite_engine_instance_t* instance);
+static void _lite_glRenderFrame(lite_engine_instance_t* instance);
+static void _lite_glUpdate(lite_engine_instance_t* instance);
+static void _lite_glInitialize(lite_engine_instance_t* instance);
+
+void lite_mesh_setup(lite_mesh_t* mesh);
+static void _lite_glRenderMesh(lite_mesh_t* pMesh);
+
+static GLuint _lite_glCompileShader(GLuint type, const char* source);
+
+/*END-FUNC-DEF---------------------------------------------------------------*/
+
+/*BEGIN-Lite-Engine-Instance-------------------------------------------------*/
+
+void lite_printError(
+		const char* message, const char* file, unsigned int line){
+	fprintf(stderr, "[LITE-ENGINE-ERROR] in file \"%s\" line# %i \t%s\n"
+			, file, line, message);
+	exit(1);
 }
 
 static void _lite_glHandleSDLEvents(lite_engine_instance_t* instance){
@@ -54,6 +91,50 @@ static void _lite_glHandleSDLEvents(lite_engine_instance_t* instance){
 	}
 }
 
+static void _lite_glPreRender(lite_engine_instance_t* instance){
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	//TODO move to object-specific render code
+	glUseProgram(TESTshader);
+	assert(TESTshader != 0);
+
+	//model matrix
+	HMM_Mat4 translationMat = HMM_Translate(
+			(HMM_Vec3){0.0f,0.0f,10.0f});
+
+	HMM_Mat4 rotationMat = HMM_Rotate_LH(
+			10 / HMM_RadToDeg,
+			(HMM_Vec3){0.0f,1.0f,0.0f});
+
+	HMM_Mat4 scaleMat = HMM_Scale((HMM_Vec3){1.0f,1.0f,1.0f});
+
+	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
+	modelMat = HMM_MulM4(scaleMat, modelMat);
+
+	GLint modelMatrixLocation = glGetUniformLocation(
+			TESTshader, "u_modelMatrix");
+
+	if (modelMatrixLocation >= 0) {
+		glUniformMatrix4fv(
+				modelMatrixLocation,
+				1,
+				GL_FALSE,
+				&modelMat.Elements[0][0]);
+	} else {
+		lite_printError("failed to locate uniform", __FILE__, __LINE__);
+	}
+}
+
+
+static void _lite_glRenderFrame(lite_engine_instance_t* instance){
+	// for (int i = 0; i < instance->renderListLength; i++){
+	// 	_lite_glRenderMesh(&instance->renderList[i]);
+	// }
+
+	_lite_glRenderMesh(&TESTmesh);
+
+	SDL_GL_SwapWindow(instance->SDLwindow);
+}
+
 static void _lite_glUpdate(lite_engine_instance_t* instance){
 	// TODO : lock cursor to window and hide mouse
 	// SDL_WarpMouseInWindow(
@@ -63,8 +144,8 @@ static void _lite_glUpdate(lite_engine_instance_t* instance){
 	
 	while (instance->engineRunning) {
 		_lite_glHandleSDLEvents(instance);
-		_lite_glPreDraw(instance);
-		SDL_GL_SwapWindow(instance->SDLwindow);
+		_lite_glPreRender(instance);
+		_lite_glRenderFrame(instance);
 	}
 }
 
@@ -112,13 +193,16 @@ static void _lite_glInitialize(lite_engine_instance_t* instance){
 	//set up opengl
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.0f,0.3f,0.5f,1.0f);
+	glClearColor(0.1f,0.1f,0.2f,1.0f);
 	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 	
+	printf("==========================================================\n");
+	printf("OPENGL INFO\n");
 	printf("Vendor\t%s\n", glGetString(GL_VENDOR));
 	printf("Renderer\t%s\n", glGetString(GL_RENDERER));
 	printf("Version\t%s\n", glGetString(GL_VERSION));
 	printf("Shading Language\t%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	printf("==========================================================\n");
 }
 
 lite_engine_instance_t lite_engine_instance_construct(
@@ -188,22 +272,6 @@ const GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	5,1,0, 0,4,5,
 };
 
-typedef struct lite_mesh_t lite_mesh_t;
-struct lite_mesh_t {
-	//vertex positions and attriibutes
-	float* vertexData;
-	//the total number of vertices in the mesh
-	unsigned int numVertices;
-	//winding order data
-	int* indexData;
-	//the total number of indices in this mesh
-	unsigned int numIndices;
-
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
-};
-
 void lite_mesh_setup(lite_mesh_t* mesh) {
 	//TODO remove hard-coded data
 	mesh->numIndices = _TEST_indexDataLength;
@@ -254,18 +322,113 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	//TODO add the new mesh to the drawing queue
 };
 
+static void _lite_glRenderMesh(lite_mesh_t* pMesh){
+	glUseProgram(TESTshader);
+	glBindVertexArray(pMesh->VAO);
+	glDrawElements(
+			GL_TRIANGLES,
+			pMesh->numIndices,
+			GL_UNSIGNED_INT,
+			0);
+	glUseProgram(0);
+}
+
 /*END-Mesh-------------------------------------------------------------------*/
+
+static GLuint _lite_glCompileShader(
+		GLuint type, const char* source){
+	// printf("%s",source);
+	//creation
+	GLuint shader = 0;
+	if (type == GL_VERTEX_SHADER){
+		shader = glCreateShader(GL_VERTEX_SHADER);
+	} else if (type == GL_FRAGMENT_SHADER) {
+		shader = glCreateShader(GL_FRAGMENT_SHADER);
+	}
+
+	//compilation
+	glShaderSource(shader,1,&source,NULL);
+	glCompileShader(shader);
+
+	//Error check
+	GLint success;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	if (success == GL_FALSE){
+		int length;
+		glGetShaderiv(shader,GL_INFO_LOG_LENGTH,&length);
+		char errorMessage[length];
+		glGetShaderInfoLog(shader,length,&length,errorMessage);
+
+		if (type == GL_VERTEX_SHADER){
+			printf("%s\n", errorMessage);
+			lite_printError("failed to compile vertex shader\n", 
+					__FILE__, __LINE__);
+		} else if (type == GL_FRAGMENT_SHADER){
+			printf("%s\n", errorMessage);
+			lite_printError("failed to compile fragment shader\n", 
+					__FILE__, __LINE__);
+		}
+		glDeleteShader(shader);
+	}
+	return shader;
+}
+
+GLuint lite_glCreateShaderProgram(const char* vertsrc, const char* fragsrc){
+	GLuint program = glCreateProgram();
+
+	GLuint vertShader = _lite_glCompileShader(GL_VERTEX_SHADER, vertsrc);
+	GLuint fragShader = _lite_glCompileShader(GL_FRAGMENT_SHADER, fragsrc);
+
+	glAttachShader(program, vertShader);
+	glAttachShader(program, fragShader);
+	glLinkProgram(program);
+
+	glValidateProgram(program);
+
+	return program;
+}
+
+GLuint lite_glPipeline_create() {
+	printf("compiling shaders...\n");
+	GLuint shaderProgram;
+	blib_fileBuffer_t vertSourceFileBuffer = 
+		blib_fileBuffer_read("res/shaders/vertex.glsl");
+	blib_fileBuffer_t fragSourceFileBuffer = 
+		blib_fileBuffer_read("res/shaders/fragment.glsl");
+
+	if (vertSourceFileBuffer.error == true) {
+		lite_printError("failed to read vertex shader", __FILE__, __LINE__);
+	}
+	if (fragSourceFileBuffer.error == true) {
+		lite_printError("failed to read fragment shader", __FILE__, __LINE__);
+	}
+	
+	const char* vertSourceString = vertSourceFileBuffer.text;
+	const char* fragSourceString = fragSourceFileBuffer.text;
+
+	// printf("%s\n\n%s\n", vertSourceString, fragSourceString);
+
+	shaderProgram = lite_glCreateShaderProgram(
+			vertSourceString,
+			fragSourceString);
+
+	blib_fileBuffer_close(vertSourceFileBuffer);
+	blib_fileBuffer_close(fragSourceFileBuffer);
+
+	printf("finished compiling shaders\n");
+	return shaderProgram;
+}
 
 /*BEGIN-Test-----------------------------------------------------------------*/
 
 int main(int argc, char** argv) {
-	printf("\nRev up those fryers!\n\n");
+	printf("\n[LITE-ENGINE] Rev up those fryers!\n\n");
 
 	lite_engine_instance_t instance = 
 		lite_engine_instance_construct(LITE_RENDER_API_OPENGL,640,480);
 
-	lite_mesh_t mesh;
-	lite_mesh_setup(&mesh);
+	lite_mesh_setup(&TESTmesh);
+	TESTshader = lite_glPipeline_create();
 
 	instance.update(&instance);
 
