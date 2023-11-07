@@ -13,13 +13,13 @@
 typedef struct lite_mesh_t lite_mesh_t;
 struct lite_mesh_t {
 	//vertex positions and attriibutes
-	float* vertexData;
+	GLfloat* vertexData;
 	//the total number of vertices in the mesh
-	unsigned int numVertices;
+	GLuint numVertices;
 	//winding order data
-	int* indexData;
+	GLuint* indexData;
 	//the total number of indices in this mesh
-	unsigned int numIndices;
+	GLuint numIndices;
 
 	GLuint VAO;
 	GLuint VBO;
@@ -45,7 +45,7 @@ struct lite_engine_instance_t {
 	lite_mesh_t* renderList;
 	int renderListLength;
 
-	void (*update) (struct lite_engine_instance_t*);
+	void (*updateRenderer) (struct lite_engine_instance_t*);
 };
 
 /*END-TYPE-DEF---------------------------------------------------------------*/
@@ -53,6 +53,7 @@ struct lite_engine_instance_t {
 //TODO remove these!
 lite_mesh_t TESTmesh;
 GLuint TESTshader = 0;
+long double gTempTimer = 0.0;
 
 /*BEGIN-FUNC-DEF-------------------------------------------------------------*/
 
@@ -93,19 +94,20 @@ static void _lite_glHandleSDLEvents(lite_engine_instance_t* instance){
 
 static void _lite_glPreRender(lite_engine_instance_t* instance){
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
 	//TODO move to object-specific render code
 	glUseProgram(TESTshader);
 	assert(TESTshader != 0);
 
 	//model matrix
 	HMM_Mat4 translationMat = HMM_Translate(
-			(HMM_Vec3){0.0f,0.0f,10.0f});
+			(HMM_Vec3){.X=0.0f,.Y=0.0f,.Z=gTempTimer});
 
 	HMM_Mat4 rotationMat = HMM_Rotate_LH(
 			10 / HMM_RadToDeg,
-			(HMM_Vec3){0.0f,1.0f,0.0f});
+			(HMM_Vec3){.X=0.0f,.Y=1.0f,.Z=0.0f});
 
-	HMM_Mat4 scaleMat = HMM_Scale((HMM_Vec3){1.0f,1.0f,1.0f});
+	HMM_Mat4 scaleMat = HMM_Scale((HMM_Vec3){.X=1.0f,.Y=1.0f,.Z=1.0f});
 
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
@@ -120,7 +122,29 @@ static void _lite_glPreRender(lite_engine_instance_t* instance){
 				GL_FALSE,
 				&modelMat.Elements[0][0]);
 	} else {
-		lite_printError("failed to locate uniform", __FILE__, __LINE__);
+		lite_printError("failed to locate model matrix uniform", 
+				__FILE__, __LINE__);
+	}
+
+	//projection matrix
+	HMM_Mat4 projectionMat = HMM_Perspective_LH_NO(
+			70, //fov
+			(float)instance->screenWidth / instance->screenHeight, //aspect
+			0.01f,    //near clip
+			1000.0f); //far clip
+
+	GLint projectionMatrixLocation = glGetUniformLocation(
+			TESTshader, "u_projectionMatrix");
+
+	if (projectionMatrixLocation >= 0) {
+		glUniformMatrix4fv(
+				projectionMatrixLocation,
+				1,
+				GL_FALSE,
+				&projectionMat.Elements[0][0]);
+	} else {
+		lite_printError("failed to locate projection matrix uniform", 
+				__FILE__, __LINE__);
 	}
 }
 
@@ -131,27 +155,25 @@ static void _lite_glRenderFrame(lite_engine_instance_t* instance){
 	// }
 
 	_lite_glRenderMesh(&TESTmesh);
-
-	SDL_GL_SwapWindow(instance->SDLwindow);
 }
 
 static void _lite_glUpdate(lite_engine_instance_t* instance){
+	gTempTimer += 0.1f; //TODO this is TERRIBLE. remove pls
 	// TODO : lock cursor to window and hide mouse
 	// SDL_WarpMouseInWindow(
 			// instance->SDLwindow, 
 			// instance->screenWidth,instance->screenHeight);
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
 	
-	while (instance->engineRunning) {
-		_lite_glHandleSDLEvents(instance);
-		_lite_glPreRender(instance);
-		_lite_glRenderFrame(instance);
-	}
+	_lite_glHandleSDLEvents(instance);
+	_lite_glPreRender(instance);
+	_lite_glRenderFrame(instance);
+	SDL_GL_SwapWindow(instance->SDLwindow);
 }
 
 static void _lite_glInitialize(lite_engine_instance_t* instance){
 	//Set lite-engine function pointers
-	instance->update = &_lite_glUpdate;
+	instance->updateRenderer = &_lite_glUpdate;
 
 	//set up SDL2
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -235,7 +257,7 @@ lite_engine_instance_t lite_engine_instance_construct(
 /*BEGIN-Mesh-----------------------------------------------------------------*/
 
 #define _TEST_vertexDataLength 48
-const float _TEST_vertexData[_TEST_vertexDataLength] = {
+float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
 	-0.5f, -0.5f, -0.5f, //bottom left
 	 1.0f,  0.0f,  0.0f, //color
@@ -257,7 +279,7 @@ const float _TEST_vertexData[_TEST_vertexDataLength] = {
 };
 
 #define _TEST_indexDataLength 36
-const GLuint _TEST_indexData[_TEST_indexDataLength] = {
+GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	//front
 	2,0,1, 3,2,1,
 	//right
@@ -276,8 +298,8 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	//TODO remove hard-coded data
 	mesh->numIndices = _TEST_indexDataLength;
 	mesh->numVertices = _TEST_vertexDataLength;
-	mesh->indexData = &_TEST_indexData;
-	mesh->vertexData = &_TEST_vertexData;
+	mesh->indexData = _TEST_indexData;
+	mesh->vertexData = _TEST_vertexData;
 
 	//vertex array
 	glGenVertexArrays(1, &mesh->VAO);
@@ -430,7 +452,9 @@ int main(int argc, char** argv) {
 	lite_mesh_setup(&TESTmesh);
 	TESTshader = lite_glPipeline_create();
 
-	instance.update(&instance);
+	while(instance.engineRunning){
+		instance.updateRenderer(&instance);
+	}
 
 	return EXIT_SUCCESS;
 }
