@@ -1,7 +1,7 @@
 SRCFILES != find src -name '*.c'
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 INCDIR := include
-LIBS := -lSDL2 -ldl -lm -lassimp
+LIBS := -lSDL2 -ldl -lm
 MODE ?= DEBUG
 
 LDFLAGS := -Wall -Wno-missing-braces -std=c11 
