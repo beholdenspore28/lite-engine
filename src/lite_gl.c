@@ -5,22 +5,22 @@
 float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
 	-0.5f, -0.5f, -0.5f, //bottom left
-	0.2f,  0.2f,  0.2f, //color
-	0.5f, -0.5f, -0.5f, //bottom right
-	0.2f,  0.2f,  0.2f, //color
+	 0.3f,  0.3f,  0.3f, //color
+	 0.5f, -0.5f, -0.5f, //bottom right
+	 0.3f,  0.3f,  0.3f, //color
 	-0.5f,  0.5f, -0.5f, //top left
-	0.2f,  0.2f,  0.2f, //color
-	0.5f,  0.5f, -0.5f, //top right
-	0.2f,  0.2f,  0.2f, //color
+	 0.3f,  0.3f,  0.3f, //color
+	 0.5f,  0.5f, -0.5f, //top right
+	 0.3f,  0.3f,  0.3f, //color
 						//back
 	-0.5f, -0.5f,  0.5f, //bottom left
-	0.4f,  0.4f,  0.4f, //color
-	0.5f, -0.5f,  0.5f, //bottom right
-	0.4f,  0.4f,  0.4f, //color
+	 0.5f,  0.5f,  0.5f, //color
+	 0.5f, -0.5f,  0.5f, //bottom right
+	 0.5f,  0.5f,  0.5f, //color
 	-0.5f,  0.5f,  0.5f, //top left
-	0.4f,  0.4f,  0.4f, //color
-	0.5f,  0.5f,  0.5f, //top right
-	0.4f,  0.4f,  0.4f, //color
+	 0.5f,  0.5f,  0.5f, //color
+	 0.5f,  0.5f,  0.5f, //top right
+	 0.5f,  0.5f,  0.5f, //color
 };
 
 GLuint _TEST_indexData[_TEST_indexDataLength] = {
@@ -39,37 +39,57 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 };
 
 //TODO remove these!
-lite_mesh_t TESTmesh;
-GLuint TESTshader = 0;
-long double gTempTimer = 0.0;
+float gTempTimer = 0.0f;
 
-void lite_mesh_setup(lite_mesh_t* mesh) {
+lite_gl_gameObject_t lite_gl_gameObject_create(){
+	lite_gl_gameObject_t go;
+	go.shader = lite_gl_pipeline_create();
+	go.mesh = lite_gl_mesh_create();
+	return go;
+}
+
+static HMM_Mat4 _lite_gl_transform_GetModelMatrix(lite_gl_transform_t* t){
+	//TODO eulerAngles are broken
+	//multiply forward by the same matrix as the cube, 
+	//then rotate around the forward axis
+
+	//TRS = modelMatrix
+	HMM_Mat4 translationMat = HMM_Translate(t->position);
+	HMM_Mat4 rotationMat = HMM_Rotate_LH(1.0, t->eulerAngles); 
+	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
+	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
+	modelMat = HMM_MulM4(scaleMat, modelMat);
+	return modelMat;
+}
+
+lite_gl_mesh_t lite_gl_mesh_create() {
+	lite_gl_mesh_t m;
 	//TODO remove hard-coded data
-	mesh->numIndices = _TEST_indexDataLength;
-	mesh->numVertices = _TEST_vertexDataLength;
-	mesh->indexData = _TEST_indexData;
-	mesh->vertexData = _TEST_vertexData;
+	m.numIndices = _TEST_indexDataLength;
+	m.numVertices = _TEST_vertexDataLength;
+	m.indexData = _TEST_indexData;
+	m.vertexData = _TEST_vertexData;
 
 	//vertex array
-	glGenVertexArrays(1, &mesh->VAO);
-	glBindVertexArray(mesh->VAO);
+	glGenVertexArrays(1, &m.VAO);
+	glBindVertexArray(m.VAO);
 
 	//vertex buffer
-	glGenBuffers(1, &mesh->VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+	glGenBuffers(1, &m.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
 	glBufferData(
 			GL_ARRAY_BUFFER,
-			sizeof(GLfloat) * mesh->numVertices,
-			mesh->vertexData,
+			sizeof(GLfloat) * m.numVertices,
+			m.vertexData,
 			GL_STATIC_DRAW);
 
 	//index/element buffer
-	glGenBuffers(1, &mesh->EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+	glGenBuffers(1, &m.EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
 	glBufferData(
 			GL_ELEMENT_ARRAY_BUFFER,
-			mesh->numIndices * sizeof(GLuint),
-			mesh->indexData,
+			m.numIndices * sizeof(GLuint),
+			m.indexData,
 			GL_STATIC_DRAW);
 
 	//position attribute
@@ -91,10 +111,11 @@ void lite_mesh_setup(lite_mesh_t* mesh) {
 	glDisableVertexAttribArray(1);
 
 	//TODO add the new mesh to the drawing queue
+	return m;
 };
 
-void _lite_glRenderMesh(lite_mesh_t* pMesh){
-	glUseProgram(TESTshader);
+static void _lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
+	glUseProgram(TESTgameObject.shader);
 	glBindVertexArray(pMesh->VAO);
 	glDrawElements(
 			GL_TRIANGLES,
@@ -104,7 +125,7 @@ void _lite_glRenderMesh(lite_mesh_t* pMesh){
 	glUseProgram(0);
 }
 
-GLuint _lite_glCompileShader(
+static GLuint _lite_gl_compileShader(
 		GLuint type, const char* source){
 	// printf("%s",source);
 	//creation
@@ -142,11 +163,12 @@ GLuint _lite_glCompileShader(
 	return shader;
 }
 
-GLuint lite_glCreateShaderProgram(const char* vertsrc, const char* fragsrc){
-	GLuint program = glCreateProgram();
+static GLuint lite_gl_createShaderProgram(
+		const char* vertsrc, const char* fragsrc){
 
-	GLuint vertShader = _lite_glCompileShader(GL_VERTEX_SHADER, vertsrc);
-	GLuint fragShader = _lite_glCompileShader(GL_FRAGMENT_SHADER, fragsrc);
+	GLuint program = glCreateProgram();
+	GLuint vertShader = _lite_gl_compileShader(GL_VERTEX_SHADER, vertsrc);
+	GLuint fragShader = _lite_gl_compileShader(GL_FRAGMENT_SHADER, fragsrc);
 
 	glAttachShader(program, vertShader);
 	glAttachShader(program, fragShader);
@@ -157,7 +179,7 @@ GLuint lite_glCreateShaderProgram(const char* vertsrc, const char* fragsrc){
 	return program;
 }
 
-GLuint lite_glPipeline_create() {
+GLuint lite_gl_pipeline_create() {
 	printf("compiling shaders...\n");
 	GLuint shaderProgram;
 	blib_fileBuffer_t vertSourceFileBuffer = 
@@ -177,7 +199,7 @@ GLuint lite_glPipeline_create() {
 
 	// printf("%s\n\n%s\n", vertSourceString, fragSourceString);
 
-	shaderProgram = lite_glCreateShaderProgram(
+	shaderProgram = lite_gl_createShaderProgram(
 			vertSourceString,
 			fragSourceString);
 
@@ -188,7 +210,7 @@ GLuint lite_glPipeline_create() {
 	return shaderProgram;
 }
 
-void _lite_glHandleSDLEvents(lite_engine_instance_t* instance){
+static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
 		if (e.type == SDL_QUIT){
@@ -198,28 +220,28 @@ void _lite_glHandleSDLEvents(lite_engine_instance_t* instance){
 	}
 }
 
-void _lite_glPreRender(lite_engine_instance_t* instance){
+static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	//TODO move to object-specific render code
-	glUseProgram(TESTshader);
+	glUseProgram(TESTgameObject.shader);
+
+	printf("time: %f\n",gTempTimer);
 
 	//model matrix
-	HMM_Mat4 translationMat = HMM_Translate(
-			(HMM_Vec3){.X=0.0f,.Y=0.0f,.Z=2.5f});
+	TESTgameObject.transform.position = 
+		(HMM_Vec3) {.X=sinf(gTempTimer),.Y=0.0f,.Z=2.5f};
+	TESTgameObject.transform.eulerAngles = 
+		(HMM_Vec3) {.X=0.0f,.Y=90.0f,.Z=0.0f};
+	TESTgameObject.transform.scale = 
+		(HMM_Vec3) {.X=1.0f,.Y=1.0f,.Z=1.0f};
 
-	HMM_Mat4 rotationMat = HMM_Rotate_LH(
-			gTempTimer / HMM_RadToDeg,
-			(HMM_Vec3){.X=0.5f,.Y=1.0f,.Z=0.0f});
-
-	HMM_Mat4 scaleMat = HMM_Scale((HMM_Vec3){.X=1.0f,.Y=1.0f,.Z=1.0f});
-
-	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
-	modelMat = HMM_MulM4(scaleMat, modelMat);
+	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
+			&TESTgameObject.transform);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
-			TESTshader, "u_modelMatrix");
+			TESTgameObject.shader, "u_modelMatrix");
 
 	if (modelMatrixLocation >= 0) {
 		glUniformMatrix4fv(
@@ -240,7 +262,7 @@ void _lite_glPreRender(lite_engine_instance_t* instance){
 			1000.0f); //far clip
 
 	GLint projectionMatrixLocation = glGetUniformLocation(
-			TESTshader, "u_projectionMatrix");
+			TESTgameObject.shader, "u_projectionMatrix");
 
 	if (projectionMatrixLocation >= 0) {
 		glUniformMatrix4fv(
@@ -254,31 +276,31 @@ void _lite_glPreRender(lite_engine_instance_t* instance){
 	}
 }
 
-void _lite_glRenderFrame(lite_engine_instance_t* instance){
+static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// for (int i = 0; i < instance->renderListLength; i++){
 	// 	_lite_glRenderMesh(&instance->renderList[i]);
 	// }
 
-	_lite_glRenderMesh(&TESTmesh);
+	_lite_gl_mesh_render(&TESTgameObject.mesh);
 }
 
-void _lite_glUpdate(lite_engine_instance_t* instance){
-	gTempTimer += 1.0f; //TODO this is TERRIBLE. remove pls
-						// TODO : lock cursor to window and hide mouse
-						// SDL_WarpMouseInWindow(
-						// instance->SDLwindow, 
-						// instance->screenWidth,instance->screenHeight);
-						// SDL_SetRelativeMouseMode(SDL_TRUE);
+static void _lite_gl_update(lite_engine_instance_t* instance){
+	gTempTimer += 0.1; //TODO this is TERRIBLE. remove pls
+	// TODO : lock cursor to window and hide mouse
+	// SDL_WarpMouseInWindow(
+			// instance->SDLwindow, 
+			// instance->screenWidth,instance->screenHeight);
+	// SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	_lite_glHandleSDLEvents(instance);
-	_lite_glPreRender(instance);
-	_lite_glRenderFrame(instance);
+	_lite_gl_handleSDLEvents(instance);
+	_lite_gl_preRender(instance);
+	_lite_gl_renderFrame(instance);
 	SDL_GL_SwapWindow(instance->SDLwindow);
 }
 
-void lite_glInitialize(lite_engine_instance_t* instance){
+void lite_gl_initialize(lite_engine_instance_t* instance){
 	//Set lite-engine function pointers
-	instance->updateRenderer = &_lite_glUpdate;
+	instance->updateRenderer = &_lite_gl_update;
 
 	//set up SDL2
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {

@@ -10,6 +10,14 @@
 #include "lite_gl.h"
 #include "lite.h"
 
+const HMM_Vec3 lite_vec3_up =		(HMM_Vec3){0.0f, 1.0f, 0.0f};
+const HMM_Vec3 lite_vec3_down =	 	(HMM_Vec3){0.0f, 0.0f, 0.0f};
+const HMM_Vec3 lite_vec3_left =		(HMM_Vec3){0.0f, 0.0f, 0.0f};
+const HMM_Vec3 lite_vec3_right =	(HMM_Vec3){0.0f, 0.0f, 0.0f};
+const HMM_Vec3 lite_vec3_forward =	(HMM_Vec3){0.0f, 0.0f, 0.0f};
+const HMM_Vec3 lite_vec3_back =		(HMM_Vec3){0.0f, 0.0f, 0.0f};
+lite_gl_gameObject_t TESTgameObject;
+
 void lite_printError(
 		const char* message, const char* file, unsigned int line){
 	fprintf(stderr, "[LITE-ENGINE-ERROR] in file \"%s\" line# %i \t%s\n"
@@ -18,7 +26,7 @@ void lite_printError(
 }
 
 lite_engine_instance_t lite_engine_instance_construct(
-		lite_render_api renderApi, const char* windowTitle, 
+		lite_render_api renderApi, char* windowTitle, 
 		int screenWidth, int screenHeight) {
 	lite_engine_instance_t instance;
 	instance.screenWidth = screenWidth;
@@ -29,7 +37,7 @@ lite_engine_instance_t lite_engine_instance_construct(
 
 	switch (instance.renderApi){
 		case LITE_RENDER_API_OPENGL:
-			lite_glInitialize(&instance);	
+			lite_gl_initialize(&instance);	
 			break;
 		case LITE_RENDER_API_VULKAN:
 			lite_printError("VULKAN api is not supported yet!", 
@@ -50,10 +58,8 @@ int main(int argc, char** argv) {
 	lite_engine_instance_t instance = 
 		lite_engine_instance_construct(
 				LITE_RENDER_API_OPENGL, "Game Window",854,480);
-
-	lite_mesh_setup(&TESTmesh);
-	TESTshader = lite_glPipeline_create();
-
+	
+	TESTgameObject = lite_gl_gameObject_create();
 	while(instance.engineRunning){
 		instance.updateRenderer(&instance);
 	}

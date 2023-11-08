@@ -3,6 +3,7 @@ OBJFILES := ${SRCFILES:%.c=build/obj/%.o}
 INCDIR := include
 LIBS := -lSDL2 -ldl -lm
 MODE ?= DEBUG
+CC := gcc
 
 LDFLAGS := -Wall -Wno-missing-braces -std=c11 
 CFLAGS := -Wall -Wno-missing-braces -std=c11
@@ -24,11 +25,11 @@ run: build/bin/test
 	./build/bin/test
 build/bin/test: ${OBJFILES};
 	@mkdir -p build/bin
-	clang ${OBJFILES} -I ${INCDIR} ${LIBS} ${LDFLAGS} -o build/bin/test
+	${CC} ${OBJFILES} -I ${INCDIR} ${LIBS} ${LDFLAGS} -o build/bin/test
 
 ${OBJFILES}: ${@:build/obj/%.o=%.c}
 	@mkdir -p ${dir ${@}}
-	clang -c ${@:build/obj/%.o=%.c} ${CFLAGS} ${INCDIR:%=-I%} -o ${@}
+	${CC} -c ${@:build/obj/%.o=%.c} ${CFLAGS} ${INCDIR:%=-I%} -o ${@}
 clean: 
 	rm build/bin/test
 
