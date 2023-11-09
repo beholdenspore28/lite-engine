@@ -1,12 +1,11 @@
 #ifndef LITE_GL_H
 #define LITE_GL_H
 
-#include <SDL2/SDL.h>
 #include "glad/glad.h"
-
 #include "lite.h"
 #include "blib_file.h"
 #include "HandmadeMath.h"
+#include "stb_image.h"
 
 typedef struct lite_gl_transform_t lite_gl_transform_t;
 struct lite_gl_transform_t {
@@ -36,10 +35,11 @@ struct lite_gl_gameObject_t {
 	lite_gl_transform_t transform;
 	lite_gl_mesh_t mesh;
 	GLuint shader;
+	GLuint texture;
 };
 
 //TODO GET RID OF THESE!!
-#define _TEST_vertexDataLength 48
+#define _TEST_vertexDataLength 64
 #define _TEST_indexDataLength 36
 extern float _TEST_vertexData[_TEST_vertexDataLength];
 extern GLuint _TEST_indexData[_TEST_indexDataLength];
@@ -50,5 +50,6 @@ void lite_gl_initialize(lite_engine_instance_t* instance);
 GLuint lite_gl_pipeline_create();
 lite_gl_mesh_t lite_gl_mesh_create();
 lite_gl_gameObject_t lite_gl_gameObject_create();
+GLuint lite_gl_texture_create(const char* imageFile);
 
 #endif  //LITE_GL_H

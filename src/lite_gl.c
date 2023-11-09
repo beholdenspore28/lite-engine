@@ -1,26 +1,18 @@
 #include "lite_gl.h"
-#include "lite.h"
-#include "HandmadeMath.h"
 
 float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
-	-0.5f, -0.5f, -0.5f, //bottom left
-	 0.3f,  0.3f,  0.3f, //color
-	 0.5f, -0.5f, -0.5f, //bottom right
-	 0.3f,  0.3f,  0.3f, //color
-	-0.5f,  0.5f, -0.5f, //top left
-	 0.3f,  0.3f,  0.3f, //color
-	 0.5f,  0.5f, -0.5f, //top right
-	 0.3f,  0.3f,  0.3f, //color
-						//back
-	-0.5f, -0.5f,  0.5f, //bottom left
-	 0.5f,  0.5f,  0.5f, //color
-	 0.5f, -0.5f,  0.5f, //bottom right
-	 0.5f,  0.5f,  0.5f, //color
-	-0.5f,  0.5f,  0.5f, //top left
-	 0.5f,  0.5f,  0.5f, //color
-	 0.5f,  0.5f,  0.5f, //top right
-	 0.5f,  0.5f,  0.5f, //color
+	 //position        //color           //texcoord
+	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,//bottom left
+	 0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,//bottom right
+	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,//top left
+	 0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,//top right
+	
+	 //back
+	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,//bottom left
+	 0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,//bottom right
+	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,//top left
+	 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,//top right
 };
 
 GLuint _TEST_indexData[_TEST_indexDataLength] = {
@@ -41,11 +33,39 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 //TODO remove these!
 float gTempTimer = 0.0f;
 
-lite_gl_gameObject_t lite_gl_gameObject_create(){
-	lite_gl_gameObject_t go;
-	go.shader = lite_gl_pipeline_create();
-	go.mesh = lite_gl_mesh_create();
-	return go;
+
+GLuint lite_gl_texture_create(const char* imageFile){
+	//create texture
+	GLuint texture;
+	glGenTextures(1,&texture);
+	glBindTexture(GL_TEXTURE_2D,texture);
+
+	//set parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+	//load texture data from file
+	int width, height, numChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(
+			imageFile, &width, &height, &numChannels, 0);
+	
+	//error check
+	if (data){
+		glTexImage2D(
+				GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
+				GL_UNSIGNED_BYTE,data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		lite_printError("failed to load texture", __FILE__, __LINE__);
+	}
+
+	//cleanup
+	stbi_image_free(data);
+
+	return texture;
 }
 
 static HMM_Mat4 _lite_gl_transform_GetModelMatrix(lite_gl_transform_t* t){
@@ -96,14 +116,20 @@ lite_gl_mesh_t lite_gl_mesh_create() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
 			0,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 6, (GLvoid*)0);
+			sizeof(GLfloat) * 8, (GLvoid*)0);
 
 	//color attribute
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 			1,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 6,
+			sizeof(GLfloat) * 8,
 			(GLvoid*)(sizeof(GLfloat) * 3));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(
+			2,2,GL_FLOAT,GL_FALSE,
+			sizeof(GLfloat) * 8, 
+			(GLvoid*)(sizeof(GLfloat)*6));
 
 	//cleanup
 	glBindVertexArray(0);
@@ -276,12 +302,40 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	}
 }
 
+lite_gl_gameObject_t lite_gl_gameObject_create(){
+	lite_gl_gameObject_t go;
+	go.shader = lite_gl_pipeline_create();
+	go.mesh = lite_gl_mesh_create();
+	go.texture = lite_gl_texture_create("res/textures/test.jpg");
+	
+	//TODO add this line
+	// go.transform = lite_gl_transform_create();
+
+	//TODO texture glitch here
+	//DO NOT move this to update loop
+	glUseProgram(go.shader);
+	glUniform1i(glGetUniformLocation(go.shader, "texture"), 0);
+	glUseProgram(0);
+
+	return go;
+}
+
+static void _lite_gl_gameObject_render(lite_gl_gameObject_t* go){
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, go->texture);
+
+	_lite_gl_mesh_render(&go->mesh);
+	
+
+}
+
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// for (int i = 0; i < instance->renderListLength; i++){
 	// 	_lite_glRenderMesh(&instance->renderList[i]);
 	// }
 
-	_lite_gl_mesh_render(&TESTgameObject.mesh);
+	// _lite_gl_mesh_render(&TESTgameObject.mesh);
+	_lite_gl_gameObject_render(&TESTgameObject);
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
