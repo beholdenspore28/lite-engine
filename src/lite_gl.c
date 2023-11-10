@@ -1,5 +1,7 @@
 #include "lite_gl.h"
 
+/*BEGIN TEMP=================================================================*/
+
 float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
 	 //position        //color           //texcoord
@@ -30,9 +32,9 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	5,1,0, 0,4,5,
 };
 
-//TODO remove these!
 float gTempTimer = 0.0f;
 
+/*BEGIN TEXTURE==============================================================*/
 
 GLuint lite_gl_texture_create(const char* imageFile){
 	//create texture
@@ -43,8 +45,8 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	//set parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
 	//load texture data from file
 	int width, height, numChannels;
@@ -68,6 +70,8 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	return texture;
 }
 
+/*BEGIN TRANSFORM============================================================*/
+
 static HMM_Mat4 _lite_gl_transform_GetModelMatrix(lite_gl_transform_t* t){
 	//TODO eulerAngles are broken
 	//multiply forward by the same matrix as the cube, 
@@ -75,12 +79,14 @@ static HMM_Mat4 _lite_gl_transform_GetModelMatrix(lite_gl_transform_t* t){
 
 	//TRS = modelMatrix
 	HMM_Mat4 translationMat = HMM_Translate(t->position);
-	HMM_Mat4 rotationMat = HMM_Rotate_LH(1.0, t->eulerAngles); 
+	HMM_Mat4 rotationMat = HMM_Rotate_LH(gTempTimer, t->eulerAngles); 
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
 	return modelMat;
 }
+
+/*BEGIN MESH=================================================================*/
 
 lite_gl_mesh_t lite_gl_mesh_create() {
 	lite_gl_mesh_t m;
@@ -125,6 +131,7 @@ lite_gl_mesh_t lite_gl_mesh_create() {
 			sizeof(GLfloat) * 8,
 			(GLvoid*)(sizeof(GLfloat) * 3));
 
+	//texture coord attribute
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 			2,2,GL_FLOAT,GL_FALSE,
@@ -150,6 +157,8 @@ static void _lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 			0);
 	glUseProgram(0);
 }
+
+/*BEGIN SHADER===============================================================*/
 
 static GLuint _lite_gl_compileShader(
 		GLuint type, const char* source){
@@ -236,6 +245,35 @@ GLuint lite_gl_pipeline_create() {
 	return shaderProgram;
 }
 
+/*BEGIN GAMEOBJECT===========================================================*/
+
+lite_gl_gameObject_t lite_gl_gameObject_create(){
+	lite_gl_gameObject_t go;
+	go.shader = lite_gl_pipeline_create();
+	go.mesh = lite_gl_mesh_create();
+	go.texture = lite_gl_texture_create("res/textures/test.jpg");
+	
+	//TODO add this line
+	// go.transform = lite_gl_transform_create();
+
+	//TODO texture glitch here
+	//DO NOT move this to update loop
+	glUseProgram(go.shader);
+	glUniform1i(glGetUniformLocation(go.shader, "texture"), 0);
+	glUseProgram(0);
+
+	return go;
+}
+
+static void _lite_gl_gameObject_render(lite_gl_gameObject_t* go){
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, go->texture);
+
+	_lite_gl_mesh_render(&go->mesh);
+}
+
+/*BEGIN GLRENDERE============================================================*/
+
 static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
@@ -302,33 +340,6 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	}
 }
 
-lite_gl_gameObject_t lite_gl_gameObject_create(){
-	lite_gl_gameObject_t go;
-	go.shader = lite_gl_pipeline_create();
-	go.mesh = lite_gl_mesh_create();
-	go.texture = lite_gl_texture_create("res/textures/test.jpg");
-	
-	//TODO add this line
-	// go.transform = lite_gl_transform_create();
-
-	//TODO texture glitch here
-	//DO NOT move this to update loop
-	glUseProgram(go.shader);
-	glUniform1i(glGetUniformLocation(go.shader, "texture"), 0);
-	glUseProgram(0);
-
-	return go;
-}
-
-static void _lite_gl_gameObject_render(lite_gl_gameObject_t* go){
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, go->texture);
-
-	_lite_gl_mesh_render(&go->mesh);
-	
-
-}
-
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// for (int i = 0; i < instance->renderListLength; i++){
 	// 	_lite_glRenderMesh(&instance->renderList[i]);
@@ -339,7 +350,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	gTempTimer += 0.1; //TODO this is TERRIBLE. remove pls
+	gTempTimer += 0.05; //TODO this is TERRIBLE. remove pls
 	// TODO : lock cursor to window and hide mouse
 	// SDL_WarpMouseInWindow(
 			// instance->SDLwindow, 
@@ -396,7 +407,7 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 	//set up opengl
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.1f,0.1f,0.2f,1.0f);
+	glClearColor(0.3f,0.3f,0.4f,1.0f);
 	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 
 	printf("==========================================================\n");
