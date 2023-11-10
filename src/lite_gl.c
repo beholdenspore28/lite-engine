@@ -32,8 +32,6 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	5,1,0, 0,4,5,
 };
 
-float gTempTimer = 0.0f;
-
 /*BEGIN TEXTURE==============================================================*/
 
 
@@ -82,14 +80,16 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 
 /*BEGIN TRANSFORM============================================================*/
 
-static HMM_Mat4 _lite_gl_transform_GetModelMatrix(lite_gl_transform_t* t){
+static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
+		lite_gl_transform_t* t, lite_engine_instance_t* instance){
 	//TODO eulerAngles are broken
 	//multiply forward by the same matrix as the cube, 
 	//then rotate around the forward axis
 
 	//TRS = modelMatrix
 	HMM_Mat4 translationMat = HMM_Translate(t->position);
-	HMM_Mat4 rotationMat = HMM_Rotate_LH(gTempTimer, t->eulerAngles); 
+	// HMM_Mat4 rotationMat = HMM_Rotate_LH(instance->frameStart * 0.001f, t->eulerAngles); 
+	HMM_Mat4 rotationMat = HMM_Rotate_LH(lite_time_inSeconds(instance), t->eulerAngles); 
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
@@ -262,6 +262,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
 	go.texture = lite_gl_texture_create("res/textures/test2.png", LITE_RGBA);
+	go.active = true;
 	
 	//TODO add this line
 	// go.transform = lite_gl_transform_create();
@@ -275,7 +276,8 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	return go;
 }
 
-static void _lite_gl_gameObject_render(lite_gl_gameObject_t* go){
+static void _lite_gl_gameObject_update(lite_gl_gameObject_t* go){
+	if (go->active == false) return;
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, go->texture);
 
@@ -301,18 +303,17 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	//TODO move to object-specific render code
 	glUseProgram(TESTgameObject.shader);
 
-	printf("time: %f\n",gTempTimer);
 
 	//model matrix
 	TESTgameObject.transform.position = 
-		(HMM_Vec3) {.X=sinf(gTempTimer),.Y=0.0f,.Z=2.5f};
+		(HMM_Vec3) {.X=sinf(lite_time_inSeconds(instance)),.Y=0.0f,.Z=2.5f};
 	TESTgameObject.transform.eulerAngles = 
 		(HMM_Vec3) {.X=0.0f,.Y=90.0f,.Z=0.0f};
 	TESTgameObject.transform.scale = 
 		(HMM_Vec3) {.X=1.0f,.Y=1.0f,.Z=1.0f};
 
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
-			&TESTgameObject.transform);
+			&TESTgameObject.transform, instance);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
 			TESTgameObject.shader, "u_modelMatrix");
@@ -356,23 +357,31 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// }
 
 	// _lite_gl_mesh_render(&TESTgameObject.mesh);
-	_lite_gl_gameObject_render(&TESTgameObject);
+	_lite_gl_gameObject_update(&TESTgameObject);
 }
 
+
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	gTempTimer += 0.05; //TODO this is TERRIBLE. remove pls
+	//delta time
+	instance->frameStart = SDL_GetTicks();	
+
 	// TODO : lock cursor to window and hide mouse
 	// SDL_WarpMouseInWindow(
 			// instance->SDLwindow, 
 			// instance->screenWidth,instance->screenHeight);
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	//SUGGESTION - Mefi - custom cursors
+	//TODO - Mefi - custom cursors
 
 	_lite_gl_handleSDLEvents(instance);
 	_lite_gl_preRender(instance);
 	_lite_gl_renderFrame(instance);
 	SDL_GL_SwapWindow(instance->SDLwindow);
+
+	instance->frameEnd = SDL_GetTicks();
+
+	instance->deltaTime = 
+		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){

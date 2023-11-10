@@ -15,7 +15,7 @@ void lite_printError(
 	exit(1);
 }
 
-lite_engine_instance_t lite_engine_instance_construct(
+lite_engine_instance_t lite_engine_instance_create(
 		lite_render_api renderApi, char* windowTitle, 
 		int screenWidth, int screenHeight) {
 	lite_engine_instance_t instance;
@@ -40,4 +40,8 @@ lite_engine_instance_t lite_engine_instance_construct(
 	}
 
 	return instance;
+}
+
+float lite_time_inSeconds(lite_engine_instance_t* instance) {
+	return ((float)instance->frameStart) * 0.001f;
 }

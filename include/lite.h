@@ -28,14 +28,20 @@ struct lite_engine_instance_t {
 	SDL_GLContext glContext;
 	bool engineRunning;
 
+	//time
+	uint32_t frameStart;
+	uint32_t frameEnd;
+	float deltaTime;
+
 	void (*updateRenderer) (struct lite_engine_instance_t*);
 };
 
-lite_engine_instance_t lite_engine_instance_construct(
+lite_engine_instance_t lite_engine_instance_create(
 		lite_render_api renderApi, char* windowTitle, 
 		int screenWidth, int screenHeight);
 
 void lite_printError(
 		const char* message, const char* file, unsigned int line);
 
+float lite_time_inSeconds(lite_engine_instance_t* instance);
 #endif//LITE_H

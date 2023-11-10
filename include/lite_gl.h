@@ -39,6 +39,7 @@ struct lite_gl_gameObject_t {
 	lite_gl_mesh_t mesh;
 	GLuint shader;
 	GLuint texture;
+	bool active;
 };
 
 //TODO GET RID OF THESE!!
@@ -47,7 +48,6 @@ struct lite_gl_gameObject_t {
 extern float _TEST_vertexData[_TEST_vertexDataLength];
 extern GLuint _TEST_indexData[_TEST_indexDataLength];
 extern lite_gl_gameObject_t TESTgameObject;
-extern float gTempTimer;
 
 void lite_gl_initialize(lite_engine_instance_t* instance);
 GLuint lite_gl_pipeline_create();
