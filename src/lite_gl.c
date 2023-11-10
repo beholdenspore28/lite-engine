@@ -36,7 +36,8 @@ float gTempTimer = 0.0f;
 
 /*BEGIN TEXTURE==============================================================*/
 
-GLuint lite_gl_texture_create(const char* imageFile){
+
+GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 	//create texture
 	GLuint texture;
 	glGenTextures(1,&texture);
@@ -56,10 +57,19 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	
 	//error check
 	if (data){
-		glTexImage2D(
-				GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
-				GL_UNSIGNED_BYTE,data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		if (type == LITE_RGBA){
+
+			glTexImage2D(
+					GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,
+					GL_UNSIGNED_BYTE,data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		} else if (type == LITE_RGB){
+			glTexImage2D(
+					GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
+					GL_UNSIGNED_BYTE,data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+		}
 	} else {
 		lite_printError("failed to load texture", __FILE__, __LINE__);
 	}
@@ -251,7 +261,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	lite_gl_gameObject_t go;
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
-	go.texture = lite_gl_texture_create("res/textures/test.jpg");
+	go.texture = lite_gl_texture_create("res/textures/test2.png", LITE_RGBA);
 	
 	//TODO add this line
 	// go.transform = lite_gl_transform_create();
@@ -357,6 +367,8 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 			// instance->screenWidth,instance->screenHeight);
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
 
+	//SUGGESTION - Mefi - custom cursors
+
 	_lite_gl_handleSDLEvents(instance);
 	_lite_gl_preRender(instance);
 	_lite_gl_renderFrame(instance);
@@ -407,7 +419,7 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 	//set up opengl
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.3f,0.3f,0.4f,1.0f);
+	glClearColor(0.3f,0.3f,0.3f,1.0f);
 	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 
 	printf("==========================================================\n");

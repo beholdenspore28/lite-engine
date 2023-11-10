@@ -7,6 +7,9 @@
 #include "HandmadeMath.h"
 #include "stb_image.h"
 
+typedef enum lite_image_type lite_image_type;
+enum lite_image_type { LITE_RGBA, LITE_RGB };
+
 typedef struct lite_gl_transform_t lite_gl_transform_t;
 struct lite_gl_transform_t {
 	HMM_Vec3 position;
@@ -50,6 +53,6 @@ void lite_gl_initialize(lite_engine_instance_t* instance);
 GLuint lite_gl_pipeline_create();
 lite_gl_mesh_t lite_gl_mesh_create();
 lite_gl_gameObject_t lite_gl_gameObject_create();
-GLuint lite_gl_texture_create(const char* imageFile);
+GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type);
 
 #endif  //LITE_GL_H
