@@ -8,7 +8,7 @@
 #include "stb_image.h"
 
 typedef enum lite_image_type lite_image_type;
-enum lite_image_type { LITE_RGBA, LITE_RGB };
+enum lite_image_type { LITE_IMAGE_TYPE_RGBA, LITE_IMAGE_TYPE_RGB };
 
 typedef struct lite_gl_transform_t lite_gl_transform_t;
 struct lite_gl_transform_t {

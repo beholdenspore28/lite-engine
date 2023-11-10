@@ -44,8 +44,8 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 	//set parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
 	//load texture data from file
 	int width, height, numChannels;
@@ -55,13 +55,13 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 	
 	//error check
 	if (data){
-		if (type == LITE_RGBA){
+		if (type == LITE_IMAGE_TYPE_RGBA){
 
 			glTexImage2D(
 					GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,
 					GL_UNSIGNED_BYTE,data);
 			glGenerateMipmap(GL_TEXTURE_2D);
-		} else if (type == LITE_RGB){
+		} else if (type == LITE_IMAGE_TYPE_RGB){
 			glTexImage2D(
 					GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
 					GL_UNSIGNED_BYTE,data);
@@ -88,8 +88,8 @@ static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 
 	//TRS = modelMatrix
 	HMM_Mat4 translationMat = HMM_Translate(t->position);
-	// HMM_Mat4 rotationMat = HMM_Rotate_LH(instance->frameStart * 0.001f, t->eulerAngles); 
-	HMM_Mat4 rotationMat = HMM_Rotate_LH(lite_time_inSeconds(instance), t->eulerAngles); 
+	HMM_Mat4 rotationMat = 
+		HMM_Rotate_LH(lite_time_inSeconds(instance) * 2.0f, t->eulerAngles); 
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
@@ -261,7 +261,9 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	lite_gl_gameObject_t go;
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
-	go.texture = lite_gl_texture_create("res/textures/test2.png", LITE_RGBA);
+	go.texture = lite_gl_texture_create(
+			"res/textures/test2.png", 
+			LITE_IMAGE_TYPE_RGBA);
 	go.active = true;
 	
 	//TODO add this line
@@ -308,7 +310,7 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	TESTgameObject.transform.position = 
 		(HMM_Vec3) {.X=sinf(lite_time_inSeconds(instance)),.Y=0.0f,.Z=2.5f};
 	TESTgameObject.transform.eulerAngles = 
-		(HMM_Vec3) {.X=0.0f,.Y=90.0f,.Z=0.0f};
+		(HMM_Vec3) {.X=45.0f,.Y=90.0f,.Z=0.0f};
 	TESTgameObject.transform.scale = 
 		(HMM_Vec3) {.X=1.0f,.Y=1.0f,.Z=1.0f};
 
@@ -382,6 +384,9 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
+
+	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+			instance->frameStart, instance->frameEnd, instance->deltaTime);
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){
