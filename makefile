@@ -1,6 +1,6 @@
 SRCFILES != find src -name '*.c'
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
-INCDIR := include
+INCDIR := src 
 LIBS := -lSDL2 -ldl -lm
 MODE ?= DEBUG
 CC := gcc

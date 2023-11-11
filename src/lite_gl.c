@@ -4,17 +4,17 @@
 
 float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
-	 //position        //color           //texcoord
+	//position        //color           //texcoord
 	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,//bottom left
-	 0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,//bottom right
+	0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,//bottom right
 	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,//top left
-	 0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,//top right
-	
-	 //back
+	0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,//top right
+
+	//back
 	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,//bottom left
-	 0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,//bottom right
+	0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,//bottom right
 	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,//top left
-	 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,//top right
+	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,//top right
 };
 
 GLuint _TEST_indexData[_TEST_indexDataLength] = {
@@ -34,7 +34,6 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 
 /*BEGIN TEXTURE==============================================================*/
 
-
 GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 	//create texture
 	GLuint texture;
@@ -52,7 +51,7 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(
 			imageFile, &width, &height, &numChannels, 0);
-	
+
 	//error check
 	if (data){
 		if (type == LITE_IMAGE_TYPE_RGBA){
@@ -94,6 +93,14 @@ static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
 	return modelMat;
+}
+
+lite_gl_transform_t lite_gl_transform_create(){
+	lite_gl_transform_t t;
+	t.scale = lite_vec3_one;
+	t.eulerAngles = lite_vec3_zero;
+	t.position = lite_vec3_zero;
+	return t;
 }
 
 /*BEGIN MESH=================================================================*/
@@ -242,8 +249,6 @@ GLuint lite_gl_pipeline_create() {
 	const char* vertSourceString = vertSourceFileBuffer.text;
 	const char* fragSourceString = fragSourceFileBuffer.text;
 
-	// printf("%s\n\n%s\n", vertSourceString, fragSourceString);
-
 	shaderProgram = lite_gl_createShaderProgram(
 			vertSourceString,
 			fragSourceString);
@@ -265,9 +270,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 			"res/textures/test2.png", 
 			LITE_IMAGE_TYPE_RGBA);
 	go.active = true;
-	
-	//TODO add this line
-	// go.transform = lite_gl_transform_create();
+	go.transform = lite_gl_transform_create();
 
 	//TODO texture glitch here
 	//DO NOT move this to update loop
@@ -286,7 +289,7 @@ static void _lite_gl_gameObject_update(lite_gl_gameObject_t* go){
 	_lite_gl_mesh_render(&go->mesh);
 }
 
-/*BEGIN GLRENDERE============================================================*/
+/*BEGIN GLRENDERER===========================================================*/
 
 static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	SDL_Event e;
@@ -362,15 +365,14 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_gameObject_update(&TESTgameObject);
 }
 
-
 static void _lite_gl_update(lite_engine_instance_t* instance){
 	//delta time
 	instance->frameStart = SDL_GetTicks();	
 
 	// TODO : lock cursor to window and hide mouse
 	// SDL_WarpMouseInWindow(
-			// instance->SDLwindow, 
-			// instance->screenWidth,instance->screenHeight);
+	// instance->SDLwindow, 
+	// instance->screenWidth,instance->screenHeight);
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	//TODO - Mefi - custom cursors
@@ -385,8 +387,8 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
 
-	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
-			instance->frameStart, instance->frameEnd, instance->deltaTime);
+	// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+	// instance->frameStart, instance->frameEnd, instance->deltaTime);
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){
@@ -433,7 +435,7 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 	//set up opengl
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.3f,0.3f,0.3f,1.0f);
+	glClearColor(0.1f,0.1f,0.1f,1.0f);
 	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 
 	printf("==========================================================\n");

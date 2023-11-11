@@ -11,6 +11,8 @@ extern const HMM_Vec3 lite_vec3_left;
 extern const HMM_Vec3 lite_vec3_right;
 extern const HMM_Vec3 lite_vec3_forward;
 extern const HMM_Vec3 lite_vec3_back;
+extern const HMM_Vec3 lite_vec3_one;
+extern const HMM_Vec3 lite_vec3_zero;
 
 typedef enum { 
 	LITE_RENDER_API_OPENGL, 
