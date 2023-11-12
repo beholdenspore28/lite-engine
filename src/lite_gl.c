@@ -100,7 +100,7 @@ lite_gl_camera_t lite_gl_camera_create(
 	lite_gl_camera_t cam;
 
 	cam.transform = lite_gl_transform_create();
-
+	cam.transform.position.Z = 5.0f;
 	//projection matrix
 	cam.projectionMatrix = HMM_Perspective_LH_NO(
 			fov * HMM_DegToRad, //fov
@@ -111,7 +111,7 @@ lite_gl_camera_t lite_gl_camera_create(
 	return cam;
 }
 
-void lite_gl_camera_update(lite_gl_camera_t* cam) {
+static void _lite_gl_camera_update(lite_gl_camera_t* cam) {
 	cam->viewMatrix = HMM_Translate(cam->transform.position);
 }
 
@@ -273,7 +273,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
 	go.texture = lite_gl_texture_create(
-			"res/textures/test.jpg");
+			"res/textures/test2.png");
 	go.active = true;
 	go.transform = lite_gl_transform_create();
 
@@ -286,62 +286,26 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	return go;
 }
 
-static void _lite_gl_gameObject_update(lite_gl_gameObject_t* go){
+static void _lite_gl_gameObject_update(
+		lite_gl_gameObject_t* go, lite_engine_instance_t* instance){
 	if (go->active == false) return;
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, go->texture);
 
-	_lite_gl_mesh_render(&go->mesh);
-}
-
-static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
-	SDL_Event e;
-	while (SDL_PollEvent(&e)) {
-		if (e.type == SDL_QUIT){
-			printf("[LITE-ENGINE] Quitting\n");
-			instance->engineRunning = false;
-		}
-	}
-
-	const Uint8* keyState = SDL_GetKeyboardState(NULL);
-
-	HMM_Vec3 inputVector = (HMM_Vec3) { 
-		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
-		.Y = keyState[SDL_SCANCODE_SPACE] - keyState[SDL_SCANCODE_LSHIFT],
-		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
-	};
-
-	inputVector = HMM_MulV3F(inputVector, instance->deltaTime);
-
-	HMM_Vec3* cameraPos = &TESTcamera.transform.position;
-
-	*cameraPos = HMM_AddV3(*cameraPos, inputVector);
-	printf("inputVector %f %f %f\n", inputVector.X, inputVector.Y, inputVector.Z);
-	printf("cameraPos %f %f %f\n", cameraPos->X, cameraPos->Y, cameraPos->Z);
-}
-
-static void _lite_gl_preRender(lite_engine_instance_t* instance){
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	//TODO move to object-specific render code
-	glUseProgram(TESTgameObject.shader);
-
+	glUseProgram(go->shader);
 
 	//model matrix
-	TESTgameObject.transform.eulerAngles = 
+	go->transform.eulerAngles = 
 		(HMM_Vec3) {.X=45.0f,.Y=90.0f,.Z=0.0f};
 
 	printf("cubePosition %f %f %f\n", 
-			TESTgameObject.transform.position.X, 
-			TESTgameObject.transform.position.Y, 
-			TESTgameObject.transform.position.Z);
+			go->transform.position.X, 
+			go->transform.position.Y, 
+			go->transform.position.Z);
 
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
-			&TESTgameObject.transform, instance);
+			&go->transform, instance);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
-			TESTgameObject.shader, "u_modelMatrix");
+			go->shader, "u_modelMatrix");
 
 	if (modelMatrixLocation >= 0) {
 		glUniformMatrix4fv(
@@ -360,7 +324,7 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	//calling GetUniformLocation every frame
 
 	GLint projectionMatrixLocation = glGetUniformLocation(
-			TESTgameObject.shader, "u_projectionMatrix");
+			go->shader, "u_projectionMatrix");
 
 	if (projectionMatrixLocation >= 0) {
 		glUniformMatrix4fv(
@@ -374,7 +338,7 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 	}
 
 	GLint viewMatrixLocation = glGetUniformLocation(
-			TESTgameObject.shader, "u_viewMatrix");
+			go->shader, "u_viewMatrix");
 
 	if (viewMatrixLocation >= 0) {
 		glUniformMatrix4fv(
@@ -386,6 +350,46 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 		lite_printError("failed to locate view matrix uniform", 
 				__FILE__, __LINE__);
 	}
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, go->texture);
+
+	_lite_gl_mesh_render(&go->mesh);
+}
+
+static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
+	SDL_Event e;
+	while (SDL_PollEvent(&e)) {
+		if (e.type == SDL_QUIT){
+			printf("[LITE-ENGINE] Quitting\n");
+			instance->engineRunning = false;
+		}
+	}
+
+	const Uint8* keyState = SDL_GetKeyboardState(NULL);
+
+	//quit button
+	if (keyState[SDL_SCANCODE_ESCAPE]) {
+		instance->engineRunning = false;
+	}
+
+	//move camera
+	HMM_Vec3 inputVector = (HMM_Vec3) { 
+		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
+		.Y = keyState[SDL_SCANCODE_SPACE] - keyState[SDL_SCANCODE_LSHIFT],
+		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
+	};
+	inputVector = HMM_MulV3F(inputVector, instance->deltaTime * 2.0f);
+	HMM_Vec3* cameraPos = &TESTcamera.transform.position;
+	*cameraPos = HMM_AddV3(*cameraPos, inputVector);
+	printf("inputVector %f %f %f\n", inputVector.X, inputVector.Y, inputVector.Z);
+	printf("cameraPos %f %f %f\n", cameraPos->X, cameraPos->Y, cameraPos->Z);
+}
+
+static void _lite_gl_preRender(lite_engine_instance_t* instance){
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	//TODO move to object-specific render code
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
@@ -394,8 +398,8 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// }
 
 	// _lite_gl_mesh_render(&TESTgameObject.mesh);
-	lite_gl_camera_update(&TESTcamera);
-	_lite_gl_gameObject_update(&TESTgameObject);
+	_lite_gl_camera_update(&TESTcamera);
+	_lite_gl_gameObject_update(&TESTgameObject, instance);
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
