@@ -95,6 +95,26 @@ lite_gl_transform_t lite_gl_transform_create(){
 	return t;
 }
 
+lite_gl_camera_t lite_gl_camera_create(
+		lite_engine_instance_t* instance, float fov) {
+	lite_gl_camera_t cam;
+
+	cam.transform = lite_gl_transform_create();
+
+	//projection matrix
+	cam.projectionMatrix = HMM_Perspective_LH_NO(
+			fov * HMM_DegToRad, //fov
+			(float)instance->screenWidth / instance->screenHeight, //aspect
+			0.01f,    //near clip
+			1000.0f); //far clip
+
+	return cam;
+}
+
+void lite_gl_camera_update(lite_gl_camera_t* cam) {
+	cam->viewMatrix = HMM_Translate(cam->transform.position);
+}
+
 lite_gl_mesh_t lite_gl_mesh_create() {
 	lite_gl_mesh_t m;
 	//TODO remove hard-coded data
@@ -282,6 +302,22 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 			instance->engineRunning = false;
 		}
 	}
+
+	const Uint8* keyState = SDL_GetKeyboardState(NULL);
+
+	HMM_Vec3 inputVector = (HMM_Vec3) { 
+		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
+		.Y = keyState[SDL_SCANCODE_SPACE] - keyState[SDL_SCANCODE_LSHIFT],
+		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
+	};
+
+	inputVector = HMM_MulV3F(inputVector, instance->deltaTime);
+
+	HMM_Vec3* cameraPos = &TESTcamera.transform.position;
+
+	*cameraPos = HMM_AddV3(*cameraPos, inputVector);
+	printf("inputVector %f %f %f\n", inputVector.X, inputVector.Y, inputVector.Z);
+	printf("cameraPos %f %f %f\n", cameraPos->X, cameraPos->Y, cameraPos->Z);
 }
 
 static void _lite_gl_preRender(lite_engine_instance_t* instance){
@@ -293,12 +329,13 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 
 
 	//model matrix
-	TESTgameObject.transform.position = 
-		(HMM_Vec3) {.X=sinf(lite_time_inSeconds(instance)),.Y=0.0f,.Z=2.5f};
 	TESTgameObject.transform.eulerAngles = 
 		(HMM_Vec3) {.X=45.0f,.Y=90.0f,.Z=0.0f};
-	TESTgameObject.transform.scale = 
-		(HMM_Vec3) {.X=1.0f,.Y=1.0f,.Z=1.0f};
+
+	printf("cubePosition %f %f %f\n", 
+			TESTgameObject.transform.position.X, 
+			TESTgameObject.transform.position.Y, 
+			TESTgameObject.transform.position.Z);
 
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
 			&TESTgameObject.transform, instance);
@@ -317,12 +354,10 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 				__FILE__, __LINE__);
 	}
 
-	//projection matrix
-	HMM_Mat4 projectionMat = HMM_Perspective_LH_NO(
-			70, //fov
-			(float)instance->screenWidth / instance->screenHeight, //aspect
-			0.01f,    //near clip
-			1000.0f); //far clip
+	// //projection matrix
+	
+	//TODO cache projectionMatrixLocation in ram to prevent
+	//calling GetUniformLocation every frame
 
 	GLint projectionMatrixLocation = glGetUniformLocation(
 			TESTgameObject.shader, "u_projectionMatrix");
@@ -332,9 +367,23 @@ static void _lite_gl_preRender(lite_engine_instance_t* instance){
 				projectionMatrixLocation,
 				1,
 				GL_FALSE,
-				&projectionMat.Elements[0][0]);
+				&TESTcamera.projectionMatrix.Elements[0][0]);
 	} else {
 		lite_printError("failed to locate projection matrix uniform", 
+				__FILE__, __LINE__);
+	}
+
+	GLint viewMatrixLocation = glGetUniformLocation(
+			TESTgameObject.shader, "u_viewMatrix");
+
+	if (viewMatrixLocation >= 0) {
+		glUniformMatrix4fv(
+				viewMatrixLocation,
+				1,
+				GL_FALSE,
+				&TESTcamera.viewMatrix.Elements[0][0]);
+	} else {
+		lite_printError("failed to locate view matrix uniform", 
 				__FILE__, __LINE__);
 	}
 }
@@ -345,6 +394,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// }
 
 	// _lite_gl_mesh_render(&TESTgameObject.mesh);
+	lite_gl_camera_update(&TESTcamera);
 	_lite_gl_gameObject_update(&TESTgameObject);
 }
 

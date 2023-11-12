@@ -30,6 +30,14 @@ struct lite_gl_mesh_t {
 	GLuint EBO;
 };
 
+typedef struct lite_gl_camera_t lite_gl_camera_t;
+struct lite_gl_camera_t {
+	lite_gl_transform_t transform;
+	HMM_Mat4 projectionMatrix;
+	HMM_Mat4 viewMatrix;
+	float fov;
+};
+
 typedef struct lite_gl_gameObject_t lite_gl_gameObject_t;
 struct lite_gl_gameObject_t {
 	lite_gl_transform_t transform;
@@ -45,11 +53,13 @@ struct lite_gl_gameObject_t {
 extern float _TEST_vertexData[_TEST_vertexDataLength];
 extern GLuint _TEST_indexData[_TEST_indexDataLength];
 extern lite_gl_gameObject_t TESTgameObject;
+extern lite_gl_camera_t TESTcamera;
 
 void lite_gl_initialize(lite_engine_instance_t* instance);
 GLuint lite_gl_pipeline_create();
 lite_gl_mesh_t lite_gl_mesh_create();
 lite_gl_gameObject_t lite_gl_gameObject_create();
 GLuint lite_gl_texture_create(const char* imageFile);
+lite_gl_camera_t lite_gl_camera_create(lite_engine_instance_t* instance, float fov);
 
 #endif  //LITE_GL_H

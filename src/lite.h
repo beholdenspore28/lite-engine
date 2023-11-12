@@ -5,14 +5,14 @@
 #include <stdbool.h>
 #include "HandmadeMath.h"
 
-extern const HMM_Vec3 lite_vec3_up;
-extern const HMM_Vec3 lite_vec3_down;
-extern const HMM_Vec3 lite_vec3_left;
-extern const HMM_Vec3 lite_vec3_right;
-extern const HMM_Vec3 lite_vec3_forward;
-extern const HMM_Vec3 lite_vec3_back;
-extern const HMM_Vec3 lite_vec3_one;
-extern const HMM_Vec3 lite_vec3_zero;
+static const HMM_Vec3 lite_vec3_up =				(HMM_Vec3){ 0.0f, 1.0f, 0.0f};
+static const HMM_Vec3 lite_vec3_down =	 		(HMM_Vec3){ 0.0f,-1.0f, 0.0f};
+static const HMM_Vec3 lite_vec3_left =			(HMM_Vec3){-1.0f, 0.0f, 0.0f};
+static const HMM_Vec3 lite_vec3_right =		(HMM_Vec3){ 1.0f, 0.0f, 0.0f};
+static const HMM_Vec3 lite_vec3_forward =	(HMM_Vec3){ 0.0f, 0.0f, 1.0f};
+static const HMM_Vec3 lite_vec3_back =			(HMM_Vec3){ 0.0f, 0.0f,-1.0f};
+static const HMM_Vec3 lite_vec3_one =			(HMM_Vec3){ 1.0f, 1.0f, 1.0f};
+static const HMM_Vec3 lite_vec3_zero =			(HMM_Vec3){ 0.0f, 0.0f, 0.0f};
 
 typedef enum { 
 	LITE_RENDER_API_OPENGL, 
