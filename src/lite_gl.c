@@ -1,7 +1,5 @@
 #include "lite_gl.h"
 
-/*BEGIN TEMP=================================================================*/
-
 float _TEST_vertexData[_TEST_vertexDataLength] = {
 	//front
 	//position        //color           //texcoord
@@ -32,9 +30,7 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	5,1,0, 0,4,5,
 };
 
-/*BEGIN TEXTURE==============================================================*/
-
-GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
+GLuint lite_gl_texture_create(const char* imageFile){
 	//create texture
 	GLuint texture;
 	glGenTextures(1,&texture);
@@ -54,18 +50,16 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 
 	//error check
 	if (data){
-		if (type == LITE_IMAGE_TYPE_RGBA){
-
+		if (numChannels == 4){
 			glTexImage2D(
 					GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,
 					GL_UNSIGNED_BYTE,data);
 			glGenerateMipmap(GL_TEXTURE_2D);
-		} else if (type == LITE_IMAGE_TYPE_RGB){
+		} else if (numChannels == 3){
 			glTexImage2D(
 					GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
 					GL_UNSIGNED_BYTE,data);
 			glGenerateMipmap(GL_TEXTURE_2D);
-
 		}
 	} else {
 		lite_printError("failed to load texture", __FILE__, __LINE__);
@@ -76,8 +70,6 @@ GLuint lite_gl_texture_create(const char* imageFile, lite_image_type type){
 
 	return texture;
 }
-
-/*BEGIN TRANSFORM============================================================*/
 
 static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
@@ -102,8 +94,6 @@ lite_gl_transform_t lite_gl_transform_create(){
 	t.position = lite_vec3_zero;
 	return t;
 }
-
-/*BEGIN MESH=================================================================*/
 
 lite_gl_mesh_t lite_gl_mesh_create() {
 	lite_gl_mesh_t m;
@@ -174,8 +164,6 @@ static void _lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 			0);
 	glUseProgram(0);
 }
-
-/*BEGIN SHADER===============================================================*/
 
 static GLuint _lite_gl_compileShader(
 		GLuint type, const char* source){
@@ -260,15 +248,12 @@ GLuint lite_gl_pipeline_create() {
 	return shaderProgram;
 }
 
-/*BEGIN GAMEOBJECT===========================================================*/
-
 lite_gl_gameObject_t lite_gl_gameObject_create(){
 	lite_gl_gameObject_t go;
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
 	go.texture = lite_gl_texture_create(
-			"res/textures/test2.png", 
-			LITE_IMAGE_TYPE_RGBA);
+			"res/textures/test.jpg");
 	go.active = true;
 	go.transform = lite_gl_transform_create();
 
@@ -288,8 +273,6 @@ static void _lite_gl_gameObject_update(lite_gl_gameObject_t* go){
 
 	_lite_gl_mesh_render(&go->mesh);
 }
-
-/*BEGIN GLRENDERER===========================================================*/
 
 static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	SDL_Event e;
