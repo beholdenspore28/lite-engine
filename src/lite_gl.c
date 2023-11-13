@@ -221,6 +221,7 @@ static GLuint _lite_gl_compileShader(
 		glDeleteShader(shader);
 	}
 	return shader;
+
 }
 
 static GLuint lite_gl_createShaderProgram(
@@ -385,13 +386,6 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	printf("cameraPos %f %f %f\n", cameraPos->X, cameraPos->Y, cameraPos->Z);
 }
 
-static void _lite_gl_preRender(lite_engine_instance_t* instance){
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	//TODO move to object-specific render code
-}
-
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// for (int i = 0; i < instance->renderListLength; i++){
 	// 	_lite_glRenderMesh(&instance->renderList[i]);
@@ -414,8 +408,9 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	//TODO - Mefi - custom cursors
 
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	_lite_gl_handleSDLEvents(instance);
-	_lite_gl_preRender(instance);
 	_lite_gl_renderFrame(instance);
 	SDL_GL_SwapWindow(instance->SDLwindow);
 
@@ -423,7 +418,6 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
-
 	// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
 	// instance->frameStart, instance->frameEnd, instance->deltaTime);
 }
