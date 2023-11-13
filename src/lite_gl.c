@@ -375,7 +375,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	//move camera
 	HMM_Vec3 inputVector = (HMM_Vec3) { 
 		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
-		.Y = keyState[SDL_SCANCODE_SPACE] - keyState[SDL_SCANCODE_LSHIFT],
+		.Y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
 		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
 	};
 	inputVector = HMM_MulV3F(inputVector, instance->deltaTime * 2.0f);
