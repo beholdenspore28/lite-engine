@@ -10,7 +10,7 @@
 typedef struct lite_gl_transform_t lite_gl_transform_t;
 struct lite_gl_transform_t {
 	HMM_Vec3 position;
-	HMM_Vec3 eulerAngles;
+	HMM_Quat rotation;
 	HMM_Vec3 scale;
 };
 
@@ -60,6 +60,7 @@ GLuint lite_gl_pipeline_create();
 lite_gl_mesh_t lite_gl_mesh_create();
 lite_gl_gameObject_t lite_gl_gameObject_create();
 GLuint lite_gl_texture_create(const char* imageFile);
-lite_gl_camera_t lite_gl_camera_create(lite_engine_instance_t* instance, float fov);
+lite_gl_camera_t lite_gl_camera_create(
+		lite_engine_instance_t* instance, float fov);
 
 #endif  //LITE_GL_H

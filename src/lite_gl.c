@@ -73,14 +73,10 @@ GLuint lite_gl_texture_create(const char* imageFile){
 
 static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
-	//TODO eulerAngles are broken
-	//multiply forward by the same matrix as the cube, 
-	//then rotate around the forward axis
 
 	//TRS = modelMatrix
 	HMM_Mat4 translationMat = HMM_Translate(t->position);
-	HMM_Mat4 rotationMat = 
-		HMM_Rotate_LH(lite_time_inSeconds(instance) * 2.0f, t->eulerAngles); 
+	HMM_Mat4 rotationMat = HMM_QToM4(t->rotation);
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
@@ -90,7 +86,7 @@ static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
 	t.scale = lite_vec3_one;
-	t.eulerAngles = lite_vec3_zero;
+	t.rotation = (HMM_Quat){.X=0.0f, .Y=0.0f, .Z=0.0f,.W = 1.0f};
 	t.position = lite_vec3_zero;
 	return t;
 }
@@ -294,13 +290,18 @@ static void _lite_gl_gameObject_update(
 	glUseProgram(go->shader);
 
 	//model matrix
-	go->transform.eulerAngles = 
-		(HMM_Vec3) {.X=45.0f,.Y=90.0f,.Z=0.0f};
-
+	go->transform.rotation.XYZ = lite_vec3_forward;
+	go->transform.rotation.W += cosf( 100.0 * HMM_DegToRad ) * instance->deltaTime;
 	printf("cubePosition %f %f %f\n", 
 			go->transform.position.X, 
 			go->transform.position.Y, 
 			go->transform.position.Z);
+
+	printf("cubeRotation %f %f %f %f\n", 
+			go->transform.rotation.X, 
+			go->transform.rotation.Y, 
+			go->transform.rotation.Z, 
+			go->transform.rotation.W);
 
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
 			&go->transform, instance);
