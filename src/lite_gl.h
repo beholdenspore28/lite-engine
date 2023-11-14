@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 #include "lite.h"
 #include "blib_file.h"
-#include "HandmadeMath.h"
+#include "blib_math.h"
 #include "stb_image.h"
 
 typedef struct lite_gl_transform_t lite_gl_transform_t;
