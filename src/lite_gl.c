@@ -74,19 +74,33 @@ GLuint lite_gl_texture_create(const char* imageFile){
 static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
 
-	//TRS = modelMatrix
+	//translation
 	HMM_Mat4 translationMat = HMM_Translate(t->position);
-	HMM_Mat4 rotationMat = HMM_QToM4(t->rotation);
+
+	//rotation
+	// HMM_Mat4 rotationMat = lite_mat4_identity; 
+	HMM_Mat4 p = HMM_Rotate_LH(t->eulerAngles.X, lite_vec3_right);
+	HMM_Mat4 y = HMM_Rotate_LH(t->eulerAngles.Y, lite_vec3_up);
+	HMM_Mat4 r = HMM_Rotate_LH(t->eulerAngles.Z, lite_vec3_forward);
+	HMM_Mat4 rotationMat = HMM_MulM4(HMM_MulM4(r, y), p); 
+
+	//scale
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
+	
+	//TRS = model matrix
 	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
 	return modelMat;
 }
 
+static void _lite_gl_transform_rotate(lite_gl_transform_t* t, HMM_Vec3 rotation){
+	t->eulerAngles= HMM_AddV3(t->eulerAngles,rotation);
+}
+
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
 	t.scale = lite_vec3_one;
-	t.rotation = (HMM_Quat){.X=0.0f, .Y=0.0f, .Z=0.0f,.W = 1.0f};
+	t.eulerAngles = lite_vec3_zero;
 	t.position = lite_vec3_zero;
 	return t;
 }
@@ -96,7 +110,7 @@ lite_gl_camera_t lite_gl_camera_create(
 	lite_gl_camera_t cam;
 
 	cam.transform = lite_gl_transform_create();
-	cam.transform.position.Z = 5.0f;
+	cam.transform.position.Z = 2.0f;
 	//projection matrix
 	cam.projectionMatrix = HMM_Perspective_LH_NO(
 			fov * HMM_DegToRad, //fov
@@ -286,23 +300,25 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 static void _lite_gl_gameObject_update(
 		lite_gl_gameObject_t* go, lite_engine_instance_t* instance){
 	if (go->active == false) return;
-
 	glUseProgram(go->shader);
 
-	//model matrix
-	go->transform.rotation.XYZ = lite_vec3_forward;
-	go->transform.rotation.W += cosf( 100.0 * HMM_DegToRad ) * instance->deltaTime;
+	float speed = 25.0f * HMM_DegToRad * instance->deltaTime;
+	HMM_Vec3 rot = HMM_MulV3F((HMM_Vec3){2.0f, 0.5f, 1.0f},speed);
+
+	_lite_gl_transform_rotate(
+			&go->transform, rot);
+
 	printf("cubePosition %f %f %f\n", 
 			go->transform.position.X, 
 			go->transform.position.Y, 
 			go->transform.position.Z);
 
-	printf("cubeRotation %f %f %f %f\n", 
-			go->transform.rotation.X, 
-			go->transform.rotation.Y, 
-			go->transform.rotation.Z, 
-			go->transform.rotation.W);
+	printf("cubeRotation %f %f %f\n", 
+			go->transform.eulerAngles.X, 
+			go->transform.eulerAngles.Y, 
+			go->transform.eulerAngles.Z);
 
+	//model matrix
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
 			&go->transform, instance);
 
@@ -398,6 +414,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
+	printf("==========================FRAME============================\n");
 	//delta time
 	instance->frameStart = SDL_GetTicks();	
 
@@ -419,8 +436,8 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
-	// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
-	// instance->frameStart, instance->frameEnd, instance->deltaTime);
+	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+	instance->frameStart, instance->frameEnd, instance->deltaTime);
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){
