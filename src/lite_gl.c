@@ -383,10 +383,10 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	}
 
 	//rotate cube
-	float cubespeed = 10.0f * HMM_DegToRad * instance->deltaTime;	
-	_lite_gl_transform_rotate(
-			&TESTgameObject.transform,
-			HMM_MulV3F(lite_vec3_up, cubespeed));	
+	// float cubespeed = 10.0f * HMM_DegToRad * instance->deltaTime;	
+	// _lite_gl_transform_rotate(
+	// 		&TESTgameObject.transform,
+	// 		HMM_MulV3F(lite_vec3_up, cubespeed));	
 
 	//move camera
 	inputVector = (HMM_Vec3) { 
@@ -404,11 +404,17 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		.Y = keyState[SDL_SCANCODE_L] - keyState[SDL_SCANCODE_J],
 		.Z = keyState[SDL_SCANCODE_U] - keyState[SDL_SCANCODE_O],
 	};
-	float speed = 50.0f * HMM_DegToRad * instance->deltaTime;
+	float speed = 100.0f * HMM_DegToRad * instance->deltaTime;
 	HMM_Vec3 rot = HMM_MulV3F(inputVector2,speed);
-
 	_lite_gl_transform_rotate(&TESTcamera.transform, rot);
 
+	//reset button
+	if (keyState[SDL_SCANCODE_R]) {
+		TESTcamera.transform.position = HMM_MulV3F(lite_vec3_forward, 2.0f);
+		TESTcamera.transform.eulerAngles = lite_vec3_zero;
+		TESTgameObject.transform.position = lite_vec3_zero;
+		TESTgameObject.transform.eulerAngles = lite_vec3_zero;
+	}
 	//log stuff
 	printf("inputVector %f %f %f\n", 
 			inputVector.X, inputVector.Y, inputVector.Z);
