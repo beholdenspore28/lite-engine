@@ -21,6 +21,8 @@ static const HMM_Mat4 lite_mat4_identity = (HMM_Mat4) {
 		{0.0f, 0.0f, 0.0f, 1.0f}, 
 	}
 };
+static HMM_Vec3 inputVector2;
+static HMM_Vec3 inputVector;
 
 typedef enum { 
 	LITE_RENDER_API_OPENGL, 

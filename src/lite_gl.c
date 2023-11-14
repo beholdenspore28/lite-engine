@@ -88,14 +88,22 @@ static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
 	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	
 	//TRS = model matrix
-	HMM_Mat4 modelMat = HMM_MulM4(translationMat, rotationMat);
+	HMM_Mat4 modelMat = HMM_MulM4(rotationMat, translationMat);
 	modelMat = HMM_MulM4(scaleMat, modelMat);
 	return modelMat;
 }
 
-static void _lite_gl_transform_rotate(lite_gl_transform_t* t, HMM_Vec3 rotation){
+static void _lite_gl_transform_rotate(
+		lite_gl_transform_t* t, HMM_Vec3 rotation){
 	t->eulerAngles= HMM_AddV3(t->eulerAngles,rotation);
 }
+
+// static HMM_Vec3 _lite_gl_transform_getLocalDirection(
+// 		lite_gl_transform_t* t, HMM_Vec3 direction, lite_engine_instance_t* instance) {
+// 	return HMM_MulM4V4(
+// 			_lite_gl_transform_GetModelMatrix(t, instance), 
+// 			(HMM_Vec4){.XYZ=direction, .W=0.0f}).XYZ;
+// }
 
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
@@ -121,8 +129,8 @@ lite_gl_camera_t lite_gl_camera_create(
 	return cam;
 }
 
-static void _lite_gl_camera_update(lite_gl_camera_t* cam) {
-	cam->viewMatrix = HMM_Translate(cam->transform.position);
+static void _lite_gl_camera_update(lite_gl_camera_t* cam, lite_engine_instance_t* instance) {
+	cam->viewMatrix = _lite_gl_transform_GetModelMatrix(&cam->transform, instance);
 }
 
 lite_gl_mesh_t lite_gl_mesh_create() {
@@ -302,21 +310,10 @@ static void _lite_gl_gameObject_update(
 	if (go->active == false) return;
 	glUseProgram(go->shader);
 
-	float speed = 25.0f * HMM_DegToRad * instance->deltaTime;
-	HMM_Vec3 rot = HMM_MulV3F((HMM_Vec3){2.0f, 0.5f, 1.0f},speed);
 
-	_lite_gl_transform_rotate(
-			&go->transform, rot);
+	// _lite_gl_transform_rotate(
+	// 		&go->transform, rot);
 
-	printf("cubePosition %f %f %f\n", 
-			go->transform.position.X, 
-			go->transform.position.Y, 
-			go->transform.position.Z);
-
-	printf("cubeRotation %f %f %f\n", 
-			go->transform.eulerAngles.X, 
-			go->transform.eulerAngles.Y, 
-			go->transform.eulerAngles.Z);
 
 	//model matrix
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
@@ -391,7 +388,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	}
 
 	//move camera
-	HMM_Vec3 inputVector = (HMM_Vec3) { 
+	inputVector = (HMM_Vec3) { 
 		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
 		.Y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
 		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
@@ -399,8 +396,44 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	inputVector = HMM_MulV3F(inputVector, instance->deltaTime * 2.0f);
 	HMM_Vec3* cameraPos = &TESTcamera.transform.position;
 	*cameraPos = HMM_AddV3(*cameraPos, inputVector);
-	printf("inputVector %f %f %f\n", inputVector.X, inputVector.Y, inputVector.Z);
-	printf("cameraPos %f %f %f\n", cameraPos->X, cameraPos->Y, cameraPos->Z);
+
+	//rotate camera
+	inputVector2 = (HMM_Vec3) { 
+		.X = keyState[SDL_SCANCODE_I] - keyState[SDL_SCANCODE_K],
+		.Y = keyState[SDL_SCANCODE_L] - keyState[SDL_SCANCODE_J],
+		.Z = keyState[SDL_SCANCODE_U] - keyState[SDL_SCANCODE_O],
+	};
+	float speed = 50.0f * HMM_DegToRad * instance->deltaTime;
+	HMM_Vec3 rot = HMM_MulV3F(inputVector2,speed);
+
+	_lite_gl_transform_rotate(&TESTcamera.transform, rot);
+
+	//log stuff
+	printf("inputVector %f %f %f\n", 
+			inputVector.X, inputVector.Y, inputVector.Z);
+
+	printf("inputVector2 %f %f %f\n", 
+			inputVector2.X, inputVector2.Y, inputVector2.Z);
+
+	printf("cubePosition %f %f %f\n", 
+			TESTgameObject.transform.position.X, 
+			TESTgameObject.transform.position.Y, 
+			TESTgameObject.transform.position.Z);
+
+	printf("cubeRotation %f %f %f\n", 
+			TESTgameObject.transform.eulerAngles.X, 
+			TESTgameObject.transform.eulerAngles.Y, 
+			TESTgameObject.transform.eulerAngles.Z);
+
+	printf("cameraPosition %f %f %f\n", 
+			TESTcamera.transform.position.X, 
+			TESTcamera.transform.position.Y, 
+			TESTcamera.transform.position.Z);
+
+	printf("cameraRotation %f %f %f\n", 
+			TESTcamera.transform.eulerAngles.X, 
+			TESTcamera.transform.eulerAngles.Y, 
+			TESTcamera.transform.eulerAngles.Z);
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
@@ -409,7 +442,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	// }
 
 	// _lite_gl_mesh_render(&TESTgameObject.mesh);
-	_lite_gl_camera_update(&TESTcamera);
+	_lite_gl_camera_update(&TESTcamera, instance);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 }
 
