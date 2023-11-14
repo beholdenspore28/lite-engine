@@ -71,7 +71,7 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	return texture;
 }
 
-static HMM_Mat4 _lite_gl_transform_GetModelMatrix(
+static HMM_Mat4 _lite_gl_transform_GetMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
 
 	//translation
@@ -101,7 +101,7 @@ static void _lite_gl_transform_rotate(
 // static HMM_Vec3 _lite_gl_transform_getLocalDirection(
 // 		lite_gl_transform_t* t, HMM_Vec3 direction, lite_engine_instance_t* instance) {
 // 	return HMM_MulM4V4(
-// 			_lite_gl_transform_GetModelMatrix(t, instance), 
+// 			_lite_gl_transform_GetMatrix(t, instance), 
 // 			(HMM_Vec4){.XYZ=direction, .W=0.0f}).XYZ;
 // }
 
@@ -130,7 +130,7 @@ lite_gl_camera_t lite_gl_camera_create(
 }
 
 static void _lite_gl_camera_update(lite_gl_camera_t* cam, lite_engine_instance_t* instance) {
-	cam->viewMatrix = _lite_gl_transform_GetModelMatrix(&cam->transform, instance);
+	cam->viewMatrix = _lite_gl_transform_GetMatrix(&cam->transform, instance);
 }
 
 lite_gl_mesh_t lite_gl_mesh_create() {
@@ -311,7 +311,7 @@ static void _lite_gl_gameObject_update(
 	glUseProgram(go->shader);
 
 	//model matrix
-	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
+	HMM_Mat4 modelMat = _lite_gl_transform_GetMatrix(
 			&go->transform, instance);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
