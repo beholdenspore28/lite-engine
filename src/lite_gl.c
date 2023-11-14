@@ -310,11 +310,6 @@ static void _lite_gl_gameObject_update(
 	if (go->active == false) return;
 	glUseProgram(go->shader);
 
-
-	// _lite_gl_transform_rotate(
-	// 		&go->transform, rot);
-
-
 	//model matrix
 	HMM_Mat4 modelMat = _lite_gl_transform_GetModelMatrix(
 			&go->transform, instance);
@@ -386,6 +381,12 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	if (keyState[SDL_SCANCODE_ESCAPE]) {
 		instance->engineRunning = false;
 	}
+
+	//rotate cube
+	float cubespeed = 10.0f * HMM_DegToRad * instance->deltaTime;	
+	_lite_gl_transform_rotate(
+			&TESTgameObject.transform,
+			HMM_MulV3F(lite_vec3_up, cubespeed));	
 
 	//move camera
 	inputVector = (HMM_Vec3) { 
