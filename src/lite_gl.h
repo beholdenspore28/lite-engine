@@ -9,9 +9,9 @@
 
 typedef struct lite_gl_transform_t lite_gl_transform_t;
 struct lite_gl_transform_t {
-	HMM_Vec3 position;
-	HMM_Vec3 eulerAngles;
-	HMM_Vec3 scale;
+	blib_vec3f_t position;
+	blib_vec3f_t eulerAngles;
+	blib_vec3f_t scale;
 };
 
 typedef struct lite_gl_mesh_t lite_gl_mesh_t;
@@ -33,11 +33,11 @@ struct lite_gl_mesh_t {
 typedef struct lite_gl_camera_t lite_gl_camera_t;
 struct lite_gl_camera_t {
 	lite_gl_transform_t transform;
-	HMM_Vec3 U;
-	HMM_Vec3 V;
-	HMM_Vec3 N;
-	HMM_Mat4 projectionMatrix;
-	HMM_Mat4 viewMatrix;
+	blib_vec3f_t U;
+	blib_vec3f_t V;
+	blib_vec3f_t N;
+	blib_mat4_t projectionMatrix;
+	blib_mat4_t viewMatrix;
 	float fov;
 };
 

@@ -71,45 +71,39 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	return texture;
 }
 
-static HMM_Mat4 _lite_gl_transform_GetMatrix(
+static blib_mat4_t _lite_gl_transform_GetMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
 
 	//translation
-	HMM_Mat4 translationMat = HMM_Translate(t->position);
+	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
 	//rotation
-	// HMM_Mat4 rotationMat = lite_mat4_identity; 
-	HMM_Mat4 p = HMM_Rotate_LH(t->eulerAngles.X, lite_vec3_right);
-	HMM_Mat4 y = HMM_Rotate_LH(t->eulerAngles.Y, lite_vec3_up);
-	HMM_Mat4 r = HMM_Rotate_LH(t->eulerAngles.Z, lite_vec3_forward);
-	HMM_Mat4 rotationMat = HMM_MulM4(HMM_MulM4(r, y), p); 
+	blib_mat4_t rotationMat = BLIB_MAT4_IDENTITY; 
+	// HMM_Mat4 p = HMM_Rotate_LH(t->eulerAngles.X, lite_vec3_right);
+	// HMM_Mat4 y = HMM_Rotate_LH(t->eulerAngles.Y, lite_vec3_up);
+	// HMM_Mat4 r = HMM_Rotate_LH(t->eulerAngles.Z, lite_vec3_forward);
+	// HMM_Mat4 rotationMat = HMM_MulM4(HMM_MulM4(r, y), p); 
 
 	//scale
-	HMM_Mat4 scaleMat = HMM_Scale(t->scale);
+	// HMM_Mat4 scaleMat = HMM_Scale(t->scale);
+	blib_mat4_t scaleMat = BLIB_MAT4_IDENTITY;
 	
 	//TRS = model matrix
-	HMM_Mat4 modelMat = HMM_MulM4(rotationMat, translationMat);
-	modelMat = HMM_MulM4(scaleMat, modelMat);
+	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
+	modelMat = blib_mat4_multiply(scaleMat, modelMat);
 	return modelMat;
 }
 
 static void _lite_gl_transform_rotate(
-		lite_gl_transform_t* t, HMM_Vec3 rotation){
-	t->eulerAngles= HMM_AddV3(t->eulerAngles,rotation);
+		lite_gl_transform_t* t, blib_vec3f_t rotation){
+	t->eulerAngles= blib_vec3f_add(t->eulerAngles,rotation);
 }
-
-// static HMM_Vec3 _lite_gl_transform_getLocalDirection(
-// 		lite_gl_transform_t* t, HMM_Vec3 direction, lite_engine_instance_t* instance) {
-// 	return HMM_MulM4V4(
-// 			_lite_gl_transform_GetMatrix(t, instance), 
-// 			(HMM_Vec4){.XYZ=direction, .W=0.0f}).XYZ;
-// }
 
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
-	t.scale = lite_vec3_one;
-	t.eulerAngles = lite_vec3_zero;
-	t.position = lite_vec3_zero;
+	t.scale = BLIB_VEC3F_ONE;
+	t.eulerAngles = BLIB_VEC3F_ZERO;
+	t.position = BLIB_VEC3F_ZERO;
 	return t;
 }
 
@@ -118,13 +112,13 @@ lite_gl_camera_t lite_gl_camera_create(
 	lite_gl_camera_t cam;
 
 	cam.transform = lite_gl_transform_create();
-	cam.transform.position.Z = 2.0f;
+	cam.transform.position.z = 2.0f;
 	//projection matrix
-	cam.projectionMatrix = HMM_Perspective_LH_NO(
-			fov * HMM_DegToRad, //fov
-			(float)instance->screenWidth / instance->screenHeight, //aspect
-			0.01f,    //near clip
-			1000.0f); //far clip
+	// cam.projectionMatrix = HMM_Perspective_LH_NO(
+	// 		fov * HMM_DegToRad, //fov
+	// 		(float)instance->screenWidth / instance->screenHeight, //aspect
+	// 		0.01f,    //near clip
+	// 		1000.0f); //far clip
 
 	return cam;
 }
@@ -311,7 +305,7 @@ static void _lite_gl_gameObject_update(
 	glUseProgram(go->shader);
 
 	//model matrix
-	HMM_Mat4 modelMat = _lite_gl_transform_GetMatrix(
+	blib_mat4_t modelMat = _lite_gl_transform_GetMatrix(
 			&go->transform, instance);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
@@ -322,7 +316,7 @@ static void _lite_gl_gameObject_update(
 				modelMatrixLocation,
 				1,
 				GL_FALSE,
-				&modelMat.Elements[0][0]);
+				&modelMat.elements[0][0]);
 	} else {
 		lite_printError("failed to locate model matrix uniform", 
 				__FILE__, __LINE__);
@@ -341,7 +335,7 @@ static void _lite_gl_gameObject_update(
 				projectionMatrixLocation,
 				1,
 				GL_FALSE,
-				&TESTcamera.projectionMatrix.Elements[0][0]);
+				&TESTcamera.projectionMatrix.elements[0][0]);
 	} else {
 		lite_printError("failed to locate projection matrix uniform", 
 				__FILE__, __LINE__);
@@ -355,7 +349,7 @@ static void _lite_gl_gameObject_update(
 				viewMatrixLocation,
 				1,
 				GL_FALSE,
-				&TESTcamera.viewMatrix.Elements[0][0]);
+				&TESTcamera.viewMatrix.elements[0][0]);
 	} else {
 		lite_printError("failed to locate view matrix uniform", 
 				__FILE__, __LINE__);
@@ -389,58 +383,58 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	// 		HMM_MulV3F(lite_vec3_up, cubespeed));	
 
 	//move camera
-	inputVector = (HMM_Vec3) { 
-		.X = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
-		.Y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
-		.Z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
+	inputVector = (blib_vec3f_t) { 
+		.x = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
+		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
+		.z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
 	};
-	inputVector = HMM_MulV3F(inputVector, instance->deltaTime * 2.0f);
-	HMM_Vec3* cameraPos = &TESTcamera.transform.position;
-	*cameraPos = HMM_AddV3(*cameraPos, inputVector);
+	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 2.0f);
+	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
+	*cameraPos = blib_vec3f_add(*cameraPos, inputVector);
 
 	//rotate camera
-	inputVector2 = (HMM_Vec3) { 
-		.X = keyState[SDL_SCANCODE_I] - keyState[SDL_SCANCODE_K],
-		.Y = keyState[SDL_SCANCODE_L] - keyState[SDL_SCANCODE_J],
-		.Z = keyState[SDL_SCANCODE_U] - keyState[SDL_SCANCODE_O],
+	inputVector2 = (blib_vec3f_t) { 
+		.x = keyState[SDL_SCANCODE_I] - keyState[SDL_SCANCODE_K],
+		.y = keyState[SDL_SCANCODE_L] - keyState[SDL_SCANCODE_J],
+		.z = keyState[SDL_SCANCODE_U] - keyState[SDL_SCANCODE_O],
 	};
-	float speed = 100.0f * HMM_DegToRad * instance->deltaTime;
-	HMM_Vec3 rot = HMM_MulV3F(inputVector2,speed);
+	float speed = blib_mathf_deg2rad(100.0f) * instance->deltaTime;
+	blib_vec3f_t rot = blib_vec3f_scale(inputVector2,speed);
 	_lite_gl_transform_rotate(&TESTcamera.transform, rot);
 
 	//reset button
 	if (keyState[SDL_SCANCODE_R]) {
-		TESTcamera.transform.position = HMM_MulV3F(lite_vec3_forward, 2.0f);
-		TESTcamera.transform.eulerAngles = lite_vec3_zero;
-		TESTgameObject.transform.position = lite_vec3_zero;
-		TESTgameObject.transform.eulerAngles = lite_vec3_zero;
+		TESTcamera.transform.position = blib_vec3f_scale(BLIB_VEC3F_FORWARD, 2.0f);
+		TESTcamera.transform.eulerAngles = BLIB_VEC3F_ZERO;
+		TESTgameObject.transform.position = BLIB_VEC3F_ZERO;
+		TESTgameObject.transform.eulerAngles = BLIB_VEC3F_ZERO;
 	}
 	//log stuff
 	printf("inputVector %f %f %f\n", 
-			inputVector.X, inputVector.Y, inputVector.Z);
+			inputVector.x, inputVector.y, inputVector.z);
 
 	printf("inputVector2 %f %f %f\n", 
-			inputVector2.X, inputVector2.Y, inputVector2.Z);
+			inputVector2.x, inputVector2.y, inputVector2.z);
 
 	printf("cubePosition %f %f %f\n", 
-			TESTgameObject.transform.position.X, 
-			TESTgameObject.transform.position.Y, 
-			TESTgameObject.transform.position.Z);
+			TESTgameObject.transform.position.x, 
+			TESTgameObject.transform.position.y, 
+			TESTgameObject.transform.position.z);
 
 	printf("cubeRotation %f %f %f\n", 
-			TESTgameObject.transform.eulerAngles.X, 
-			TESTgameObject.transform.eulerAngles.Y, 
-			TESTgameObject.transform.eulerAngles.Z);
+			TESTgameObject.transform.eulerAngles.x, 
+			TESTgameObject.transform.eulerAngles.y, 
+			TESTgameObject.transform.eulerAngles.z);
 
 	printf("cameraPosition %f %f %f\n", 
-			TESTcamera.transform.position.X, 
-			TESTcamera.transform.position.Y, 
-			TESTcamera.transform.position.Z);
+			TESTcamera.transform.position.x, 
+			TESTcamera.transform.position.y, 
+			TESTcamera.transform.position.z);
 
 	printf("cameraRotation %f %f %f\n", 
-			TESTcamera.transform.eulerAngles.X, 
-			TESTcamera.transform.eulerAngles.Y, 
-			TESTcamera.transform.eulerAngles.Z);
+			TESTcamera.transform.eulerAngles.x, 
+			TESTcamera.transform.eulerAngles.y, 
+			TESTcamera.transform.eulerAngles.z);
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
