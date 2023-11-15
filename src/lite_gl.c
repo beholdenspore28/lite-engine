@@ -78,25 +78,32 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
 	//rotation
-	blib_mat4_t rotationMat = BLIB_MAT4_IDENTITY; 
-	// HMM_Mat4 p = HMM_Rotate_LH(t->eulerAngles.X, lite_vec3_right);
-	// HMM_Mat4 y = HMM_Rotate_LH(t->eulerAngles.Y, lite_vec3_up);
-	// HMM_Mat4 r = HMM_Rotate_LH(t->eulerAngles.Z, lite_vec3_forward);
-	// HMM_Mat4 rotationMat = HMM_MulM4(HMM_MulM4(r, y), p); 
+	// blib_mat4_t rotationMat = BLIB_MAT4_IDENTITY; 
+	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
+	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
+	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
+	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
 
 	//scale
 	// HMM_Mat4 scaleMat = HMM_Scale(t->scale);
-	blib_mat4_t scaleMat = BLIB_MAT4_IDENTITY;
-	
+	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
+
+
 	//TRS = model matrix
 	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+
+	// blib_mat4_printf(translationMat, "translation");
+	// blib_mat4_printf(rotationMat, "rotation");
+	// blib_mat4_printf(scaleMat, "scale");
+	blib_mat4_printf(modelMat, "model");
+
 	return modelMat;
 }
 
 static void _lite_gl_transform_rotate(
 		lite_gl_transform_t* t, blib_vec3f_t rotation){
-	t->eulerAngles= blib_vec3f_add(t->eulerAngles,rotation);
+	t->eulerAngles = blib_vec3f_add(t->eulerAngles,rotation);
 }
 
 lite_gl_transform_t lite_gl_transform_create(){
@@ -448,7 +455,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	printf("==========================FRAME============================\n");
+	printf("\n\n\n\n=======================FRAME=START=========================\n");
 	//delta time
 	instance->frameStart = SDL_GetTicks();	
 
@@ -472,6 +479,7 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
 	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
 	instance->frameStart, instance->frameEnd, instance->deltaTime);
+	printf("-------------------------FRAME-END-------------------------\n");
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){

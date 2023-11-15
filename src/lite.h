@@ -1,7 +1,7 @@
 #ifndef LITE_H
 #define LITE_H
 
-#include <SDL2/SDL.h> //this should be removed from this file
+#include <SDL2/SDL.h> 
 #include <stdbool.h>
 #include "blib_math.h"
 

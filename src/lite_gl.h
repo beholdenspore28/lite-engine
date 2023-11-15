@@ -16,13 +16,9 @@ struct lite_gl_transform_t {
 
 typedef struct lite_gl_mesh_t lite_gl_mesh_t;
 struct lite_gl_mesh_t {
-	//vertex positions and attriibutes
 	GLfloat* vertexData;
-	//the total number of vertices in the mesh
 	GLuint numVertices;
-	//winding order data
 	GLuint* indexData;
-	//the total number of indices in this mesh
 	GLuint numIndices;
 
 	GLuint VAO;
@@ -50,7 +46,7 @@ struct lite_gl_gameObject_t {
 	bool active;
 };
 
-//TODO GET RID OF THESE!!
+/*TODO GET RID OF THESE!!*/
 #define _TEST_vertexDataLength 64
 #define _TEST_indexDataLength 36
 extern float _TEST_vertexData[_TEST_vertexDataLength];
@@ -66,4 +62,4 @@ GLuint lite_gl_texture_create(const char* imageFile);
 lite_gl_camera_t lite_gl_camera_create(
 		lite_engine_instance_t* instance, float fov);
 
-#endif  //LITE_GL_H
+#endif  /*LITE_GL_H*/
