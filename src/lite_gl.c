@@ -90,12 +90,12 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 
 
 	//TRS = model matrix
-	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
+	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
 
-	// blib_mat4_printf(translationMat, "translation");
-	// blib_mat4_printf(rotationMat, "rotation");
-	// blib_mat4_printf(scaleMat, "scale");
+	blib_mat4_printf(translationMat, "translation");
+	blib_mat4_printf(rotationMat, "rotation");
+	blib_mat4_printf(scaleMat, "scale");
 	blib_mat4_printf(modelMat, "model");
 
 	return modelMat;
@@ -120,12 +120,12 @@ lite_gl_camera_t lite_gl_camera_create(
 
 	cam.transform = lite_gl_transform_create();
 	cam.transform.position.z = 2.0f;
-	//projection matrix
-	// cam.projectionMatrix = HMM_Perspective_LH_NO(
-	// 		fov * HMM_DegToRad, //fov
-	// 		(float)instance->screenWidth / instance->screenHeight, //aspect
-	// 		0.01f,    //near clip
-	// 		1000.0f); //far clip
+	// projection matrix
+	cam.projectionMatrix = blib_mat4_perspective(
+			blib_mathf_deg2rad(fov), //fov
+			(float)instance->screenWidth / instance->screenHeight, //aspect
+			0.01f,    //near clip
+			1000.0f); //far clip
 
 	return cam;
 }
@@ -323,7 +323,7 @@ static void _lite_gl_gameObject_update(
 				modelMatrixLocation,
 				1,
 				GL_FALSE,
-				&modelMat.elements[0][0]);
+				&modelMat.elements[0]);
 	} else {
 		lite_printError("failed to locate model matrix uniform", 
 				__FILE__, __LINE__);
@@ -342,7 +342,7 @@ static void _lite_gl_gameObject_update(
 				projectionMatrixLocation,
 				1,
 				GL_FALSE,
-				&TESTcamera.projectionMatrix.elements[0][0]);
+				&TESTcamera.projectionMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate projection matrix uniform", 
 				__FILE__, __LINE__);
@@ -356,7 +356,7 @@ static void _lite_gl_gameObject_update(
 				viewMatrixLocation,
 				1,
 				GL_FALSE,
-				&TESTcamera.viewMatrix.elements[0][0]);
+				&TESTcamera.viewMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate view matrix uniform", 
 				__FILE__, __LINE__);

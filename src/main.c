@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
 
 	while(instance.engineRunning){
-		instance.updateRenderer(&instance);
+ 		instance.updateRenderer(&instance);
 	}
 
 	return EXIT_SUCCESS;
