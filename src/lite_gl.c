@@ -78,7 +78,6 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
 	//rotation
-	// blib_mat4_t rotationMat = BLIB_MAT4_IDENTITY; 
 	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
 	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
 	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
@@ -86,7 +85,6 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 
 	//scale
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
-	// blib_mat4_t scaleMat =BLIB_MAT4_IDENTITY; 
 
 	//TRS = model matrix
 	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
