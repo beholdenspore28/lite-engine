@@ -85,17 +85,16 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
 
 	//scale
-	// HMM_Mat4 scaleMat = HMM_Scale(t->scale);
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
-
+	// blib_mat4_t scaleMat =BLIB_MAT4_IDENTITY; 
 
 	//TRS = model matrix
 	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
 
-	blib_mat4_printf(translationMat, "translation");
-	blib_mat4_printf(rotationMat, "rotation");
-	blib_mat4_printf(scaleMat, "scale");
+	// blib_mat4_printf(translationMat, "translation");
+	// blib_mat4_printf(rotationMat, "rotation");
+	// blib_mat4_printf(scaleMat, "scale");
 	blib_mat4_printf(modelMat, "model");
 
 	return modelMat;
@@ -322,7 +321,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				modelMatrixLocation,
 				1,
-				GL_FALSE,
+				GL_TRUE,
 				&modelMat.elements[0]);
 	} else {
 		lite_printError("failed to locate model matrix uniform", 
@@ -341,7 +340,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				projectionMatrixLocation,
 				1,
-				GL_FALSE,
+				GL_TRUE,
 				&TESTcamera.projectionMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate projection matrix uniform", 
@@ -355,7 +354,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				viewMatrixLocation,
 				1,
-				GL_FALSE,
+				GL_TRUE,
 				&TESTcamera.viewMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate view matrix uniform", 
@@ -417,31 +416,31 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		TESTgameObject.transform.eulerAngles = BLIB_VEC3F_ZERO;
 	}
 	//log stuff
-	printf("inputVector %f %f %f\n", 
-			inputVector.x, inputVector.y, inputVector.z);
-
-	printf("inputVector2 %f %f %f\n", 
-			inputVector2.x, inputVector2.y, inputVector2.z);
-
-	printf("cubePosition %f %f %f\n", 
-			TESTgameObject.transform.position.x, 
-			TESTgameObject.transform.position.y, 
-			TESTgameObject.transform.position.z);
-
-	printf("cubeRotation %f %f %f\n", 
-			TESTgameObject.transform.eulerAngles.x, 
-			TESTgameObject.transform.eulerAngles.y, 
-			TESTgameObject.transform.eulerAngles.z);
-
-	printf("cameraPosition %f %f %f\n", 
-			TESTcamera.transform.position.x, 
-			TESTcamera.transform.position.y, 
-			TESTcamera.transform.position.z);
-
-	printf("cameraRotation %f %f %f\n", 
-			TESTcamera.transform.eulerAngles.x, 
-			TESTcamera.transform.eulerAngles.y, 
-			TESTcamera.transform.eulerAngles.z);
+	// printf("inputVector %f %f %f\n", 
+	// 		inputVector.x, inputVector.y, inputVector.z);
+	//
+	// printf("inputVector2 %f %f %f\n", 
+	// 		inputVector2.x, inputVector2.y, inputVector2.z);
+	//
+	// printf("cubePosition %f %f %f\n", 
+	// 		TESTgameObject.transform.position.x, 
+	// 		TESTgameObject.transform.position.y, 
+	// 		TESTgameObject.transform.position.z);
+	//
+	// printf("cubeRotation %f %f %f\n", 
+	// 		TESTgameObject.transform.eulerAngles.x, 
+	// 		TESTgameObject.transform.eulerAngles.y, 
+	// 		TESTgameObject.transform.eulerAngles.z);
+	//
+	// printf("cameraPosition %f %f %f\n", 
+	// 		TESTcamera.transform.position.x, 
+	// 		TESTcamera.transform.position.y, 
+	// 		TESTcamera.transform.position.z);
+	//
+	// printf("cameraRotation %f %f %f\n", 
+	// 		TESTcamera.transform.eulerAngles.x, 
+	// 		TESTcamera.transform.eulerAngles.y, 
+	// 		TESTcamera.transform.eulerAngles.z);
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
@@ -474,7 +473,6 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 	SDL_GL_SwapWindow(instance->SDLwindow);
 
 	instance->frameEnd = SDL_GetTicks();
-
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
 	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
