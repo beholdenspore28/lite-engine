@@ -122,7 +122,7 @@ lite_gl_camera_t lite_gl_camera_create(
 	cam.projectionMatrix = blib_mat4_perspective(
 			blib_mathf_deg2rad(fov), //fov
 			(float)instance->screenWidth / instance->screenHeight, //aspect
-			0.01f,    //near clip
+			0.001f,    //near clip
 			1000.0f); //far clip
 	return cam;
 }
@@ -390,7 +390,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	inputVector = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
-		.z = keyState[SDL_SCANCODE_W] - keyState[SDL_SCANCODE_S],
+		.z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
 	};
 	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 2.0f);
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
@@ -398,9 +398,9 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 
 	//rotate camera
 	inputVector2 = (blib_vec3f_t) { 
-		.x = keyState[SDL_SCANCODE_I] - keyState[SDL_SCANCODE_K],
-		.y = keyState[SDL_SCANCODE_L] - keyState[SDL_SCANCODE_J],
-		.z = keyState[SDL_SCANCODE_U] - keyState[SDL_SCANCODE_O],
+		.x = keyState[SDL_SCANCODE_K] - keyState[SDL_SCANCODE_I],
+		.y = keyState[SDL_SCANCODE_J] - keyState[SDL_SCANCODE_L],
+		.z = keyState[SDL_SCANCODE_O] - keyState[SDL_SCANCODE_U],
 	};
 	float speed = blib_mathf_deg2rad(100.0f) * instance->deltaTime;
 	blib_vec3f_t rot = blib_vec3f_scale(inputVector2,speed);
