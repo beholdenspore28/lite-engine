@@ -73,7 +73,6 @@ GLuint lite_gl_texture_create(const char* imageFile){
 
 static blib_mat4_t _lite_gl_transform_GetMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
-
 	//translation
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
@@ -82,6 +81,7 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
 	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
 	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
+	
 
 	//scale
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
@@ -94,6 +94,7 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(
 	// blib_mat4_printf(rotationMat, "rotation");
 	// blib_mat4_printf(scaleMat, "scale");
 	blib_mat4_printf(modelMat, "model");
+	// blib_mat4_printf(TESTcamera.projectionMatrix, "projection");
 
 	return modelMat;
 }
@@ -116,14 +117,13 @@ lite_gl_camera_t lite_gl_camera_create(
 	lite_gl_camera_t cam;
 
 	cam.transform = lite_gl_transform_create();
-	cam.transform.position.z = 2.0f;
+	cam.transform.position.z = 5.0f;
 	// projection matrix
 	cam.projectionMatrix = blib_mat4_perspective(
 			blib_mathf_deg2rad(fov), //fov
 			(float)instance->screenWidth / instance->screenHeight, //aspect
 			0.01f,    //near clip
 			1000.0f); //far clip
-
 	return cam;
 }
 
@@ -319,7 +319,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				modelMatrixLocation,
 				1,
-				GL_TRUE,
+				GL_FALSE,
 				&modelMat.elements[0]);
 	} else {
 		lite_printError("failed to locate model matrix uniform", 
@@ -338,7 +338,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				projectionMatrixLocation,
 				1,
-				GL_TRUE,
+				GL_FALSE,
 				&TESTcamera.projectionMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate projection matrix uniform", 
@@ -352,7 +352,7 @@ static void _lite_gl_gameObject_update(
 		glUniformMatrix4fv(
 				viewMatrixLocation,
 				1,
-				GL_TRUE,
+				GL_FALSE,
 				&TESTcamera.viewMatrix.elements[0]);
 	} else {
 		lite_printError("failed to locate view matrix uniform", 
@@ -390,7 +390,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	inputVector = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
-		.z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
+		.z = keyState[SDL_SCANCODE_W] - keyState[SDL_SCANCODE_S],
 	};
 	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 2.0f);
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
@@ -414,31 +414,31 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		TESTgameObject.transform.eulerAngles = BLIB_VEC3F_ZERO;
 	}
 	//log stuff
-	// printf("inputVector %f %f %f\n", 
-	// 		inputVector.x, inputVector.y, inputVector.z);
-	//
-	// printf("inputVector2 %f %f %f\n", 
-	// 		inputVector2.x, inputVector2.y, inputVector2.z);
-	//
-	// printf("cubePosition %f %f %f\n", 
-	// 		TESTgameObject.transform.position.x, 
-	// 		TESTgameObject.transform.position.y, 
-	// 		TESTgameObject.transform.position.z);
-	//
-	// printf("cubeRotation %f %f %f\n", 
-	// 		TESTgameObject.transform.eulerAngles.x, 
-	// 		TESTgameObject.transform.eulerAngles.y, 
-	// 		TESTgameObject.transform.eulerAngles.z);
-	//
-	// printf("cameraPosition %f %f %f\n", 
-	// 		TESTcamera.transform.position.x, 
-	// 		TESTcamera.transform.position.y, 
-	// 		TESTcamera.transform.position.z);
-	//
-	// printf("cameraRotation %f %f %f\n", 
-	// 		TESTcamera.transform.eulerAngles.x, 
-	// 		TESTcamera.transform.eulerAngles.y, 
-	// 		TESTcamera.transform.eulerAngles.z);
+	printf("inputVector %f %f %f\n", 
+			inputVector.x, inputVector.y, inputVector.z);
+
+	printf("inputVector2 %f %f %f\n", 
+			inputVector2.x, inputVector2.y, inputVector2.z);
+
+	printf("cubePosition %f %f %f\n", 
+			TESTgameObject.transform.position.x, 
+			TESTgameObject.transform.position.y, 
+			TESTgameObject.transform.position.z);
+
+	printf("cubeRotation %f %f %f\n", 
+			TESTgameObject.transform.eulerAngles.x, 
+			TESTgameObject.transform.eulerAngles.y, 
+			TESTgameObject.transform.eulerAngles.z);
+
+	printf("cameraPosition %f %f %f\n", 
+			TESTcamera.transform.position.x, 
+			TESTcamera.transform.position.y, 
+			TESTcamera.transform.position.z);
+
+	printf("cameraRotation %f %f %f\n", 
+			TESTcamera.transform.eulerAngles.x, 
+			TESTcamera.transform.eulerAngles.y, 
+			TESTcamera.transform.eulerAngles.z);
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
