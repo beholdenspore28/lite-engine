@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include "blib_math.h"
 
-static blib_vec3f_t inputVector2;
-static blib_vec3f_t inputVector;
+extern blib_vec3f_t inputVector2;
+extern blib_vec3f_t inputVector;
 
 typedef enum { 
 	LITE_RENDER_API_OPENGL, 

@@ -1,6 +1,9 @@
 #include "lite.h"
 #include "lite_gl.h"
 
+blib_vec3f_t inputVector2;
+blib_vec3f_t inputVector;
+
 void lite_printError(
 		const char* message, const char* file, unsigned int line){
 	fprintf(stderr, "[LITE-ENGINE-ERROR] in file \"%s\" line# %i \t%s\n"

@@ -1,54 +1,54 @@
 #include "lite_gl.h"
 
 float _TEST_vertexData[_TEST_vertexDataLength] = {
-	//front
-	//position        //color           //texcoord
-	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,//bottom left
-	0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,//bottom right
-	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,//top left
-	0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,//top right
+	/*front*/
+	/*position        //color           //texcoord*/
+	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,/*bottom left*/
+	0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,/*bottom right*/
+	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,/*top left*/
+	0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,/*top right*/
 
-	//back
-	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,//bottom left
-	0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,//bottom right
-	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,//top left
-	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,//top right
+	/*back*/
+	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,/*bottom left*/
+	0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,/*bottom right*/
+	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,/*top left*/
+	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,/*top right*/
 };
 
 GLuint _TEST_indexData[_TEST_indexDataLength] = {
-	//front
+	/*front*/
 	2,0,1, 3,2,1,
-	//right
+	/*right*/
 	1,5,7, 7,3,1,
-	//back
+	/*back*/
 	5,4,6, 5,6,7,
-	//left
+	/*left*/
 	0,2,6, 0,6,4,
-	//top
+	/*top*/
 	3,7,6, 2,3,6,
-	//bottom
+	/*bottom*/
 	5,1,0, 0,4,5,
 };
 
 GLuint lite_gl_texture_create(const char* imageFile){
-	//create texture
+	/*create texture*/
 	GLuint texture;
 	glGenTextures(1,&texture);
 	glBindTexture(GL_TEXTURE_2D,texture);
 
-	//set parameters
+	/*set parameters*/
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
-	//load texture data from file
+	/*load texture data from file*/
 	int width, height, numChannels;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(
 			imageFile, &width, &height, &numChannels, 0);
 
-	//error check
+	/*error check*/
 	if (data){
 		if (numChannels == 4){
 			glTexImage2D(
@@ -65,7 +65,7 @@ GLuint lite_gl_texture_create(const char* imageFile){
 		lite_printError("failed to load texture", __FILE__, __LINE__);
 	}
 
-	//cleanup
+	/*cleanup*/
 	stbi_image_free(data);
 
 	return texture;
@@ -73,29 +73,29 @@ GLuint lite_gl_texture_create(const char* imageFile){
 
 static blib_mat4_t _lite_gl_transform_GetMatrix(
 		lite_gl_transform_t* t, lite_engine_instance_t* instance){
-	//translation
+	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
-	//rotation
+	/*rotation*/
 	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
 	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
 	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
 	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
 	
 
-	//scale
+	/*scale*/
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
 
-	//TRS = model matrix
+	/*TRS = model matrix*/
 	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
-
-	// blib_mat4_printf(translationMat, "translation");
-	// blib_mat4_printf(rotationMat, "rotation");
-	// blib_mat4_printf(scaleMat, "scale");
+	/*
+	blib_mat4_printf(translationMat, "translation");
+	blib_mat4_printf(rotationMat, "rotation");
+	blib_mat4_printf(scaleMat, "scale");
+	blib_mat4_printf(TESTcamera.projectionMatrix, "projection");
+	*/
 	blib_mat4_printf(modelMat, "model");
-	// blib_mat4_printf(TESTcamera.projectionMatrix, "projection");
-
 	return modelMat;
 }
 
@@ -118,12 +118,12 @@ lite_gl_camera_t lite_gl_camera_create(
 
 	cam.transform = lite_gl_transform_create();
 	cam.transform.position.z = 5.0f;
-	// projection matrix
+	/*projection matrix*/
 	cam.projectionMatrix = blib_mat4_perspective(
-			blib_mathf_deg2rad(fov), //fov
-			(float)instance->screenWidth / instance->screenHeight, //aspect
-			0.001f,    //near clip
-			1000.0f); //far clip
+			blib_mathf_deg2rad(fov), /*fov*/
+			(float)instance->screenWidth / instance->screenHeight, /*aspect*/
+			0.001f,    /*near clip*/
+			1000.0f); /*far clip*/
 	return cam;
 }
 
@@ -133,17 +133,17 @@ static void _lite_gl_camera_update(lite_gl_camera_t* cam, lite_engine_instance_t
 
 lite_gl_mesh_t lite_gl_mesh_create() {
 	lite_gl_mesh_t m;
-	//TODO remove hard-coded data
+	/*TODO remove hard-coded data*/
 	m.numIndices = _TEST_indexDataLength;
 	m.numVertices = _TEST_vertexDataLength;
 	m.indexData = _TEST_indexData;
 	m.vertexData = _TEST_vertexData;
 
-	//vertex array
+	/*vertex array*/
 	glGenVertexArrays(1, &m.VAO);
 	glBindVertexArray(m.VAO);
 
-	//vertex buffer
+	/*vertex buffer*/
 	glGenBuffers(1, &m.VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
 	glBufferData(
@@ -152,7 +152,7 @@ lite_gl_mesh_t lite_gl_mesh_create() {
 			m.vertexData,
 			GL_STATIC_DRAW);
 
-	//index/element buffer
+	/*index/element buffer*/
 	glGenBuffers(1, &m.EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
 	glBufferData(
@@ -161,32 +161,32 @@ lite_gl_mesh_t lite_gl_mesh_create() {
 			m.indexData,
 			GL_STATIC_DRAW);
 
-	//position attribute
+	/*position attribute*/
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
 			0,3,GL_FLOAT,GL_FALSE,
 			sizeof(GLfloat) * 8, (GLvoid*)0);
 
-	//color attribute
+	/*color attribute*/
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 			1,3,GL_FLOAT,GL_FALSE,
 			sizeof(GLfloat) * 8,
 			(GLvoid*)(sizeof(GLfloat) * 3));
 
-	//texture coord attribute
+	/*texture coord attribute*/
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 			2,2,GL_FLOAT,GL_FALSE,
 			sizeof(GLfloat) * 8, 
 			(GLvoid*)(sizeof(GLfloat)*6));
 
-	//cleanup
+	/*cleanup*/
 	glBindVertexArray(0);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	//TODO add the new mesh to the drawing queue
+	/*TODO add the new mesh to the drawing queue*/
 	return m;
 };
 
@@ -203,8 +203,8 @@ static void _lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 
 static GLuint _lite_gl_compileShader(
 		GLuint type, const char* source){
-	// printf("%s",source);
-	//creation
+	/* printf("%s",source);*/
+	/*creation*/
 	GLuint shader = 0;
 	if (type == GL_VERTEX_SHADER){
 		shader = glCreateShader(GL_VERTEX_SHADER);
@@ -212,11 +212,11 @@ static GLuint _lite_gl_compileShader(
 		shader = glCreateShader(GL_FRAGMENT_SHADER);
 	}
 
-	//compilation
+	/*compilation*/
 	glShaderSource(shader,1,&source,NULL);
 	glCompileShader(shader);
 
-	//Error check
+	/*Error check*/
 	GLint success;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if (success == GL_FALSE){
@@ -294,8 +294,8 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	go.active = true;
 	go.transform = lite_gl_transform_create();
 
-	//TODO texture glitch here
-	//DO NOT move this to update loop
+	/*TODO texture glitch here*/
+	/*DO NOT move this to update loop*/
 	glUseProgram(go.shader);
 	glUniform1i(glGetUniformLocation(go.shader, "texture"), 0);
 	glUseProgram(0);
@@ -308,7 +308,7 @@ static void _lite_gl_gameObject_update(
 	if (go->active == false) return;
 	glUseProgram(go->shader);
 
-	//model matrix
+	/*model matrix*/
 	blib_mat4_t modelMat = _lite_gl_transform_GetMatrix(
 			&go->transform, instance);
 
@@ -326,11 +326,12 @@ static void _lite_gl_gameObject_update(
 				__FILE__, __LINE__);
 	}
 
-	// //projection matrix
-	
-	//TODO cache projectionMatrixLocation in ram to prevent
-	//calling GetUniformLocation every frame
+	/*
+	TODO cache projectionMatrixLocation in ram to prevent
+	calling GetUniformLocation every frame
+	*/
 
+	/*projection matrix*/
 	GLint projectionMatrixLocation = glGetUniformLocation(
 			go->shader, "u_projectionMatrix");
 
@@ -375,18 +376,19 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 
 	const Uint8* keyState = SDL_GetKeyboardState(NULL);
 
-	//quit button
+	/*quit button*/
 	if (keyState[SDL_SCANCODE_ESCAPE]) {
 		instance->engineRunning = false;
 	}
 
-	//rotate cube
-	// float cubespeed = 10.0f * HMM_DegToRad * instance->deltaTime;	
-	// _lite_gl_transform_rotate(
-	// 		&TESTgameObject.transform,
-	// 		HMM_MulV3F(lite_vec3_up, cubespeed));	
+	/*rotate cube
+	float cubespeed = 10.0f * HMM_DegToRad * instance->deltaTime;	
+	_lite_gl_transform_rotate(
+		&TESTgameObject.transform,
+		HMM_MulV3F(lite_vec3_up, cubespeed));	
+	*/
 
-	//move camera
+	/*move camera*/
 	inputVector = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
@@ -396,7 +398,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
 	*cameraPos = blib_vec3f_add(*cameraPos, inputVector);
 
-	//rotate camera
+	/*rotate camera*/
 	inputVector2 = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_K] - keyState[SDL_SCANCODE_I],
 		.y = keyState[SDL_SCANCODE_J] - keyState[SDL_SCANCODE_L],
@@ -406,14 +408,14 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	blib_vec3f_t rot = blib_vec3f_scale(inputVector2,speed);
 	_lite_gl_transform_rotate(&TESTcamera.transform, rot);
 
-	//reset button
+	/*reset button*/
 	if (keyState[SDL_SCANCODE_R]) {
 		TESTcamera.transform.position = blib_vec3f_scale(BLIB_VEC3F_FORWARD, 2.0f);
 		TESTcamera.transform.eulerAngles = BLIB_VEC3F_ZERO;
 		TESTgameObject.transform.position = BLIB_VEC3F_ZERO;
 		TESTgameObject.transform.eulerAngles = BLIB_VEC3F_ZERO;
 	}
-	//log stuff
+	/*log stuff*/
 	printf("inputVector %f %f %f\n", 
 			inputVector.x, inputVector.y, inputVector.z);
 
@@ -442,29 +444,35 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
-	// for (int i = 0; i < instance->renderListLength; i++){
-	// 	_lite_glRenderMesh(&instance->renderList[i]);
-	// }
+	/*
+	for (int i = 0; i < instance->renderListLength; i++){
+		_lite_glRenderMesh(&instance->renderList[i]);
+	}
 
-	// _lite_gl_mesh_render(&TESTgameObject.mesh);
+	_lite_gl_mesh_render(&TESTgameObject.mesh);
+	*/
 	_lite_gl_camera_update(&TESTcamera, instance);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
 	printf("\n\n\n\n=======================FRAME=START=========================\n");
-	//delta time
+	/*delta time*/
 	instance->frameStart = SDL_GetTicks();	
+	/*
+	TODO : lock cursor to window and hide mouse
+	SDL_WarpMouseInWindow(
+	instance->SDLwindow, 
+	instance->screenWidth,instance->screenHeight);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+	*/
+	/*TODO - Mefi - custom cursors*/
 
-	// TODO : lock cursor to window and hide mouse
-	// SDL_WarpMouseInWindow(
-	// instance->SDLwindow, 
-	// instance->screenWidth,instance->screenHeight);
-	// SDL_SetRelativeMouseMode(SDL_TRUE);
+	/*
+	 * to draw in wireframe mode
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
+	*/
 
-	//TODO - Mefi - custom cursors
-
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //render in wireframe mode
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	_lite_gl_handleSDLEvents(instance);
 	_lite_gl_renderFrame(instance);
@@ -479,10 +487,10 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){
-	//Set lite-engine function pointers
+	/*Set lite-engine function pointers*/
 	instance->updateRenderer = &_lite_gl_update;
 
-	//set up SDL2
+	/*set up SDL2*/
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		lite_printError("failed to initialize SDL2", __FILE__, __LINE__);
 	}
@@ -513,13 +521,13 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 				__FILE__, __LINE__);
 	}
 
-	//Set up glad
+	/*Set up glad*/
 	if (!gladLoadGLLoader(SDL_GL_GetProcAddress)){
 		lite_printError("failed to load GLAD",
 				__FILE__,__LINE__);
 	}
 
-	//set up opengl
+	/*set up opengl*/
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.1f,0.1f,0.1f,1.0f);

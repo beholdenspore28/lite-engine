@@ -9,8 +9,8 @@ OBJFILES := ${SRCFILES:%.c=build/obj/%.o}
 MODE ?= DEBUG
 CC := gcc
 
-LDFLAGS := -Wall -Wno-missing-braces -Wno-comment -std=c11 
-CFLAGS := -Wall -Wno-missing-braces -Wno-comment -std=c11
+LDFLAGS := -Wall -Wno-missing-braces -std=c11
+CFLAGS := -Wall -Wno-missing-braces -std=c11
 LDFLAGS_DEBUG := -g3
 CFLAGS_DEBUG := -g3
 LDFLAGS_RELEASE := -flto
