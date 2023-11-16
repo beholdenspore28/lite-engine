@@ -81,7 +81,6 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
 	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
 	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
-	
 
 	/*scale*/
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
@@ -89,13 +88,7 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	/*TRS = model matrix*/
 	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
-	/*
-	blib_mat4_printf(translationMat, "translation");
-	blib_mat4_printf(rotationMat, "rotation");
-	blib_mat4_printf(scaleMat, "scale");
-	blib_mat4_printf(TESTcamera.projectionMatrix, "projection");
-	*/
-	blib_mat4_printf(modelMat, "model");
+
 	return modelMat;
 }
 
@@ -134,16 +127,18 @@ lite_gl_camera_t lite_gl_camera_create(
 	cam.transform = lite_gl_transform_create();
 	cam.transform.position.z = 5.0f;
 	/*projection matrix*/
+	// cam.projectionMatrix = BLIB_MAT4_IDENTITY;
 	cam.projectionMatrix = blib_mat4_perspective(
 			blib_mathf_deg2rad(fov), /*fov*/
 			(float)instance->screenWidth / instance->screenHeight, /*aspect*/
-			0.001f,    /*near clip*/
+			0.01f,    /*near clip*/
 			1000.0f); /*far clip*/
 	return cam;
 }
 
-static void _lite_gl_camera_update(lite_gl_camera_t* cam, lite_engine_instance_t* instance) {
+static void _lite_gl_camera_update(lite_gl_camera_t* cam) {
 	cam->viewMatrix = _lite_gl_transform_GetMatrix(&cam->transform);
+	blib_mat4_printf(cam->viewMatrix, "viewMatrix");
 }
 
 lite_gl_mesh_t lite_gl_mesh_create() {
@@ -396,11 +391,11 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		instance->engineRunning = false;
 	}
 
-	/*rotate cube*/
-	float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
-	_lite_gl_transform_rotate(
-		&TESTgameObject.transform,
-		blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
+	// /*rotate cube*/
+	// float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
+	// _lite_gl_transform_rotate(
+	// 	&TESTgameObject.transform,
+	// 	blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
 
 	/*move camera*/
 	inputVector = (blib_vec3f_t) { 
@@ -484,7 +479,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_mesh_render(&TESTgameObject.mesh);
 	*/
 	
-	_lite_gl_camera_update(&TESTcamera, instance);
+	_lite_gl_camera_update(&TESTcamera);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 }
 
