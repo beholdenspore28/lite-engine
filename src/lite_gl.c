@@ -290,7 +290,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
 	go.texture = lite_gl_texture_create(
-			"res/textures/test2.png");
+			"res/textures/test.png");
 	go.active = true;
 	go.transform = lite_gl_transform_create();
 
