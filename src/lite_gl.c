@@ -139,6 +139,9 @@ blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
 static void _lite_gl_transform_rotate(
 		lite_gl_transform_t* t, blib_vec3f_t rotation){
 	t->eulerAngles = blib_vec3f_add(t->eulerAngles,rotation);
+	t->eulerAngles.x = blib_mathf_wrapAngle(t->eulerAngles.x);
+	t->eulerAngles.y = blib_mathf_wrapAngle(t->eulerAngles.y);
+	t->eulerAngles.z = blib_mathf_wrapAngle(t->eulerAngles.z);
 }
 
 lite_gl_transform_t lite_gl_transform_create(){
@@ -275,7 +278,6 @@ static GLuint _lite_gl_compileShader(
 		glDeleteShader(shader);
 	}
 	return shader;
-
 }
 
 static GLuint lite_gl_createShaderProgram(
