@@ -72,7 +72,7 @@ GLuint lite_gl_texture_create(const char* imageFile){
 }
 
 
-static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
+static blib_mat4_t _lite_gl_transform_GetViewMatrix(lite_gl_transform_t* t){
 	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
@@ -92,19 +92,48 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	return modelMat;
 }
 
+static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
+	/*translation*/
+	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
+
+	/*rotation*/
+	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
+	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
+	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
+	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
+
+	/*scale*/
+	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
+
+	/*TRS = model matrix*/
+	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
+	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+
+	return modelMat;
+}
+
 blib_vec3f_t blib_transform_getLocalForward(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { .x=m.elements[2], .y=m.elements[6], .z=m.elements[10]};
+	return (blib_vec3f_t) { 
+		.x=m.elements[2], 
+		.y=m.elements[6], 
+		.z=m.elements[10]};
 }
 
 blib_vec3f_t blib_transform_getLocalUp(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { .x=m.elements[1], .y=m.elements[5], .z=m.elements[9]};
+	return (blib_vec3f_t) { 
+		.x=m.elements[1], 
+		.y=m.elements[5], 
+		.z=m.elements[9]};
 }
 
 blib_vec3f_t blib_transform_getLocalRight(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { .x=m.elements[0], .y=m.elements[4], .z=m.elements[8]};
+	return (blib_vec3f_t) { 
+		.x=m.elements[0], 
+		.y=m.elements[4], 
+		.z=m.elements[8]};
 }
 
 static void _lite_gl_transform_rotate(
@@ -137,7 +166,7 @@ lite_gl_camera_t lite_gl_camera_create(
 }
 
 static void _lite_gl_camera_update(lite_gl_camera_t* cam) {
-	cam->viewMatrix = _lite_gl_transform_GetMatrix(&cam->transform);
+	cam->viewMatrix = _lite_gl_transform_GetViewMatrix(&cam->transform);
 	blib_mat4_printf(cam->viewMatrix, "viewMatrix");
 }
 
@@ -201,7 +230,6 @@ lite_gl_mesh_t lite_gl_mesh_create() {
 };
 
 static void _lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
-	glUseProgram(TESTgameObject.shader);
 	glBindVertexArray(pMesh->VAO);
 	glDrawElements(
 			GL_TRIANGLES,
@@ -480,11 +508,26 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	*/
 	
 	_lite_gl_camera_update(&TESTcamera);
-	_lite_gl_gameObject_update(&TESTgameObject, instance);
+
+	size_t cap = 15;
+	size_t i = 0;
+	size_t j = 0;
+	size_t k = 0;
+	for (i = 0; i < cap; i++){
+		for (j = 0; j < cap; j++) {
+			for (k = 0; k < cap; k++) {
+				_lite_gl_transform_rotate(&TESTgameObject2.transform, blib_vec3f_scale(
+							BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.01f) * instance->deltaTime));
+				TESTgameObject2.transform.position = (blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
+				_lite_gl_gameObject_update(&TESTgameObject, instance);
+				_lite_gl_gameObject_update(&TESTgameObject2, instance);
+			}
+		}
+	}
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	printf("\n\n\n\n=======================FRAME=START=========================\n");
+	printf("\n\n\n\n=====================FRAME=START=======================\n");
 	/*delta time*/
 	instance->frameStart = SDL_GetTicks();	
 	/*
@@ -511,7 +554,7 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
 	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
 	instance->frameStart, instance->frameEnd, instance->deltaTime);
-	printf("-------------------------FRAME-END-------------------------\n");
+	printf("-----------------------FRAME-END-----------------------\n");
 }
 
 void lite_gl_initialize(lite_engine_instance_t* instance){
