@@ -520,8 +520,10 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
 			for (k = 0; k < cap; k++) {
-				_lite_gl_transform_rotate(&TESTgameObject.transform, blib_vec3f_scale(
-							BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.01f) * instance->deltaTime));
+				_lite_gl_transform_rotate(&TESTgameObject.transform, 
+						blib_vec3f_scale(
+							BLIB_VEC3F_ONE, 
+							blib_mathf_deg2rad(0.01f) * instance->deltaTime));
 				TESTgameObject.transform.position = 
 					(blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
 				_lite_gl_gameObject_update(&TESTgameObject, instance);
