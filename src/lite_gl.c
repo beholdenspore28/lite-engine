@@ -112,7 +112,7 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	return modelMat;
 }
 
-blib_vec3f_t blib_transform_getLocalForward(lite_gl_transform_t* t){
+blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[2], 
@@ -120,7 +120,7 @@ blib_vec3f_t blib_transform_getLocalForward(lite_gl_transform_t* t){
 		.z=m.elements[10]};
 }
 
-blib_vec3f_t blib_transform_getLocalUp(lite_gl_transform_t* t){
+blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[1], 
@@ -128,7 +128,7 @@ blib_vec3f_t blib_transform_getLocalUp(lite_gl_transform_t* t){
 		.z=m.elements[9]};
 }
 
-blib_vec3f_t blib_transform_getLocalRight(lite_gl_transform_t* t){
+blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[0], 
@@ -436,13 +436,13 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
 
 	blib_vec3f_t camForward = blib_vec3f_scale(
-			blib_transform_getLocalForward(&TESTcamera.transform), 
+			lite_transform_getLocalForward(&TESTcamera.transform), 
 			inputVector.z);
 	blib_vec3f_t camUp = blib_vec3f_scale(
-			blib_transform_getLocalUp(&TESTcamera.transform),
+			lite_transform_getLocalUp(&TESTcamera.transform),
 			inputVector.y);
 	blib_vec3f_t camRight = blib_vec3f_scale(
-		blib_transform_getLocalRight(&TESTcamera.transform),
+		lite_transform_getLocalRight(&TESTcamera.transform),
 			inputVector.x);
 	/*
 	printf("forward mag: %f\n", blib_vec3f_magnitude(camForward));
