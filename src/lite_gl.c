@@ -420,12 +420,13 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	}
 
 	// /*rotate cube*/
-	// float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
-	// _lite_gl_transform_rotate(
-	// 	&TESTgameObject.transform,
-	// 	blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
+	float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
+	_lite_gl_transform_rotate(
+		&TESTgameObject.transform,
+		blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
 
 	/*move camera*/
+	/*TODO camera gets faster as you move*/
 	inputVector = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_A] - keyState[SDL_SCANCODE_D],
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
@@ -508,22 +509,23 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	*/
 	
 	_lite_gl_camera_update(&TESTcamera);
+	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
-	size_t cap = 15;
-	size_t i = 0;
-	size_t j = 0;
-	size_t k = 0;
-	for (i = 0; i < cap; i++){
-		for (j = 0; j < cap; j++) {
-			for (k = 0; k < cap; k++) {
-				_lite_gl_transform_rotate(&TESTgameObject2.transform, blib_vec3f_scale(
-							BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.01f) * instance->deltaTime));
-				TESTgameObject2.transform.position = (blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
-				_lite_gl_gameObject_update(&TESTgameObject, instance);
-				_lite_gl_gameObject_update(&TESTgameObject2, instance);
-			}
-		}
-	}
+	// int cap = 15;
+	// int i = -cap;
+	// int j = -cap;
+	// int k = -cap;
+	// for (i = 0; i < cap; i++){
+	// 	for (j = 0; j < cap; j++) {
+	// 		for (k = 0; k < cap; k++) {
+	// 			_lite_gl_transform_rotate(&TESTgameObject.transform, blib_vec3f_scale(
+	// 						BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.1f) * instance->deltaTime));
+	// 			TESTgameObject.transform.position = 
+	// 				(blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
+	// 			_lite_gl_gameObject_update(&TESTgameObject, instance);
+	// 		}
+	// 	}
+	// }
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){

@@ -56,7 +56,6 @@ struct lite_gl_gameObject_t {
 extern float _TEST_vertexData[_TEST_vertexDataLength];
 extern GLuint _TEST_indexData[_TEST_indexDataLength];
 extern lite_gl_gameObject_t TESTgameObject;
-extern lite_gl_gameObject_t TESTgameObject2;
 extern lite_gl_camera_t TESTcamera;
 
 void lite_gl_initialize(lite_engine_instance_t* instance);
