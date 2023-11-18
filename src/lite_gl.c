@@ -432,7 +432,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
 		.z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
 	};
-	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 2.0f);
+	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 8.0f);
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
 
 	blib_vec3f_t camForward = blib_vec3f_scale(
@@ -511,7 +511,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_camera_update(&TESTcamera);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
-	int cap = 15;
+	int cap = 20;
 	int i = -cap;
 	int j = -cap;
 	int k = -cap;
@@ -519,7 +519,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 		for (j = 0; j < cap; j++) {
 			for (k = 0; k < cap; k++) {
 				_lite_gl_transform_rotate(&TESTgameObject.transform, blib_vec3f_scale(
-							BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.1f) * instance->deltaTime));
+							BLIB_VEC3F_ONE, blib_mathf_deg2rad(0.01f) * instance->deltaTime));
 				TESTgameObject.transform.position = 
 					(blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
 				_lite_gl_gameObject_update(&TESTgameObject, instance);
