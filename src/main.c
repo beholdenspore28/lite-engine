@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 
 	lite_engine_instance_t instance = 
 		lite_engine_instance_create(
-				LITE_RENDER_API_OPENGL, "Game Window",854,480);
+				LITE_RENDER_API_OPENGL, "Game Window",954,499);
 
 	TESTcamera = lite_gl_camera_create(&instance, 60.0f);
 	TESTgameObject = lite_gl_gameObject_create();

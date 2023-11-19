@@ -152,25 +152,33 @@ lite_gl_transform_t lite_gl_transform_create(){
 	return t;
 }
 
-lite_gl_camera_t lite_gl_camera_create(
-		lite_engine_instance_t* instance, float fov) {
-	lite_gl_camera_t cam;
-
-	cam.transform = lite_gl_transform_create();
-	cam.transform.position.z = 5.0f;
-	/*projection matrix*/
-	// cam.projectionMatrix = BLIB_MAT4_IDENTITY;
-	cam.projectionMatrix = blib_mat4_perspective(
-			blib_mathf_deg2rad(fov), /*fov*/
-			(float)instance->screenWidth / instance->screenHeight, /*aspect*/
+void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
+	cam->projectionMatrix = blib_mat4_perspective(
+			blib_mathf_deg2rad(cam->fov),
+			aspect,
 			0.01f,    /*near clip*/
 			1000.0f); /*far clip*/
+}
+
+lite_gl_camera_t lite_gl_camera_create(lite_engine_instance_t* instance, 
+		float fov) {
+	lite_gl_camera_t cam;
+	
+	cam.transform = lite_gl_transform_create();
+	cam.transform.position.z = 5.0f;
+	cam.fov = fov;
+	
+	lite_gl_camera_setProjectionMatrix(
+			&cam, (float)instance->screenWidth / (float)instance->screenHeight);
+
 	return cam;
 }
 
-static void _lite_gl_camera_update(lite_gl_camera_t* cam) {
+static void _lite_gl_camera_update(lite_gl_camera_t* cam, 
+		lite_engine_instance_t* instance) {
 	cam->viewMatrix = _lite_gl_transform_GetViewMatrix(&cam->transform);
-	blib_mat4_printf(cam->viewMatrix, "viewMatrix");
+	lite_gl_camera_setProjectionMatrix(
+			cam, (float)instance->screenWidth / (float)instance->screenHeight);
 }
 
 lite_gl_mesh_t lite_gl_mesh_create() {
@@ -405,12 +413,25 @@ static void _lite_gl_gameObject_update(
 	_lite_gl_mesh_render(&go->mesh);
 }
 
+static void _lite_gl_windowResize(lite_engine_instance_t* instance, Sint32 w, Sint32 h) {
+	instance->screenHeight = h;
+	instance->screenWidth = w;
+	glViewport(0,0,instance->screenWidth,instance->screenHeight);
+}
+
 static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
-		if (e.type == SDL_QUIT){
-			printf("[LITE-ENGINE] Quitting\n");
-			instance->engineRunning = false;
+		switch (e.type) {
+			case SDL_QUIT:
+				printf("[LITE-ENGINE] Quitting\n");
+				instance->engineRunning = false;
+				break;
+			case SDL_WINDOWEVENT:
+				if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+					_lite_gl_windowResize(instance, e.window.data1, e.window.data2);
+				}
+				break;
 		}
 	}
 
@@ -422,10 +443,10 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	}
 
 	// /*rotate cube*/
-	float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
-	_lite_gl_transform_rotate(
-		&TESTgameObject.transform,
-		blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
+	// float cubespeed = 10.0f * blib_mathf_deg2rad(10.0f) * instance->deltaTime;	
+	// _lite_gl_transform_rotate(
+	// 	&TESTgameObject.transform,
+	// 	blib_vec3f_scale(BLIB_VEC3F_UP, cubespeed));	
 
 	/*move camera*/
 	/*TODO camera gets faster as you move*/
@@ -475,31 +496,33 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		TESTgameObject.transform.eulerAngles = BLIB_VEC3F_ZERO;
 	}
 	/*log stuff*/
-	printf("inputVector %f %f %f\n", 
-			inputVector.x, inputVector.y, inputVector.z);
-
-	printf("inputVector2 %f %f %f\n", 
-			inputVector2.x, inputVector2.y, inputVector2.z);
-
-	printf("cubePosition %f %f %f\n", 
-			TESTgameObject.transform.position.x, 
-			TESTgameObject.transform.position.y, 
-			TESTgameObject.transform.position.z);
-
-	printf("cubeRotation %f %f %f\n", 
-			TESTgameObject.transform.eulerAngles.x, 
-			TESTgameObject.transform.eulerAngles.y, 
-			TESTgameObject.transform.eulerAngles.z);
-
-	printf("cameraPosition %f %f %f\n", 
-			TESTcamera.transform.position.x, 
-			TESTcamera.transform.position.y, 
-			TESTcamera.transform.position.z);
-
-	printf("cameraRotation %f %f %f\n", 
-			TESTcamera.transform.eulerAngles.x, 
-			TESTcamera.transform.eulerAngles.y, 
-			TESTcamera.transform.eulerAngles.z);
+	// printf("w%i h%i\n", instance->screenWidth, instance->screenHeight);
+	// blib_mat4_printf(cam->viewMatrix, "viewMatrix");
+	// printf("inputVector %f %f %f\n", 
+	// 		inputVector.x, inputVector.y, inputVector.z);
+	//
+	// printf("inputVector2 %f %f %f\n", 
+	// 		inputVector2.x, inputVector2.y, inputVector2.z);
+	//
+	// printf("cubePosition %f %f %f\n", 
+	// 		TESTgameObject.transform.position.x, 
+	// 		TESTgameObject.transform.position.y, 
+	// 		TESTgameObject.transform.position.z);
+	//
+	// printf("cubeRotation %f %f %f\n", 
+	// 		TESTgameObject.transform.eulerAngles.x, 
+	// 		TESTgameObject.transform.eulerAngles.y, 
+	// 		TESTgameObject.transform.eulerAngles.z);
+	//
+	// printf("cameraPosition %f %f %f\n", 
+	// 		TESTcamera.transform.position.x, 
+	// 		TESTcamera.transform.position.y, 
+	// 		TESTcamera.transform.position.z);
+	//
+	// printf("cameraRotation %f %f %f\n", 
+	// 		TESTcamera.transform.eulerAngles.x, 
+	// 		TESTcamera.transform.eulerAngles.y, 
+	// 		TESTcamera.transform.eulerAngles.z);
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
@@ -511,9 +534,11 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_mesh_render(&TESTgameObject.mesh);
 	*/
 	
-	_lite_gl_camera_update(&TESTcamera);
+	_lite_gl_camera_update(&TESTcamera, instance);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
+
+	float distanceBetweenCubes = 5.0f;
 	int cap = 20;
 	int i = -cap;
 	int j = -cap;
@@ -521,12 +546,12 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
 			for (k = 0; k < cap; k++) {
-				_lite_gl_transform_rotate(&TESTgameObject.transform, 
-						blib_vec3f_scale(
-							BLIB_VEC3F_ONE, 
-							blib_mathf_deg2rad(0.01f) * instance->deltaTime));
+				// _lite_gl_transform_rotate(&TESTgameObject.transform, 
+				// 		blib_vec3f_scale(
+				// 			BLIB_VEC3F_ONE, 
+				// 			blib_mathf_deg2rad(0.01f) * instance->deltaTime));
 				TESTgameObject.transform.position = 
-					(blib_vec3f_t){.x=i*10,.y=j*10,.z=k*10};
+					(blib_vec3f_t){.x=i*distanceBetweenCubes,.y=j*distanceBetweenCubes,.z=k*distanceBetweenCubes};
 				_lite_gl_gameObject_update(&TESTgameObject, instance);
 			}
 		}
@@ -534,7 +559,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	printf("\n\n\n\n=====================FRAME=START=======================\n");
+	// printf("\n\n\n\n=====================FRAME=START=======================\n");
 	/*delta time*/
 	instance->frameStart = SDL_GetTicks();	
 	/*
@@ -559,11 +584,13 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 	instance->frameEnd = SDL_GetTicks();
 	instance->deltaTime = 
 		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
-	printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
-	instance->frameStart, instance->frameEnd, instance->deltaTime);
-	printf("-----------------------FRAME-END-----------------------\n");
+	// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+	// instance->frameStart, instance->frameEnd, instance->deltaTime);
+	// printf("-----------------------FRAME-END-----------------------\n");
 }
 
+//TODO i hate passing the instance of the engine around everywhere.
+//make it so you don't have to
 void lite_gl_initialize(lite_engine_instance_t* instance){
 	/*Set lite-engine function pointers*/
 	instance->updateRenderer = &_lite_gl_update;
@@ -586,7 +613,7 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 			SDL_WINDOWPOS_CENTERED,
 			instance->screenWidth,
 			instance->screenHeight,
-			SDL_WINDOW_OPENGL);
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
 	if (instance->SDLwindow == NULL){
 		lite_printError("failed to create SDL_Window!",
