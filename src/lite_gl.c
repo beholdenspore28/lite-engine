@@ -460,7 +460,8 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	inputVector2 = (blib_vec3f_t) { 
 		.x = keyState[SDL_SCANCODE_K] - keyState[SDL_SCANCODE_I],
 		.y = keyState[SDL_SCANCODE_J] - keyState[SDL_SCANCODE_L],
-		.z = keyState[SDL_SCANCODE_O] - keyState[SDL_SCANCODE_U],
+		.z = 0.0f
+		// .z = keyState[SDL_SCANCODE_O] - keyState[SDL_SCANCODE_U],
 	};
 	float speed = blib_mathf_deg2rad(100.0f) * instance->deltaTime;
 	blib_vec3f_t rot = blib_vec3f_scale(inputVector2,speed);
