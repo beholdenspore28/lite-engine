@@ -434,7 +434,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 		.y = keyState[SDL_SCANCODE_LSHIFT] - keyState[SDL_SCANCODE_SPACE],
 		.z = keyState[SDL_SCANCODE_S] - keyState[SDL_SCANCODE_W],
 	};
-	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 8.0f);
+	inputVector = blib_vec3f_scale(inputVector, instance->deltaTime * 15.0f);
 	blib_vec3f_t* cameraPos = &TESTcamera.transform.position;
 
 	blib_vec3f_t camForward = blib_vec3f_scale(
