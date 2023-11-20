@@ -175,6 +175,8 @@ lite_gl_camera_t lite_gl_camera_create(float fov) {
 	return cam;
 }
 
+//TODO use events to tell the camera to update its projection matrix when
+//the screen resolution changes
 static void _lite_gl_camera_update(lite_gl_camera_t* cam, 
 		lite_engine_instance_t* instance) {
 	cam->viewMatrix = _lite_gl_camera_GetViewMatrix(&cam->transform);
@@ -182,13 +184,15 @@ static void _lite_gl_camera_update(lite_gl_camera_t* cam,
 			cam, (float)instance->screenWidth / (float)instance->screenHeight);
 }
 
-lite_gl_mesh_t lite_gl_mesh_create() {
+lite_gl_mesh_t lite_gl_mesh_create(
+		GLuint numIndices, GLuint numVertices, GLuint* indexData, 
+		GLfloat* vertexData) {
 	lite_gl_mesh_t m;
 	/*TODO remove hard-coded data*/
-	m.numIndices = _TEST_indexDataLength;
-	m.numVertices = _TEST_vertexDataLength;
-	m.indexData = _TEST_indexData;
-	m.vertexData = _TEST_vertexData;
+	m.numIndices = numIndices;
+	m.numVertices = numVertices;
+	m.indexData = indexData;
+	m.vertexData = vertexData;
 
 	/*vertex array*/
 	glGenVertexArrays(1, &m.VAO);
@@ -337,7 +341,9 @@ GLuint lite_gl_pipeline_create() {
 lite_gl_gameObject_t lite_gl_gameObject_create(){
 	lite_gl_gameObject_t go;
 	go.shader = lite_gl_pipeline_create();
-	go.mesh = lite_gl_mesh_create();
+	go.mesh = lite_gl_mesh_create(
+			_TEST_indexDataLength, _TEST_vertexDataLength, 
+			_TEST_indexData, _TEST_vertexData);
 	go.texture = lite_gl_texture_create(
 			"res/textures/test2.png");
 	go.active = true;

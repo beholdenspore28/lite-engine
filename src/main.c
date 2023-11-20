@@ -17,7 +17,6 @@ int main(int argc, char** argv) {
 	TESTcamera = lite_gl_camera_create(60.0f);
 	TESTgameObject = lite_gl_gameObject_create();
 
-
 	while(instance.engineRunning){
 		/*delta time start*/
 		instance.frameStart = SDL_GetTicks();	
