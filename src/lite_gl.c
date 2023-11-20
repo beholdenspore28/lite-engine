@@ -30,6 +30,7 @@ GLuint _TEST_indexData[_TEST_indexDataLength] = {
 	5,1,0, 0,4,5,
 };
 
+//TODO make a destroy texture func to clean this up
 GLuint lite_gl_texture_create(const char* imageFile){
 	/*create texture*/
 	GLuint texture;
@@ -72,26 +73,6 @@ GLuint lite_gl_texture_create(const char* imageFile){
 }
 
 
-static blib_mat4_t _lite_gl_transform_GetViewMatrix(lite_gl_transform_t* t){
-	/*translation*/
-	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
-
-	/*rotation*/
-	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
-	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
-	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
-	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
-
-	/*scale*/
-	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
-
-	/*TRS = model matrix*/
-	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
-	modelMat = blib_mat4_multiply(scaleMat, modelMat);
-
-	return modelMat;
-}
-
 static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
@@ -111,6 +92,8 @@ static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 
 	return modelMat;
 }
+
+//TODO this might be an inefficient way to get directions. consider using the cross product of forward and up
 
 blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
 	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
@@ -136,6 +119,8 @@ blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
 		.z=m.elements[8]};
 }
 
+
+//TODO? move this func to blib as a general euler rotation func?
 static void _lite_gl_transform_rotate(
 		lite_gl_transform_t* t, blib_vec3f_t rotation){
 	t->eulerAngles = blib_vec3f_add(t->eulerAngles,rotation);
@@ -152,6 +137,26 @@ lite_gl_transform_t lite_gl_transform_create(){
 	return t;
 }
 
+static blib_mat4_t _lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
+	/*translation*/
+	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
+
+	/*rotation*/
+	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
+	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
+	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
+	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
+
+	/*scale*/
+	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
+
+	/*TRS = model matrix*/
+	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
+	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+
+	return modelMat;
+}
+
 void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
 	cam->projectionMatrix = blib_mat4_perspective(
 			blib_mathf_deg2rad(cam->fov),
@@ -160,23 +165,19 @@ void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
 			1000.0f); /*far clip*/
 }
 
-lite_gl_camera_t lite_gl_camera_create(lite_engine_instance_t* instance, 
-		float fov) {
+lite_gl_camera_t lite_gl_camera_create(float fov) {
 	lite_gl_camera_t cam;
 	
 	cam.transform = lite_gl_transform_create();
 	cam.transform.position.z = 5.0f;
 	cam.fov = fov;
-	
-	lite_gl_camera_setProjectionMatrix(
-			&cam, (float)instance->screenWidth / (float)instance->screenHeight);
 
 	return cam;
 }
 
 static void _lite_gl_camera_update(lite_gl_camera_t* cam, 
 		lite_engine_instance_t* instance) {
-	cam->viewMatrix = _lite_gl_transform_GetViewMatrix(&cam->transform);
+	cam->viewMatrix = _lite_gl_camera_GetViewMatrix(&cam->transform);
 	lite_gl_camera_setProjectionMatrix(
 			cam, (float)instance->screenWidth / (float)instance->screenHeight);
 }
@@ -538,7 +539,7 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
 	float distanceBetweenCubes = 1.0f;
-	float time = lite_time_inSeconds(instance);
+	// float time = lite_time_inSeconds(instance);
 	int cap = 100;
 	float i = -cap;
 	float j = -cap;
@@ -564,8 +565,16 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 			TESTgameObject.transform.position = 
 				(blib_vec3f_t){
 					.x=i*distanceBetweenCubes,
-					.y=blib_noise_perlin2d(i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
+					.y=blib_noise_perlin2d(
+							i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
 					.z=j*distanceBetweenCubes};
+
+			// TESTgameObject.transform.position = 
+			// 	(blib_vec3f_t){
+			// 		.x=i*distanceBetweenCubes,
+			// 		.y=blib_noise_perlin2d(
+			// 				i*0.25f, j*0.25f, 0.2f, 2) * 20.0f,
+			// 		.z=j*distanceBetweenCubes};
 
 			_lite_gl_gameObject_update(&TESTgameObject, instance);
 		}
@@ -573,9 +582,6 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
-	// printf("\n\n\n\n=====================FRAME=START=======================\n");
-	/*delta time*/
-	instance->frameStart = SDL_GetTicks();	
 	/*
 	TODO : lock cursor to window and hide mouse
 	SDL_WarpMouseInWindow(
@@ -587,20 +593,14 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	/*
 	 * to draw in wireframe mode
-	*/
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
+	*/
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	_lite_gl_handleSDLEvents(instance);
 	_lite_gl_renderFrame(instance);
 	SDL_GL_SwapWindow(instance->SDLwindow);
 
-	instance->frameEnd = SDL_GetTicks();
-	instance->deltaTime = 
-		(((float)instance->frameEnd) - ((float)instance->frameStart)) * 0.001;
-	// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
-	// instance->frameStart, instance->frameEnd, instance->deltaTime);
-	// printf("-----------------------FRAME-END-----------------------\n");
 }
 
 //TODO i hate passing the instance of the engine around everywhere.

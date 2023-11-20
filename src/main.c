@@ -5,7 +5,6 @@
 #include "lite.h"
 
 lite_gl_gameObject_t TESTgameObject;
-lite_gl_gameObject_t TESTgameObject2;
 lite_gl_camera_t TESTcamera;
 
 int main(int argc, char** argv) {
@@ -15,13 +14,18 @@ int main(int argc, char** argv) {
 		lite_engine_instance_create(
 				LITE_RENDER_API_OPENGL, "Game Window",954,499);
 
-	TESTcamera = lite_gl_camera_create(&instance, 60.0f);
-	TESTgameObject = lite_gl_gameObject_create();
-	TESTgameObject2 = lite_gl_gameObject_create();
-	TESTgameObject2.transform.position = blib_vec3f_scale(BLIB_VEC3F_RIGHT,5.0f);
-
 	while(instance.engineRunning){
+		/*delta time start*/
+		instance.frameStart = SDL_GetTicks();	
+
  		instance.updateRenderer(&instance);
+
+		/*delta time end*/
+		instance.frameEnd = SDL_GetTicks();
+		instance.deltaTime = 
+			(((float)instance.frameEnd) - ((float)instance.frameStart)) * 0.001;
+		printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+		instance.frameStart, instance.frameEnd, instance.deltaTime);
 	}
 
 	return EXIT_SUCCESS;
