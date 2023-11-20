@@ -338,7 +338,7 @@ lite_gl_gameObject_t lite_gl_gameObject_create(){
 	go.shader = lite_gl_pipeline_create();
 	go.mesh = lite_gl_mesh_create();
 	go.texture = lite_gl_texture_create(
-			"res/textures/test.png");
+			"res/textures/test2.png");
 	go.active = true;
 	go.transform = lite_gl_transform_create();
 
@@ -537,23 +537,31 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	_lite_gl_camera_update(&TESTcamera, instance);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
-
-	float distanceBetweenCubes = 5.0f;
-	int cap = 20;
-	int i = -cap;
-	int j = -cap;
-	int k = -cap;
+	float distanceBetweenCubes = 1.0f;
+	float time = lite_time_inSeconds(instance);
+	int cap = 100;
+	float i = -cap;
+	float j = -cap;
+	static blib_vec2f_t point = (blib_vec2f_t){.x=2.0f, .y=1.0f };
+	point = blib_vec2f_add(point, blib_vec2f_scale((blib_vec2f_t){.x=1.0f,.y=0.5f}, 4 * instance->deltaTime));
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
-			for (k = 0; k < cap; k++) {
-				// _lite_gl_transform_rotate(&TESTgameObject.transform, 
-				// 		blib_vec3f_scale(
-				// 			BLIB_VEC3F_ONE, 
-				// 			blib_mathf_deg2rad(0.01f) * instance->deltaTime));
-				TESTgameObject.transform.position = 
-					(blib_vec3f_t){.x=i*distanceBetweenCubes,.y=j*distanceBetweenCubes,.z=k*distanceBetweenCubes};
-				_lite_gl_gameObject_update(&TESTgameObject, instance);
-			}
+			// _lite_gl_transform_rotate(&TESTgameObject.transform, 
+			// 		blib_vec3f_scale(
+			// 			BLIB_VEC3F_ONE, 
+			// 			blib_mathf_deg2rad(0.01f) * instance->deltaTime));
+
+			// TESTgameObject.transform.scale = blib_vec3f_scale(
+			// 		BLIB_VEC3F_ONE, 
+			// 		fabsf(sinf(time)));
+
+			TESTgameObject.transform.position = 
+				(blib_vec3f_t){
+					.x=i*distanceBetweenCubes,
+					.y=blib_noise_perlin2d(i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
+					.z=j*distanceBetweenCubes};
+
+			_lite_gl_gameObject_update(&TESTgameObject, instance);
 		}
 	}
 }
@@ -635,7 +643,7 @@ void lite_gl_initialize(lite_engine_instance_t* instance){
 	/*set up opengl*/
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.1f,0.1f,0.1f,1.0f);
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
 	glViewport(0,0,instance->screenWidth, instance->screenHeight);
 
 	printf("==========================================================\n");
