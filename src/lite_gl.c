@@ -543,7 +543,13 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 	float i = -cap;
 	float j = -cap;
 	static blib_vec2f_t point = (blib_vec2f_t){.x=2.0f, .y=1.0f };
-	point = blib_vec2f_add(point, blib_vec2f_scale((blib_vec2f_t){.x=1.0f,.y=0.5f}, 4 * instance->deltaTime));
+
+	point = blib_vec2f_add(
+			point, 
+			blib_vec2f_scale(
+				(blib_vec2f_t){.x=1.0f,.y=0.5f}, 
+				4 * instance->deltaTime));
+
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
 			// _lite_gl_transform_rotate(&TESTgameObject.transform, 
@@ -581,8 +587,8 @@ static void _lite_gl_update(lite_engine_instance_t* instance){
 
 	/*
 	 * to draw in wireframe mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
 	*/
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	_lite_gl_handleSDLEvents(instance);
