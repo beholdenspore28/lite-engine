@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
 		instance.frameEnd = SDL_GetTicks();
 		instance.deltaTime = 
 			(((float)instance.frameEnd) - ((float)instance.frameStart)) * 0.001;
-		printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
-		instance.frameStart, instance.frameEnd, instance.deltaTime);
+		// printf("frameStart: %i frameEnd: %i deltatime: %f\n", 
+		// instance.frameStart, instance.frameEnd, instance.deltaTime);
 	}
 
 	return EXIT_SUCCESS;

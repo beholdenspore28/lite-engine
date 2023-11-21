@@ -9,7 +9,7 @@
 
 //SHADER
 
-GLuint lite_gl_pipeline_create();
+GLuint lite_gl_shader_create();
 
 //TEXTURE
 

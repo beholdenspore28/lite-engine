@@ -105,7 +105,7 @@ static GLuint _lite_gl_createShaderProgram(
 	return program;
 }
 
-GLuint lite_gl_pipeline_create() {
+GLuint lite_gl_shader_create() {
 	printf("compiling shaders...\n");
 	GLuint shaderProgram;
 	blib_fileBuffer_t vertSourceFileBuffer = 
@@ -352,7 +352,7 @@ static GLuint _LITE_PRIMITIVE_CUBE_INDEX_DATA[_LITE_PRIMITIVE_CUBE_INDEX_DATA_LE
 
 lite_gl_cube_t lite_gl_cube_create(){
 	lite_gl_cube_t go;
-	go.shader = lite_gl_pipeline_create();
+	go.shader = lite_gl_shader_create();
 	go.mesh = lite_gl_mesh_create(
 			_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH, 
 			_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH, 
@@ -580,25 +580,25 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_update(lite_engine_instance_t* instance){
+
 	/*
-	TODO : lock cursor to window and hide mouse
-	SDL_WarpMouseInWindow(
-	instance->SDLwindow, 
-	instance->screenWidth,instance->screenHeight);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-	*/
+TODO : lock cursor to window and hide mouse
+SDL_WarpMouseInWindow(
+instance->SDLwindow, 
+instance->screenWidth,instance->screenHeight);
+SDL_SetRelativeMouseMode(SDL_TRUE);
+*/
 	/*TODO - Mefi - custom cursors*/
 
 	/*
 	 * to draw in wireframe mode
+	 */
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
-	*/
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	_lite_gl_handleSDLEvents(instance);
 	_lite_gl_renderFrame(instance);
 	SDL_GL_SwapWindow(instance->SDLwindow);
-
 }
 
 //TODO i hate passing the instance of the engine around everywhere.
