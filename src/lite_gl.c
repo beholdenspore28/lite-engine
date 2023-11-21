@@ -72,71 +72,6 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	return texture;
 }
 
-
-static blib_mat4_t _lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
-	/*translation*/
-	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
-
-	/*rotation*/
-	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
-	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
-	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
-	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
-
-	/*scale*/
-	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
-
-	/*TRS = model matrix*/
-	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
-	modelMat = blib_mat4_multiply(scaleMat, modelMat);
-
-	return modelMat;
-}
-
-//TODO this might be an inefficient way to get directions. consider using the cross product of forward and up
-
-blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
-	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { 
-		.x=m.elements[2], 
-		.y=m.elements[6], 
-		.z=m.elements[10]};
-}
-
-blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t){
-	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { 
-		.x=m.elements[1], 
-		.y=m.elements[5], 
-		.z=m.elements[9]};
-}
-
-blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
-	blib_mat4_t m = _lite_gl_transform_GetMatrix(t);
-	return (blib_vec3f_t) { 
-		.x=m.elements[0], 
-		.y=m.elements[4], 
-		.z=m.elements[8]};
-}
-
-
-//TODO? move this func to blib as a general euler rotation func?
-static void _lite_gl_transform_rotate(
-		lite_gl_transform_t* t, blib_vec3f_t rotation){
-	t->eulerAngles = blib_vec3f_add(t->eulerAngles,rotation);
-	t->eulerAngles.x = blib_mathf_wrapAngle(t->eulerAngles.x);
-	t->eulerAngles.y = blib_mathf_wrapAngle(t->eulerAngles.y);
-	t->eulerAngles.z = blib_mathf_wrapAngle(t->eulerAngles.z);
-}
-
-lite_gl_transform_t lite_gl_transform_create(){
-	lite_gl_transform_t t;
-	t.scale = BLIB_VEC3F_ONE;
-	t.eulerAngles = BLIB_VEC3F_ZERO;
-	t.position = BLIB_VEC3F_ZERO;
-	return t;
-}
-
 static blib_mat4_t _lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
 	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
@@ -364,7 +299,7 @@ static void _lite_gl_gameObject_update(
 	glUseProgram(go->shader);
 
 	/*model matrix*/
-	blib_mat4_t modelMat = _lite_gl_transform_GetMatrix(
+	blib_mat4_t modelMat = lite_gl_transform_GetMatrix(
 			&go->transform);
 
 	GLint modelMatrixLocation = glGetUniformLocation(
@@ -493,7 +428,7 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 	};
 	float speed = blib_mathf_deg2rad(100.0f) * instance->deltaTime;
 	blib_vec3f_t rot = blib_vec3f_scale(inputVector2,speed);
-	_lite_gl_transform_rotate(&TESTcamera.transform, rot);
+	lite_gl_transform_rotate(&TESTcamera.transform, rot);
 
 	/*reset button*/
 	if (keyState[SDL_SCANCODE_R]) {
@@ -533,19 +468,10 @@ static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){
 }
 
 static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
-	/*
-	for (int i = 0; i < instance->renderListLength; i++){
-		_lite_glRenderMesh(&instance->renderList[i]);
-	}
-
-	_lite_gl_mesh_render(&TESTgameObject.mesh);
-	*/
-	
 	_lite_gl_camera_update(&TESTcamera, instance);
 	_lite_gl_gameObject_update(&TESTgameObject, instance);
 
 	float distanceBetweenCubes = 1.0f;
-	// float time = lite_time_inSeconds(instance);
 	int cap = 100;
 	float i = -cap;
 	float j = -cap;
@@ -559,28 +485,19 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
-			// _lite_gl_transform_rotate(&TESTgameObject.transform, 
-			// 		blib_vec3f_scale(
-			// 			BLIB_VEC3F_ONE, 
-			// 			blib_mathf_deg2rad(0.01f) * instance->deltaTime));
-
-			// TESTgameObject.transform.scale = blib_vec3f_scale(
-			// 		BLIB_VEC3F_ONE, 
-			// 		fabsf(sinf(time)));
+			// TESTgameObject.transform.position = 
+			// 	(blib_vec3f_t){
+			// 		.x=i*distanceBetweenCubes,
+			// 		.y=blib_noise_perlin2d(
+			// 				i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
+			// 		.z=j*distanceBetweenCubes};
 
 			TESTgameObject.transform.position = 
 				(blib_vec3f_t){
 					.x=i*distanceBetweenCubes,
 					.y=blib_noise_perlin2d(
-							i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
+							i*0.25f, j*0.25f, 0.2f, 2) * 20.0f,
 					.z=j*distanceBetweenCubes};
-
-			// TESTgameObject.transform.position = 
-			// 	(blib_vec3f_t){
-			// 		.x=i*distanceBetweenCubes,
-			// 		.y=blib_noise_perlin2d(
-			// 				i*0.25f, j*0.25f, 0.2f, 2) * 20.0f,
-			// 		.z=j*distanceBetweenCubes};
 
 			_lite_gl_gameObject_update(&TESTgameObject, instance);
 		}

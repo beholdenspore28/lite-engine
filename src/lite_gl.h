@@ -6,17 +6,7 @@
 #include "blib_file.h"
 #include "blib_math.h"
 #include "stb_image.h"
-
-typedef struct lite_gl_transform_t lite_gl_transform_t;
-struct lite_gl_transform_t {
-	blib_vec3f_t position;
-	blib_vec3f_t eulerAngles;
-	blib_vec3f_t scale;
-
-	blib_vec3f_t localForward;
-	blib_vec3f_t localUp;
-	blib_vec3f_t localRight;
-};
+#include "lite_gl_transform.h"
 
 typedef struct lite_gl_mesh_t lite_gl_mesh_t;
 struct lite_gl_mesh_t {
