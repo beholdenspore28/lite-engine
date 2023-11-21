@@ -241,8 +241,7 @@ lite_gl_mesh_t lite_gl_mesh_createFromRawData(
 	return m;
 };
 
-lite_gl_mesh_t lite_gl_mesh_createFromObjFile(const char* fileName) {
-	// lite_gl_mesh_t m = lite_gl_mesh_createFromRawData(data, moredata);
+lite_gl_mesh_t lite_gl_mesh_createFromGLTF(const char* fileName) {
 	lite_gl_mesh_t m;
 	return m;
 }
@@ -257,7 +256,7 @@ void lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 	glUseProgram(0);
 }
 
-// TRANSFORM //=====================================================================
+// TRANSFORM //================================================================
 
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
