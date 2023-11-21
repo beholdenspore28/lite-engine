@@ -7,6 +7,7 @@
 #include "blib_math.h"
 #include "stb_image.h"
 #include "lite_gl_transform.h"
+#include "lite_gl_camera.h"
 
 typedef struct lite_gl_mesh_t lite_gl_mesh_t;
 struct lite_gl_mesh_t {
@@ -18,17 +19,6 @@ struct lite_gl_mesh_t {
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-};
-
-typedef struct lite_gl_camera_t lite_gl_camera_t;
-struct lite_gl_camera_t {
-	lite_gl_transform_t transform;
-	blib_vec3f_t U;
-	blib_vec3f_t V;
-	blib_vec3f_t N;
-	blib_mat4_t projectionMatrix;
-	blib_mat4_t viewMatrix;
-	float fov;
 };
 
 typedef struct lite_gl_gameObject_t lite_gl_gameObject_t;
