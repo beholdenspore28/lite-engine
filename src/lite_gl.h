@@ -14,10 +14,6 @@
 #include "lite_gl_texture.h"
 
 
-/*TODO GET RID OF THESE!!*/
-extern lite_gl_cube_t TESTcube;
-extern lite_gl_camera_t TESTcamera;
-
 void lite_gl_initialize(lite_engine_instance_t* instance);
 
 #endif  /*LITE_GL_H*/
