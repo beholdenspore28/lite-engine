@@ -1,7 +1,10 @@
 #ifndef LITE_GL_TEXTURE_H
 #define LITE_GL_TEXTURE_H
 
-#include "lite_gl.h"
+#include "glad/glad.h"
+#include "stb_image.h"
+#include "lite.h"
+#include <stdbool.h>
 
 GLuint lite_gl_texture_create(const char* imageFile);
 
