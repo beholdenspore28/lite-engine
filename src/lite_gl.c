@@ -130,18 +130,11 @@ static void _lite_gl_renderFrame(lite_engine_instance_t* instance){
 
 	for (i = 0; i < cap; i++){
 		for (j = 0; j < cap; j++) {
-			// TESTgameObject.transform.position = 
-			// 	(blib_vec3f_t){
-			// 		.x=i*distanceBetweenCubes,
-			// 		.y=blib_noise_perlin2d(
-			// 				i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
-			// 		.z=j*distanceBetweenCubes};
-
 			TESTcube.transform.position = 
 				(blib_vec3f_t){
 					.x=i*distanceBetweenCubes,
 					.y=blib_noise_perlin2d(
-							i*0.25f, j*0.25f, 0.2f, 2) * 20.0f,
+							i*0.25f + point.x, j*0.25f + point.y, 0.2f, 2) * 20.0f,
 					.z=j*distanceBetweenCubes};
 
 			lite_gl_cube_update(&TESTcube, instance);
