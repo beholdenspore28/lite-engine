@@ -29,9 +29,10 @@ struct lite_gl_mesh_t {
 	GLuint EBO;
 };
 
-lite_gl_mesh_t lite_gl_mesh_create(
+lite_gl_mesh_t lite_gl_mesh_createFromRawData(
 		GLuint numIndices, GLuint numVertices, 
 		GLuint* indexData, GLfloat* vertexData);
+lite_gl_mesh_t lite_gl_mesh_createFromObjFile(const char* fileName);
 void lite_gl_mesh_render(lite_gl_mesh_t* pMesh);
 
 //TRANSFORM

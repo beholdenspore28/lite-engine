@@ -180,7 +180,7 @@ GLuint lite_gl_texture_create(const char* imageFile){
 
 // MESH //=====================================================================
 
-lite_gl_mesh_t lite_gl_mesh_create(
+lite_gl_mesh_t lite_gl_mesh_createFromRawData(
 		GLuint numIndices, GLuint numVertices, GLuint* indexData, 
 		GLfloat* vertexData) {
 	lite_gl_mesh_t m;
@@ -240,6 +240,12 @@ lite_gl_mesh_t lite_gl_mesh_create(
 	/*TODO add the new mesh to the drawing queue*/
 	return m;
 };
+
+lite_gl_mesh_t lite_gl_mesh_createFromObjFile(const char* fileName) {
+	// lite_gl_mesh_t m = lite_gl_mesh_createFromRawData(data, moredata);
+	lite_gl_mesh_t m;
+	return m;
+}
 
 void lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 	glBindVertexArray(pMesh->VAO);
@@ -353,7 +359,7 @@ static GLuint _LITE_PRIMITIVE_CUBE_INDEX_DATA[_LITE_PRIMITIVE_CUBE_INDEX_DATA_LE
 lite_gl_cube_t lite_gl_cube_create(){
 	lite_gl_cube_t go;
 	go.shader = lite_gl_shader_create();
-	go.mesh = lite_gl_mesh_create(
+	go.mesh = lite_gl_mesh_createFromRawData(
 			_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH, 
 			_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH, 
 			_LITE_PRIMITIVE_CUBE_INDEX_DATA,
@@ -441,6 +447,10 @@ static void _lite_gl_windowResize(
 	instance->screenHeight = h;
 	instance->screenWidth = w;
 	glViewport(0,0,instance->screenWidth,instance->screenHeight);
+
+	//log size
+	// printf("[LITE-ENGINE] window resized to (%i, %i)\n", 
+	// 		instance->screenWidth, instance->screenHeight);
 }
 
 static void _lite_gl_handleSDLEvents(lite_engine_instance_t* instance){

@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 
 	lite_engine_instance_t instance = 
 		lite_engine_instance_create(
-				LITE_RENDER_API_OPENGL, "Game Window",954,499);
+				LITE_RENDER_API_OPENGL, "Game Window",640,480);
 	
 	TESTcamera = lite_gl_camera_create(60.0f);
 	TESTcube = lite_gl_cube_create();
