@@ -18,7 +18,7 @@ CFLAGS_RELEASE := -O2 -flto
 LDFLAGS += ${LDFLAGS_${MODE}}
 CFLAGS += ${CFLAGS_${MODE}}
 
-default: clearscreen run
+default: run
 
 clearscreen:
 	clear

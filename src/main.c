@@ -4,7 +4,7 @@
 #include "lite_gl.h"
 #include "lite.h"
 
-lite_gl_gameObject_t TESTgameObject;
+lite_gl_cube_t TESTcube;
 lite_gl_camera_t TESTcamera;
 
 int main(int argc, char** argv) {
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 				LITE_RENDER_API_OPENGL, "Game Window",954,499);
 	
 	TESTcamera = lite_gl_camera_create(60.0f);
-	TESTgameObject = lite_gl_gameObject_create();
+	TESTcube = lite_gl_cube_create();
 
 	while(instance.engineRunning){
 		/*delta time start*/
