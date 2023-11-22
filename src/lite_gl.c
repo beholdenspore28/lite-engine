@@ -1,6 +1,6 @@
 #include "lite_gl.h"
 
-// CAMERA //===================================================================
+// CAMERA =====================================================================
 
 blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
 	/*translation*/
@@ -49,7 +49,7 @@ void lite_gl_camera_update(lite_gl_camera_t* cam,
 			cam, (float)instance->screenWidth / (float)instance->screenHeight);
 }
 
-// SHADER //===================================================================
+// SHADER =====================================================================
 
 static GLuint _lite_gl_compileShader(
 		GLuint type, const char* source){
@@ -134,7 +134,7 @@ GLuint lite_gl_shader_create() {
 	return shaderProgram;
 }
 
-// TEXTURE //==================================================================
+// TEXTURE ====================================================================
 
 //TODO make a destroy texture func to clean this up
 GLuint lite_gl_texture_create(const char* imageFile){
@@ -178,7 +178,7 @@ GLuint lite_gl_texture_create(const char* imageFile){
 	return texture;
 }
 
-// MESH //=====================================================================
+// MESH =======================================================================
 
 lite_gl_mesh_t lite_gl_mesh_createFromRawData(
 		GLuint numIndices, GLuint numVertices, GLuint* indexData, 
@@ -256,7 +256,7 @@ void lite_gl_mesh_render(lite_gl_mesh_t* pMesh){
 	glUseProgram(0);
 }
 
-// TRANSFORM //================================================================
+// TRANSFORM ==================================================================
 
 lite_gl_transform_t lite_gl_transform_create(){
 	lite_gl_transform_t t;
@@ -320,7 +320,7 @@ void lite_gl_transform_rotate(
 	t->eulerAngles.z = blib_mathf_wrapAngle(t->eulerAngles.z);
 }
 
-// PRIMITIVE CUBE //===========================================================
+// PRIMITIVE CUBE =============================================================
 
 #define _LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH 64
 #define _LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH 36
@@ -439,7 +439,7 @@ void lite_gl_cube_update(
 	lite_gl_mesh_render(&go->mesh);
 }
 
-// ENGINE //===================================================================
+// ENGINE =====================================================================
 
 static void _lite_gl_windowResize(
 		lite_engine_instance_t* instance, Sint32 w, Sint32 h) {
