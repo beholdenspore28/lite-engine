@@ -8,7 +8,7 @@ OBJFILES := ${SRCFILES:%.c=build/obj/%.o}
 
 CC := gcc
 
-CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
+CFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0
 
 default: run
 
