@@ -6,9 +6,10 @@ INCDIR := -Isrc -Iblib/src
 LIBS := -lglfw -ldl -lm
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 
-CC := gcc
+CC := clang
 
-CFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0
+CFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+LDFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
 
 default: run
 
@@ -20,12 +21,11 @@ run: build/bin/test
 
 build/bin/test: ${OBJFILES};
 	@mkdir -p build/bin
-	${CC} ${OBJFILES} ${INCDIR} ${LIBS} -o build/bin/test
+	${CC} ${OBJFILES} ${INCDIR} ${LIBS} ${LDFLAGS} -o build/bin/test
 
 ${OBJFILES}: ${@:build/obj/%.o=%.c}
 	@mkdir -p ${dir ${@}}
 	${CC} -c ${@:build/obj/%.o=%.c} ${CFLAGS} ${INCDIR} -o ${@}
 
 clean: 
-	rm -r build/*
-
+	rm build/bin/test

@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include "l_glfw.h"
+#include "stdlib.h"
 
 static void _l_glfw_keyCallback(
 		GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -24,23 +25,36 @@ l_glfw_data l_glfw_init(void){
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(640, 480, "Game Window", NULL, NULL);
 	if (!window)
 	{
 		fprintf(stderr, "Window or OpenGL context creation failed");
+		exit(1);
 	}
 
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, _l_glfw_keyCallback);
 
-	gladLoadGL();
+	if (!gladLoadGL()) {
+		fprintf(stderr,"failed to load GLAD!");
+		exit(1);
+	}
 	//for vsync
 	glfwSwapInterval(1);
 	glClearColor(0.2f,0.2f,0.2f,1.0f);
 
 	l_glfw_data data = {};
 	data.window = window;
+
+	printf("==========================================================\n");
+	printf("OPENGL INFO\n");
+	printf("Vendor\t%s\n", glGetString(GL_VENDOR));
+	printf("Renderer\t%s\n", glGetString(GL_RENDERER));
+	printf("Version\t%s\n", glGetString(GL_VERSION));
+	printf("Shading Language\t%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	printf("==========================================================\n");
 
 	return data;
 }
