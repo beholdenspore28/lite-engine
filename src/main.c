@@ -7,12 +7,12 @@
 
 int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");
-	l_runtime_data glfwData = l_runtime_init();	
+	l_runtime_data runtime = l_runtime_init();	
 
-	while (!glfwWindowShouldClose(glfwData.window)){
-		l_runtime_update(&glfwData);
+	while (!glfwWindowShouldClose(runtime.window)){
+		l_runtime_update(&runtime);
 	}
 
-	l_runtime_cleanup(&glfwData);
+	l_runtime_cleanup(&runtime);
 	return 0;
 }
