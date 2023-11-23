@@ -1,33 +1,37 @@
 #include <stdio.h>
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#include "l_glfw.h"
+#include "l_runtime.h"
 #include "stdlib.h"
 
-static void _l_glfw_keyCallback(
+#define SCR_WIDTH 640
+#define SCR_HEIGHT 480
+
+static void _l_runtime_keyCallback(
 		GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void _l_glfw_errorCallback(int error, const char* description)
+static void _l_runtime_errorCallback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-l_glfw_data l_glfw_init(void){
+l_runtime_data l_runtime_init(void){
 	if (!glfwInit()) {
 		fprintf(stderr, "failed to init GLFW");
 	}
 
-	glfwSetErrorCallback(_l_glfw_errorCallback);
+	glfwSetErrorCallback(_l_runtime_errorCallback);
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Game Window", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(
+			SCR_WIDTH, SCR_HEIGHT, "Game Window", NULL, NULL);
 	if (!window)
 	{
 		fprintf(stderr, "Window or OpenGL context creation failed");
@@ -35,17 +39,21 @@ l_glfw_data l_glfw_init(void){
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSetKeyCallback(window, _l_glfw_keyCallback);
+	glfwSetKeyCallback(window, _l_runtime_keyCallback);
 
 	if (!gladLoadGL()) {
 		fprintf(stderr,"failed to load GLAD!");
 		exit(1);
 	}
 	//for vsync
-	glfwSwapInterval(1);
-	glClearColor(0.2f,0.2f,0.2f,1.0f);
+	// glfwSwapInterval(1);
 
-	l_glfw_data data = {};
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glClearColor(0.2f,0.2f,0.2f,1.0f);
+	glViewport(0,0,SCR_WIDTH,SCR_HEIGHT);
+
+	l_runtime_data data = {};
 	data.window = window;
 
 	printf("==========================================================\n");
@@ -59,7 +67,7 @@ l_glfw_data l_glfw_init(void){
 	return data;
 }
 
-void l_glfw_update(l_glfw_data* d) {
+void l_runtime_update(l_runtime_data* d) {
 	// double time = glfwGetTime();
 	int width, height;
 	// float aspectRatio;
@@ -73,7 +81,7 @@ void l_glfw_update(l_glfw_data* d) {
 	glfwPollEvents();
 }
 
-void l_glfw_data_destroy(l_glfw_data* d){
+void l_runtime_cleanup(l_runtime_data* d){
 	glfwDestroyWindow(d->window);
 	glfwTerminate();
 }
