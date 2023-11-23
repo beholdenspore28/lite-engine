@@ -7,15 +7,12 @@
 #define SCR_WIDTH 640
 #define SCR_HEIGHT 480
 
-static void _l_runtime_keyCallback(
-		GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+static void _l_runtime_keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void _l_runtime_errorCallback(int error, const char* description)
-{
+static void _l_runtime_errorCallback(int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
 }
 
@@ -30,10 +27,8 @@ l_runtime_data l_runtime_init(void){
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(
-			SCR_WIDTH, SCR_HEIGHT, "Game Window", NULL, NULL);
-	if (!window)
-	{
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH,SCR_HEIGHT,"Game Window",NULL,NULL);
+	if (!window){
 		fprintf(stderr, "Window or OpenGL context creation failed");
 		exit(1);
 	}
@@ -68,17 +63,20 @@ l_runtime_data l_runtime_init(void){
 }
 
 void l_runtime_update(l_runtime_data* d) {
-	// double time = glfwGetTime();
-	int width, height;
-	// float aspectRatio;
-	glfwGetFramebufferSize(d->window, &width, &height);
-	// aspectRatio = width / (float) height;
+	d->frameStartTime = glfwGetTime();
 
-	glViewport(0, 0, width, height);
+	glfwGetFramebufferSize(d->window, &d->windowWidth, &d->windowHeight);
+	d->aspectRatio = (float)d->windowWidth / (float)d->windowHeight;
+
+	glViewport(0, 0, d->windowWidth, d->windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glfwSwapBuffers(d->window);
 	glfwPollEvents();
+
+	d->frameEndTime = glfwGetTime();
+	d->deltaTime = d->frameEndTime - d->frameStartTime;
+	printf("frameend: %f framestart %f deltatime: %f\n",d->frameEndTime, d->frameStartTime, d->deltaTime);
 }
 
 void l_runtime_cleanup(l_runtime_data* d){

@@ -3,10 +3,16 @@
 
 #include "GLFW/glfw3.h"
 
-typedef struct l_runtime_data l_runtime_data;
-struct l_runtime_data {
+typedef struct {
 	GLFWwindow* window;
-};
+	int windowWidth;
+	int windowHeight;
+	float aspectRatio;
+
+	double frameStartTime;
+	double frameEndTime;
+	double deltaTime;
+}l_runtime_data;
 
 l_runtime_data l_runtime_init(void);
 void l_runtime_update(l_runtime_data* d);
