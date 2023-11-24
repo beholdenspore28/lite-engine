@@ -16,7 +16,7 @@ static void _l_runtime_errorCallback(int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-void APIENTRY l_glDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+static void APIENTRY _l_glDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 		GLenum severity, GLsizei length,
 		const GLchar *msg, const void *data)
 {
@@ -143,7 +143,7 @@ l_runtime_data l_runtime_init(void){
 	// glfwSwapInterval(1);
 	glEnable(GL_DEBUG_OUTPUT);
 	// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(&l_glDebugMessageCallback,NULL);
+	glDebugMessageCallback(&_l_glDebugMessageCallback,NULL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.2f,0.2f,0.2f,1.0f);
