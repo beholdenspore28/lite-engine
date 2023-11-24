@@ -3,13 +3,13 @@ BLIBSRCFILES != find blib/src -name '*.c'
 SRCFILES += ${BLIBSRCFILES}
 
 INCDIR := -Isrc -Iblib/src
-LIBS := -lglfw -ldl -lm
+LIBS := -lglfw -ldl -lm -static-libasan
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 
-CC := clang
+CC ?= gcc
 
-CFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
-LDFLAGS := -Wall -Werror -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-optimize-sibling-calls
+LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-optimize-sibling-calls
 
 default: run
 
