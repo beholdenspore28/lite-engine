@@ -15,7 +15,6 @@ typedef struct {
 }l_runtime_data;
 
 l_runtime_data l_runtime_init(void);
-void l_runtime_update(l_runtime_data* d);
 void l_runtime_cleanup(l_runtime_data* d);
 
 #endif /*L_RUNTIME_H*/

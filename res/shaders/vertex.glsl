@@ -1,8 +1,8 @@
-#version 410 core
+#version 460 core
 
-layout(location=0) in vec3 position;
-layout(location=1) in vec3 color;
-layout(location=2) in vec2 texture;
+layout(location=0) in vec3 i_position;
+layout(location=1) in vec3 i_color;
+layout(location=2) in vec2 i_texCoord;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_projectionMatrix;
@@ -13,8 +13,8 @@ out vec2 v_texCoord;
 
 void main(){
   gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * 
-			vec4(position,1.0f);
+			vec4(i_position,1.0f);
 
-  v_color = color;
-  v_texCoord = texture;
+  v_color = i_color;
+  v_texCoord = i_texCoord;
 }

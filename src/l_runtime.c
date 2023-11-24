@@ -109,7 +109,6 @@ static void APIENTRY _l_glDebugMessageCallback(GLenum source, GLenum type, GLuin
 			_severity = "UNKNOWN";
 			break;
 	}
-
 	printf("%d: %s of %s severity, raised from %s: %s\n",
 			id, _type, _severity, _source, msg);
 }
@@ -161,18 +160,6 @@ l_runtime_data l_runtime_init(void){
 	printf("==========================================================\n");
 
 	return data;
-}
-
-void l_runtime_update(l_runtime_data* d) {
-
-	glfwGetFramebufferSize(d->window, &d->windowWidth, &d->windowHeight);
-	d->aspectRatio = (float)d->windowWidth / (float)d->windowHeight;
-
-	glViewport(0, 0, d->windowWidth, d->windowHeight);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glfwSwapBuffers(d->window);
-	glfwPollEvents();
 }
 
 void l_runtime_cleanup(l_runtime_data* d){
