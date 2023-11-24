@@ -200,6 +200,65 @@ void lite_gl_transform_rotate(
 	t->eulerAngles.z = blib_mathf_wrapAngle(t->eulerAngles.z);
 }
 
+// CAMERA //===================================================================
+
+typedef struct lite_gl_camera_t lite_gl_camera_t;
+struct lite_gl_camera_t {
+	lite_gl_transform_t transform;
+	blib_vec3f_t U;
+	blib_vec3f_t V;
+	blib_vec3f_t N;
+	blib_mat4_t projectionMatrix;
+	blib_mat4_t viewMatrix;
+	float fov;
+};
+
+blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
+	/*translation*/
+	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
+
+	/*rotation*/
+	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
+	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
+	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
+	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
+
+	/*scale*/
+	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
+
+	/*TRS = model matrix*/
+	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
+	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+
+	return modelMat;
+}
+
+void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
+	cam->projectionMatrix = blib_mat4_perspective(
+			blib_mathf_deg2rad(cam->fov),
+			aspect,
+			0.01f,    /*near clip*/
+			1000.0f); /*far clip*/
+}
+
+lite_gl_camera_t lite_gl_camera_create(float fov) {
+	lite_gl_camera_t cam;
+	
+	cam.transform = lite_gl_transform_create();
+	cam.transform.position.z = 5.0f;
+	cam.fov = fov;
+
+	return cam;
+}
+
+//TODO use events to tell the camera to update its projection matrix when
+//the screen resolution changes
+void lite_gl_camera_update(lite_gl_camera_t* cam,l_runtime_data* d) {
+	cam->viewMatrix = lite_gl_camera_GetViewMatrix(&cam->transform);
+	lite_gl_camera_setProjectionMatrix(
+			cam, (float)d->windowWidth / (float)d->windowHeight);
+}
+
 // MESH //=====================================================================
 
 typedef struct {
@@ -276,10 +335,57 @@ void l_mesh_render(l_mesh* m) {
 	glBindVertexArray(0);
 }
 
+// TEXTURE //==================================================================
+
+#include "stb_image.h"
+
+//TODO make a destroy texture func to clean this up
+GLuint lite_gl_texture_create(const char* imageFile){
+	/*create texture*/
+	GLuint texture;
+	glGenTextures(1,&texture);
+	glBindTexture(GL_TEXTURE_2D,texture);
+
+	/*set parameters*/
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+	/*load texture data from file*/
+	int width, height, numChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(
+			imageFile, &width, &height, &numChannels, 0);
+
+	/*error check*/
+	if (data){
+		if (numChannels == 4){
+			glTexImage2D(
+					GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,
+					GL_UNSIGNED_BYTE,data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		} else if (numChannels == 3){
+			glTexImage2D(
+					GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,
+					GL_UNSIGNED_BYTE,data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+	} else {
+		fprintf(stderr,"failed to load texture from '%s'\n", imageFile);
+	}
+
+	/*cleanup*/
+	stbi_image_free(data);
+
+	return texture;
+}
+
 int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");
 	l_runtime_data runtime = l_runtime_init();	
 
+	lite_gl_camera_t camera = lite_gl_camera_create(85.0f);
 	GLuint shader = l_shader_create();
 	
 	l_mesh mesh = l_mesh_create(
@@ -290,19 +396,46 @@ int main (int argc, char* argv[]) {
 	lite_gl_transform_t transform = lite_gl_transform_create();
 	transform.position = (blib_vec3f_t) {0.0f, 0.0f, 2.0f};
 
-	blib_mat4_t model = lite_gl_transform_GetMatrix(&transform);
-	
-	// l_texture2D texture = l_texture2D_create(
-	// 		"res/textures/test2.png");
-	
+	blib_mat4_t modelMatrix = lite_gl_transform_GetMatrix(&transform);
+
+	GLuint texture = lite_gl_texture_create("res/textures/test2.png");
+	glUniform1i(glGetUniformLocation(shader, "texture"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	//shader and uniforms
 	glUseProgram(shader);
-	// glUniform1i(glGetUniformLocation(shader, "texture"), 0);
-	// glUseProgram(0);
+	GLuint modelMatrixUniformLocation = glGetUniformLocation(shader, "u_modelMatrix");
+	if (modelMatrixUniformLocation >= 0) {
+		glUniformMatrix4fv(modelMatrixUniformLocation,1,GL_FALSE,&modelMatrix.elements[0]);
+	}
+	else {
+		fprintf(stderr,"failed to locate model matrix uniform. %s %i", __FILE__, __LINE__);
+	}
+
+	GLuint viewMatrixUniformLocation = glGetUniformLocation(shader, "u_viewMatrix");
+	if (viewMatrixUniformLocation >= 0) {
+		glUniformMatrix4fv(viewMatrixUniformLocation,1,GL_FALSE,&camera.viewMatrix.elements[0]);
+	}
+	else {
+		fprintf(stderr,"failed to locate view matrix uniform. %s %i", __FILE__, __LINE__);
+	}
+
+	GLuint projectionMatrixUniformLocation = glGetUniformLocation(shader, "u_projectionMatrix");
+	if (projectionMatrixUniformLocation >= 0) {
+		glUniformMatrix4fv(projectionMatrixUniformLocation,1,GL_FALSE,&camera.projectionMatrix.elements[0]);
+	}
+	else {
+		fprintf(stderr,"failed to locate projection matrix uniform. %s %i", __FILE__, __LINE__);
+	}
 
 	while (!glfwWindowShouldClose(runtime.window)){
 		runtime.frameStartTime = glfwGetTime();
+
+		glUseProgram(shader);
 		
 		l_runtime_update(&runtime);
+		lite_gl_camera_update(&camera, &runtime);
 		l_mesh_render(&mesh);
 
 		runtime.frameEndTime = glfwGetTime();
