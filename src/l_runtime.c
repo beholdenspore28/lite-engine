@@ -142,7 +142,7 @@ l_runtime_data l_runtime_init(void){
 	//for vsync
 	// glfwSwapInterval(1);
 	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(&l_glDebugMessageCallback,NULL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
