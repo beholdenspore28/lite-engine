@@ -120,19 +120,31 @@ int main (int argc, char* argv[]) {
 	l_runtime_data runtime = l_runtime_init();	
 
 	// l_shader shader = l_shader_create();
+	
 	l_mesh mesh = l_mesh_create(
 			_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH,_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH,
 			_LITE_PRIMITIVE_CUBE_INDEX_DATA,_LITE_PRIMITIVE_CUBE_VERTEX_DATA
 			);
+
+	// l_transform transform = l_transform_create();
+	
 	// l_texture2D texture = l_texture2D_create(
 	// 		"res/textures/test2.png");
-	// l_transform transform = lite_gl_transform_create();
-
+	
+	// glUseProgram(shader);
+	// glUniform1i(glGetUniformLocation(shader, "texture"), 0);
+	// glUseProgram(0);
 
 	while (!glfwWindowShouldClose(runtime.window)){
-		l_mesh_render(&mesh);
-		l_runtime_update(&runtime);
+		runtime.frameStartTime = glfwGetTime();
 
+		l_runtime_update(&runtime);
+		l_mesh_render(&mesh);
+
+		runtime.frameEndTime = glfwGetTime();
+		runtime.deltaTime = runtime.frameEndTime - runtime.frameStartTime;
+		printf("frameend: %f framestart %f deltatime: %f\n",
+				runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 	}
 
 	l_runtime_cleanup(&runtime);

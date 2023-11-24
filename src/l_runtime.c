@@ -63,7 +63,6 @@ l_runtime_data l_runtime_init(void){
 }
 
 void l_runtime_update(l_runtime_data* d) {
-	d->frameStartTime = glfwGetTime();
 
 	glfwGetFramebufferSize(d->window, &d->windowWidth, &d->windowHeight);
 	d->aspectRatio = (float)d->windowWidth / (float)d->windowHeight;
@@ -73,10 +72,6 @@ void l_runtime_update(l_runtime_data* d) {
 
 	glfwSwapBuffers(d->window);
 	glfwPollEvents();
-
-	d->frameEndTime = glfwGetTime();
-	d->deltaTime = d->frameEndTime - d->frameStartTime;
-	printf("frameend: %f framestart %f deltatime: %f\n",d->frameEndTime, d->frameStartTime, d->deltaTime);
 }
 
 void l_runtime_cleanup(l_runtime_data* d){
