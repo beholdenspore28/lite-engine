@@ -32,6 +32,7 @@ int main (int argc, char* argv[]) {
 				glViewport(0, 0, runtime.windowWidth, runtime.windowHeight);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			}
+
 			//gameobject update
 			{
 				glUseProgram(shader);
@@ -47,7 +48,7 @@ int main (int argc, char* argv[]) {
 
 			//camera update
 			{
-			
+
 				GLuint viewMatrixUniformLocation = glGetUniformLocation(shader, "u_viewMatrix");
 				if (viewMatrixUniformLocation >= 0) {
 					glUniformMatrix4fv(viewMatrixUniformLocation,1,GL_FALSE,&camera.viewMatrix.elements[0]);
@@ -64,21 +65,18 @@ int main (int argc, char* argv[]) {
 					fprintf(stderr,"failed to locate projection matrix uniform. %s %i", __FILE__, __LINE__);
 				}
 			}
-
 		}
 
 		//update
 		{
 			lite_gl_transform_rotate(&transform,blib_vec3f_scale(BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
+			modelMatrix = lite_gl_transform_GetMatrix(&transform);
+			lite_gl_camera_update(&camera, &runtime);
+			l_mesh_render(&mesh);
 		}
 
 		//late update
 		{
-			modelMatrix = lite_gl_transform_GetMatrix(&transform);
-
-			lite_gl_camera_update(&camera, &runtime);
-			l_mesh_render(&mesh);
-
 			glfwSwapBuffers(runtime.window);
 			glfwPollEvents();
 			runtime.frameEndTime = glfwGetTime();
