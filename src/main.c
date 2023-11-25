@@ -1,8 +1,6 @@
 #include <stdio.h>
-
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-
 #include "l_renderer_gl.h"
 
 int main (int argc, char* argv[]) {
@@ -22,8 +20,6 @@ int main (int argc, char* argv[]) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	//shader and uniforms
-
 	while (!glfwWindowShouldClose(runtime.window)){
 		runtime.frameStartTime = glfwGetTime();
 
@@ -34,31 +30,38 @@ int main (int argc, char* argv[]) {
 
 		//early update
 		{
-			glUseProgram(shader);
-			glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
-			GLuint modelMatrixUniformLocation = glGetUniformLocation(shader, "u_modelMatrix");
-			if (modelMatrixUniformLocation >= 0) {
-				glUniformMatrix4fv(modelMatrixUniformLocation,1,GL_FALSE,&modelMatrix.elements[0]);
-			}
-			else {
-				fprintf(stderr,"failed to locate model matrix uniform. %s %i", __FILE__, __LINE__);
-			}
-
-			GLuint viewMatrixUniformLocation = glGetUniformLocation(shader, "u_viewMatrix");
-			if (viewMatrixUniformLocation >= 0) {
-				glUniformMatrix4fv(viewMatrixUniformLocation,1,GL_FALSE,&camera.viewMatrix.elements[0]);
-			}
-			else {
-				fprintf(stderr,"failed to locate view matrix uniform. %s %i", __FILE__, __LINE__);
+			//gameobject update
+			{
+				glUseProgram(shader);
+				glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
+				GLuint modelMatrixUniformLocation = glGetUniformLocation(shader, "u_modelMatrix");
+				if (modelMatrixUniformLocation >= 0) {
+					glUniformMatrix4fv(modelMatrixUniformLocation,1,GL_FALSE,&modelMatrix.elements[0]);
+				}
+				else {
+					fprintf(stderr,"failed to locate model matrix uniform. %s %i", __FILE__, __LINE__);
+				}
 			}
 
-			GLuint projectionMatrixUniformLocation = glGetUniformLocation(shader, "u_projectionMatrix");
-			if (projectionMatrixUniformLocation >= 0) {
-				glUniformMatrix4fv(projectionMatrixUniformLocation,1,GL_FALSE,&camera.projectionMatrix.elements[0]);
+			//camera update
+			{
+				GLuint viewMatrixUniformLocation = glGetUniformLocation(shader, "u_viewMatrix");
+				if (viewMatrixUniformLocation >= 0) {
+					glUniformMatrix4fv(viewMatrixUniformLocation,1,GL_FALSE,&camera.viewMatrix.elements[0]);
+				}
+				else {
+					fprintf(stderr,"failed to locate view matrix uniform. %s %i", __FILE__, __LINE__);
+				}
+
+				GLuint projectionMatrixUniformLocation = glGetUniformLocation(shader, "u_projectionMatrix");
+				if (projectionMatrixUniformLocation >= 0) {
+					glUniformMatrix4fv(projectionMatrixUniformLocation,1,GL_FALSE,&camera.projectionMatrix.elements[0]);
+				}
+				else {
+					fprintf(stderr,"failed to locate projection matrix uniform. %s %i", __FILE__, __LINE__);
+				}
 			}
-			else {
-				fprintf(stderr,"failed to locate projection matrix uniform. %s %i", __FILE__, __LINE__);
-			}
+
 		}
 
 		//update
