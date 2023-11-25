@@ -109,7 +109,7 @@ static void APIENTRY _l_glDebugMessageCallback(GLenum source, GLenum type, GLuin
 			_severity = "UNKNOWN";
 			break;
 	}
-	printf("%d: %s of %s severity, raised from %s: %s\n",
+	printf("%d: [%s] [%s SEVERITY] raised from %s: %s\n\n",
 			id, _type, _severity, _source, msg);
 }
 
