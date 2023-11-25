@@ -1,4 +1,4 @@
-#include "l_camera.h"
+#include "l_renderer_gl.h"
 
 blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
 	/*translation*/

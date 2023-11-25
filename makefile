@@ -3,7 +3,7 @@ BLIBSRCFILES != find blib/src -name '*.c'
 SRCFILES += ${BLIBSRCFILES}
 
 INCDIR := -Isrc -Iblib/src
-LIBS := -lglfw -ldl -lm -static-libasan
+LIBS := -lglfw -ldl -lm 
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 
 CC ?= gcc

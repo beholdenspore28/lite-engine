@@ -3,11 +3,7 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "l_runtime.h"
-#include "l_shader.h"
-#include "l_mesh.h"
-#include "l_camera.h"
-#include "l_texture.h"
+#include "l_renderer_gl.h"
 
 int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");

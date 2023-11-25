@@ -1,4 +1,4 @@
-#include "l_shader.h"
+#include "l_renderer_gl.h"
 #include "blib_file.h"
 
 static GLuint _lite_gl_compileShader(

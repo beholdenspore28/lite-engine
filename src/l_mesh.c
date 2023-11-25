@@ -1,4 +1,4 @@
-#include "l_mesh.h"
+#include "l_renderer_gl.h"
 
 static GLfloat _LITE_PRIMITIVE_CUBE_VERTEX_DATA[_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH] = {
 	/*front*/

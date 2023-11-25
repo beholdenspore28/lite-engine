@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
-#include "l_runtime.h"
 #include "stdlib.h"
+#include "l_renderer_gl.h"
 
 #define SCR_WIDTH 640
 #define SCR_HEIGHT 480
