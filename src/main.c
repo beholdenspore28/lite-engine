@@ -4,128 +4,8 @@
 #include <GLFW/glfw3.h>
 
 #include "l_runtime.h"
-
-// PRIMITIVE CUBE //===========================================================
-
-#define _LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH 64
-#define _LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH 36
-
-static GLfloat _LITE_PRIMITIVE_CUBE_VERTEX_DATA[_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH] = {
-	/*front*/
-	/*position        //color           //texcoord*/
-	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,/*bottom left*/
-	0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,/*bottom right*/
-	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,/*top left*/
-	0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,/*top right*/
-
-	/*back*/
-	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,/*bottom left*/
-	0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,/*bottom right*/
-	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,/*top left*/
-	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,/*top right*/
-};
-
-static GLuint _LITE_PRIMITIVE_CUBE_INDEX_DATA[_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH] = {
-	/*front*/
-	2,0,1, 3,2,1,
-	/*right*/
-	1,5,7, 7,3,1,
-	/*back*/
-	5,4,6, 5,6,7,
-	/*left*/
-	0,2,6, 0,6,4,
-	/*top*/
-	3,7,6, 2,3,6,
-	/*bottom*/
-	5,1,0, 0,4,5,
-};
-
-// SHADER //===================================================================
-
-#include "blib_file.h"
-
-static GLuint _lite_gl_compileShader(
-		GLuint type, const char* source){
-	/* printf("%s",source);*/
-	/*creation*/
-	GLuint shader = 0;
-	if (type == GL_VERTEX_SHADER){
-		shader = glCreateShader(GL_VERTEX_SHADER);
-	} else if (type == GL_FRAGMENT_SHADER) {
-		shader = glCreateShader(GL_FRAGMENT_SHADER);
-	}
-
-	/*compilation*/
-	glShaderSource(shader,1,&source,NULL);
-	glCompileShader(shader);
-
-	/*Error check*/
-	GLint success;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if (success == GL_FALSE){
-		int length;
-		glGetShaderiv(shader,GL_INFO_LOG_LENGTH,&length);
-		char errorMessage[length];
-		glGetShaderInfoLog(shader,length,&length,errorMessage);
-
-		if (type == GL_VERTEX_SHADER){
-			fprintf(stderr,"failed to compile vertex shader\n%s\n", errorMessage);
-			exit(1);
-		} else if (type == GL_FRAGMENT_SHADER){
-			fprintf(stderr,"failed to compile fragment shader\n%s\n", errorMessage);
-			exit(1);
-		}
-		glDeleteShader(shader);
-	}
-	return shader;
-}
-
-static GLuint _lite_gl_createShaderProgram(
-		const char* vertsrc, const char* fragsrc){
-
-	GLuint program = glCreateProgram();
-	GLuint vertShader = _lite_gl_compileShader(GL_VERTEX_SHADER, vertsrc);
-	GLuint fragShader = _lite_gl_compileShader(GL_FRAGMENT_SHADER, fragsrc);
-
-	glAttachShader(program, vertShader);
-	glAttachShader(program, fragShader);
-	glLinkProgram(program);
-
-	glValidateProgram(program);
-
-	return program;
-}
-
-GLuint l_shader_create() {
-	printf("compiling shaders...\n");
-	GLuint shaderProgram;
-	blib_fileBuffer_t vertSourceFileBuffer = 
-		blib_fileBuffer_read("res/shaders/vertex.glsl");
-	blib_fileBuffer_t fragSourceFileBuffer = 
-		blib_fileBuffer_read("res/shaders/fragment.glsl");
-
-	if (vertSourceFileBuffer.error == true) {
-		fprintf(stderr,"failed to read vertex shader");
-		exit(1);
-	}
-	if (fragSourceFileBuffer.error == true) {
-		fprintf(stderr,"failed to read fragment shader");
-		exit(1);
-	}
-
-	const char* vertSourceString = vertSourceFileBuffer.text;
-	const char* fragSourceString = fragSourceFileBuffer.text;
-
-	shaderProgram = _lite_gl_createShaderProgram(
-			vertSourceString,
-			fragSourceString);
-
-	blib_fileBuffer_close(vertSourceFileBuffer);
-	blib_fileBuffer_close(fragSourceFileBuffer);
-
-	printf("finished compiling shaders\n");
-	return shaderProgram;
-}
+#include "l_shader.h"
+#include "l_mesh.h"
 
 // TRANSFORM //================================================================
 
@@ -242,7 +122,7 @@ lite_gl_camera_t lite_gl_camera_create(float fov) {
 	lite_gl_camera_t cam;
 	
 	cam.transform = lite_gl_transform_create();
-	cam.transform.position.z = 5.0f;
+	cam.transform.position.z = 1.0f;
 	cam.fov = fov;
 	cam.viewMatrix = BLIB_MAT4_IDENTITY;
 	cam.projectionMatrix = BLIB_MAT4_IDENTITY;
@@ -256,82 +136,6 @@ void lite_gl_camera_update(lite_gl_camera_t* cam,l_runtime_data* d) {
 	cam->viewMatrix = lite_gl_camera_GetViewMatrix(&cam->transform);
 	lite_gl_camera_setProjectionMatrix(
 			cam, (float)d->windowWidth / (float)d->windowHeight);
-}
-
-// MESH //=====================================================================
-
-typedef struct {
-	GLfloat* vertexData;
-	GLuint* indexData;
-	GLuint numVertices;
-	GLuint numIndices;
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
-} l_mesh;
-
-l_mesh l_mesh_create(GLuint numIndices,GLuint numVertices,GLuint* indexData, GLfloat* vertexData){
-	l_mesh m = (l_mesh){
-		.vertexData = vertexData, .indexData = indexData,
-			.numVertices = numVertices, .numIndices = numIndices
-	};
-
-	/*vertex array*/
-	glGenVertexArrays(1, &m.VAO);
-	glBindVertexArray(m.VAO);
-
-	/*vertex buffer*/
-	glGenBuffers(1, &m.VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
-	glBufferData(
-			GL_ARRAY_BUFFER,
-			sizeof(GLfloat) * m.numVertices,
-			m.vertexData,
-			GL_STATIC_DRAW);
-
-	/*index/element buffer*/
-	glGenBuffers(1, &m.EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
-	glBufferData(
-			GL_ELEMENT_ARRAY_BUFFER,
-			m.numIndices * sizeof(GLuint),
-			m.indexData,
-			GL_STATIC_DRAW);
-
-	/*position attribute*/
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-			0,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8, (GLvoid*)0);
-
-	/*color attribute*/
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-			1,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8,
-			(GLvoid*)(sizeof(GLfloat) * 3));
-
-	/*texture coord attribute*/
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(
-			2,2,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8, 
-			(GLvoid*)(sizeof(GLfloat)*6));
-
-	/*cleanup*/
-	glBindVertexArray(0);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-
-	/*TODO add the new mesh to the drawing queue*/
-	return m;
-}
-
-void l_mesh_render(l_mesh* m) {
-	glBindVertexArray(m->VAO);
-	glDrawElements(GL_TRIANGLES,m->numIndices,GL_UNSIGNED_INT,0);
-	glUseProgram(0);
-	glBindVertexArray(0);
 }
 
 // TEXTURE //==================================================================
@@ -387,10 +191,7 @@ int main (int argc, char* argv[]) {
 	lite_gl_camera_t camera = lite_gl_camera_create(85.0f);
 	GLuint shader = l_shader_create();
 	
-	l_mesh mesh = l_mesh_create(
-			_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH,_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH,
-			_LITE_PRIMITIVE_CUBE_INDEX_DATA,_LITE_PRIMITIVE_CUBE_VERTEX_DATA
-			);
+	l_mesh mesh = l_mesh_createCube();
 
 	lite_gl_transform_t transform = lite_gl_transform_create();
 
@@ -458,9 +259,9 @@ int main (int argc, char* argv[]) {
 			// printf("frameend: %f framestart %f deltatime: %f\n",
 			// 		runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
-			blib_mat4_printf(modelMatrix, "model");
-			blib_mat4_printf(camera.viewMatrix, "view");
-			blib_mat4_printf(camera.projectionMatrix, "proj");
+			// blib_mat4_printf(modelMatrix, "model");
+			// blib_mat4_printf(camera.viewMatrix, "view");
+			// blib_mat4_printf(camera.projectionMatrix, "proj");
 		}
 	}
 
