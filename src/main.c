@@ -9,7 +9,7 @@ int main (int argc, char* argv[]) {
 
 	lite_gl_camera_t camera = lite_gl_camera_create(85.0f);
 	GLuint shader = l_shader_create();
-	
+
 	l_mesh mesh = l_mesh_createCube();
 
 	lite_gl_transform_t transform = lite_gl_transform_create();
@@ -21,15 +21,17 @@ int main (int argc, char* argv[]) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	while (!glfwWindowShouldClose(runtime.window)){
-		runtime.frameStartTime = glfwGetTime();
-
-		glfwGetFramebufferSize(runtime.window, &runtime.windowWidth, &runtime.windowHeight);
-		runtime.aspectRatio = (float)runtime.windowWidth / (float)runtime.windowHeight;
-		glViewport(0, 0, runtime.windowWidth, runtime.windowHeight);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		//early update
 		{
+			//runtime update
+			{
+				runtime.frameStartTime = glfwGetTime();
+
+				glfwGetFramebufferSize(runtime.window, &runtime.windowWidth, &runtime.windowHeight);
+				runtime.aspectRatio = (float)runtime.windowWidth / (float)runtime.windowHeight;
+				glViewport(0, 0, runtime.windowWidth, runtime.windowHeight);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
 			//gameobject update
 			{
 				glUseProgram(shader);
@@ -45,6 +47,7 @@ int main (int argc, char* argv[]) {
 
 			//camera update
 			{
+			
 				GLuint viewMatrixUniformLocation = glGetUniformLocation(shader, "u_viewMatrix");
 				if (viewMatrixUniformLocation >= 0) {
 					glUniformMatrix4fv(viewMatrixUniformLocation,1,GL_FALSE,&camera.viewMatrix.elements[0]);
