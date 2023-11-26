@@ -90,3 +90,28 @@ GLuint l_renderer_gl_shader_create() {
 	return shaderProgram;
 }
 
+void l_renderer_gl_shader_setMat4Uniform(
+		GLuint shader, 
+		const char* uniformName, 
+		blib_mat4_t* m){
+	GLuint MatrixUniformLocation = glGetUniformLocation(
+			shader, 
+			uniformName
+			);
+	if (MatrixUniformLocation >= 0) {
+		glUniformMatrix4fv(
+				MatrixUniformLocation,
+				1,
+				GL_FALSE,
+				&m->elements[0]
+				);
+	}
+	else {
+		fprintf(
+				stderr,
+				"failed to locate matrix uniform. %s %i",
+				__FILE__, 
+				__LINE__
+				);
+	}
+}

@@ -48,6 +48,11 @@ void l_renderer_gl_mesh_render(l_renderer_gl_mesh* m);
 /*SHADER**********************************************************************/
 
 GLuint l_renderer_gl_shader_create();
+void l_renderer_gl_shader_setMat4Uniform(
+		GLuint shader, 
+		const char* uniformName, 
+		blib_mat4_t* m
+		);
 
 /*TEXTURE*********************************************************************/
 

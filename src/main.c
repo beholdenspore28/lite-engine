@@ -3,33 +3,6 @@
 #include <GLFW/glfw3.h>
 #include "l_renderer_gl.h"
 
-GLuint l_renderer_gl_shader_getMatrixLocation(
-		GLuint shader, 
-		const char* uniformName, 
-		blib_mat4_t* m){
-	GLuint MatrixUniformLocation = glGetUniformLocation(
-			shader, 
-			uniformName
-			);
-	if (MatrixUniformLocation >= 0) {
-		glUniformMatrix4fv(
-				MatrixUniformLocation,
-				1,
-				GL_FALSE,
-				&m->elements[0]
-				);
-	}
-	else {
-		fprintf(
-				stderr,
-				"failed to locate matrix uniform. %s %i",
-				__FILE__, 
-				__LINE__
-				);
-	}
-	return MatrixUniformLocation;
-}
-
 int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");
 
@@ -68,7 +41,7 @@ int main (int argc, char* argv[]) {
 			{
 				glUseProgram(shader);
 				glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
-				l_renderer_gl_shader_getMatrixLocation(
+				l_renderer_gl_shader_setMat4Uniform(
 						shader,
 						"u_modelMatrix",
 						&modelMatrix
@@ -77,12 +50,12 @@ int main (int argc, char* argv[]) {
 
 			//camera update
 			{
-				l_renderer_gl_shader_getMatrixLocation(
+				l_renderer_gl_shader_setMat4Uniform(
 						shader,
 						"u_viewMatrix",
 						&camera.viewMatrix
 						);
-				l_renderer_gl_shader_getMatrixLocation(
+				l_renderer_gl_shader_setMat4Uniform(
 						shader, 
 						"u_projectionMatrix", 
 						&camera.projectionMatrix
