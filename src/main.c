@@ -3,6 +3,11 @@
 #include <GLFW/glfw3.h>
 #include "l_renderer_gl.h"
 
+int getkey(l_renderer_gl_runtime* r, int key) {
+	int state = glfwGetKey(r->window,key);
+	return state == GLFW_PRESS;
+}
+
 int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");
 
@@ -19,6 +24,9 @@ int main (int argc, char* argv[]) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	blib_vec2f_t mousePosition = BLIB_VEC2F_ZERO;
+	blib_vec3f_t moveDirection = BLIB_VEC3F_ZERO;
+
 	while (!glfwWindowShouldClose(runtime.window)){
 		//early update
 		{
@@ -28,32 +36,18 @@ int main (int argc, char* argv[]) {
 
 			{ //Input
 				{ //Keys
-					int state = glfwGetKey(runtime.window, GLFW_KEY_W);
-					if (state == GLFW_PRESS)
-					{
-						printf("W\n");
-					}
-					state = glfwGetKey(runtime.window, GLFW_KEY_S);
-					if (state == GLFW_PRESS)
-					{
-						printf("S\n");
-					}
-					state = glfwGetKey(runtime.window, GLFW_KEY_D);
-					if (state == GLFW_PRESS)
-					{
-						printf("D\n");
-					}
-					state = glfwGetKey(runtime.window, GLFW_KEY_A);
-					if (state == GLFW_PRESS)
-					{
-						printf("A\n");
-					}
+					moveDirection.z = getkey(&runtime, GLFW_KEY_W) - getkey(&runtime, GLFW_KEY_S);
+					moveDirection.x = getkey(&runtime, GLFW_KEY_D) - getkey(&runtime, GLFW_KEY_A);
+					moveDirection = blib_vec3f_normalize(moveDirection);
+					printf("moveDirection [%f, %f, %f]\n", moveDirection.x, moveDirection.y, moveDirection.z);
 				}
 
 				{ //Mouse
 					double xpos, ypos;
 					glfwGetCursorPos(runtime.window, &xpos, &ypos);
-					printf("mouse pos [%f, %f]\n", xpos, ypos);
+					mousePosition.x = (float) xpos;
+					mousePosition.y = (float) ypos;
+					printf("mouse pos [%f, %f]\n", mousePosition.x, mousePosition.y);
 				}
 			}
 		}
