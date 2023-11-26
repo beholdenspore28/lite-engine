@@ -28,7 +28,8 @@ blib_mat4_t lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 	return modelMat;
 }
 
-//TODO this might be an inefficient way to get directions. consider using the cross product of forward and up
+//TODO this might be an inefficient way to get directions. 
+//consider using the cross product of forward and up
 blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
 	blib_mat4_t m = lite_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 

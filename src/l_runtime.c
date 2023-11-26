@@ -5,7 +5,8 @@
 #define SCR_WIDTH 640
 #define SCR_HEIGHT 480
 
-static void _l_runtime_keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
+static void _l_runtime_keyCallback(
+		GLFWwindow* window, int key, int scancode, int action, int mods){
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
@@ -14,7 +15,8 @@ static void _l_runtime_errorCallback(int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-static void APIENTRY _l_glDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+static void APIENTRY _l_glDebugMessageCallback(
+		GLenum source, GLenum type, GLuint id,
 		GLenum severity, GLsizei length,
 		const GLchar *msg, const void *data)
 {
@@ -123,7 +125,8 @@ l_runtime_data l_runtime_init(void){
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH,SCR_HEIGHT,"Game Window",NULL,NULL);
+	GLFWwindow* window = glfwCreateWindow(
+			SCR_WIDTH,SCR_HEIGHT,"Game Window",NULL,NULL);
 	if (!window){
 		fprintf(stderr, "Window or OpenGL context creation failed");
 		exit(1);

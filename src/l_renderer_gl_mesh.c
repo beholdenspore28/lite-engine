@@ -1,6 +1,6 @@
 #include "l_renderer_gl.h"
 
-static GLfloat _LITE_PRIMITIVE_CUBE_VERTEX_DATA[_LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH] = {
+static GLfloat _L_CUBE_VERT_DATA[_L_CUBE_NUM_VERTS] = {
 	/*front*/
 	/*position        //color           //texcoord*/
 	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,/*bottom left*/
@@ -15,7 +15,7 @@ static GLfloat _LITE_PRIMITIVE_CUBE_VERTEX_DATA[_LITE_PRIMITIVE_CUBE_VERTEX_DATA
 	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,/*top right*/
 };
 
-static GLuint _LITE_PRIMITIVE_CUBE_INDEX_DATA[_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH] = {
+static GLuint _L_CUBE_INDEX_DATA[_L_CUBE_NUM_INDICES] = {
 	/*front*/
 	2,0,1, 3,2,1,
 	/*right*/
@@ -32,7 +32,11 @@ static GLuint _LITE_PRIMITIVE_CUBE_INDEX_DATA[_LITE_PRIMITIVE_CUBE_INDEX_DATA_LE
 
 // MESH //=====================================================================
 
-l_mesh l_mesh_create(GLuint numIndices,GLuint numVertices,GLuint* indexData, GLfloat* vertexData){
+l_mesh l_mesh_create(
+		GLuint numIndices,
+		GLuint numVertices,
+		GLuint* indexData, 
+		GLfloat* vertexData){
 	l_mesh m = (l_mesh){
 		.vertexData = vertexData, .indexData = indexData,
 			.numVertices = numVertices, .numIndices = numIndices
@@ -91,8 +95,8 @@ l_mesh l_mesh_create(GLuint numIndices,GLuint numVertices,GLuint* indexData, GLf
 
 l_mesh l_mesh_createCube(){
 	return l_mesh_create(
-			_LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH, _LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH,
-			_LITE_PRIMITIVE_CUBE_INDEX_DATA, _LITE_PRIMITIVE_CUBE_VERTEX_DATA
+			_L_CUBE_NUM_INDICES, _L_CUBE_NUM_VERTS,
+			_L_CUBE_INDEX_DATA, _L_CUBE_VERT_DATA
 			);
 }
 

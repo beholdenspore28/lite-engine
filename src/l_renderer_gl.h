@@ -23,8 +23,8 @@ void l_runtime_cleanup(l_runtime_data* d);
 
 /*MESH************************************************************************/
 
-#define _LITE_PRIMITIVE_CUBE_VERTEX_DATA_LENGTH 64
-#define _LITE_PRIMITIVE_CUBE_INDEX_DATA_LENGTH 36
+#define _L_CUBE_NUM_VERTS 64
+#define _L_CUBE_NUM_INDICES 36
 
 typedef struct {
 	GLfloat* vertexData;
@@ -36,7 +36,12 @@ typedef struct {
 	GLuint EBO;
 } l_mesh;
 
-l_mesh l_mesh_create(GLuint numIndices,GLuint numVertices,GLuint* indexData, GLfloat* vertexData);
+l_mesh l_mesh_create(
+		GLuint numIndices,
+		GLuint numVertices,
+		GLuint* indexData, 
+		GLfloat* vertexData
+		);
 l_mesh l_mesh_createCube();
 void l_mesh_render(l_mesh* m);
 
@@ -64,7 +69,6 @@ blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t);
 blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t);
 blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t);
 void lite_gl_transform_rotate(lite_gl_transform_t* t, blib_vec3f_t rotation);
-
 
 /*CAMERA**********************************************************************/
 
