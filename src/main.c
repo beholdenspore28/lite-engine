@@ -25,6 +25,8 @@ int main (int argc, char* argv[]) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	blib_vec2f_t mousePosition = BLIB_VEC2F_ZERO;
+	blib_vec2f_t lastMousePosition = BLIB_VEC2F_ZERO;
+	blib_vec2f_t mouseDelta = BLIB_VEC2F_ZERO;
 	blib_vec3f_t moveDirection = BLIB_VEC3F_ZERO;
 
 	while (!glfwWindowShouldClose(runtime.window)){
@@ -43,10 +45,15 @@ int main (int argc, char* argv[]) {
 				}
 
 				{ //Mouse
+					mouseDelta = blib_vec2f_subtract(lastMousePosition, mousePosition);
+					lastMousePosition = mousePosition;
+
 					double xpos, ypos;
 					glfwGetCursorPos(runtime.window, &xpos, &ypos);
-					mousePosition.x = (float) xpos;
-					mousePosition.y = (float) ypos;
+					mousePosition.x = (float) xpos - runtime.windowWidth * 0.5f;
+					mousePosition.y = (float) ypos - runtime.windowHeight * 0.5f;
+
+					printf("mouse delta [%f, %f]\n", mouseDelta.x, mouseDelta.y);
 					printf("mouse pos [%f, %f]\n", mousePosition.x, mousePosition.y);
 				}
 			}
@@ -55,9 +62,27 @@ int main (int argc, char* argv[]) {
 		//update
 		{
 			glUseProgram(shader);
-			l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
-						BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
+			// l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
+			// 			BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
 			modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
+			
+			{ //camera mouse look
+				float camRotSpeed = runtime.deltaTime * 0.25f;
+				camera.transform.eulerAngles.y += mouseDelta.x * camRotSpeed;
+				camera.transform.eulerAngles.x = blib_mathf_clamp(
+						camera.transform.eulerAngles.x + mouseDelta.y * camRotSpeed, 
+						-BLIB_PI/2, 
+						BLIB_PI/2
+						);
+			}
+
+			{	//move camera
+				camera.transform.position = blib_vec3f_add(
+						camera.transform.position, 
+						blib_vec3f_scale(moveDirection, runtime.deltaTime)
+						);
+			}
+
 			l_renderer_gl_camera_update(&camera, &runtime);
 			l_renderer_gl_mesh_render(&mesh);
 			glUseProgram(0);
