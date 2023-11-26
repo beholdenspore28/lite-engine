@@ -11,7 +11,8 @@ static void _l_renderer_gl_runtime_keyCallback(
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void _l_renderer_gl_runtime_errorCallback(int error, const char* description){
+static void _l_renderer_gl_runtime_errorCallback(
+		int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
 }
 

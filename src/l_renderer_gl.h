@@ -69,7 +69,8 @@ blib_vec3f_t l_renderer_gl_transform_getLocalForward(
 		l_renderer_gl_transform* t);
 blib_vec3f_t l_renderer_gl_transform_getLocalUp(l_renderer_gl_transform* t);
 blib_vec3f_t l_renderer_gl_transform_getLocalRight(l_renderer_gl_transform* t);
-void l_renderer_gl_transform_rotate(l_renderer_gl_transform* t, blib_vec3f_t rotation);
+void l_renderer_gl_transform_rotate(
+		l_renderer_gl_transform* t, blib_vec3f_t rotation);
 
 /*CAMERA**********************************************************************/
 
@@ -83,7 +84,9 @@ struct l_renderer_gl_camera {
 
 l_renderer_gl_camera l_renderer_gl_camera_create(float fov);
 blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t);
-void l_renderer_gl_camera_setProjectionMatrix(l_renderer_gl_camera* cam, float aspect);
-void l_renderer_gl_camera_update(l_renderer_gl_camera* cam,l_renderer_gl_runtime* d);
+void l_renderer_gl_camera_setProjectionMatrix(
+		l_renderer_gl_camera* cam, float aspect);
+void l_renderer_gl_camera_update(
+		l_renderer_gl_camera* cam,l_renderer_gl_runtime* d);
 
 #endif /*L_RENDERER_H*/

@@ -41,8 +41,14 @@ static GLuint _l_renderer_gl_shader_createProgram(
 		const char* vertsrc, const char* fragsrc){
 
 	GLuint program = glCreateProgram();
-	GLuint vertShader = _l_renderer_gl_shader_compile(GL_VERTEX_SHADER, vertsrc);
-	GLuint fragShader = _l_renderer_gl_shader_compile(GL_FRAGMENT_SHADER, fragsrc);
+	GLuint vertShader = _l_renderer_gl_shader_compile(
+			GL_VERTEX_SHADER, 
+			vertsrc
+			);
+	GLuint fragShader = _l_renderer_gl_shader_compile(
+			GL_FRAGMENT_SHADER, 
+			fragsrc
+			);
 
 	glAttachShader(program, vertShader);
 	glAttachShader(program, fragShader);
