@@ -51,7 +51,9 @@ int main (int argc, char* argv[]) {
 				}
 
 				{ //Mouse
-
+					double xpos, ypos;
+					glfwGetCursorPos(runtime.window, &xpos, &ypos);
+					printf("mouse pos [%f, %f]\n", xpos, ypos);
 				}
 			}
 		}
