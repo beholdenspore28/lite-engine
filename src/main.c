@@ -14,7 +14,7 @@ int main (int argc, char* argv[]) {
 	l_renderer_gl_transform transform = l_renderer_gl_transform_create();
 	blib_mat4_t modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test2.png");
-	
+
 	//texture setup
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -22,54 +22,49 @@ int main (int argc, char* argv[]) {
 	while (!glfwWindowShouldClose(runtime.window)){
 		//early update
 		{
-			//runtime update
-			{
-				runtime.frameStartTime = glfwGetTime();
+			l_renderer_gl_runtime_update(&runtime);
+			l_renderer_gl_shader_useCamera(shader, &camera);
+			l_renderer_gl_shader_setUniforms(shader, modelMatrix);
 
-				glfwGetFramebufferSize(
-						runtime.window, 
-						&runtime.windowWidth, 
-						&runtime.windowHeight
-						);
-				runtime.aspectRatio = 
-					(float)runtime.windowWidth / (float)runtime.windowHeight;
-				glViewport(0, 0, runtime.windowWidth, runtime.windowHeight);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
+			{ //Input
+				{ //Keys
+					int state = glfwGetKey(runtime.window, GLFW_KEY_W);
+					if (state == GLFW_PRESS)
+					{
+						printf("W\n");
+					}
+					state = glfwGetKey(runtime.window, GLFW_KEY_S);
+					if (state == GLFW_PRESS)
+					{
+						printf("S\n");
+					}
+					state = glfwGetKey(runtime.window, GLFW_KEY_D);
+					if (state == GLFW_PRESS)
+					{
+						printf("D\n");
+					}
+					state = glfwGetKey(runtime.window, GLFW_KEY_A);
+					if (state == GLFW_PRESS)
+					{
+						printf("A\n");
+					}
+				}
 
-			//gameobject update
-			{
-				glUseProgram(shader);
-				glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
-				l_renderer_gl_shader_setMat4Uniform(
-						shader,
-						"u_modelMatrix",
-						&modelMatrix
-						);
-			}
+				{ //Mouse
 
-			//camera update
-			{
-				l_renderer_gl_shader_setMat4Uniform(
-						shader,
-						"u_viewMatrix",
-						&camera.viewMatrix
-						);
-				l_renderer_gl_shader_setMat4Uniform(
-						shader, 
-						"u_projectionMatrix", 
-						&camera.projectionMatrix
-						);
+				}
 			}
 		}
 
 		//update
 		{
+			glUseProgram(shader);
 			l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
 						BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
 			modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
 			l_renderer_gl_camera_update(&camera, &runtime);
 			l_renderer_gl_mesh_render(&mesh);
+			glUseProgram(0);
 		}
 
 		//late update

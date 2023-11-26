@@ -5,9 +5,17 @@
 #include "blib_math.h"
 #include "GLFW/glfw3.h"
 
+/*TYPES***********************************************************************/
+
+typedef struct l_renderer_gl_camera l_renderer_gl_camera;
+typedef struct l_renderer_gl_runtime l_renderer_gl_runtime;
+typedef struct l_renderer_gl_mesh l_renderer_gl_mesh;
+typedef struct l_renderer_gl_transform l_renderer_gl_transform;
+typedef struct l_renderer_gl_camera l_renderer_gl_camera;
+
 /*RUNTIME*********************************************************************/
 
-typedef struct {
+struct l_renderer_gl_runtime{
 	GLFWwindow* window;
 	int windowWidth;
 	int windowHeight;
@@ -16,9 +24,10 @@ typedef struct {
 	double frameStartTime;
 	double frameEndTime;
 	double deltaTime;
-}l_renderer_gl_runtime;
+};
 
 l_renderer_gl_runtime l_renderer_gl_runtime_init(void);
+void l_renderer_gl_runtime_update(l_renderer_gl_runtime* r);
 void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d);
 
 /*MESH************************************************************************/
@@ -26,7 +35,7 @@ void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d);
 #define _L_CUBE_NUM_VERTS 64
 #define _L_CUBE_NUM_INDICES 36
 
-typedef struct {
+struct l_renderer_gl_mesh{
 	GLfloat* vertexData;
 	GLuint* indexData;
 	GLuint numVertices;
@@ -34,7 +43,7 @@ typedef struct {
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-} l_renderer_gl_mesh;
+} ;
 
 l_renderer_gl_mesh l_renderer_gl_mesh_create(
 		GLuint numIndices,
@@ -54,6 +63,9 @@ void l_renderer_gl_shader_setMat4Uniform(
 		blib_mat4_t* m
 		);
 
+void l_renderer_gl_shader_setUniforms(GLuint shader, blib_mat4_t modelMatrix);
+void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera* cam);
+
 /*TEXTURE*********************************************************************/
 
 //TODO make a destroy texture func to clean this up
@@ -61,12 +73,12 @@ GLuint l_renderer_gl_texture_create(const char* imageFile);
 
 /*TRANSFORM*******************************************************************/
 
-typedef struct {
+struct l_renderer_gl_transform{
 	blib_vec3f_t position;
 	blib_vec3f_t eulerAngles;
 	blib_vec3f_t scale;
 
-} l_renderer_gl_transform;
+} ;
 
 l_renderer_gl_transform l_renderer_gl_transform_create();
 blib_mat4_t l_renderer_gl_transform_GetMatrix(l_renderer_gl_transform* t);
@@ -79,7 +91,6 @@ void l_renderer_gl_transform_rotate(
 
 /*CAMERA**********************************************************************/
 
-typedef struct l_renderer_gl_camera l_renderer_gl_camera;
 struct l_renderer_gl_camera {
 	l_renderer_gl_transform transform;
 	blib_mat4_t projectionMatrix;

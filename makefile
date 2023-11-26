@@ -28,4 +28,4 @@ ${OBJFILES}: ${@:build/obj/%.o=%.c}
 	${CC} -c ${@:build/obj/%.o=%.c} ${CFLAGS} ${INCDIR} -o ${@}
 
 clean: 
-	rm build/bin/test
+	rm -r build/*

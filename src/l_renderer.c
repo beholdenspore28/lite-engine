@@ -164,6 +164,20 @@ l_renderer_gl_runtime l_renderer_gl_runtime_init(void){
 	return data;
 }
 
+void l_renderer_gl_runtime_update(l_renderer_gl_runtime* r){
+	r->frameStartTime = glfwGetTime();
+
+	glfwGetFramebufferSize(
+			r->window, 
+			&r->windowWidth, 
+			&r->windowHeight
+			);
+	r->aspectRatio = 
+		(float)r->windowWidth / (float)r->windowHeight;
+	glViewport(0, 0, r->windowWidth, r->windowHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d){
 	glfwDestroyWindow(d->window);
 	glfwTerminate();
