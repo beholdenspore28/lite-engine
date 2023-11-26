@@ -1,6 +1,6 @@
 #include "l_renderer_gl.h"
 
-blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
+blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t){
 	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
@@ -20,7 +20,7 @@ blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t){
 	return modelMat;
 }
 
-void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
+void l_renderer_gl_camera_setProjectionMatrix(l_renderer_gl_camera* cam, float aspect) {
 	cam->projectionMatrix = blib_mat4_perspective(
 			blib_mathf_deg2rad(cam->fov),
 			aspect,
@@ -28,10 +28,10 @@ void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect) {
 			1000.0f); /*far clip*/
 }
 
-lite_gl_camera_t lite_gl_camera_create(float fov) {
-	lite_gl_camera_t cam;
+l_renderer_gl_camera l_renderer_gl_camera_create(float fov) {
+	l_renderer_gl_camera cam;
 	
-	cam.transform = lite_gl_transform_create();
+	cam.transform = l_renderer_gl_transform_create();
 	cam.transform.position.z = 1.0f;
 	cam.fov = fov;
 	cam.viewMatrix = BLIB_MAT4_IDENTITY;
@@ -42,8 +42,8 @@ lite_gl_camera_t lite_gl_camera_create(float fov) {
 
 //TODO use events to tell the camera to update its projection matrix when
 //the screen resolution changes
-void lite_gl_camera_update(lite_gl_camera_t* cam,l_runtime_data* d) {
-	cam->viewMatrix = lite_gl_camera_GetViewMatrix(&cam->transform);
-	lite_gl_camera_setProjectionMatrix(
+void l_renderer_gl_camera_update(l_renderer_gl_camera* cam,l_renderer_gl_runtime* d) {
+	cam->viewMatrix = l_renderer_gl_camera_GetViewMatrix(&cam->transform);
+	l_renderer_gl_camera_setProjectionMatrix(
 			cam, (float)d->windowWidth / (float)d->windowHeight);
 }

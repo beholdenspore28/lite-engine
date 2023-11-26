@@ -1,7 +1,7 @@
 #include "l_renderer_gl.h"
 #include "blib_file.h"
 
-static GLuint _lite_gl_compileShader(
+static GLuint _l_renderer_gl_shader_compile(
 		GLuint type, const char* source){
 	/* printf("%s",source);*/
 	/*creation*/
@@ -37,12 +37,12 @@ static GLuint _lite_gl_compileShader(
 	return shader;
 }
 
-static GLuint _lite_gl_createShaderProgram(
+static GLuint _l_renderer_gl_shader_createProgram(
 		const char* vertsrc, const char* fragsrc){
 
 	GLuint program = glCreateProgram();
-	GLuint vertShader = _lite_gl_compileShader(GL_VERTEX_SHADER, vertsrc);
-	GLuint fragShader = _lite_gl_compileShader(GL_FRAGMENT_SHADER, fragsrc);
+	GLuint vertShader = _l_renderer_gl_shader_compile(GL_VERTEX_SHADER, vertsrc);
+	GLuint fragShader = _l_renderer_gl_shader_compile(GL_FRAGMENT_SHADER, fragsrc);
 
 	glAttachShader(program, vertShader);
 	glAttachShader(program, fragShader);
@@ -53,7 +53,7 @@ static GLuint _lite_gl_createShaderProgram(
 	return program;
 }
 
-GLuint l_shader_create() {
+GLuint l_renderer_gl_shader_create() {
 	printf("compiling shaders...\n");
 	GLuint shaderProgram;
 	blib_fileBuffer_t vertSourceFileBuffer = 
@@ -73,7 +73,7 @@ GLuint l_shader_create() {
 	const char* vertSourceString = vertSourceFileBuffer.text;
 	const char* fragSourceString = fragSourceFileBuffer.text;
 
-	shaderProgram = _lite_gl_createShaderProgram(
+	shaderProgram = _l_renderer_gl_shader_createProgram(
 			vertSourceString,
 			fragSourceString);
 

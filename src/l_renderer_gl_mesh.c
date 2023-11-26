@@ -32,12 +32,12 @@ static GLuint _L_CUBE_INDEX_DATA[_L_CUBE_NUM_INDICES] = {
 
 // MESH //=====================================================================
 
-l_mesh l_mesh_create(
+l_renderer_gl_mesh l_renderer_gl_mesh_create(
 		GLuint numIndices,
 		GLuint numVertices,
 		GLuint* indexData, 
 		GLfloat* vertexData){
-	l_mesh m = (l_mesh){
+	l_renderer_gl_mesh m = (l_renderer_gl_mesh){
 		.vertexData = vertexData, .indexData = indexData,
 			.numVertices = numVertices, .numIndices = numIndices
 	};
@@ -93,14 +93,14 @@ l_mesh l_mesh_create(
 	return m;
 }
 
-l_mesh l_mesh_createCube(){
-	return l_mesh_create(
+l_renderer_gl_mesh l_renderer_gl_mesh_createCube(){
+	return l_renderer_gl_mesh_create(
 			_L_CUBE_NUM_INDICES, _L_CUBE_NUM_VERTS,
 			_L_CUBE_INDEX_DATA, _L_CUBE_VERT_DATA
 			);
 }
 
-void l_mesh_render(l_mesh* m) {
+void l_renderer_gl_mesh_render(l_renderer_gl_mesh* m) {
 	glBindVertexArray(m->VAO);
 	glDrawElements(GL_TRIANGLES,m->numIndices,GL_UNSIGNED_INT,0);
 	glUseProgram(0);

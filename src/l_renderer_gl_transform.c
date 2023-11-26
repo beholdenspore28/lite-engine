@@ -1,14 +1,14 @@
 #include "l_renderer_gl.h"
 
-lite_gl_transform_t lite_gl_transform_create(){
-	lite_gl_transform_t t;
+l_renderer_gl_transform l_renderer_gl_transform_create(){
+	l_renderer_gl_transform t;
 	t.scale = BLIB_VEC3F_ONE;
 	t.eulerAngles = BLIB_VEC3F_ZERO;
 	t.position = BLIB_VEC3F_ZERO;
 	return t;
 }
 
-blib_mat4_t lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
+blib_mat4_t l_renderer_gl_transform_GetMatrix(l_renderer_gl_transform* t){
 	/*translation*/
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
@@ -30,8 +30,9 @@ blib_mat4_t lite_gl_transform_GetMatrix(lite_gl_transform_t* t){
 
 //TODO this might be an inefficient way to get directions. 
 //consider using the cross product of forward and up
-blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
-	blib_mat4_t m = lite_gl_transform_GetMatrix(t);
+blib_vec3f_t l_renderer_gl_transform_getLocalForward(
+		l_renderer_gl_transform* t){
+	blib_mat4_t m = l_renderer_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[2], 
 		.y=m.elements[6], 
@@ -39,8 +40,8 @@ blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t){
 	};
 }
 
-blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t){
-	blib_mat4_t m = lite_gl_transform_GetMatrix(t);
+blib_vec3f_t l_renderer_gl_transform_getLocalUp(l_renderer_gl_transform* t){
+	blib_mat4_t m = l_renderer_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[1], 
 		.y=m.elements[5], 
@@ -48,8 +49,8 @@ blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t){
 	};
 }
 
-blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
-	blib_mat4_t m = lite_gl_transform_GetMatrix(t);
+blib_vec3f_t l_renderer_gl_transform_getLocalRight(l_renderer_gl_transform* t){
+	blib_mat4_t m = l_renderer_gl_transform_GetMatrix(t);
 	return (blib_vec3f_t) { 
 		.x=m.elements[0], 
 		.y=m.elements[4], 
@@ -58,7 +59,8 @@ blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t){
 }
 
 //TODO? move this func to blib as a general euler rotation func?
-void lite_gl_transform_rotate(lite_gl_transform_t* t, blib_vec3f_t rotation){
+void l_renderer_gl_transform_rotate(
+		l_renderer_gl_transform* t, blib_vec3f_t rotation){
 	t->eulerAngles = blib_vec3f_add(t->eulerAngles,rotation);
 	t->eulerAngles.x = blib_mathf_wrapAngle(t->eulerAngles.x);
 	t->eulerAngles.y = blib_mathf_wrapAngle(t->eulerAngles.y);

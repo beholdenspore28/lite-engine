@@ -16,10 +16,10 @@ typedef struct {
 	double frameStartTime;
 	double frameEndTime;
 	double deltaTime;
-}l_runtime_data;
+}l_renderer_gl_runtime;
 
-l_runtime_data l_runtime_init(void);
-void l_runtime_cleanup(l_runtime_data* d);
+l_renderer_gl_runtime l_renderer_gl_runtime_init(void);
+void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d);
 
 /*MESH************************************************************************/
 
@@ -34,25 +34,25 @@ typedef struct {
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-} l_mesh;
+} l_renderer_gl_mesh;
 
-l_mesh l_mesh_create(
+l_renderer_gl_mesh l_renderer_gl_mesh_create(
 		GLuint numIndices,
 		GLuint numVertices,
 		GLuint* indexData, 
 		GLfloat* vertexData
 		);
-l_mesh l_mesh_createCube();
-void l_mesh_render(l_mesh* m);
+l_renderer_gl_mesh l_renderer_gl_mesh_createCube();
+void l_renderer_gl_mesh_render(l_renderer_gl_mesh* m);
 
 /*SHADER**********************************************************************/
 
-GLuint l_shader_create();
+GLuint l_renderer_gl_shader_create();
 
 /*TEXTURE*********************************************************************/
 
 //TODO make a destroy texture func to clean this up
-GLuint lite_gl_texture_create(const char* imageFile);
+GLuint l_renderer_gl_texture_create(const char* imageFile);
 
 /*TRANSFORM*******************************************************************/
 
@@ -61,28 +61,29 @@ typedef struct {
 	blib_vec3f_t eulerAngles;
 	blib_vec3f_t scale;
 
-} lite_gl_transform_t;
+} l_renderer_gl_transform;
 
-lite_gl_transform_t lite_gl_transform_create();
-blib_mat4_t lite_gl_transform_GetMatrix(lite_gl_transform_t* t);
-blib_vec3f_t lite_transform_getLocalForward(lite_gl_transform_t* t);
-blib_vec3f_t lite_transform_getLocalUp(lite_gl_transform_t* t);
-blib_vec3f_t lite_transform_getLocalRight(lite_gl_transform_t* t);
-void lite_gl_transform_rotate(lite_gl_transform_t* t, blib_vec3f_t rotation);
+l_renderer_gl_transform l_renderer_gl_transform_create();
+blib_mat4_t l_renderer_gl_transform_GetMatrix(l_renderer_gl_transform* t);
+blib_vec3f_t l_renderer_gl_transform_getLocalForward(
+		l_renderer_gl_transform* t);
+blib_vec3f_t l_renderer_gl_transform_getLocalUp(l_renderer_gl_transform* t);
+blib_vec3f_t l_renderer_gl_transform_getLocalRight(l_renderer_gl_transform* t);
+void l_renderer_gl_transform_rotate(l_renderer_gl_transform* t, blib_vec3f_t rotation);
 
 /*CAMERA**********************************************************************/
 
-typedef struct lite_gl_camera_t lite_gl_camera_t;
-struct lite_gl_camera_t {
-	lite_gl_transform_t transform;
+typedef struct l_renderer_gl_camera l_renderer_gl_camera;
+struct l_renderer_gl_camera {
+	l_renderer_gl_transform transform;
 	blib_mat4_t projectionMatrix;
 	blib_mat4_t viewMatrix;
 	float fov;
 };
 
-lite_gl_camera_t lite_gl_camera_create(float fov);
-blib_mat4_t lite_gl_camera_GetViewMatrix(lite_gl_transform_t* t);
-void lite_gl_camera_setProjectionMatrix(lite_gl_camera_t* cam, float aspect);
-void lite_gl_camera_update(lite_gl_camera_t* cam,l_runtime_data* d);
+l_renderer_gl_camera l_renderer_gl_camera_create(float fov);
+blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t);
+void l_renderer_gl_camera_setProjectionMatrix(l_renderer_gl_camera* cam, float aspect);
+void l_renderer_gl_camera_update(l_renderer_gl_camera* cam,l_renderer_gl_runtime* d);
 
 #endif /*L_RENDERER_H*/

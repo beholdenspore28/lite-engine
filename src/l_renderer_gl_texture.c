@@ -2,7 +2,7 @@
 #include "glad/glad.h"
 
 //TODO make a destroy texture func to clean this up
-GLuint lite_gl_texture_create(const char* imageFile){
+GLuint l_renderer_gl_texture_create(const char* imageFile){
 	/*create texture*/
 	GLuint texture;
 	glGenTextures(1,&texture);
