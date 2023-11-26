@@ -27,7 +27,7 @@ int main (int argc, char* argv[]) {
 	blib_vec2f_t mousePosition = BLIB_VEC2F_ZERO;
 	blib_vec2f_t lastMousePosition = BLIB_VEC2F_ZERO;
 	blib_vec2f_t mouseDelta = BLIB_VEC2F_ZERO;
-	blib_vec3f_t moveDirection = BLIB_VEC3F_ZERO;
+	blib_vec3f_t moveInputDirection = BLIB_VEC3F_ZERO;
 
 	while (!glfwWindowShouldClose(runtime.window)){
 		//early update
@@ -35,13 +35,15 @@ int main (int argc, char* argv[]) {
 			l_renderer_gl_runtime_update(&runtime);
 			l_renderer_gl_shader_useCamera(shader, &camera);
 			l_renderer_gl_shader_setUniforms(shader, modelMatrix);
+			l_renderer_gl_camera_update(&camera, &runtime);
 
 			{ //Input
 				{ //Keys
-					moveDirection.z = getkey(&runtime, GLFW_KEY_W) - getkey(&runtime, GLFW_KEY_S);
-					moveDirection.x = getkey(&runtime, GLFW_KEY_D) - getkey(&runtime, GLFW_KEY_A);
-					moveDirection = blib_vec3f_normalize(moveDirection);
-					printf("moveDirection [%f, %f, %f]\n", moveDirection.x, moveDirection.y, moveDirection.z);
+					moveInputDirection.x = getkey(&runtime, GLFW_KEY_A) - getkey(&runtime, GLFW_KEY_D);
+					moveInputDirection.y = getkey(&runtime, GLFW_KEY_LEFT_SHIFT) - getkey(&runtime, GLFW_KEY_SPACE);
+					moveInputDirection.z = getkey(&runtime, GLFW_KEY_S) - getkey(&runtime, GLFW_KEY_W);
+					moveInputDirection = blib_vec3f_normalize(moveInputDirection);
+					printf("moveInputDirection [%f, %f, %f]\n", moveInputDirection.x, moveInputDirection.y, moveInputDirection.z);
 				}
 
 				{ //Mouse
@@ -77,13 +79,30 @@ int main (int argc, char* argv[]) {
 			}
 
 			{	//move camera
+				//global directions
+				// camera.transform.position = blib_vec3f_add(
+				// 		camera.transform.position, 
+				// 		blib_vec3f_scale(moveDirection, runtime.deltaTime)
+				// 		);
+
+				//local directions
+				blib_vec3f_t cameraUp = l_renderer_gl_transform_getLocalUp(&camera.transform);
+				blib_vec3f_t cameraRight = l_renderer_gl_transform_getLocalRight(&camera.transform);
+				blib_vec3f_t cameraForward = l_renderer_gl_transform_getLocalForward(&camera.transform);
+
+				float camMoveSpeed = runtime.deltaTime;
+				cameraUp = blib_vec3f_scale(cameraUp, camMoveSpeed * moveInputDirection.y);
+				cameraRight = blib_vec3f_scale(cameraRight, camMoveSpeed * moveInputDirection.x);
+				cameraForward = blib_vec3f_scale(cameraForward, camMoveSpeed * moveInputDirection.z);
+				
+				blib_vec3f_t finalMoveDirection = blib_vec3f_add(cameraUp,blib_vec3f_add(cameraRight,cameraForward));
+
 				camera.transform.position = blib_vec3f_add(
 						camera.transform.position, 
-						blib_vec3f_scale(moveDirection, runtime.deltaTime)
-						);
+						finalMoveDirection
+						); 
 			}
 
-			l_renderer_gl_camera_update(&camera, &runtime);
 			l_renderer_gl_mesh_render(&mesh);
 			glUseProgram(0);
 		}
@@ -97,9 +116,9 @@ int main (int argc, char* argv[]) {
 			// printf("frameend: %f framestart %f deltatime: %f\n",
 			// 		runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
-			// blib_mat4_printf(modelMatrix, "model");
-			// blib_mat4_printf(camera.viewMatrix, "view");
-			// blib_mat4_printf(camera.projectionMatrix, "proj");
+			blib_mat4_printf(modelMatrix, "model");
+			blib_mat4_printf(camera.viewMatrix, "view");
+			blib_mat4_printf(camera.projectionMatrix, "proj");
 		}
 	}
 
