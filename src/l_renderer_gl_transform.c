@@ -20,8 +20,8 @@ blib_mat4_t l_renderer_gl_transform_getMatrix(l_renderer_gl_transform* t){
 
 	/*TRS = model matrix*/
 	blib_mat4_t modelMat = BLIB_MAT4_IDENTITY;
-	modelMat = blib_mat4_multiply(translationMat, modelMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+	modelMat = blib_mat4_multiply(translationMat, modelMat);
 	modelMat = blib_mat4_lookAt(
 			t->position,
 			blib_vec3f_add(t->position, forward),
@@ -54,12 +54,12 @@ blib_mat4_t l_renderer_gl_transform_getMatrix(l_renderer_gl_transform* t){
 //consider using the cross product of forward and up
 blib_vec3f_t l_renderer_gl_transform_getLocalForward(
 		l_renderer_gl_transform* t){
-	blib_vec3f_t negativeForward = BLIB_VEC3F_ZERO;
-	negativeForward.x = cosf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
-	negativeForward.y = sinf(t->eulerAngles.x);
-	negativeForward.z = sinf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
-	negativeForward = blib_vec3f_normalize(negativeForward);
-	return blib_vec3f_negate(negativeForward);
+	blib_vec3f_t forward = BLIB_VEC3F_ZERO;
+	forward.x = cosf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
+	forward.y = sinf(t->eulerAngles.x);
+	forward.z = sinf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
+	forward = blib_vec3f_normalize(forward);
+	return forward;
 }
 
 blib_vec3f_t l_renderer_gl_transform_getLocalRight(l_renderer_gl_transform* t){
@@ -79,7 +79,6 @@ blib_vec3f_t l_renderer_gl_transform_getLocalUp(l_renderer_gl_transform* t){
 				)
 			);
 }
-
 
 //TODO? move this func to blib as a general euler rotation func?
 void l_renderer_gl_transform_rotate(
