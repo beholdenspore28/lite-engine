@@ -5,17 +5,29 @@ blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t){
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
 	/*rotation*/
-	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
-	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
-	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
-	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
+	// blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
+	// blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
+	// blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
+	// blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p);
+	
+	blib_vec3f_t forward= BLIB_VEC3F_ZERO;
+	forward.x = cosf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
+	forward.y = sinf(t->eulerAngles.x);
+	forward.z = sinf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
+	forward = blib_vec3f_normalize(forward);
 
 	/*scale*/
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
 
 	/*TRS = model matrix*/
-	blib_mat4_t modelMat = blib_mat4_multiply(translationMat, rotationMat);
+	blib_mat4_t modelMat = BLIB_MAT4_IDENTITY;
+	modelMat = blib_mat4_multiply(translationMat, modelMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
+	modelMat = blib_mat4_lookAt(
+			t->position,
+			blib_vec3f_add(t->position, forward),
+			BLIB_VEC3F_UP
+			);
 
 	return modelMat;
 }
