@@ -5,11 +5,6 @@ blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t){
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
 	/*rotation*/
-	// blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
-	// blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
-	// blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
-	// blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p);
-	
 	blib_vec3f_t forward= BLIB_VEC3F_ZERO;
 	forward.x = cosf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
 	forward.y = sinf(t->eulerAngles.x);

@@ -17,7 +17,7 @@ int main (int argc, char* argv[]) {
 	GLuint shader = l_renderer_gl_shader_create();
 	l_renderer_gl_mesh mesh = l_renderer_gl_mesh_createCube();
 	l_renderer_gl_transform transform = l_renderer_gl_transform_create();
-	blib_mat4_t modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
+	blib_mat4_t modelMatrix = l_renderer_gl_transform_getMatrix(&transform);
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test2.png");
 
 	//texture setup
@@ -30,8 +30,8 @@ int main (int argc, char* argv[]) {
 	blib_vec3f_t moveInputDirection = BLIB_VEC3F_ZERO;
 
 	while (!glfwWindowShouldClose(runtime.window)){
-		//early update
-		{
+		
+		{ //early update
 			l_renderer_gl_runtime_update(&runtime);
 			l_renderer_gl_shader_useCamera(shader, &camera);
 			l_renderer_gl_shader_setUniforms(shader, modelMatrix);
@@ -62,12 +62,12 @@ int main (int argc, char* argv[]) {
 			}
 		}
 
-		//update
-		{
+		
+		{ //update
 			glUseProgram(shader);
 			// l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
 			// 			BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
-			modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
+			modelMatrix = l_renderer_gl_transform_getMatrix(&transform);
 			
 			{ //camera mouse look
 				float camRotSpeed = runtime.deltaTime * 0.25f;
@@ -108,8 +108,8 @@ int main (int argc, char* argv[]) {
 			glUseProgram(0);
 		}
 
-		//late update
-		{
+		
+		{ //late update
 			glfwSwapBuffers(runtime.window);
 			glfwPollEvents();
 			runtime.frameEndTime = glfwGetTime();

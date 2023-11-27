@@ -81,7 +81,7 @@ struct l_renderer_gl_transform{
 } ;
 
 l_renderer_gl_transform l_renderer_gl_transform_create();
-blib_mat4_t l_renderer_gl_transform_GetMatrix(l_renderer_gl_transform* t);
+blib_mat4_t l_renderer_gl_transform_getMatrix(l_renderer_gl_transform* t);
 blib_vec3f_t l_renderer_gl_transform_getLocalForward(
 		l_renderer_gl_transform* t);
 blib_vec3f_t l_renderer_gl_transform_getLocalUp(l_renderer_gl_transform* t);
