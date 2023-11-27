@@ -1,30 +1,7 @@
 #include "l_renderer_gl.h"
 
-blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t){
-	/*translation*/
-	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
-
-	/*rotation*/
-	blib_vec3f_t forward= BLIB_VEC3F_ZERO;
-	forward.x = cosf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
-	forward.y = sinf(t->eulerAngles.x);
-	forward.z = sinf(t->eulerAngles.y) * cosf(t->eulerAngles.x);
-	forward = blib_vec3f_normalize(forward);
-
-	/*scale*/
-	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
-
-	/*TRS = model matrix*/
-	blib_mat4_t modelMat = BLIB_MAT4_IDENTITY;
-	modelMat = blib_mat4_multiply(translationMat, modelMat);
-	modelMat = blib_mat4_multiply(scaleMat, modelMat);
-	modelMat = blib_mat4_lookAt(
-			t->position,
-			blib_vec3f_add(t->position, forward),
-			BLIB_VEC3F_UP
-			);
-
-	return modelMat;
+blib_mat4_t l_renderer_gl_camera_getViewMatrix(l_renderer_gl_transform* t){
+	return l_renderer_gl_transform_getMatrix(t);
 }
 
 void l_renderer_gl_camera_setProjectionMatrix(
@@ -52,7 +29,7 @@ l_renderer_gl_camera l_renderer_gl_camera_create(float fov) {
 //the screen resolution changes
 void l_renderer_gl_camera_update(
 		l_renderer_gl_camera* cam,l_renderer_gl_runtime* d) {
-	cam->viewMatrix = l_renderer_gl_camera_GetViewMatrix(&cam->transform);
+	cam->viewMatrix = l_renderer_gl_camera_getViewMatrix(&cam->transform);
 	l_renderer_gl_camera_setProjectionMatrix(
 			cam, (float)d->windowWidth / (float)d->windowHeight);
 }

@@ -83,12 +83,12 @@ int main (int argc, char* argv[]) {
 			{ //camera mouse look
 				float camRotSpeed = runtime.deltaTime * 0.25f;
 				camera.transform.eulerAngles.y += mouseDelta.x * camRotSpeed;
-				camera.transform.eulerAngles.x += mouseDelta.y * camRotSpeed;
+				// camera.transform.eulerAngles.x += mouseDelta.y * camRotSpeed;
 
 				camera.transform.eulerAngles.x = blib_mathf_clamp(
 						camera.transform.eulerAngles.x + mouseDelta.y * camRotSpeed, 
-						-BLIB_PI/2, 
-						BLIB_PI/2
+						-BLIB_PI/2.9999f, 
+						BLIB_PI/2.9999f
 						);
 			}
 
@@ -105,7 +105,7 @@ int main (int argc, char* argv[]) {
 					blib_vec3f_t cameraRight = l_renderer_gl_transform_getLocalRight(&camera.transform);
 					blib_vec3f_t cameraForward = l_renderer_gl_transform_getLocalForward(&camera.transform);
 
-					float camMoveSpeed = runtime.deltaTime;
+					float camMoveSpeed = runtime.deltaTime * 5.0f;
 					cameraUp = blib_vec3f_scale(cameraUp, camMoveSpeed * moveInputDirection.y);
 					cameraRight = blib_vec3f_scale(cameraRight, camMoveSpeed * moveInputDirection.x);
 					cameraForward = blib_vec3f_scale(cameraForward, camMoveSpeed * moveInputDirection.z);
@@ -129,8 +129,8 @@ int main (int argc, char* argv[]) {
 			glfwPollEvents();
 			runtime.frameEndTime = glfwGetTime();
 			runtime.deltaTime = runtime.frameEndTime - runtime.frameStartTime;
-			// printf("frameend: %f framestart %f deltatime: %f\n",
-			// 		runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
+			printf("frameend: %f framestart %f deltatime: %f\n",
+					runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
 			// blib_mat4_printf(modelMatrix, "model");
 			// blib_mat4_printf(camera.viewMatrix, "view");
