@@ -93,7 +93,7 @@ int main (int argc, char* argv[]) {
 						-BLIB_PI/2.0f, 
 						BLIB_PI/2.0f
 						);
-				blib_vec3f_printf(camera.transform.eulerAngles, "camera eulerAngles");
+				// blib_vec3f_printf(camera.transform.eulerAngles, "camera eulerAngles");
 			}
 
 			{	//move camera
@@ -145,11 +145,11 @@ int main (int argc, char* argv[]) {
 			glfwPollEvents();
 			runtime.frameEndTime = glfwGetTime();
 			runtime.deltaTime = runtime.frameEndTime - runtime.frameStartTime;
-			printf("frameend: %f framestart %f deltatime: %f\n",
-					runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
+			// printf("frameend: %f framestart %f deltatime: %f\n",
+			// 		runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
 			// blib_mat4_printf(modelMatrix, "model");
-			blib_mat4_printf(camera.viewMatrix, "view");
+			// blib_mat4_printf(camera.viewMatrix, "view");
 			// blib_mat4_printf(camera.projectionMatrix, "proj");
 		}
 	}
