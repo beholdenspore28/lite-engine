@@ -6,12 +6,10 @@ INCDIR := -Isrc -Iblib/src
 LIBS := -lglfw -ldl -lm 
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 
-CC ?= clang
+CC ?= gcc
 
-SAN := -fsanitize=address -fno-optimize-sibling-calls
-
-CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 ${SAN}
-LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 ${SAN}
+CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-optimize-sibling-calls
+LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address -fno-optimize-sibling-calls
 
 default: run
 

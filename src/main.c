@@ -17,7 +17,7 @@ int main (int argc, char* argv[]) {
 	GLuint shader = l_renderer_gl_shader_create();
 	l_renderer_gl_mesh mesh = l_renderer_gl_mesh_createCube();
 	l_renderer_gl_transform transform = l_renderer_gl_transform_create();
-	blib_mat4_t modelMatrix = l_renderer_gl_transform_getMatrix(&transform);
+	blib_mat4_t modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test2.png");
 
 	//texture setup
@@ -30,8 +30,8 @@ int main (int argc, char* argv[]) {
 	blib_vec3f_t moveInputDirection = BLIB_VEC3F_ZERO;
 
 	while (!glfwWindowShouldClose(runtime.window)){
-		
-		{ //early update
+		//early update
+		{
 			l_renderer_gl_runtime_update(&runtime);
 			l_renderer_gl_shader_useCamera(shader, &camera);
 			l_renderer_gl_shader_setUniforms(shader, modelMatrix);
@@ -39,26 +39,15 @@ int main (int argc, char* argv[]) {
 
 			{ //Input
 				{ //Keys
-					moveInputDirection.x = 
-						getkey(&runtime, GLFW_KEY_A) - 
-						getkey(&runtime, GLFW_KEY_D);
-					moveInputDirection.y = 
-						getkey(&runtime, GLFW_KEY_LEFT_SHIFT) - 
-						getkey(&runtime, GLFW_KEY_SPACE);
-					moveInputDirection.z = 
-						getkey(&runtime, GLFW_KEY_S) - 
-						getkey(&runtime, GLFW_KEY_W);
+					moveInputDirection.x = getkey(&runtime, GLFW_KEY_A) - getkey(&runtime, GLFW_KEY_D);
+					moveInputDirection.y = getkey(&runtime, GLFW_KEY_LEFT_SHIFT) - getkey(&runtime, GLFW_KEY_SPACE);
+					moveInputDirection.z = getkey(&runtime, GLFW_KEY_S) - getkey(&runtime, GLFW_KEY_W);
 					moveInputDirection = blib_vec3f_normalize(moveInputDirection);
-					// blib_vec3f_printf(moveInputDirection, "move input");
+					printf("moveInputDirection [%f, %f, %f]\n", moveInputDirection.x, moveInputDirection.y, moveInputDirection.z);
 				}
 
 				{ //Mouse
-					// glfwSetInputMode(
-					// 		runtime.window, 
-					// 		GLFW_CURSOR, 
-					// 		GLFW_CURSOR_DISABLED
-					// 		);
-
+					glfwSetInputMode(runtime.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 					mouseDelta = blib_vec2f_subtract(lastMousePosition, mousePosition);
 					lastMousePosition = mousePosition;
 
@@ -67,80 +56,60 @@ int main (int argc, char* argv[]) {
 					mousePosition.x = (float) xpos - runtime.windowWidth * 0.5f;
 					mousePosition.y = (float) ypos - runtime.windowHeight * 0.5f;
 
-					// blib_vec2f_printf(mousePosition, "mouse position");
-					// blib_vec2f_printf(mouseDelta, "mouse delta");
+					printf("mouse delta [%f, %f]\n", mouseDelta.x, mouseDelta.y);
+					printf("mouse pos [%f, %f]\n", mousePosition.x, mousePosition.y);
 				}
 			}
 		}
 
-		
-		{ //update
+		//update
+		{
 			glUseProgram(shader);
-			{ //cube update
-				// l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
-				// 			BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
-				modelMatrix = l_renderer_gl_transform_getMatrix(&transform);
-				// blib_vec3f_printf(transform.eulerAngles, "cube eulerAngles");
-			}
-			{ //rotate camera
+			// l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
+			// 			BLIB_VEC3F_ONE,runtime.deltaTime * 2.0f));
+			modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
+			
+			{ //camera mouse look
 				float camRotSpeed = runtime.deltaTime * 0.25f;
 				camera.transform.eulerAngles.y += mouseDelta.x * camRotSpeed;
-				camera.transform.eulerAngles.x += mouseDelta.y * camRotSpeed;
-				
-				camera.transform.eulerAngles.y = blib_mathf_wrapAngle(camera.transform.eulerAngles.y);
 				camera.transform.eulerAngles.x = blib_mathf_clamp(
 						camera.transform.eulerAngles.x + mouseDelta.y * camRotSpeed, 
-						-BLIB_PI/2.0f, 
-						BLIB_PI/2.0f
+						-BLIB_PI/2, 
+						BLIB_PI/2
 						);
-				// blib_vec3f_printf(camera.transform.eulerAngles, "camera eulerAngles");
 			}
 
 			{	//move camera
-				{ //global directions
-					// camera.transform.position = blib_vec3f_add(
-					// 		camera.transform.position, 
-					// 		blib_vec3f_scale(moveDirection, runtime.deltaTime)
-					// 		);
-				}
-				{ //local directions
-					blib_vec3f_t cameraUp = 
-						l_renderer_gl_transform_getLocalUp(&camera.transform);
-					blib_vec3f_t cameraRight = 
-						l_renderer_gl_transform_getLocalRight(&camera.transform);
-					blib_vec3f_t cameraForward = 
-						l_renderer_gl_transform_getLocalForward(&camera.transform);
+				//global directions
+				// camera.transform.position = blib_vec3f_add(
+				// 		camera.transform.position, 
+				// 		blib_vec3f_scale(moveDirection, runtime.deltaTime)
+				// 		);
 
-					float camMoveSpeed = runtime.deltaTime * 5.0f;
-					cameraUp = blib_vec3f_scale(
-							cameraUp, 
-							camMoveSpeed * moveInputDirection.y
-							);
-					cameraRight = blib_vec3f_scale(
-							cameraRight, 
-							camMoveSpeed * moveInputDirection.x
-							);
-					cameraForward = blib_vec3f_scale(
-							cameraForward, 
-							camMoveSpeed * moveInputDirection.z
-							);
-					blib_vec3f_t finalMoveDirection = blib_vec3f_add(
-							cameraUp,
-							blib_vec3f_add(cameraRight,cameraForward)
-							);
-					camera.transform.position = blib_vec3f_add(
-							camera.transform.position, 
-							finalMoveDirection
-							); 
-				}
+				//local directions
+				blib_vec3f_t cameraUp = l_renderer_gl_transform_getLocalUp(&camera.transform);
+				blib_vec3f_t cameraRight = l_renderer_gl_transform_getLocalRight(&camera.transform);
+				blib_vec3f_t cameraForward = l_renderer_gl_transform_getLocalForward(&camera.transform);
+
+				float camMoveSpeed = runtime.deltaTime;
+				cameraUp = blib_vec3f_scale(cameraUp, camMoveSpeed * moveInputDirection.y);
+				cameraRight = blib_vec3f_scale(cameraRight, camMoveSpeed * moveInputDirection.x);
+				cameraForward = blib_vec3f_scale(cameraForward, camMoveSpeed * moveInputDirection.z);
+				
+				blib_vec3f_t finalMoveDirection = blib_vec3f_add(cameraUp,blib_vec3f_add(cameraRight,cameraForward));
+
+				camera.transform.position = blib_vec3f_add(
+						camera.transform.position, 
+						finalMoveDirection
+						); 
 			}
 
 			l_renderer_gl_mesh_render(&mesh);
 			glUseProgram(0);
 		}
 
-		
-		{ //late update
+		//late update
+		{
 			glfwSwapBuffers(runtime.window);
 			glfwPollEvents();
 			runtime.frameEndTime = glfwGetTime();
@@ -148,9 +117,9 @@ int main (int argc, char* argv[]) {
 			// printf("frameend: %f framestart %f deltatime: %f\n",
 			// 		runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
-			// blib_mat4_printf(modelMatrix, "model");
-			// blib_mat4_printf(camera.viewMatrix, "view");
-			// blib_mat4_printf(camera.projectionMatrix, "proj");
+			blib_mat4_printf(modelMatrix, "model");
+			blib_mat4_printf(camera.viewMatrix, "view");
+			blib_mat4_printf(camera.projectionMatrix, "proj");
 		}
 	}
 
