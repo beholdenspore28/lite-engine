@@ -149,7 +149,7 @@ int main (int argc, char* argv[]) {
 					runtime.frameEndTime, runtime.frameStartTime, runtime.deltaTime);
 
 			// blib_mat4_printf(modelMatrix, "model");
-			// blib_mat4_printf(camera.viewMatrix, "view");
+			blib_mat4_printf(camera.viewMatrix, "view");
 			// blib_mat4_printf(camera.projectionMatrix, "proj");
 		}
 	}
