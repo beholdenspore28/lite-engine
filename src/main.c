@@ -97,7 +97,7 @@ int main (int argc, char* argv[]) {
 						&camera.transform
 						);
 
-				float camMoveSpeed = runtime.deltaTime * 2.0f;
+				float camMoveSpeed = runtime.deltaTime * 5.0f;
 
 				cameraUp = blib_vec3f_scale(
 						cameraUp, 
