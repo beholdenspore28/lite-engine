@@ -65,7 +65,7 @@ int main (int argc, char* argv[]) {
 				}
 
 				{ //Mouse
-					glfwSetInputMode(renderer.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					// glfwSetInputMode(renderer.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 					mouseDelta = blib_vec2f_subtract(lastMousePosition, mousePosition);
 					lastMousePosition = mousePosition;
 
