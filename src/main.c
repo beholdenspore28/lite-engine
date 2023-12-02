@@ -14,16 +14,24 @@ int main (int argc, char* argv[]) {
 	//create stuff
 	l_renderer_gl renderer = l_renderer_gl_init();	
 	l_renderer_gl_camera camera = l_renderer_gl_camera_create(85.0f);
+
+	//create cube 1
 	GLuint shader = l_renderer_gl_shader_create();
 	l_renderer_gl_mesh mesh = l_renderer_gl_mesh_createCube();
 	l_renderer_gl_transform transform = l_renderer_gl_transform_create();
 	blib_mat4_t modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test2.png");
 
+	//create cube 2
+	l_renderer_gl_mesh mesh1 = l_renderer_gl_mesh_createCube();
+	l_renderer_gl_transform transform1 = l_renderer_gl_transform_create();
+	blib_mat4_t modelMatrix1 = l_renderer_gl_transform_GetMatrix(&transform);
+
 	//texture setup
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	//create input stuff
 	blib_vec2f_t mousePosition = BLIB_VEC2F_ZERO;
 	blib_vec2f_t lastMousePosition = BLIB_VEC2F_ZERO;
 	blib_vec2f_t mouseDelta = BLIB_VEC2F_ZERO;
@@ -33,8 +41,12 @@ int main (int argc, char* argv[]) {
 		//early update
 		{
 			l_renderer_gl_update(&renderer);
+
 			l_renderer_gl_shader_useCamera(shader, &camera);
-			l_renderer_gl_shader_setUniforms(shader, modelMatrix);
+
+			// l_renderer_gl_shader_useCamera(shader1, &camera);
+			// l_renderer_gl_shader_setUniforms(shader1, modelMatrix1);
+
 			l_renderer_gl_camera_update(&camera, &renderer);
 
 			{ //Input
@@ -70,11 +82,25 @@ int main (int argc, char* argv[]) {
 
 		//update
 		{
-			glUseProgram(shader);
-			// l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
-			// 			BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
-			modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
-			
+			{ //cube update
+				glUseProgram(shader);
+				l_renderer_gl_shader_setUniforms(shader, modelMatrix);
+				l_renderer_gl_transform_rotate(&transform,blib_vec3f_scale(
+							BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
+				modelMatrix = l_renderer_gl_transform_GetMatrix(&transform);
+			l_renderer_gl_mesh_render(&mesh);
+			}
+
+			{ //cube 1 update
+				glUseProgram(shader);
+				l_renderer_gl_shader_setUniforms(shader, modelMatrix1);
+				l_renderer_gl_transform_rotate(&transform1,blib_vec3f_scale(
+							BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
+				transform1.position.x = sinf(renderer.frameStartTime) * 5.0f;
+				modelMatrix1 = l_renderer_gl_transform_GetMatrix(&transform1);
+			l_renderer_gl_mesh_render(&mesh1);
+			}
+
 			{ //camera mouse look
 				float camRotSpeed = renderer.deltaTime * 0.25f;
 				camera.transform.eulerAngles.y += mouseDelta.x * camRotSpeed;
@@ -121,8 +147,6 @@ int main (int argc, char* argv[]) {
 						); 
 			}
 
-			l_renderer_gl_mesh_render(&mesh);
-			glUseProgram(0);
 		}
 
 		//late update

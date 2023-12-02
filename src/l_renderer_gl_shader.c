@@ -91,14 +91,12 @@ GLuint l_renderer_gl_shader_create() {
 }
 
 void l_renderer_gl_shader_setUniforms(GLuint shader, blib_mat4_t modelMatrix){
-	glUseProgram(shader);
 	glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
 	l_renderer_gl_shader_setMat4Uniform(
 			shader,
 			"u_modelMatrix",
 			&modelMatrix
 			);
-	glUseProgram(0);
 }
 		
 void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera* cam){
