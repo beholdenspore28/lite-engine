@@ -7,15 +7,15 @@
 
 /*TYPES***********************************************************************/
 
+typedef struct l_renderer_gl l_renderer_gl;
 typedef struct l_renderer_gl_camera l_renderer_gl_camera;
-typedef struct l_renderer_gl_runtime l_renderer_gl_runtime;
 typedef struct l_renderer_gl_mesh l_renderer_gl_mesh;
 typedef struct l_renderer_gl_transform l_renderer_gl_transform;
 typedef struct l_renderer_gl_camera l_renderer_gl_camera;
 
 /*RUNTIME*********************************************************************/
 
-struct l_renderer_gl_runtime{
+struct l_renderer_gl{
 	GLFWwindow* window;
 	int windowWidth;
 	int windowHeight;
@@ -26,9 +26,9 @@ struct l_renderer_gl_runtime{
 	double deltaTime;
 };
 
-l_renderer_gl_runtime l_renderer_gl_runtime_init(void);
-void l_renderer_gl_runtime_update(l_renderer_gl_runtime* r);
-void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d);
+l_renderer_gl l_renderer_gl_init(void);
+void l_renderer_gl_update(l_renderer_gl* r);
+void l_renderer_gl_cleanup(l_renderer_gl* d);
 
 /*MESH************************************************************************/
 
@@ -103,6 +103,6 @@ blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform* t);
 void l_renderer_gl_camera_setProjectionMatrix(
 		l_renderer_gl_camera* cam, float aspect);
 void l_renderer_gl_camera_update(
-		l_renderer_gl_camera* cam,l_renderer_gl_runtime* d);
+		l_renderer_gl_camera* cam,l_renderer_gl* d);
 
 #endif /*L_RENDERER_H*/

@@ -5,18 +5,18 @@
 #define SCR_WIDTH 640
 #define SCR_HEIGHT 480
 
-static void _l_renderer_gl_runtime_keyCallback(
+static void _l_renderer_gl_keyCallback(
 		GLFWwindow* window, int key, int scancode, int action, int mods){
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void _l_renderer_gl_runtime_errorCallback(
+static void _l_renderer_gl_errorCallback(
 		int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-static void APIENTRY _l_renderer_gl_runtime_debugMessageCallback(
+static void APIENTRY _l_renderer_gl_debugMessageCallback(
 		GLenum source, GLenum type, GLuint id,
 		GLenum severity, GLsizei length,
 		const GLchar *msg, const void *data)
@@ -114,12 +114,12 @@ static void APIENTRY _l_renderer_gl_runtime_debugMessageCallback(
 			id, _type, _severity, _source, msg);
 }
 
-l_renderer_gl_runtime l_renderer_gl_runtime_init(void){
+l_renderer_gl l_renderer_gl_init(void){
 	if (!glfwInit()) {
 		fprintf(stderr, "failed to init GLFW");
 	}
 
-	glfwSetErrorCallback(_l_renderer_gl_runtime_errorCallback);
+	glfwSetErrorCallback(_l_renderer_gl_errorCallback);
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -134,7 +134,7 @@ l_renderer_gl_runtime l_renderer_gl_runtime_init(void){
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSetKeyCallback(window, _l_renderer_gl_runtime_keyCallback);
+	glfwSetKeyCallback(window, _l_renderer_gl_keyCallback);
 
 	if (!gladLoadGL()) {
 		fprintf(stderr,"failed to load GLAD!");
@@ -144,13 +144,13 @@ l_renderer_gl_runtime l_renderer_gl_runtime_init(void){
 	// glfwSwapInterval(1);
 	glEnable(GL_DEBUG_OUTPUT);
 	// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(&_l_renderer_gl_runtime_debugMessageCallback,NULL);
+	glDebugMessageCallback(&_l_renderer_gl_debugMessageCallback,NULL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.2f,0.2f,0.2f,1.0f);
 	glViewport(0,0,SCR_WIDTH,SCR_HEIGHT);
 
-	l_renderer_gl_runtime data = {};
+	l_renderer_gl data = {};
 	data.window = window;
 
 	printf("==========================================================\n");
@@ -164,7 +164,7 @@ l_renderer_gl_runtime l_renderer_gl_runtime_init(void){
 	return data;
 }
 
-void l_renderer_gl_runtime_update(l_renderer_gl_runtime* r){
+void l_renderer_gl_update(l_renderer_gl* r){
 	r->frameStartTime = glfwGetTime();
 
 	glfwGetFramebufferSize(
@@ -178,7 +178,7 @@ void l_renderer_gl_runtime_update(l_renderer_gl_runtime* r){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void l_renderer_gl_runtime_cleanup(l_renderer_gl_runtime* d){
+void l_renderer_gl_cleanup(l_renderer_gl* d){
 	glfwDestroyWindow(d->window);
 	glfwTerminate();
 }

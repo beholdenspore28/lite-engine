@@ -44,8 +44,8 @@ l_renderer_gl_camera l_renderer_gl_camera_create(float fov) {
 //TODO use events to tell the camera to update its projection matrix when
 //the screen resolution changes
 void l_renderer_gl_camera_update(
-		l_renderer_gl_camera* cam,l_renderer_gl_runtime* d) {
+		l_renderer_gl_camera* cam,l_renderer_gl* r) {
 	cam->viewMatrix = l_renderer_gl_camera_GetViewMatrix(&cam->transform);
 	l_renderer_gl_camera_setProjectionMatrix(
-			cam, (float)d->windowWidth / (float)d->windowHeight);
+			cam, (float)r->windowWidth / (float)r->windowHeight);
 }
