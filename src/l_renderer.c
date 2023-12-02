@@ -2,9 +2,6 @@
 #include "stdlib.h"
 #include "l_renderer_gl.h"
 
-#define SCR_WIDTH 640
-#define SCR_HEIGHT 480
-
 static void _l_renderer_gl_keyCallback(
 		GLFWwindow* window, int key, int scancode, int action, int mods){
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -114,7 +111,7 @@ static void APIENTRY _l_renderer_gl_debugMessageCallback(
 			id, _type, _severity, _source, msg);
 }
 
-l_renderer_gl l_renderer_gl_init(void){
+l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight){
 	if (!glfwInit()) {
 		fprintf(stderr, "failed to init GLFW");
 	}
@@ -127,7 +124,7 @@ l_renderer_gl l_renderer_gl_init(void){
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
 	GLFWwindow* window = glfwCreateWindow(
-			SCR_WIDTH,SCR_HEIGHT,"Game Window",NULL,NULL);
+			windowWidth,windowHeight,"Game Window",NULL,NULL);
 	if (!window){
 		fprintf(stderr, "Window or OpenGL context creation failed");
 		exit(1);
@@ -148,7 +145,7 @@ l_renderer_gl l_renderer_gl_init(void){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.2f,0.2f,0.2f,1.0f);
-	glViewport(0,0,SCR_WIDTH,SCR_HEIGHT);
+	glViewport(0,0,windowWidth,windowHeight);
 
 	l_renderer_gl data = {};
 	data.window = window;

@@ -12,7 +12,7 @@ int main (int argc, char* argv[]) {
 	printf("Rev up those fryers!\n");
 
 	//create stuff
-	l_renderer_gl renderer = l_renderer_gl_init();	
+	l_renderer_gl renderer = l_renderer_gl_init(854,480);	
 	l_renderer_gl_camera camera = l_renderer_gl_camera_create(85.0f);
 
 	//create cube 1
@@ -94,8 +94,8 @@ int main (int argc, char* argv[]) {
 			{ //cube 1 update
 				glUseProgram(shader);
 				l_renderer_gl_shader_setUniforms(shader, modelMatrix1);
-				l_renderer_gl_transform_rotate(&transform1,blib_vec3f_scale(
-							BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
+				// l_renderer_gl_transform_rotate(&transform1,blib_vec3f_scale(
+				// 			BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
 				transform1.position.x = sinf(renderer.frameStartTime) * 5.0f;
 				modelMatrix1 = l_renderer_gl_transform_GetMatrix(&transform1);
 			l_renderer_gl_mesh_render(&mesh1);

@@ -26,7 +26,7 @@ struct l_renderer_gl{
 	double deltaTime;
 };
 
-l_renderer_gl l_renderer_gl_init(void);
+l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight);
 void l_renderer_gl_update(l_renderer_gl* r);
 void l_renderer_gl_cleanup(l_renderer_gl* d);
 
