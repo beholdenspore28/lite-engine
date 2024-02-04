@@ -13,25 +13,6 @@ typedef struct l_renderer_gl_mesh l_renderer_gl_mesh;
 typedef struct l_renderer_gl_transform l_renderer_gl_transform;
 typedef struct l_renderer_gl_camera l_renderer_gl_camera;
 
-/*RUNTIME*********************************************************************/
-
-struct l_renderer_gl{
-	GLFWwindow* window;
-	int windowWidth;
-	int windowHeight;
-	float aspectRatio;
-
-	double frameStartTime;
-	double frameEndTime;
-	double deltaTime;
-};
-
-l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight);
-void l_renderer_gl_update(l_renderer_gl* r);
-void l_renderer_gl_cleanup(l_renderer_gl* d);
-
-/*MESH************************************************************************/
-
 #define _L_CUBE_NUM_VERTS 64
 #define _L_CUBE_NUM_INDICES 36
 
@@ -104,5 +85,27 @@ void l_renderer_gl_camera_setProjectionMatrix(
 		l_renderer_gl_camera* cam, float aspect);
 void l_renderer_gl_camera_update(
 		l_renderer_gl_camera* cam,l_renderer_gl* d);
+
+/*RUNTIME*********************************************************************/
+
+struct l_renderer_gl{
+	GLFWwindow* window;
+	int windowWidth;
+	int windowHeight;
+	float aspectRatio;
+
+	double frameStartTime;
+	double frameEndTime;
+	double deltaTime;
+
+	l_renderer_gl_camera activeCamera;
+	GLuint activeShader;
+};
+
+l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight);
+void l_renderer_gl_update(l_renderer_gl* r);
+void l_renderer_gl_cleanup(l_renderer_gl* d);
+
+/*MESH************************************************************************/
 
 #endif /*L_RENDERER_H*/

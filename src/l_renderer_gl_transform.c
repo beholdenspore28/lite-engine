@@ -9,19 +9,20 @@ l_renderer_gl_transform l_renderer_gl_transform_create(){
 }
 
 blib_mat4_t l_renderer_gl_transform_GetMatrix(l_renderer_gl_transform* t){
-	/*translation*/
+	//translation
 	blib_mat4_t translationMat = blib_mat4_translateVec3(t->position);
 
-	/*rotation*/
+	//rotation
 	blib_mat4_t p = blib_mat4_rotate(t->eulerAngles.x, BLIB_VEC3F_RIGHT);
 	blib_mat4_t y = blib_mat4_rotate(t->eulerAngles.y, BLIB_VEC3F_UP);
 	blib_mat4_t r = blib_mat4_rotate(t->eulerAngles.z, BLIB_VEC3F_FORWARD);
 	blib_mat4_t rotationMat = blib_mat4_multiply(blib_mat4_multiply(r, y), p); 
 
-	/*scale*/
+	//scale
 	blib_mat4_t scaleMat = blib_mat4_scale(t->scale);
 
-	/*TRS = model matrix*/
+	//TRS = model matrix 
+	//Remember! Matrix mult is done in reverse order!
 	blib_mat4_t modelMat = blib_mat4_multiply(rotationMat, translationMat);
 	modelMat = blib_mat4_multiply(scaleMat, modelMat);
 
