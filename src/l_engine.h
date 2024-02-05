@@ -1,10 +1,21 @@
 #ifndef L_ENGINE_H
 #define L_ENGINE_H
 
-#include "l_input.h"
 #include "l_renderer_gl.h"
 
 typedef struct l_engineData l_engineData;
+typedef struct l_inputData l_inputData;
+
+struct l_inputData {
+	//mouse
+	blib_vec2f_t mousePosition;
+	blib_vec2f_t lastMousePosition;
+	blib_vec2f_t mouseDelta;
+
+	//keys
+	blib_vec3f_t moveInputDirection;
+};
+
 struct l_engineData {
 	l_renderer_gl rendererGL;
 	l_inputData inputData;
