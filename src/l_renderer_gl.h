@@ -38,13 +38,16 @@ void l_renderer_gl_mesh_render(l_renderer_gl_mesh* m);
 /*SHADER**********************************************************************/
 
 GLuint l_renderer_gl_shader_create();
+void l_renderer_gl_shader_setUniform3f(
+		GLuint shader,
+		const char* uniformName,
+		float a, float b, float c);
 void l_renderer_gl_shader_setMat4Uniform(
 		GLuint shader, 
 		const char* uniformName, 
 		blib_mat4_t* m
 		);
 
-void l_renderer_gl_shader_setUniforms(GLuint shader, blib_mat4_t modelMatrix);
 void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera* cam);
 
 /*TEXTURE*********************************************************************/

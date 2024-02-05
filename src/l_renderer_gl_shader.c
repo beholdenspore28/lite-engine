@@ -89,15 +89,6 @@ GLuint l_renderer_gl_shader_create() {
 	printf("finished compiling shaders\n");
 	return shaderProgram;
 }
-
-void l_renderer_gl_shader_setUniforms(GLuint shader, blib_mat4_t modelMatrix){
-	glUniform1i(glGetUniformLocation(shader, "i_texCoord"), 0);
-	l_renderer_gl_shader_setMat4Uniform(
-			shader,
-			"u_modelMatrix",
-			&modelMatrix
-			);
-}
 		
 void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera* cam){
 	glUseProgram(shader);
@@ -114,18 +105,33 @@ void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera* cam){
 	glUseProgram(0);
 }
 
+void l_renderer_gl_shader_setUniform3f(
+		GLuint shader,
+		const char* uniformName,
+		float a, float b, float c){
+	GLuint UniformLocation = glGetUniformLocation(shader,uniformName);
+	if (UniformLocation >= 0) {
+		glUniform3f(UniformLocation,a,b,c);
+	}
+	else {
+		fprintf(
+				stderr,
+				"failed to locate vec3 uniform. %s %i",
+				__FILE__, 
+				__LINE__
+			   );
+	}
+}
 
 void l_renderer_gl_shader_setMat4Uniform(
 		GLuint shader, 
 		const char* uniformName, 
 		blib_mat4_t* m){
-	GLuint MatrixUniformLocation = glGetUniformLocation(
-			shader, 
-			uniformName
+	GLuint UniformLocation = glGetUniformLocation(shader, uniformName
 			);
-	if (MatrixUniformLocation >= 0) {
+	if (UniformLocation >= 0) {
 		glUniformMatrix4fv(
-				MatrixUniformLocation,
+				UniformLocation,
 				1,
 				GL_FALSE,
 				&m->elements[0]
@@ -137,6 +143,6 @@ void l_renderer_gl_shader_setMat4Uniform(
 				"failed to locate matrix uniform. %s %i",
 				__FILE__, 
 				__LINE__
-				);
+			   );
 	}
 }

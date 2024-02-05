@@ -60,9 +60,16 @@ void update(l_engineData* pEngineData) {
 	l_renderer_gl* renderer = &pEngineData->rendererGL;
 
 	{ //cube update
-		glUseProgram(renderer->activeShader);
-		l_renderer_gl_shader_setUniforms(
-				renderer->activeShader, pEngineData->modelMatrix);
+		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
+		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "objectColor", 1.0f, 1.0f, 1.0f);
+		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "lightColor", 1.0f, 1.0f, 1.0f);
+		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
+		l_renderer_gl_shader_setMat4Uniform(
+				renderer->activeShader,
+				"u_modelMatrix",
+				&pEngineData->modelMatrix
+				);
+
 		l_renderer_gl_transform_rotate(
 				&pEngineData->transform,blib_vec3f_scale(
 					BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
@@ -75,9 +82,12 @@ void update(l_engineData* pEngineData) {
 	}
 
 	{ //cube 1 update
-		glUseProgram(renderer->activeShader);
-		l_renderer_gl_shader_setUniforms(
-				renderer->activeShader, pEngineData->modelMatrix1
+		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
+		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
+		l_renderer_gl_shader_setMat4Uniform(
+				renderer->activeShader,
+				"u_modelMatrix",
+				&pEngineData->modelMatrix1
 				);
 
 		// l_renderer_gl_transform_rotate(&transform1,blib_vec3f_scale(
@@ -147,12 +157,12 @@ void lateUpdate(l_engineData* pEngineData) {
 	renderer->frameEndTime = glfwGetTime();
 	renderer->deltaTime = 
 		renderer->frameEndTime - renderer->frameStartTime;
-	printf("frameend: %f framestart %f deltatime: %f\n",
-			renderer->frameEndTime, renderer->frameStartTime, renderer->deltaTime);
+	// printf("frameend: %f framestart %f deltatime: %f\n",
+	// 		renderer->frameEndTime, renderer->frameStartTime, renderer->deltaTime);
 
-	blib_mat4_printf(pEngineData->modelMatrix, "model");
-	blib_mat4_printf(renderer->activeCamera.viewMatrix, "view");
-	blib_mat4_printf(renderer->activeCamera.projectionMatrix, "proj");
+	// blib_mat4_printf(pEngineData->modelMatrix, "model");
+	// blib_mat4_printf(renderer->activeCamera.viewMatrix, "view");
+	// blib_mat4_printf(renderer->activeCamera.projectionMatrix, "proj");
 }
 
 int main (int argc, char* argv[]) {
