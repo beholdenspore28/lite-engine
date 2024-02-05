@@ -12,22 +12,31 @@ int getkey(l_renderer_gl* r, int key) {
 
 void earlyUpdate(l_engineData* pEngineData) {
 	l_renderer_gl_update(&pEngineData->rendererGL);
-	l_renderer_gl_shader_useCamera(pEngineData->rendererGL.activeShader, &pEngineData->rendererGL.activeCamera);
+	l_renderer_gl_shader_useCamera(
+			pEngineData->rendererGL.activeShader, 
+			&pEngineData->rendererGL.activeCamera
+	);
 
 	// l_renderer_gl_shader_useCamera(shader1, &camera);
 	// l_renderer_gl_shader_setUniforms(shader1, modelMatrix1);
 
-	l_renderer_gl_camera_update(&pEngineData->rendererGL.activeCamera, &pEngineData->rendererGL);
+	l_renderer_gl_camera_update(
+			&pEngineData->rendererGL.activeCamera, 
+			&pEngineData->rendererGL
+	);
 
 	pEngineData->inputData.moveInputDirection.x = 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_A) - 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_D);
+
 	pEngineData->inputData.moveInputDirection.y = 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_LEFT_SHIFT) - 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_SPACE);
+
 	pEngineData->inputData.moveInputDirection.z = 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_S) - 
 		getkey(&pEngineData->rendererGL, GLFW_KEY_W);
+
 	pEngineData->inputData.moveInputDirection = 
 		blib_vec3f_normalize(pEngineData->inputData.moveInputDirection);
 	// blib_vec3f_printf(moveInputDirection, "moveInputDirection");
@@ -138,10 +147,7 @@ int main (int argc, char* argv[]) {
 	engineData.rendererGL.activeCamera = l_renderer_gl_camera_create(85.0f);
 	engineData.rendererGL.activeShader = l_renderer_gl_shader_create();
 
-	//create cube 1
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test.png");
-
-	//create cube 2
 
 	//texture setup
 	glActiveTexture(GL_TEXTURE0);
@@ -158,7 +164,8 @@ int main (int argc, char* argv[]) {
 			glfwSwapBuffers(engineData.rendererGL.window);
 			glfwPollEvents();
 			engineData.rendererGL.frameEndTime = glfwGetTime();
-			engineData.rendererGL.deltaTime = engineData.rendererGL.frameEndTime - engineData.rendererGL.frameStartTime;
+			engineData.rendererGL.deltaTime = 
+				engineData.rendererGL.frameEndTime - engineData.rendererGL.frameStartTime;
 			// printf("frameend: %f framestart %f deltatime: %f\n",
 			// 		renderer.frameEndTime, renderer.frameStartTime, renderer.deltaTime);
 
