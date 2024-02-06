@@ -5,6 +5,14 @@
 
 typedef struct l_engineData l_engineData;
 typedef struct l_inputData l_inputData;
+typedef struct l_cubeData l_cubeData;
+
+struct l_cubeData{
+	blib_mat4_t modelMatrix;
+	l_renderer_gl_transform transform;
+	l_renderer_gl_mesh mesh;
+	GLuint shader;
+};
 
 struct l_inputData {
 	//mouse
@@ -19,14 +27,15 @@ struct l_inputData {
 struct l_engineData {
 	l_renderer_gl rendererGL;
 	l_inputData inputData;
-	
-	blib_mat4_t modelMatrix;
-	l_renderer_gl_transform transform;
-	l_renderer_gl_mesh mesh;
-
-	blib_mat4_t modelMatrix1;
-	l_renderer_gl_transform transform1;
-	l_renderer_gl_mesh mesh1;
+	l_cubeData cube;
+	l_cubeData lightsourcecube;
+	// blib_mat4_t modelMatrix;
+	// l_renderer_gl_transform transform;
+	// l_renderer_gl_mesh mesh;
+	//
+	// blib_mat4_t modelMatrix1;
+	// l_renderer_gl_transform transform1;
+	// l_renderer_gl_mesh mesh1;
 };
 
 #endif //L_ENGINE_H

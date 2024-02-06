@@ -37,7 +37,7 @@ void l_renderer_gl_mesh_render(l_renderer_gl_mesh* m);
 
 /*SHADER**********************************************************************/
 
-GLuint l_renderer_gl_shader_create();
+GLuint l_renderer_gl_shader_create(const char* vertexShaderSourcePath, const char* fragmentShaderSourcePath);
 void l_renderer_gl_shader_setUniform3f(
 		GLuint shader,
 		const char* uniformName,

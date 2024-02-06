@@ -59,13 +59,13 @@ static GLuint _l_renderer_gl_shader_createProgram(
 	return program;
 }
 
-GLuint l_renderer_gl_shader_create() {
+GLuint l_renderer_gl_shader_create(const char* vertexShaderSourcePath, const char* fragmentShaderSourcePath) {
 	printf("compiling shaders...\n");
 	GLuint shaderProgram;
 	blib_fileBuffer_t vertSourceFileBuffer = 
-		blib_fileBuffer_read("res/shaders/vertex.glsl");
+		blib_fileBuffer_read(vertexShaderSourcePath);
 	blib_fileBuffer_t fragSourceFileBuffer = 
-		blib_fileBuffer_read("res/shaders/fragment.glsl");
+		blib_fileBuffer_read(fragmentShaderSourcePath);
 
 	if (vertSourceFileBuffer.error == true) {
 		fprintf(stderr,"failed to read vertex shader");

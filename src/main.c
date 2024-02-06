@@ -12,7 +12,11 @@ int l_input_getKey(l_renderer_gl* r, int key) {
 void earlyUpdate(l_engineData* pEngineData) {
 	l_renderer_gl_update(&pEngineData->rendererGL);
 	l_renderer_gl_shader_useCamera(
-			pEngineData->rendererGL.activeShader, 
+			pEngineData->lightsourcecube.shader, 
+			&pEngineData->rendererGL.activeCamera
+			);
+	l_renderer_gl_shader_useCamera(
+			pEngineData->cube.shader, 
 			&pEngineData->rendererGL.activeCamera
 			);
 
@@ -37,7 +41,7 @@ void earlyUpdate(l_engineData* pEngineData) {
 		blib_vec3f_normalize(pEngineData->inputData.moveInputDirection);
 
 	// blib_vec3f_printf(moveInputDirection, "moveInputDirection");
-	// glfwSetInputMode(renderer.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(pEngineData->rendererGL.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	pEngineData->inputData.mouseDelta = blib_vec2f_subtract(
 			pEngineData->inputData.lastMousePosition, 
@@ -60,41 +64,41 @@ void update(l_engineData* pEngineData) {
 	l_renderer_gl* renderer = &pEngineData->rendererGL;
 
 	{ //cube update
-		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
-		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
+		glUseProgram(pEngineData->cube.shader); //TODO THIS is where you set an object-specific shader.
+		glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
-				renderer->activeShader,
+				pEngineData->cube.shader,
 				"u_modelMatrix",
-				&pEngineData->modelMatrix1
-				);
+				&pEngineData->cube.modelMatrix
+			);
 
-		pEngineData->transform1.position.x = sinf(renderer->frameStartTime) * 5.0f;
-		pEngineData->modelMatrix1 = l_renderer_gl_transform_GetMatrix(
-				&pEngineData->transform1
+		pEngineData->cube.transform.position.x = sinf(renderer->frameStartTime) * 5.0f;
+		pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(
+				&pEngineData->cube.transform
 				);
-		l_renderer_gl_mesh_render(&pEngineData->mesh1);
+		l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
 	}
 
 	{ //light source cube update
-		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
-		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "objectColor", 1.0f, 1.0f, 1.0f);
-		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "lightColor", 1.0f, 1.0f, 1.0f);
-		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
+		glUseProgram(pEngineData->lightsourcecube.shader); //TODO THIS is where you set an object-specific shader.
+		l_renderer_gl_shader_setUniform3f(pEngineData->lightsourcecube.shader, "objectColor", 1.0f, 1.0f, 1.0f);
+		l_renderer_gl_shader_setUniform3f(pEngineData->lightsourcecube.shader, "lightColor", 1.0f, 1.0f, 1.0f);
+		glUniform1i(glGetUniformLocation(pEngineData->lightsourcecube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
-				renderer->activeShader,
+				pEngineData->lightsourcecube.shader,
 				"u_modelMatrix",
-				&pEngineData->modelMatrix
+				&pEngineData->lightsourcecube.modelMatrix
 				);
 
 		l_renderer_gl_transform_rotate(
-				&pEngineData->transform,blib_vec3f_scale(
+				&pEngineData->lightsourcecube.transform,blib_vec3f_scale(
 					BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
 					)
 				);
-		pEngineData->modelMatrix = l_renderer_gl_transform_GetMatrix(
-				&pEngineData->transform
+		pEngineData->lightsourcecube.modelMatrix = l_renderer_gl_transform_GetMatrix(
+				&pEngineData->lightsourcecube.transform
 				);
-		l_renderer_gl_mesh_render(&pEngineData->mesh);
+		l_renderer_gl_mesh_render(&pEngineData->lightsourcecube.mesh);
 	}
 
 	{ //camera mouse look
@@ -168,18 +172,26 @@ int main (int argc, char* argv[]) {
 	//create stuff
 	l_engineData engineData = (l_engineData) {
 		.inputData = (l_inputData){0},
-			.rendererGL = l_renderer_gl_init(854,480),
-
-			.modelMatrix = l_renderer_gl_transform_GetMatrix(&engineData.transform),
-			.transform = l_renderer_gl_transform_create(),
+		.rendererGL = l_renderer_gl_init(854,480),
+		.lightsourcecube = (l_cubeData){
 			.mesh = l_renderer_gl_mesh_createCube(),
-
-			.modelMatrix1 = l_renderer_gl_transform_GetMatrix(&engineData.transform1),
-			.transform1 = l_renderer_gl_transform_create(),
-			.mesh1 = l_renderer_gl_mesh_createCube()
+			.transform = l_renderer_gl_transform_create(),
+			.modelMatrix = l_renderer_gl_transform_GetMatrix(&engineData.lightsourcecube.transform)
+		},
+		.cube = (l_cubeData) {
+			.mesh = l_renderer_gl_mesh_createCube(),
+			.transform = l_renderer_gl_transform_create(),
+			.modelMatrix = l_renderer_gl_transform_GetMatrix(&engineData.cube.transform),
+		},
 	};
 	engineData.rendererGL.activeCamera = l_renderer_gl_camera_create(85.0f);
-	engineData.rendererGL.activeShader = l_renderer_gl_shader_create();
+	engineData.lightsourcecube.shader = l_renderer_gl_shader_create(
+			"res/shaders/vertex.glsl",
+			"res/shaders/fragment.glsl"
+			);
+	engineData.cube.shader = l_renderer_gl_shader_create(
+			"res/shaders/lightSourceVertex.glsl",
+			"res/shaders/lightSourceFragment.glsl");
 
 	//texture setup
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test.png");

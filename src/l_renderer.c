@@ -138,7 +138,7 @@ l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight){
 		exit(1);
 	}
 	//for vsync
-	// glfwSwapInterval(1);
+	glfwSwapInterval(1);
 	glEnable(GL_DEBUG_OUTPUT);
 	// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(&_l_renderer_gl_debugMessageCallback,NULL);
