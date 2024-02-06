@@ -64,7 +64,7 @@ void update(l_engineData* pEngineData) {
 	l_renderer_gl* renderer = &pEngineData->rendererGL;
 
 	{ //cube update
-		glUseProgram(pEngineData->cube.shader); //TODO THIS is where you set an object-specific shader.
+		glUseProgram(pEngineData->cube.shader);
 		glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
 				pEngineData->cube.shader,
@@ -80,9 +80,12 @@ void update(l_engineData* pEngineData) {
 	}
 
 	{ //light source cube update
-		glUseProgram(pEngineData->lightsourcecube.shader); //TODO THIS is where you set an object-specific shader.
-		l_renderer_gl_shader_setUniform3f(pEngineData->lightsourcecube.shader, "objectColor", 1.0f, 1.0f, 1.0f);
-		l_renderer_gl_shader_setUniform3f(pEngineData->lightsourcecube.shader, "lightColor", 1.0f, 1.0f, 1.0f);
+		glUseProgram(pEngineData->lightsourcecube.shader);
+		float lightcolor = sinf(pEngineData->rendererGL.frameStartTime);
+		l_renderer_gl_shader_setUniform3f(
+				pEngineData->lightsourcecube.shader, 
+				"lightColor",lightcolor ,lightcolor, lightcolor 
+				);
 		glUniform1i(glGetUniformLocation(pEngineData->lightsourcecube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
 				pEngineData->lightsourcecube.shader,
