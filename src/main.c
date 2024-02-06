@@ -39,9 +39,7 @@ void earlyUpdate(l_engineData* pEngineData) {
 
 	pEngineData->inputData.moveInputDirection = 
 		blib_vec3f_normalize(pEngineData->inputData.moveInputDirection);
-
 	// blib_vec3f_printf(moveInputDirection, "moveInputDirection");
-	glfwSetInputMode(pEngineData->rendererGL.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	pEngineData->inputData.mouseDelta = blib_vec2f_subtract(
 			pEngineData->inputData.lastMousePosition, 
@@ -100,11 +98,11 @@ void update(l_engineData* pEngineData) {
 				&pEngineData->cube.modelMatrix
 				);
 
-		l_renderer_gl_transform_rotate(
-				&pEngineData->cube.transform,blib_vec3f_scale(
-					BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
-					)
-				);
+		// l_renderer_gl_transform_rotate(
+		// 		&pEngineData->cube.transform,blib_vec3f_scale(
+		// 			BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
+		// 			)
+		// 		);
 		pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(
 				&pEngineData->cube.transform
 				);
@@ -195,8 +193,8 @@ int main (int argc, char* argv[]) {
 		},
 	};
 
+
 	l_renderer_gl_transform* lightTransform = &engineData.lightsourcecube.transform;
-	l_renderer_gl_transform* cubeTransform = &engineData.cube.transform;
 
 	lightTransform->position.x = 2.0f;
 	lightTransform->scale = blib_vec3f_scale(lightTransform->scale, 0.5f);
@@ -215,6 +213,9 @@ int main (int argc, char* argv[]) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	//lock cursor
+	glfwSetInputMode(engineData.rendererGL.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
 	//main loop
 	while (!glfwWindowShouldClose(engineData.rendererGL.window)){
 		earlyUpdate(&engineData);
