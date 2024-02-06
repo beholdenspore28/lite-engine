@@ -61,6 +61,22 @@ void update(l_engineData* pEngineData) {
 
 	{ //cube update
 		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
+		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
+		l_renderer_gl_shader_setMat4Uniform(
+				renderer->activeShader,
+				"u_modelMatrix",
+				&pEngineData->modelMatrix1
+				);
+
+		pEngineData->transform1.position.x = sinf(renderer->frameStartTime) * 5.0f;
+		pEngineData->modelMatrix1 = l_renderer_gl_transform_GetMatrix(
+				&pEngineData->transform1
+				);
+		l_renderer_gl_mesh_render(&pEngineData->mesh1);
+	}
+
+	{ //light source cube update
+		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
 		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "objectColor", 1.0f, 1.0f, 1.0f);
 		l_renderer_gl_shader_setUniform3f(renderer->activeShader, "lightColor", 1.0f, 1.0f, 1.0f);
 		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
@@ -79,25 +95,6 @@ void update(l_engineData* pEngineData) {
 				&pEngineData->transform
 				);
 		l_renderer_gl_mesh_render(&pEngineData->mesh);
-	}
-
-	{ //cube 1 update
-		glUseProgram(renderer->activeShader); //TODO THIS is where you set an object-specific shader.
-		glUniform1i(glGetUniformLocation(renderer->activeShader, "i_texCoord"), 0);
-		l_renderer_gl_shader_setMat4Uniform(
-				renderer->activeShader,
-				"u_modelMatrix",
-				&pEngineData->modelMatrix1
-				);
-
-		// l_renderer_gl_transform_rotate(&transform1,blib_vec3f_scale(
-		// 			BLIB_VEC3F_ONE,renderer.deltaTime * 2.0f));
-
-		pEngineData->transform1.position.x = sinf(renderer->frameStartTime) * 5.0f;
-		pEngineData->modelMatrix1 = l_renderer_gl_transform_GetMatrix(
-				&pEngineData->transform1
-				);
-		l_renderer_gl_mesh_render(&pEngineData->mesh1);
 	}
 
 	{ //camera mouse look
