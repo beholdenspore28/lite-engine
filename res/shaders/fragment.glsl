@@ -5,9 +5,11 @@ in vec3 v_color;
 out vec4 out_color;
 
 uniform sampler2D u_texture;
-uniform vec3 objectColor; //TODO: figure out how to include vertex colors into the object color
-uniform vec3 lightColor;
+uniform vec3 u_lightColor;
 
 void main(){
-	out_color = texture(u_texture, v_texCoord) * vec4(lightColor, 1.0f);
+	float ambientStrength = 0.1;
+	vec3 ambient = ambientStrength * u_lightColor;
+	vec4 result = vec4(ambient, 1.0) * texture(u_texture, v_texCoord);
+	out_color = result;
 }

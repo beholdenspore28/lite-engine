@@ -63,45 +63,52 @@ void update(l_engineData* pEngineData) {
 	l_inputData* inputData = &pEngineData->inputData;
 	l_renderer_gl* renderer = &pEngineData->rendererGL;
 
-	{ //cube update
-		glUseProgram(pEngineData->cube.shader);
-		glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
-		l_renderer_gl_shader_setMat4Uniform(
-				pEngineData->cube.shader,
-				"u_modelMatrix",
-				&pEngineData->cube.modelMatrix
-			);
-
-		pEngineData->cube.transform.position.x = sinf(renderer->frameStartTime) * 5.0f;
-		pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(
-				&pEngineData->cube.transform
-				);
-		l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
-	}
+	// float lightcolor = fabs(cosf(pEngineData->rendererGL.frameStartTime));
+	float lightcolor = 1.0f;
 
 	{ //light source cube update
 		glUseProgram(pEngineData->lightsourcecube.shader);
-		float lightcolor = sinf(pEngineData->rendererGL.frameStartTime);
 		l_renderer_gl_shader_setUniform3f(
 				pEngineData->lightsourcecube.shader, 
-				"lightColor",lightcolor ,lightcolor, lightcolor 
+				"u_lightColor",lightcolor ,lightcolor, lightcolor 
 				);
 		glUniform1i(glGetUniformLocation(pEngineData->lightsourcecube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
 				pEngineData->lightsourcecube.shader,
 				"u_modelMatrix",
 				&pEngineData->lightsourcecube.modelMatrix
-				);
+			);
 
-		l_renderer_gl_transform_rotate(
-				&pEngineData->lightsourcecube.transform,blib_vec3f_scale(
-					BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
-					)
-				);
+		// pEngineData->lightsourcecube.transform.position.x = sinf(renderer->frameStartTime) * 5.0f;
+		// pEngineData->lightsourcecube.transform.position = blib_vec3f_scale(l_renderer_gl_transform_getLocalUp(&pEngineData->cube.transform), -2.0f);
 		pEngineData->lightsourcecube.modelMatrix = l_renderer_gl_transform_GetMatrix(
 				&pEngineData->lightsourcecube.transform
 				);
 		l_renderer_gl_mesh_render(&pEngineData->lightsourcecube.mesh);
+	}
+
+	{ //cube update
+		glUseProgram(pEngineData->cube.shader);
+		l_renderer_gl_shader_setUniform3f(
+				pEngineData->cube.shader, 
+				"u_lightColor",lightcolor ,lightcolor, lightcolor 
+				);
+		glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
+		l_renderer_gl_shader_setMat4Uniform(
+				pEngineData->cube.shader,
+				"u_modelMatrix",
+				&pEngineData->cube.modelMatrix
+				);
+
+		l_renderer_gl_transform_rotate(
+				&pEngineData->cube.transform,blib_vec3f_scale(
+					BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
+					)
+				);
+		pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(
+				&pEngineData->cube.transform
+				);
+		l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
 	}
 
 	{ //camera mouse look
@@ -187,14 +194,21 @@ int main (int argc, char* argv[]) {
 			.modelMatrix = l_renderer_gl_transform_GetMatrix(&engineData.cube.transform),
 		},
 	};
+
+	l_renderer_gl_transform* lightTransform = &engineData.lightsourcecube.transform;
+	l_renderer_gl_transform* cubeTransform = &engineData.cube.transform;
+
+	lightTransform->position.x = 2.0f;
+	lightTransform->scale = blib_vec3f_scale(lightTransform->scale, 0.5f);
+	
 	engineData.rendererGL.activeCamera = l_renderer_gl_camera_create(85.0f);
 	engineData.lightsourcecube.shader = l_renderer_gl_shader_create(
-			"res/shaders/vertex.glsl",
-			"res/shaders/fragment.glsl"
+			"res/shaders/lightSourceVertex.glsl",
+			"res/shaders/lightSourceFragment.glsl"
 			);
 	engineData.cube.shader = l_renderer_gl_shader_create(
-			"res/shaders/lightSourceVertex.glsl",
-			"res/shaders/lightSourceFragment.glsl");
+			"res/shaders/vertex.glsl",
+			"res/shaders/fragment.glsl");
 
 	//texture setup
 	GLuint texture = l_renderer_gl_texture_create("res/textures/test.png");
