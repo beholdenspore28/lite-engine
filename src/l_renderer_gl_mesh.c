@@ -1,33 +1,37 @@
 #include "l_renderer_gl.h"
 
-static GLfloat _L_CUBE_VERT_DATA[_L_CUBE_NUM_VERTS] = {
-	/*front*/
-	/*position        //color           //texcoord*/
-	-0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,/*bottom left*/
-	0.5f,-0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,/*bottom right*/
-	-0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 1.0f,/*top left*/
-	0.5f, 0.5f,-0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,/*top right*/
-
-	/*back*/
-	-0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,/*bottom left*/
-	0.5f,-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,/*bottom right*/
-	-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,/*top left*/
-	0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,/*top right*/
+static GLfloat L_CUBE_VERT_DATA[L_CUBE_NUM_VERTS] = {
+	//position         //tex      //normal
+	-0.5,  0.5,  0.5,  0.0, 1.0,  0.0,  1.0,  0.0,
+	-0.5,  0.5, -0.5,  0.0, 0.0,  0.0,  1.0,  0.0,
+	 0.5,  0.5, -0.5,  1.0, 0.0,  0.0,  1.0,  0.0,
+	 0.5,  0.5,  0.5,  1.0, 1.0,  0.0,  1.0,  0.0,
+	-0.5,  0.5,  0.5,  0.0, 1.0, -0.1,  0.0,  0.0,
+	-0.5, -0.5,  0.5,  0.0, 0.0, -0.1,  0.0,  0.0,
+	-0.5, -0.5, -0.5,  1.0, 0.0, -0.1,  0.0,  0.0,
+	-0.5,  0.5, -0.5,  1.0, 1.0, -0.1,  0.0,  0.0,
+	-0.5,  0.5, -0.5,  0.0, 1.0,  0.0,  0.0, -1.0,
+	-0.5, -0.5, -0.5,  0.0, 0.0,  0.0,  0.0, -1.0,
+	 0.5, -0.5, -0.5,  1.0, 0.0,  0.0,  0.0, -1.0,
+	 0.5,  0.5, -0.5,  1.0, 1.0,  0.0,  0.0, -1.0,
+	 0.5,  0.5, -0.5,  0.0, 1.0,  1.0,  0.0,  0.0,
+	 0.5, -0.5, -0.5,  0.0, 0.0,  1.0,  0.0,  0.0,
+	 0.5, -0.5,  0.5,  1.0, 0.0,  1.0,  0.0,  0.0,
+	 0.5,  0.5,  0.5,  1.0, 1.0,  1.0,  0.0,  0.0,
+	 0.5,  0.5,  0.5,  0.0, 1.0,  0.0,  0.0,  1.0,
+	 0.5, -0.5,  0.5,  0.0, 0.0,  0.0,  0.0,  1.0,
+	-0.5, -0.5,  0.5,  1.0, 0.0,  0.0,  0.0,  1.0,
+	-0.5,  0.5,  0.5,  1.0, 1.0,  0.0,  0.0,  1.0,
+	-0.5, -0.5, -0.5,  0.0, 1.0,  0.0, -1.0,  0.0,
+	-0.5, -0.5,  0.5,  0.0, 0.0,  0.0, -1.0,  0.0,
+	 0.5, -0.5,  0.5,  1.0, 0.0,  0.0, -1.0,  0.0,
+	 0.5, -0.5, -0.5,  1.0, 1.0,  0.0, -1.0,  0.0,
 };
 
-static GLuint _L_CUBE_INDEX_DATA[_L_CUBE_NUM_INDICES] = {
-	/*front*/
-	2,0,1, 3,2,1,
-	/*right*/
-	1,5,7, 7,3,1,
-	/*back*/
-	5,4,6, 5,6,7,
-	/*left*/
-	0,2,6, 0,6,4,
-	/*top*/
-	3,7,6, 2,3,6,
-	/*bottom*/
-	5,1,0, 0,4,5,
+static GLuint L_CUBE_INDEX_DATA[L_CUBE_NUM_INDICES] = {
+	0,1,2,     0,2,3,     4,5,6,     4,6,7,
+	8,9,10,    8,10,11,   12,13,14,  12,14,15,
+	16,17,18,  16,18,19,  20,21,22,  20,22,23,
 };
 
 // MESH //=====================================================================
@@ -64,30 +68,41 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(
 			m.indexData,
 			GL_STATIC_DRAW);
 
+	GLfloat attribStride = sizeof(GLfloat) * 8;
+
 	/*position attribute*/
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
 			0,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8, (GLvoid*)0);
-
-	/*color attribute*/
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-			1,3,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8,
-			(GLvoid*)(sizeof(GLfloat) * 3));
+			attribStride, (GLvoid*)0);
 
 	/*texture coord attribute*/
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+			1,2,GL_FLOAT,GL_FALSE,
+			attribStride, 
+			(GLvoid*)(sizeof(GLfloat)*3));
+
+	/*normal vector attribute*/
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
-			2,2,GL_FLOAT,GL_FALSE,
-			sizeof(GLfloat) * 8, 
+			2,3,GL_FLOAT,GL_FALSE,
+			attribStride, 
 			(GLvoid*)(sizeof(GLfloat)*6));
+
+	// /*color attribute*/
+	// glEnableVertexAttribArray(3);
+	// glVertexAttribPointer(
+	// 		1,3,GL_FLOAT,GL_FALSE,
+	// 		attribStride,
+	// 		(GLvoid*)(sizeof(GLfloat) * 3));
 
 	/*cleanup*/
 	glBindVertexArray(0);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	// glDisableVertexAttribArray(3);
 
 	/*TODO add the new mesh to the drawing queue*/
 	return m;
@@ -95,8 +110,8 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(
 
 l_renderer_gl_mesh l_renderer_gl_mesh_createCube(){
 	return l_renderer_gl_mesh_create(
-			_L_CUBE_NUM_INDICES, _L_CUBE_NUM_VERTS,
-			_L_CUBE_INDEX_DATA, _L_CUBE_VERT_DATA
+			L_CUBE_NUM_INDICES, L_CUBE_NUM_VERTS,
+			L_CUBE_INDEX_DATA, L_CUBE_VERT_DATA
 			);
 }
 

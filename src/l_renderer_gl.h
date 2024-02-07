@@ -13,8 +13,8 @@ typedef struct l_renderer_gl_mesh l_renderer_gl_mesh;
 typedef struct l_renderer_gl_transform l_renderer_gl_transform;
 typedef struct l_renderer_gl_camera l_renderer_gl_camera;
 
-#define _L_CUBE_NUM_VERTS 64
-#define _L_CUBE_NUM_INDICES 36
+#define L_CUBE_NUM_VERTS 192
+#define L_CUBE_NUM_INDICES 36
 
 struct l_renderer_gl_mesh{
 	GLfloat* vertexData;
