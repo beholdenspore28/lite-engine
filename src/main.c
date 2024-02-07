@@ -87,10 +87,16 @@ void update(l_engineData* pEngineData) {
 
 	{ //cube update
 		glUseProgram(pEngineData->cube.shader);
+		blib_vec3f_t lightPosition = pEngineData->cube.transform.position;
+		glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_lightPosition"), 
+				lightPosition.x, lightPosition.y, lightPosition.z
+				);
+
 		l_renderer_gl_shader_setUniform3f(
 				pEngineData->cube.shader, 
 				"u_lightColor",lightcolor ,lightcolor, lightcolor 
 				);
+		
 		glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
 		l_renderer_gl_shader_setMat4Uniform(
 				pEngineData->cube.shader,
@@ -214,7 +220,7 @@ int main (int argc, char* argv[]) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	//lock cursor
-	glfwSetInputMode(engineData.rendererGL.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetInputMode(engineData.rendererGL.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	//main loop
 	while (!glfwWindowShouldClose(engineData.rendererGL.window)){
