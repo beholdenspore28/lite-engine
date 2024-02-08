@@ -71,7 +71,7 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertic
 
   /*normal vector attribute*/
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, attribStride, (GLvoid *)(sizeof(GLfloat) * 6));
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, attribStride, (GLvoid *)(sizeof(GLfloat) * 5));
 
   // /*color attribute*/
   // glEnableVertexAttribArray(3);

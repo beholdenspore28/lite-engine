@@ -67,7 +67,7 @@ void update(l_engineData *pEngineData) {
 
   { // cube update
     glUseProgram(pEngineData->cube.shader);
-    blib_vec3f_t lightPosition = pEngineData->cube.transform.position;
+    blib_vec3f_t lightPosition = pEngineData->lightsourcecube.transform.position;
     glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_lightPosition"), lightPosition.x,
                 lightPosition.y, lightPosition.z);
 
@@ -78,11 +78,9 @@ void update(l_engineData *pEngineData) {
     l_renderer_gl_shader_setMat4Uniform(pEngineData->cube.shader, "u_modelMatrix",
                                         &pEngineData->cube.modelMatrix);
 
-    // l_renderer_gl_transform_rotate(
-    // 		&pEngineData->cube.transform,blib_vec3f_scale(
-    // 			BLIB_VEC3F_ONE,renderer->deltaTime * 2.0f
-    // 			)
-    // 		);
+    l_renderer_gl_transform_rotate(&pEngineData->cube.transform,
+                                   blib_vec3f_scale(BLIB_VEC3F_ONE, renderer->deltaTime * 2.0f));
+
     pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(&pEngineData->cube.transform);
     l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
   }
