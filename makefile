@@ -14,10 +14,10 @@ CFLAGS_DEBUG := fsanitize=address -fno-optimize-sibling-calls
 CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
 LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
 
-default: run
+default: format run
 
 format:
-	clang-format --style=file src/*.c src/*.h
+	clang-format --style=file -i $(SRCFILES)
 
 clearscreen:
 	clear
