@@ -18,9 +18,9 @@ void main(){
 	vec3 normal = normalize(v_normal);
 	vec3 lightDirection = normalize(u_lightPosition - v_fragPosition);
 
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
+	float diffuseStrength = max(dot(normal, lightDirection), 0.0f);
+	vec3 diffuse = u_lightColor * diffuseStrength;
 
-	vec4 result = vec4(ambient, 1.0) * texture(u_texture, v_texCoord) * diffuse * 2;
-	// vec4 result = vec4(diffuse);
+	vec4 result = texture(u_texture, v_texCoord) * vec4(ambient + diffuse, 1.0);
 	out_color = result;
 }
