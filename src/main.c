@@ -204,7 +204,7 @@ int main (int argc, char* argv[]) {
 	//create stuff
 	l_engineData engineData = (l_engineData) {
 		.inputData = (l_inputData){0},
-			.rendererGL = l_renderer_gl_init(854,480),
+			.rendererGL = l_renderer_gl_init(1280,720),
 			.lightsourcecube = (l_cubeData){
 				.mesh = l_renderer_gl_mesh_createCube(),
 				.transform = l_renderer_gl_transform_create(),
