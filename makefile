@@ -2,7 +2,7 @@ SRCFILES != find src -name '*.c'
 BLIBSRCFILES != find blib/src -name '*.c'
 SRCFILES += ${BLIBSRCFILES}
 
-INCDIR := -Isrc -Iblib/src
+INCDIR := -Isrc -Iblib/src -Isrc/dep
 LIBS := -lglfw -lGL -lm 
 OBJFILES := ${SRCFILES:%.c=build/obj/%.o} 
 
@@ -15,6 +15,9 @@ CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
 LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
 
 default: run
+
+format:
+	clang-format --style=file src/*.c src/*.h
 
 clearscreen:
 	clear
