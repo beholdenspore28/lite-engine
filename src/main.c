@@ -14,7 +14,8 @@ void earlyUpdate(l_engineData *pEngineData) {
   l_inputData *inputData = &pEngineData->inputData;
 
   l_renderer_gl_update(renderer);
-  l_renderer_gl_shader_useCamera(pEngineData->lightsourcecube.shader, &renderer->activeCamera);
+  l_renderer_gl_shader_useCamera(pEngineData->lightsourcecube.shader,
+                                 &renderer->activeCamera);
   l_renderer_gl_shader_useCamera(pEngineData->cube.shader, &renderer->activeCamera);
 
   l_renderer_gl_camera_update(&renderer->activeCamera, renderer);
@@ -22,8 +23,8 @@ void earlyUpdate(l_engineData *pEngineData) {
   inputData->moveInputDirection.x =
       l_input_getKey(renderer, GLFW_KEY_A) - l_input_getKey(renderer, GLFW_KEY_D);
 
-  inputData->moveInputDirection.y =
-      l_input_getKey(renderer, GLFW_KEY_LEFT_SHIFT) - l_input_getKey(renderer, GLFW_KEY_SPACE);
+  inputData->moveInputDirection.y = l_input_getKey(renderer, GLFW_KEY_LEFT_SHIFT) -
+                                    l_input_getKey(renderer, GLFW_KEY_SPACE);
 
   inputData->moveInputDirection.z =
       l_input_getKey(renderer, GLFW_KEY_S) - l_input_getKey(renderer, GLFW_KEY_W);
@@ -31,7 +32,8 @@ void earlyUpdate(l_engineData *pEngineData) {
   inputData->moveInputDirection = blib_vec3f_normalize(inputData->moveInputDirection);
   // blib_vec3f_printf(moveInputDirection, "moveInputDirection");
 
-  inputData->mouseDelta = blib_vec2f_subtract(inputData->lastMousePosition, inputData->mousePosition);
+  inputData->mouseDelta =
+      blib_vec2f_subtract(inputData->lastMousePosition, inputData->mousePosition);
   inputData->lastMousePosition = inputData->mousePosition;
 
   double xpos, ypos;
@@ -53,65 +55,85 @@ void update(l_engineData *pEngineData) {
   { // light source cube update
     l_cubeData *lightSourceCube = &pEngineData->lightsourcecube;
     glUseProgram(lightSourceCube->shader);
-    l_renderer_gl_shader_setUniform3f(lightSourceCube->shader, "u_lightColor", lightColor, lightColor,
-                                      lightColor);
+    l_renderer_gl_shader_setUniform3f(lightSourceCube->shader, "u_lightColor",
+                                      lightColor, lightColor, lightColor);
 
     glUniform1i(glGetUniformLocation(lightSourceCube->shader, "i_texCoord"), 0);
 
     l_renderer_gl_shader_setMat4Uniform(lightSourceCube->shader, "u_modelMatrix",
                                         &lightSourceCube->modelMatrix);
 
-    lightSourceCube->modelMatrix = l_renderer_gl_transform_GetMatrix(&lightSourceCube->transform);
+    blib_vec3f_t *lightPosition = &lightSourceCube->transform.position;
+    lightPosition->x = 2.0f * sinf(pEngineData->rendererGL.frameStartTime);
+    lightPosition->y = -0.3f;
+    lightPosition->z = 1.5f * cosf(pEngineData->rendererGL.frameStartTime);
+
+    lightSourceCube->modelMatrix =
+        l_renderer_gl_transform_GetMatrix(&lightSourceCube->transform);
     l_renderer_gl_mesh_render(&lightSourceCube->mesh);
   }
 
   { // cube update
     glUseProgram(pEngineData->cube.shader);
     blib_vec3f_t lightPosition = pEngineData->lightsourcecube.transform.position;
-    glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_lightPosition"), lightPosition.x,
-                lightPosition.y, lightPosition.z);
+    glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_lightPosition"),
+                lightPosition.x, lightPosition.y, lightPosition.z);
 
-    blib_vec3f_t *cameraPosition = &pEngineData->rendererGL.activeCamera.transform.position;
-    glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_cameraPosition"), cameraPosition->x,
-                cameraPosition->y, cameraPosition->z);
+    blib_vec3f_t *cameraPosition =
+        &pEngineData->rendererGL.activeCamera.transform.position;
+    glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_cameraPosition"),
+                cameraPosition->x, cameraPosition->y, cameraPosition->z);
 
-    l_renderer_gl_shader_setUniform3f(pEngineData->cube.shader, "u_lightColor", lightColor, lightColor,
-                                      lightColor);
+    l_renderer_gl_shader_setUniform3f(pEngineData->cube.shader, "u_lightColor",
+                                      lightColor, lightColor, lightColor);
 
     glUniform1i(glGetUniformLocation(pEngineData->cube.shader, "i_texCoord"), 0);
     l_renderer_gl_shader_setMat4Uniform(pEngineData->cube.shader, "u_modelMatrix",
                                         &pEngineData->cube.modelMatrix);
 
-    l_renderer_gl_transform_rotate(&pEngineData->cube.transform,
-                                   blib_vec3f_scale(BLIB_VEC3F_ONE, renderer->deltaTime * 1.0f));
+    // l_renderer_gl_transform_rotate(&pEngineData->cube.transform,
+    //                                blib_vec3f_scale(BLIB_VEC3F_ONE,
+    //                                renderer->deltaTime * 1.0f));
 
-    pEngineData->cube.transform.scale.x = fabs(sinf(pEngineData->rendererGL.frameStartTime));
+    // pEngineData->cube.transform.scale.x =
+    // fabs(sinf(pEngineData->rendererGL.frameStartTime));
+    //
 
-    pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(&pEngineData->cube.transform);
+    pEngineData->cube.modelMatrix =
+        l_renderer_gl_transform_GetMatrix(&pEngineData->cube.transform);
     l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
   }
 
   { // camera mouse look
     float camRotSpeed = renderer->deltaTime * 0.25f;
-    renderer->activeCamera.transform.eulerAngles.y += inputData->mouseDelta.x * camRotSpeed;
-    renderer->activeCamera.transform.eulerAngles.x = blib_mathf_clamp(
-        renderer->activeCamera.transform.eulerAngles.x + inputData->mouseDelta.y * camRotSpeed, -BLIB_PI / 2,
-        BLIB_PI / 2);
+    renderer->activeCamera.transform.eulerAngles.y +=
+        inputData->mouseDelta.x * camRotSpeed;
+    renderer->activeCamera.transform.eulerAngles.x =
+        blib_mathf_clamp(renderer->activeCamera.transform.eulerAngles.x +
+                             inputData->mouseDelta.y * camRotSpeed,
+                         -BLIB_PI / 2, BLIB_PI / 2);
   }
 
   { // move camera
     // local directions
-    blib_vec3f_t cameraUp = l_renderer_gl_transform_getLocalUp(&renderer->activeCamera.transform);
-    blib_vec3f_t cameraRight = l_renderer_gl_transform_getLocalRight(&renderer->activeCamera.transform);
-    blib_vec3f_t cameraForward = l_renderer_gl_transform_getLocalForward(&renderer->activeCamera.transform);
+    blib_vec3f_t cameraUp =
+        l_renderer_gl_transform_getLocalUp(&renderer->activeCamera.transform);
+    blib_vec3f_t cameraRight =
+        l_renderer_gl_transform_getLocalRight(&renderer->activeCamera.transform);
+    blib_vec3f_t cameraForward =
+        l_renderer_gl_transform_getLocalForward(&renderer->activeCamera.transform);
 
     float camMoveSpeed = renderer->deltaTime * 5.0f;
 
-    cameraUp = blib_vec3f_scale(cameraUp, camMoveSpeed * inputData->moveInputDirection.y);
-    cameraRight = blib_vec3f_scale(cameraRight, camMoveSpeed * inputData->moveInputDirection.x);
-    cameraForward = blib_vec3f_scale(cameraForward, camMoveSpeed * inputData->moveInputDirection.z);
+    cameraUp =
+        blib_vec3f_scale(cameraUp, camMoveSpeed * inputData->moveInputDirection.y);
+    cameraRight =
+        blib_vec3f_scale(cameraRight, camMoveSpeed * inputData->moveInputDirection.x);
+    cameraForward =
+        blib_vec3f_scale(cameraForward, camMoveSpeed * inputData->moveInputDirection.z);
 
-    blib_vec3f_t finalMoveDirection = blib_vec3f_add(cameraUp, blib_vec3f_add(cameraRight, cameraForward));
+    blib_vec3f_t finalMoveDirection =
+        blib_vec3f_add(cameraUp, blib_vec3f_add(cameraRight, cameraForward));
     renderer->activeCamera.transform.position =
         blib_vec3f_add(renderer->activeCamera.transform.position, finalMoveDirection);
   }
@@ -145,7 +167,8 @@ int main(int argc, char *argv[]) {
           (l_cubeData){
               .mesh = l_renderer_gl_mesh_createCube(),
               .transform = l_renderer_gl_transform_create(),
-              .modelMatrix = l_renderer_gl_transform_GetMatrix(&engineData.lightsourcecube.transform),
+              .modelMatrix = l_renderer_gl_transform_GetMatrix(
+                  &engineData.lightsourcecube.transform),
           },
       .cube = (l_cubeData){
           .mesh = l_renderer_gl_mesh_createCube(),
@@ -161,10 +184,10 @@ int main(int argc, char *argv[]) {
   lightTransform->scale = blib_vec3f_scale(lightTransform->scale, 0.5f);
 
   engineData.rendererGL.activeCamera = l_renderer_gl_camera_create(85.0f);
-  engineData.lightsourcecube.shader = l_renderer_gl_shader_create("res/shaders/lightSourceVertex.glsl",
-                                                                  "res/shaders/lightSourceFragment.glsl");
-  engineData.cube.shader =
-      l_renderer_gl_shader_create("res/shaders/vertex.glsl", "res/shaders/fragment.glsl");
+  engineData.lightsourcecube.shader = l_renderer_gl_shader_create(
+      "res/shaders/lightSourceVertex.glsl", "res/shaders/lightSourceFragment.glsl");
+  engineData.cube.shader = l_renderer_gl_shader_create("res/shaders/vertex.glsl",
+                                                       "res/shaders/fragment.glsl");
 
   // texture setup
   GLuint texture = l_renderer_gl_texture_create("res/textures/test.png");

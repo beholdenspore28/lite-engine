@@ -37,7 +37,8 @@ static GLuint _l_renderer_gl_shader_compile(GLuint type, const char *source) {
   return shader;
 }
 
-static GLuint _l_renderer_gl_shader_createProgram(const char *vertsrc, const char *fragsrc) {
+static GLuint _l_renderer_gl_shader_createProgram(const char *vertsrc,
+                                                  const char *fragsrc) {
 
   GLuint program = glCreateProgram();
   GLuint vertShader = _l_renderer_gl_shader_compile(GL_VERTEX_SHADER, vertsrc);
@@ -63,11 +64,13 @@ static GLuint _l_renderer_gl_shader_createProgram(const char *vertsrc, const cha
   return program;
 }
 
-GLuint l_renderer_gl_shader_create(const char *vertexShaderSourcePath, const char *fragmentShaderSourcePath) {
+GLuint l_renderer_gl_shader_create(const char *vertexShaderSourcePath,
+                                   const char *fragmentShaderSourcePath) {
   printf("compiling shaders...");
   GLuint shaderProgram;
   blib_fileBuffer_t vertSourceFileBuffer = blib_fileBuffer_read(vertexShaderSourcePath);
-  blib_fileBuffer_t fragSourceFileBuffer = blib_fileBuffer_read(fragmentShaderSourcePath);
+  blib_fileBuffer_t fragSourceFileBuffer =
+      blib_fileBuffer_read(fragmentShaderSourcePath);
 
   if (vertSourceFileBuffer.error == true) {
     fprintf(stderr, "failed to read vertex shader");
@@ -81,7 +84,8 @@ GLuint l_renderer_gl_shader_create(const char *vertexShaderSourcePath, const cha
   const char *vertSourceString = vertSourceFileBuffer.text;
   const char *fragSourceString = fragSourceFileBuffer.text;
 
-  shaderProgram = _l_renderer_gl_shader_createProgram(vertSourceString, fragSourceString);
+  shaderProgram =
+      _l_renderer_gl_shader_createProgram(vertSourceString, fragSourceString);
 
   blib_fileBuffer_close(vertSourceFileBuffer);
   blib_fileBuffer_close(fragSourceFileBuffer);
@@ -93,11 +97,13 @@ GLuint l_renderer_gl_shader_create(const char *vertexShaderSourcePath, const cha
 void l_renderer_gl_shader_useCamera(GLuint shader, l_renderer_gl_camera *cam) {
   glUseProgram(shader);
   l_renderer_gl_shader_setMat4Uniform(shader, "u_viewMatrix", &cam->viewMatrix);
-  l_renderer_gl_shader_setMat4Uniform(shader, "u_projectionMatrix", &cam->projectionMatrix);
+  l_renderer_gl_shader_setMat4Uniform(shader, "u_projectionMatrix",
+                                      &cam->projectionMatrix);
   glUseProgram(0);
 }
 
-void l_renderer_gl_shader_setUniform3f(GLuint shader, const char *uniformName, float a, float b, float c) {
+void l_renderer_gl_shader_setUniform3f(GLuint shader, const char *uniformName, float a,
+                                       float b, float c) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   if (UniformLocation >= 0) {
     glUniform3f(UniformLocation, a, b, c);
@@ -106,7 +112,8 @@ void l_renderer_gl_shader_setUniform3f(GLuint shader, const char *uniformName, f
   }
 }
 
-void l_renderer_gl_shader_setMat4Uniform(GLuint shader, const char *uniformName, blib_mat4_t *m) {
+void l_renderer_gl_shader_setMat4Uniform(GLuint shader, const char *uniformName,
+                                         blib_mat4_t *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   if (UniformLocation >= 0) {
     glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);

@@ -21,8 +21,9 @@ blib_mat4_t l_renderer_gl_camera_GetViewMatrix(l_renderer_gl_transform *t) {
 }
 
 void l_renderer_gl_camera_setProjectionMatrix(l_renderer_gl_camera *cam, float aspect) {
-  cam->projectionMatrix = blib_mat4_perspective(blib_mathf_deg2rad(cam->fov), aspect, 0.01f, /*near clip*/
-                                                1000.0f);                                    /*far clip*/
+  cam->projectionMatrix =
+      blib_mat4_perspective(blib_mathf_deg2rad(cam->fov), aspect, 0.01f, /*near clip*/
+                            1000.0f);                                    /*far clip*/
 }
 
 l_renderer_gl_camera l_renderer_gl_camera_create(float fov) {
@@ -41,5 +42,6 @@ l_renderer_gl_camera l_renderer_gl_camera_create(float fov) {
 // the screen resolution changes
 void l_renderer_gl_camera_update(l_renderer_gl_camera *cam, l_renderer_gl *r) {
   cam->viewMatrix = l_renderer_gl_camera_GetViewMatrix(&cam->transform);
-  l_renderer_gl_camera_setProjectionMatrix(cam, (float)r->windowWidth / (float)r->windowHeight);
+  l_renderer_gl_camera_setProjectionMatrix(cam, (float)r->windowWidth /
+                                                    (float)r->windowHeight);
 }

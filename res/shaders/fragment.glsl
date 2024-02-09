@@ -25,12 +25,11 @@ void main(){
 
 	//specular light
 	float specularStrength = 0.5;
-	vec3 viewDirection = normalize(u_cameraPosition - v_fragPosition);
+	vec3 viewDirection = normalize(-u_cameraPosition - v_fragPosition);
 	vec3 reflectDirection = reflect(-lightDirection, normal);
 	float specularValue = pow(max(dot(viewDirection, reflectDirection), 0.0),32);
 	vec3 specular = specularStrength * specularValue * u_lightColor;
 	
 	//final light color
-	vec4 result = texture(u_texture, v_texCoord) * vec4(ambient + diffuse + specular, 1.0);
-	out_color = result;
+	out_color = texture(u_texture, v_texCoord) * vec4(ambient + diffuse + specular, 1.0);
 }
