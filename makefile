@@ -8,11 +8,8 @@ OBJFILES := ${SRCFILES:%.c=build/obj/%.o}
 
 CC ?= clang 
 
-CFLAGS_DEBUG := fsanitize=address -fno-optimize-sibling-calls
-CFLAGS_DEBUG := fsanitize=address -fno-optimize-sibling-calls
-
-CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
-LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0
+CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0  -fsanitize=address
+LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address
 
 default: format run
 

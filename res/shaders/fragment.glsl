@@ -10,16 +10,27 @@ out vec4 out_color;
 uniform sampler2D u_texture;
 uniform vec3 u_lightColor;
 uniform vec3 u_lightPosition; //NEW
+uniform vec3 u_cameraPosition;
 
 void main(){
+	
+	//ambient light
 	float ambient = 0.1;
 
+	//diffuse light
 	vec3 normal = normalize(v_normal);
 	vec3 lightDirection = normalize(u_lightPosition - v_fragPosition);
-
-	float diffuseStrength = max(dot(normal, lightDirection), 0.0f);
+	float diffuseStrength = max(dot(normal, lightDirection), 0.0);
 	vec3 diffuse = u_lightColor * diffuseStrength;
 
-	vec4 result = texture(u_texture, v_texCoord) * vec4(ambient + diffuse, 1.0);
+	//specular light
+	float specularStrength = 0.5;
+	vec3 viewDirection = normalize(u_cameraPosition - v_fragPosition);
+	vec3 reflectDirection = reflect(-lightDirection, normal);
+	float specularValue = pow(max(dot(viewDirection, reflectDirection), 0.0),32);
+	vec3 specular = specularStrength * specularValue * u_lightColor;
+	
+	//final light color
+	vec4 result = texture(u_texture, v_texCoord) * vec4(ambient + diffuse + specular, 1.0);
 	out_color = result;
 }

@@ -71,6 +71,10 @@ void update(l_engineData *pEngineData) {
     glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_lightPosition"), lightPosition.x,
                 lightPosition.y, lightPosition.z);
 
+    blib_vec3f_t *cameraPosition = &pEngineData->rendererGL.activeCamera.transform.position;
+    glUniform3f(glGetUniformLocation(pEngineData->cube.shader, "u_cameraPosition"), cameraPosition->x,
+                cameraPosition->y, cameraPosition->z);
+
     l_renderer_gl_shader_setUniform3f(pEngineData->cube.shader, "u_lightColor", lightColor, lightColor,
                                       lightColor);
 
@@ -79,7 +83,9 @@ void update(l_engineData *pEngineData) {
                                         &pEngineData->cube.modelMatrix);
 
     l_renderer_gl_transform_rotate(&pEngineData->cube.transform,
-                                   blib_vec3f_scale(BLIB_VEC3F_ONE, renderer->deltaTime * 2.0f));
+                                   blib_vec3f_scale(BLIB_VEC3F_ONE, renderer->deltaTime * 1.0f));
+
+    pEngineData->cube.transform.scale.x = fabs(sinf(pEngineData->rendererGL.frameStartTime));
 
     pEngineData->cube.modelMatrix = l_renderer_gl_transform_GetMatrix(&pEngineData->cube.transform);
     l_renderer_gl_mesh_render(&pEngineData->cube.mesh);
