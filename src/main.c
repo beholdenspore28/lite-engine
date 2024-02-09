@@ -149,7 +149,9 @@ int main(int argc, char *argv[]) {
 
   l_renderer_gl_transform *lightTransform = &engineData.lightsourcecube.transform;
 
+  lightTransform->position.y = 1.0f;
   lightTransform->position.x = 2.0f;
+  lightTransform->position.z = -1.0f;
   lightTransform->scale = blib_vec3f_scale(lightTransform->scale, 0.5f);
 
   engineData.rendererGL.activeCamera = l_renderer_gl_camera_create(85.0f);

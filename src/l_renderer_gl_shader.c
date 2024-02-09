@@ -2,6 +2,7 @@
 #include "l_renderer_gl.h"
 
 static GLuint _l_renderer_gl_shader_compile(GLuint type, const char *source) {
+  printf("compiling shader %s\n", source);
   /* printf("%s",source);*/
   /*creation*/
   GLuint shader = 0;
@@ -19,16 +20,16 @@ static GLuint _l_renderer_gl_shader_compile(GLuint type, const char *source) {
   GLint success;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (success == GL_FALSE) {
-    int length;
+    GLint length;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-    char errorMessage[length];
-    glGetShaderInfoLog(shader, length, &length, errorMessage);
+    char infoLog[length];
+    glGetShaderInfoLog(shader, length, &length, infoLog);
 
     if (type == GL_VERTEX_SHADER) {
-      fprintf(stderr, "failed to compile vertex shader\n%s\n", errorMessage);
+      fprintf(stderr, "failed to compile vertex shader\n%s\n", infoLog);
       exit(1);
     } else if (type == GL_FRAGMENT_SHADER) {
-      fprintf(stderr, "failed to compile fragment shader\n%s\n", errorMessage);
+      fprintf(stderr, "failed to compile fragment shader\n%s\n", infoLog);
       exit(1);
     }
     glDeleteShader(shader);
@@ -44,7 +45,18 @@ static GLuint _l_renderer_gl_shader_createProgram(const char *vertsrc, const cha
 
   glAttachShader(program, vertShader);
   glAttachShader(program, fragShader);
+
   glLinkProgram(program);
+
+  GLint success;
+  GLint length;
+  glGetProgramiv(program, GL_LINK_STATUS, &success);
+  glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+  char infoLog[length];
+  if (!success) {
+    glGetProgramInfoLog(program, length, &length, infoLog);
+    fprintf(stderr, "\n\nfailed to link shader\n\n%s", infoLog);
+  }
 
   glValidateProgram(program);
 
@@ -52,7 +64,7 @@ static GLuint _l_renderer_gl_shader_createProgram(const char *vertsrc, const cha
 }
 
 GLuint l_renderer_gl_shader_create(const char *vertexShaderSourcePath, const char *fragmentShaderSourcePath) {
-  printf("compiling shaders...\n");
+  printf("compiling shaders...");
   GLuint shaderProgram;
   blib_fileBuffer_t vertSourceFileBuffer = blib_fileBuffer_read(vertexShaderSourcePath);
   blib_fileBuffer_t fragSourceFileBuffer = blib_fileBuffer_read(fragmentShaderSourcePath);

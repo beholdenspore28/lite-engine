@@ -19,9 +19,9 @@ void main(){
 
 	gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * 
 		vec4(v_fragPosition,1.0f);
-
+	
+	// v_normal = mat3(transpose(inverse(u_modelMatrix))) * in_normal;
 	v_normal = in_normal;
-
 	// v_color = in_color;
 	v_texCoord = in_texCoord;
 }
