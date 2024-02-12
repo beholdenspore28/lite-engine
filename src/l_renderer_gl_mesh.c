@@ -40,12 +40,10 @@ static GLuint L_CUBE_INDEX_DATA[L_CUBE_NUM_INDICES] = {
 
 // MESH //=====================================================================
 
-l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertices,
-                                             GLuint *indexData, GLfloat *vertexData) {
-  l_renderer_gl_mesh m = (l_renderer_gl_mesh){.vertexData = vertexData,
-                                              .indexData = indexData,
-                                              .numVertices = numVertices,
-                                              .numIndices = numIndices};
+l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertices, GLuint *indexData,
+                                             GLfloat *vertexData) {
+  l_renderer_gl_mesh m = (l_renderer_gl_mesh){
+      .vertexData = vertexData, .indexData = indexData, .numVertices = numVertices, .numIndices = numIndices};
 
   /*vertex array*/
   glGenVertexArrays(1, &m.VAO);
@@ -54,14 +52,12 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertic
   /*vertex buffer*/
   glGenBuffers(1, &m.VBO);
   glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.numVertices, m.vertexData,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.numVertices, m.vertexData, GL_STATIC_DRAW);
 
   /*index/element buffer*/
   glGenBuffers(1, &m.EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.numIndices * sizeof(GLuint), m.indexData,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.numIndices * sizeof(GLuint), m.indexData, GL_STATIC_DRAW);
 
   GLfloat attribStride = sizeof(GLfloat) * 8;
 
@@ -71,13 +67,11 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertic
 
   /*texture coord attribute*/
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, attribStride,
-                        (GLvoid *)(sizeof(GLfloat) * 3));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, attribStride, (GLvoid *)(sizeof(GLfloat) * 3));
 
   /*normal vector attribute*/
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, attribStride,
-                        (GLvoid *)(sizeof(GLfloat) * 5));
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, attribStride, (GLvoid *)(sizeof(GLfloat) * 5));
 
   // /*color attribute*/
   // glEnableVertexAttribArray(3);
@@ -98,8 +92,7 @@ l_renderer_gl_mesh l_renderer_gl_mesh_create(GLuint numIndices, GLuint numVertic
 }
 
 l_renderer_gl_mesh l_renderer_gl_mesh_createCube() {
-  return l_renderer_gl_mesh_create(L_CUBE_NUM_INDICES, L_CUBE_NUM_VERTS,
-                                   L_CUBE_INDEX_DATA, L_CUBE_VERT_DATA);
+  return l_renderer_gl_mesh_create(L_CUBE_NUM_INDICES, L_CUBE_NUM_VERTS, L_CUBE_INDEX_DATA, L_CUBE_VERT_DATA);
 }
 
 void l_renderer_gl_mesh_render(l_renderer_gl_mesh *m) {

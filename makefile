@@ -11,7 +11,7 @@ CC ?= clang
 CFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0  -fsanitize=address
 LDFLAGS := -Wall -Wno-missing-braces -std=c11 -g3 -O0 -fsanitize=address
 
-default: format run
+default: run
 
 format:
 	clang-format --style=file -i $(SRCFILES)

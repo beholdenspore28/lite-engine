@@ -2,8 +2,7 @@
 #include "stdlib.h"
 #include <stdio.h>
 
-static void _l_renderer_gl_keyCallback(GLFWwindow *window, int key, int scancode,
-                                       int action, int mods) {
+static void _l_renderer_gl_keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
@@ -12,10 +11,8 @@ static void _l_renderer_gl_errorCallback(int error, const char *description) {
   fprintf(stderr, "Error: %s\n", description);
 }
 
-static void APIENTRY _l_renderer_gl_debugMessageCallback(GLenum source, GLenum type,
-                                                         GLuint id, GLenum severity,
-                                                         GLsizei length,
-                                                         const GLchar *msg,
+static void APIENTRY _l_renderer_gl_debugMessageCallback(GLenum source, GLenum type, GLuint id,
+                                                         GLenum severity, GLsizei length, const GLchar *msg,
                                                          const void *data) {
   char *_source;
   char *_type;
@@ -106,8 +103,7 @@ static void APIENTRY _l_renderer_gl_debugMessageCallback(GLenum source, GLenum t
     _severity = "UNKNOWN";
     break;
   }
-  printf("%d: [%s] [%s SEVERITY] raised from %s: %s\n\n", id, _type, _severity, _source,
-         msg);
+  printf("%d: [%s] [%s SEVERITY] raised from %s: %s\n\n", id, _type, _severity, _source, msg);
 }
 
 l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight) {
@@ -122,8 +118,7 @@ l_renderer_gl l_renderer_gl_init(int windowWidth, int windowHeight) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-  GLFWwindow *window =
-      glfwCreateWindow(windowWidth, windowHeight, "Game Window", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "Game Window", NULL, NULL);
   if (!window) {
     fprintf(stderr, "Window or OpenGL context creation failed");
     exit(1);

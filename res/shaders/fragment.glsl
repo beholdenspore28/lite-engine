@@ -12,6 +12,15 @@ uniform vec3 u_lightColor;
 uniform vec3 u_lightPosition; //NEW
 uniform vec3 u_cameraPosition;
 
+struct Material{
+	blib_vec3f_t ambient;
+	blib_vec3f_t diffuse;
+	blib_vec3f_t specular;
+	float shininess;
+};
+
+uniform Material material;
+
 void main(){
 	
 	//ambient light
