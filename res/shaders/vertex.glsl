@@ -2,7 +2,7 @@
 
 layout(location=0) in vec3 in_position; 	//initial vertex position
 layout(location=1) in vec2 in_texCoord; 	//initial vertex texture cordinate
-layout(location=2) in vec3 in_normal; //NEW
+layout(location=2) in vec3 in_normal;
 // layout(location=3) in vec3 in_color; 		//initial vertex color
 
 uniform mat4 u_modelMatrix;
@@ -10,8 +10,8 @@ uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
 
 // out vec3 v_color;
-out vec3 v_normal; //NEW
-out vec3 v_fragPosition; //NEW
+out vec3 v_normal; 
+out vec3 v_fragPosition;
 out vec2 v_texCoord;
 
 void main(){
