@@ -115,27 +115,33 @@ int main() {
       lastTime = currentTime;
 
       FPS = 1 / deltaTime;
-      // printf("delta %f : FPS %f\n", deltaTime, FPS);
+      printf("============FRAME=START==============\n");
+      printf("delta %f : FPS %f\n", deltaTime, FPS);
     }
 
     { // INPUT
 
       // camera
       float cameraSpeed = 15 * deltaTime;
+			vec3 velocity = VEC3_ZERO;
+
+			int xaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
+				glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
       
-			if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) == GLFW_PRESS) {
-				cameraPosition.z += cameraSpeed;
-			}
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPosition.z -= cameraSpeed;
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPosition.x -= cameraSpeed;
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPosition.x += cameraSpeed;
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
-        cameraPosition.y += cameraSpeed;
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        cameraPosition.y -= cameraSpeed;
+			int yaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
+				glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
+
+			int zaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
+				glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+
+			velocity.x = cameraSpeed * xaxis;
+			velocity.y = cameraSpeed * yaxis;
+			velocity.z = cameraSpeed * zaxis; 
+
+			velocity = mat4_multiplyVec3(velocity, model);
+
+			cameraPosition = vec3_add(cameraPosition, velocity);
+
     }
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
