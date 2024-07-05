@@ -1,6 +1,9 @@
-#include <gl.h>
+#include "gl.h"
 #include <stdio.h>
 #include <GLFW/glfw3.h>
+
+#include "blib/b_list.h"
+B_LIST_IMPLEMENTATION 
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -48,6 +51,7 @@ void mouse_callback(GLFWwindow* windowData, double xposIn, double yposIn) {
 }
 
 int main() {
+
   printf("Rev up those fryers!\n");
 
   window windowData = window_create();
@@ -119,8 +123,9 @@ int main() {
       // camera
       float cameraSpeed = 15 * deltaTime;
       
-      if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPosition.z += cameraSpeed;
+			if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) == GLFW_PRESS) {
+				cameraPosition.z += cameraSpeed;
+			}
       if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_S) == GLFW_PRESS)
         cameraPosition.z -= cameraSpeed;
       if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_A) == GLFW_PRESS)
