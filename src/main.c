@@ -82,10 +82,16 @@ int main() {
 	cubes.positions = list_vec3_alloc();
 	cubes.eulers = list_vec3_alloc();
 	cubes.colors = list_vec3_alloc();
+	cubes.meshes.VAOs = list_GLuint_alloc();
+	cubes.meshes.VBOs = list_GLuint_alloc();
+	cubes.meshes.EBOs = list_GLuint_alloc();
 
 	pointLight pointLights;
 	pointLights.positions = list_vec3_alloc();
 	pointLights.colors = list_vec3_alloc();
+	pointLights.meshes.VAOs = list_GLuint_alloc();
+	pointLights.meshes.VBOs = list_GLuint_alloc();
+	pointLights.meshes.EBOs = list_GLuint_alloc();
 
   //cubes
   for (size_t i = 0; i < 10; i++) {
@@ -97,10 +103,8 @@ int main() {
 		list_vec3_add(&cubes.colors, VEC3_ONE);
 	}
 
+	//lights
   for (size_t i = 0; i < 10; i++) {
-		pointLights.meshes.VAOs = list_GLuint_alloc();
-		pointLights.meshes.VBOs = list_GLuint_alloc();
-		pointLights.meshes.EBOs = list_GLuint_alloc();
     mesh_allocCube(&pointLights.meshes, i);
 
 		vec3 color = vec3_scale(VEC3_ONE, 0.5f);
@@ -284,8 +288,12 @@ int main() {
         model = mat4_multiply(rotation, model);
         shader_setUniformM4(diffuseShader, "u_modelMatrix", &model);
 
-        /*glBindVertexArray(cubes.meshes.VAOs.data[0]);*/
-        /*glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);*/
+				printf("==========================================\n");
+				for(size_t i = 0; i < cubes.meshes.VAOs.length; i++)
+					printf("cube vaos: idx: %ld val: %ld\n", i, cubes.meshes.VAOs.data[i]);
+
+        glBindVertexArray(cubes.meshes.VAOs.data[0]);
+        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 
       for (int i = 0; i < 4; i++) {
@@ -308,6 +316,7 @@ int main() {
         // color
         shader_setUniformV3(unlitShader, "u_color", pointLights.colors.data[i]);
 
+				printf("==========================================\n");
 				for(size_t i = 0; i < pointLights.meshes.VAOs.length; i++)
 					printf("light vaos: idx: %ld val: %ld\n", i, pointLights.meshes.VAOs.data[i]);
 
