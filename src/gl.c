@@ -321,25 +321,29 @@ static GLuint mesh_cubeIndices[MESH_CUBE_NUM_INDICES] = {
 
 DEFINE_LIST(mesh)
 
-mesh mesh_alloc(size_t index, vertex_t* vertices, GLuint *indices,
+void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
     GLuint numVertices, GLuint numIndices) {
 
-	mesh m;
-	m.VAOs = list_GLuint_alloc();
-	m.VBOs = list_GLuint_alloc();
-	m.EBOs = list_GLuint_alloc();
+	if (!m->isInitialized) {
+		m->VAOs = list_GLuint_alloc();
+		m->VBOs = list_GLuint_alloc();
+		m->EBOs = list_GLuint_alloc();
+		m->isInitialized = 1;
+	}
 
-  glGenVertexArrays(1, &m.VAOs.data[index]);
-  glGenBuffers(1, &m.VBOs.data[index]);
-  glGenBuffers(1, &m.EBOs.data[index]);
+	GLuint VAO, VBO, EBO;
 
-  glBindVertexArray(m.VAOs.data[index]);
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
 
-  glBindBuffer(GL_ARRAY_BUFFER, m.VBOs.data[index]);
+  glBindVertexArray(VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * numVertices, vertices,
                GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBOs.data[index]);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices,
                GL_STATIC_DRAW);
 
@@ -364,16 +368,18 @@ mesh mesh_alloc(size_t index, vertex_t* vertices, GLuint *indices,
 
   glBindVertexArray(0);
 
-	return m;
+	list_GLuint_add(&m->VAOs, VAO);
+	list_GLuint_add(&m->VBOs, VBO);
+	list_GLuint_add(&m->EBOs, EBO);
 }
 
-mesh mesh_allocCube(size_t index) {
-	return mesh_alloc(index, mesh_cubeVertices, mesh_cubeIndices, 
+void mesh_allocCube(mesh* m, size_t index) {
+	mesh_alloc(m, mesh_cubeVertices, mesh_cubeIndices, 
 			MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
 }
 
-mesh mesh_allocQuad(size_t index) {
-	return mesh_alloc(index, mesh_quadVertices, mesh_quadIndices, 
+void mesh_allocQuad(mesh* m, size_t index) {
+	mesh_alloc(m, mesh_quadVertices, mesh_quadIndices, 
 			MESH_CUBE_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
 }
 
@@ -381,7 +387,7 @@ void mesh_free(mesh* m) {
 	list_GLuint_free(&m->VAOs);
 	list_GLuint_free(&m->VBOs);
 	list_GLuint_free(&m->EBOs);
-};
+}
 
 //TEXTURE====================================================================//
 

@@ -34,6 +34,7 @@ typedef struct {
 	list_GLuint VAOs;
 	list_GLuint VBOs;
 	list_GLuint EBOs;
+	int isInitialized;
 } mesh;
 
 DECLARE_LIST(mesh)
@@ -42,13 +43,8 @@ DECLARE_LIST(mesh)
 #define MESH_QUAD_NUM_INDICES 6
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
-#define MESH_MAX_COUNT 1024
 
-mesh mesh_allocCube();
-mesh mesh_allocQuad();
-GLuint mesh_getVAO(GLuint index);
-GLuint mesh_getVBO(GLuint index);
-GLuint mesh_getEBO(GLuint index);
-
+void mesh_allocCube(mesh* m, size_t index);
+void mesh_allocQuad(mesh* m, size_t index);
 
 #endif

@@ -1,16 +1,16 @@
-SRCFILES != \
-	find src -name '*.c' & \
-	find dep/blib -name '*.c'
+SRCFILES := \
+						src/*.c \
+						dep/blib/*.c
 
-OBJFILES != \
-	find build/obj -name '*.o'
+OBJFILES := \
+						build/obj/*.o
 
 INCDIR := -Isrc -Idep
 
 C = clang
 OUT := build/bin/lite-engine
 
-OPT_DEBUG := -g3
+OPT_DEBUG := -g3 -fsanitize=address
 OPT_SMALL := -Oz -flto
 OPT_RELEASE := -flto -O3 
 OPT_ := ${OPT_DEBUG} 
@@ -19,17 +19,16 @@ CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c11
 
 LIBS := -lglfw -lGL -lm 
 
-lite-engine-run: lite-engine-build
+default: build_lite_engine
+
+build_lite_engine:	build_dir \
+										build_glad
+	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS} ${CFLAGS} -o ${OUT} 
 	./${OUT}
 
-lite-engine-gdb: lite-engine-build
-	gdb ./${OUT}
-
-lite-engine-build:
-	mkdir -p build/bin
-	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS} ${CFLAGS} -o ${OUT} 
-
-glad:
-	mkdir -p build/obj
+build_glad: build_dir
 	${C} -c dep/glad.c ${CFLAGS} -Idep -o build/obj/glad.o
 
+build_dir:
+	mkdir -p build/bin
+	mkdir -p build/obj

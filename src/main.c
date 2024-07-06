@@ -88,36 +88,26 @@ int main() {
 	pointLights.colors = list_vec3_alloc();
 
   //cubes
-  for (size_t i = 0; i < cubes.positions.length; i++) {
-    mesh_allocCube(i);
-    cubes.positions.data[i].x = i * 2;
-    cubes.positions.data[i].y = 0;
-    cubes.positions.data[i].z = 0;
+  for (size_t i = 0; i < 10; i++) {
+    mesh_allocCube(&cubes.meshes, i);
+
+		vec3 pos = (vec3) {i * 2, 0, 0};
+		list_vec3_add(&cubes.positions, pos);
+		list_vec3_add(&cubes.eulers, VEC3_ZERO);
+		list_vec3_add(&cubes.colors, VEC3_ONE);
 	}
 
-  for (size_t i = 0; i < cubes.eulers.length; i++) {
-    cubes.eulers.data[i].x = 0;
-    cubes.eulers.data[i].y = 0;
-    cubes.eulers.data[i].z = 0;
+  for (size_t i = 0; i < 10; i++) {
+		pointLights.meshes.VAOs = list_GLuint_alloc();
+		pointLights.meshes.VBOs = list_GLuint_alloc();
+		pointLights.meshes.EBOs = list_GLuint_alloc();
+    mesh_allocCube(&pointLights.meshes, i);
+
+		vec3 color = vec3_scale(VEC3_ONE, 0.5f);
+		vec3 pos = (vec3) {i * 16, -2, -2};
+		list_vec3_add(&pointLights.colors, color);
+		list_vec3_add(&pointLights.positions, pos);
 	}
-
-  for (size_t i = 0; i < cubes.colors.length; i++) {
-    cubes.colors.data[i].x = 1;
-    cubes.colors.data[i].y = 1;
-    cubes.colors.data[i].z = 1;
-  }
-
-  for (size_t i = 0; i < pointLights.colors.length; i++) {
-    pointLights.colors.data[i].x = 0.5f;
-    pointLights.colors.data[i].y = 0.5f;
-    pointLights.colors.data[i].z = 0.5f;
-	}
-
-  for (size_t i = 0; i < pointLights.positions.length; i++) {
-    pointLights.positions.data[i].x = i * 16;
-    pointLights.positions.data[i].y = -2;
-    pointLights.positions.data[i].z = -2;
-  }
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -294,8 +284,8 @@ int main() {
         model = mat4_multiply(rotation, model);
         shader_setUniformM4(diffuseShader, "u_modelMatrix", &model);
 
-        glBindVertexArray(cubes.meshes.VAOs.data[0]);
-        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+        /*glBindVertexArray(cubes.meshes.VAOs.data[0]);*/
+        /*glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);*/
       }
 
       for (int i = 0; i < 4; i++) {
@@ -318,7 +308,10 @@ int main() {
         // color
         shader_setUniformV3(unlitShader, "u_color", pointLights.colors.data[i]);
 
-        glBindVertexArray(pointLights.meshes.VAOs.data[0]);
+				for(size_t i = 0; i < pointLights.meshes.VAOs.length; i++)
+					printf("light vaos: idx: %ld val: %ld\n", i, pointLights.meshes.VAOs.data[i]);
+
+        glBindVertexArray(pointLights.meshes.VAOs.data[1]);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 
