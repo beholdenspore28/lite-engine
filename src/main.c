@@ -4,31 +4,39 @@
 
 #include "blib/b_list.h"
 B_LIST_IMPLEMENTATION 
+DECLARE_LIST(vec3)
+DEFINE_LIST(vec3)
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
+
+typedef struct {
+	list_vec3 positions;
+	list_vec3 colors;
+	mesh meshes;
+} pointLight;
+
+typedef struct {
+	list_vec3 positions;
+	list_vec3 eulers;
+	list_vec3 colors;
+	mesh meshes;
+} cube;
+  
+//TODO enclose camera data in a struct
 vec3 cameraPosition = VEC3_ZERO;
 vec3 cameraEulers = VEC3_ZERO;
 float cameraLookSensitivity = 10;
-#define NUM_POINT_LIGHTS 10
-vec3 pointLightPositions[NUM_POINT_LIGHTS] = {[0 ... NUM_POINT_LIGHTS- 1] = VEC3_ZERO};
-vec3 pointLightColors[NUM_POINT_LIGHTS] = {[0 ... NUM_POINT_LIGHTS- 1] = VEC3_ZERO};
 
-#define NUM_CUBES 10
-vec3 cubePositions[NUM_CUBES] = {[0 ... NUM_CUBES- 1] = VEC3_ZERO};
-vec3 cubeEulers[NUM_CUBES] = {[0 ... NUM_CUBES- 1] = VEC3_ZERO};
-vec3 cubeColors[NUM_CUBES] = {[0 ... NUM_CUBES- 1] = VEC3_ZERO};
+static float lastX = 0;
+static float lastY = 0;
 
-static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
-  
 void camera_mouseLook(float xoffset, float yoffset) {
 	(void)yoffset;
 	cameraEulers.y -= xoffset * deltaTime * cameraLookSensitivity;
 }
-
-static float lastX = 0;
-static float lastY = 0;
 
 void mouse_callback(GLFWwindow* windowData, double xposIn, double yposIn) {
 	(void)windowData;
@@ -51,7 +59,6 @@ void mouse_callback(GLFWwindow* windowData, double xposIn, double yposIn) {
 }
 
 int main() {
-
   printf("Rev up those fryers!\n");
 
   window windowData = window_create();
@@ -71,32 +78,45 @@ int main() {
   cameraPosition.y = 2;
   cameraPosition.z = -10;
 
+	cube cubes;
+	cubes.positions = list_vec3_alloc();
+	cubes.eulers = list_vec3_alloc();
+	cubes.colors = list_vec3_alloc();
+
+	pointLight pointLights;
+	pointLights.positions = list_vec3_alloc();
+	pointLights.colors = list_vec3_alloc();
+
   //cubes
-  for (int i = 0; i < 10; i++) {
-    mesh_createCube(i);
+  for (size_t i = 0; i < cubes.positions.length; i++) {
+    mesh_allocCube(i);
+    cubes.positions.data[i].x = i * 2;
+    cubes.positions.data[i].y = 0;
+    cubes.positions.data[i].z = 0;
+	}
 
-    cubePositions[i].x = i * 2;
-    cubePositions[i].y = 0;
-    cubePositions[i].z = 0;
+  for (size_t i = 0; i < cubes.eulers.length; i++) {
+    cubes.eulers.data[i].x = 0;
+    cubes.eulers.data[i].y = 0;
+    cubes.eulers.data[i].z = 0;
+	}
 
-    cubeEulers[i].x = 0;
-    cubeEulers[i].y = 0;
-    cubeEulers[i].z = 0;
-
-    cubeColors[i].x = 1;
-    cubeColors[i].y = 1;
-    cubeColors[i].z = 1;
+  for (size_t i = 0; i < cubes.colors.length; i++) {
+    cubes.colors.data[i].x = 1;
+    cubes.colors.data[i].y = 1;
+    cubes.colors.data[i].z = 1;
   }
 
-  //point lights
-  for (int i = 0; i < 4; i++) {
-    pointLightColors[i].x = 0.5f;
-    pointLightColors[i].y = 0.5f;
-    pointLightColors[i].z = 0.5f;
+  for (size_t i = 0; i < pointLights.colors.length; i++) {
+    pointLights.colors.data[i].x = 0.5f;
+    pointLights.colors.data[i].y = 0.5f;
+    pointLights.colors.data[i].z = 0.5f;
+	}
 
-    pointLightPositions[i].x = i * 16;
-    pointLightPositions[i].y = -2;
-    pointLightPositions[i].z = -2;
+  for (size_t i = 0; i < pointLights.positions.length; i++) {
+    pointLights.positions.data[i].x = i * 16;
+    pointLights.positions.data[i].y = -2;
+    pointLights.positions.data[i].z = -2;
   }
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -117,10 +137,9 @@ int main() {
       FPS = 1 / deltaTime;
       printf("============FRAME=START==============\n");
       printf("delta %f : FPS %f\n", deltaTime, FPS);
-    }
+		}
 
     { // INPUT
-
       // camera
       float cameraSpeed = 15 * deltaTime;
 			vec3 velocity = VEC3_ZERO;
@@ -141,7 +160,6 @@ int main() {
 			velocity = mat4_multiplyVec3(velocity, model);
 
 			cameraPosition = vec3_add(cameraPosition, velocity);
-
     }
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
@@ -184,7 +202,7 @@ int main() {
 
       // point light 0
       shader_setUniformV3(diffuseShader, "u_pointLights[0].position",
-                          pointLightPositions[0]);
+                          pointLights.positions.data[0]);
       shader_setUniformV3(diffuseShader, "u_pointLights[0].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[0].diffuse",
@@ -198,7 +216,7 @@ int main() {
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
                           cameraPosition);
-      shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_FORWARD);
+      shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_BACK);
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
@@ -215,7 +233,7 @@ int main() {
 
       // point light 1
       shader_setUniformV3(diffuseShader, "u_pointLights[1].position",
-                          pointLightPositions[1]);
+                          pointLights.positions.data[1]);
       shader_setUniformV3(diffuseShader, "u_pointLights[1].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[1].diffuse",
@@ -228,7 +246,7 @@ int main() {
 
       // point light 2
       shader_setUniformV3(diffuseShader, "u_pointLights[2].position",
-                          pointLightPositions[2]);
+                          pointLights.positions.data[2]);
       shader_setUniformV3(diffuseShader, "u_pointLights[2].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[2].diffuse",
@@ -241,7 +259,7 @@ int main() {
 
       // point light 3
       shader_setUniformV3(diffuseShader, "u_pointLights[3].position",
-                          pointLightPositions[3]);
+                          pointLights.positions.data[3]);
       shader_setUniformV3(diffuseShader, "u_pointLights[3].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[3].diffuse",
@@ -267,16 +285,16 @@ int main() {
 
         //model
         model = MAT4_IDENTITY;
-        model = mat4_translateVec3(cubePositions[i]);
-        mat4 pitch = mat4_rotate(cubeEulers[i].x, VEC3_RIGHT);
-        mat4 yaw = mat4_rotate(cubeEulers[i].y, VEC3_UP);
-        mat4 roll = mat4_rotate(cubeEulers[i].z, VEC3_FORWARD);
+        model = mat4_translateVec3(cubes.positions.data[i]);
+        mat4 pitch = mat4_rotate(cubes.eulers.data[i].x, VEC3_RIGHT);
+        mat4 yaw = mat4_rotate(cubes.eulers.data[i].y, VEC3_UP);
+        mat4 roll = mat4_rotate(cubes.eulers.data[i].z, VEC3_FORWARD);
         mat4 rotation = MAT4_IDENTITY;
         rotation = mat4_multiply(pitch, mat4_multiply(yaw, roll));
         model = mat4_multiply(rotation, model);
         shader_setUniformM4(diffuseShader, "u_modelMatrix", &model);
 
-        glBindVertexArray(mesh_getVAO(0));
+        glBindVertexArray(cubes.meshes.VAOs.data[0]);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 
@@ -294,13 +312,13 @@ int main() {
 
         // model matrix
         model = MAT4_IDENTITY;
-        model = mat4_translateVec3(pointLightPositions[i]);
+        model = mat4_translateVec3(pointLights.positions.data[i]);
         shader_setUniformM4(unlitShader, "u_modelMatrix", &model);
 
         // color
-        shader_setUniformV3(unlitShader, "u_color", pointLightColors[i]);
+        shader_setUniformV3(unlitShader, "u_color", pointLights.colors.data[i]);
 
-        glBindVertexArray(mesh_getVAO(0));
+        glBindVertexArray(pointLights.meshes.VAOs.data[0]);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 

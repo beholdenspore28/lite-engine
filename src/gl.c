@@ -1,5 +1,9 @@
 #include <gl.h>
 #include <stb_image.h>
+#include "blib/b_list.h"
+
+DEFINE_LIST(GLint)
+DEFINE_LIST(GLuint)
 
 static void error_callback(int error, const char *description) {
   (void)error;
@@ -267,7 +271,6 @@ typedef struct {
 
 // clang-format off
 
-#if 0 /*TOGGLE*/
 static vertex_t mesh_quadVertices[MESH_QUAD_NUM_VERTS] = {
 	//positions         //tex	      //normal
 	{ { 0.5f,  0.5f, 0.0f }, { 1.0f, 1.0f }, { 0.0,  1.0,  0.0 } },// top right
@@ -280,7 +283,6 @@ static unsigned int mesh_quadIndices[MESH_QUAD_NUM_INDICES] = {
 	3, 1, 0,  // first Triangle
 	3, 2, 1   // second Triangle
 };
-#endif
 
 static vertex_t mesh_cubeVertices[MESH_CUBE_NUM_VERTICES] = {
    // position       //tex       //normal
@@ -317,28 +319,27 @@ static GLuint mesh_cubeIndices[MESH_CUBE_NUM_INDICES] = {
 
 // clang-format on
 
-typedef struct {
-	GLuint VAOs[MESH_MAX_COUNT];
-	GLuint VBOs[MESH_MAX_COUNT];
-	GLuint EBOs[MESH_MAX_COUNT];
-} mesh_t;
+DEFINE_LIST(mesh)
 
-//list of all meshes
-static mesh_t meshData[MESH_MAX_COUNT] = {};
-
-void mesh_create(unsigned int index, vertex_t* vertices, GLuint *indices,
+mesh mesh_alloc(size_t index, vertex_t* vertices, GLuint *indices,
     GLuint numVertices, GLuint numIndices) {
-  glGenVertexArrays(1, &meshData->VAOs[index]);
-  glGenBuffers(1, &meshData->VBOs[index]);
-  glGenBuffers(1, &meshData->EBOs[index]);
 
-  glBindVertexArray(meshData->VAOs[index]);
+	mesh m;
+	m.VAOs = list_GLuint_alloc();
+	m.VBOs = list_GLuint_alloc();
+	m.EBOs = list_GLuint_alloc();
 
-  glBindBuffer(GL_ARRAY_BUFFER, meshData->VBOs[index]);
+  glGenVertexArrays(1, &m.VAOs.data[index]);
+  glGenBuffers(1, &m.VBOs.data[index]);
+  glGenBuffers(1, &m.EBOs.data[index]);
+
+  glBindVertexArray(m.VAOs.data[index]);
+
+  glBindBuffer(GL_ARRAY_BUFFER, m.VBOs.data[index]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * numVertices, vertices,
                GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshData->EBOs[index]);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBOs.data[index]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices,
                GL_STATIC_DRAW);
 
@@ -362,24 +363,25 @@ void mesh_create(unsigned int index, vertex_t* vertices, GLuint *indices,
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   glBindVertexArray(0);
+
+	return m;
 }
 
-void mesh_createCube(GLuint index) {
-	mesh_create(index, mesh_cubeVertices, mesh_cubeIndices, 
+mesh mesh_allocCube(size_t index) {
+	return mesh_alloc(index, mesh_cubeVertices, mesh_cubeIndices, 
 			MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
 }
 
-GLuint mesh_getVAO(GLuint index){
-	return meshData->VAOs[index];
+mesh mesh_allocQuad(size_t index) {
+	return mesh_alloc(index, mesh_quadVertices, mesh_quadIndices, 
+			MESH_CUBE_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
 }
 
-GLuint mesh_getVBO(GLuint index){
-	return meshData->VBOs[index];
-}
-
-GLuint mesh_getEBO(GLuint index){
-	return meshData->EBOs[index];
-}
+void mesh_free(mesh* m) {
+	list_GLuint_free(&m->VAOs);
+	list_GLuint_free(&m->VBOs);
+	list_GLuint_free(&m->EBOs);
+};
 
 //TEXTURE====================================================================//
 
