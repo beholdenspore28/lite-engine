@@ -19,7 +19,7 @@ typedef struct {
   int height;
 } window;
 
-window window_create();
+window window_create(void);
 
 GLuint texture_create(const char *imageFile);
 
@@ -44,7 +44,8 @@ DECLARE_LIST(mesh)
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
 
-void mesh_allocCube(mesh* m, size_t index);
-void mesh_allocQuad(mesh* m, size_t index);
+void mesh_allocCube(mesh* m);
+void mesh_allocQuad(mesh* m);
+void mesh_free(mesh* m);
 
 #endif

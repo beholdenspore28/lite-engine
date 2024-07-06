@@ -6,6 +6,8 @@
 B_LIST_IMPLEMENTATION 
 DECLARE_LIST(vec3)
 DEFINE_LIST(vec3)
+DECLARE_LIST(mat4)
+DEFINE_LIST(mat4)
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -13,12 +15,14 @@ DEFINE_LIST(vec3)
 static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 
 typedef struct {
+	list_mat4 matrices;
 	list_vec3 positions;
 	list_vec3 colors;
 	mesh meshes;
 } pointLight;
 
 typedef struct {
+	list_mat4 matrices;
 	list_vec3 positions;
 	list_vec3 eulers;
 	list_vec3 colors;
@@ -58,7 +62,7 @@ void mouse_callback(GLFWwindow* windowData, double xposIn, double yposIn) {
   camera_mouseLook(xoffset, yoffset);
 }
 
-int main() {
+int main(void) {
   printf("Rev up those fryers!\n");
 
   window windowData = window_create();
@@ -78,46 +82,43 @@ int main() {
   cameraPosition.y = 2;
   cameraPosition.z = -10;
 
+  //cubes
 	cube cubes;
+	cubes.matrices = list_mat4_alloc();
 	cubes.positions = list_vec3_alloc();
 	cubes.eulers = list_vec3_alloc();
 	cubes.colors = list_vec3_alloc();
-	cubes.meshes.VAOs = list_GLuint_alloc();
-	cubes.meshes.VBOs = list_GLuint_alloc();
-	cubes.meshes.EBOs = list_GLuint_alloc();
 
-	pointLight pointLights;
-	pointLights.positions = list_vec3_alloc();
-	pointLights.colors = list_vec3_alloc();
-	pointLights.meshes.VAOs = list_GLuint_alloc();
-	pointLights.meshes.VBOs = list_GLuint_alloc();
-	pointLights.meshes.EBOs = list_GLuint_alloc();
-
-  //cubes
   for (size_t i = 0; i < 10; i++) {
-    mesh_allocCube(&cubes.meshes, i);
+		mesh_allocCube(&cubes.meshes);
 
 		vec3 pos = (vec3) {i * 2, 0, 0};
 		list_vec3_add(&cubes.positions, pos);
 		list_vec3_add(&cubes.eulers, VEC3_ZERO);
 		list_vec3_add(&cubes.colors, VEC3_ONE);
+		list_mat4_add(&cubes.matrices, MAT4_IDENTITY);
 	}
 
 	//lights
+	pointLight pointLights;
+	pointLights.matrices = list_mat4_alloc();
+	pointLights.positions = list_vec3_alloc();
+	pointLights.colors = list_vec3_alloc();
+
   for (size_t i = 0; i < 10; i++) {
-    mesh_allocCube(&pointLights.meshes, i);
+    mesh_allocCube(&pointLights.meshes);
 
 		vec3 color = vec3_scale(VEC3_ONE, 0.5f);
 		vec3 pos = (vec3) {i * 16, -2, -2};
 		list_vec3_add(&pointLights.colors, color);
 		list_vec3_add(&pointLights.positions, pos);
+		list_mat4_add(&pointLights.matrices, MAT4_IDENTITY);
 	}
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   (void)FPS;
   mat4 view = MAT4_IDENTITY;
-  mat4 model = MAT4_IDENTITY;
   float aspect;
   mat4 projection = MAT4_IDENTITY;
   vec3 ambientLight = vec3_scale(VEC3_ONE, 0.2f);
@@ -129,8 +130,8 @@ int main() {
       lastTime = currentTime;
 
       FPS = 1 / deltaTime;
-      printf("============FRAME=START==============\n");
-      printf("delta %f : FPS %f\n", deltaTime, FPS);
+      //printf("============FRAME=START==============\n");
+      //printf("delta %f : FPS %f\n", deltaTime, FPS);
 		}
 
     { // INPUT
@@ -151,7 +152,7 @@ int main() {
 			velocity.y = cameraSpeed * yaxis;
 			velocity.z = cameraSpeed * zaxis; 
 
-			velocity = mat4_multiplyVec3(velocity, model);
+			velocity = mat4_multiplyVec3(velocity, view);
 
 			cameraPosition = vec3_add(cameraPosition, velocity);
     }
@@ -278,19 +279,18 @@ int main() {
         shader_setUniformM4(diffuseShader, "u_viewMatrix", &view);
 
         //model
-        model = MAT4_IDENTITY;
-        model = mat4_translateVec3(cubes.positions.data[i]);
+        cubes.matrices.data[i] = mat4_translateVec3(cubes.positions.data[i]);
         mat4 pitch = mat4_rotate(cubes.eulers.data[i].x, VEC3_RIGHT);
         mat4 yaw = mat4_rotate(cubes.eulers.data[i].y, VEC3_UP);
         mat4 roll = mat4_rotate(cubes.eulers.data[i].z, VEC3_FORWARD);
         mat4 rotation = MAT4_IDENTITY;
         rotation = mat4_multiply(pitch, mat4_multiply(yaw, roll));
-        model = mat4_multiply(rotation, model);
-        shader_setUniformM4(diffuseShader, "u_modelMatrix", &model);
+        cubes.matrices.data[i] = mat4_multiply(rotation, cubes.matrices.data[i]);
+        shader_setUniformM4(diffuseShader, "u_modelMatrix", &cubes.matrices.data[i]);
 
-				printf("==========================================\n");
-				for(size_t i = 0; i < cubes.meshes.VAOs.length; i++)
-					printf("cube vaos: idx: %ld val: %ld\n", i, cubes.meshes.VAOs.data[i]);
+				//printf("==========================================\n");
+				//for(size_t i = 0; i < cubes.meshes.VAOs.length; i++)
+				//	printf("cube vaos: idx: %ld val: %ld\n", i, cubes.meshes.VAOs.data[i]);
 
         glBindVertexArray(cubes.meshes.VAOs.data[0]);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
@@ -309,16 +309,16 @@ int main() {
         shader_setUniformM4(unlitShader, "u_viewMatrix", &view);
 
         // model matrix
-        model = MAT4_IDENTITY;
-        model = mat4_translateVec3(pointLights.positions.data[i]);
-        shader_setUniformM4(unlitShader, "u_modelMatrix", &model);
+        pointLights.matrices.data[i] = MAT4_IDENTITY;
+        pointLights.matrices.data[i] = mat4_translateVec3(pointLights.positions.data[i]);
+        shader_setUniformM4(unlitShader, "u_modelMatrix", &pointLights.matrices.data[i]);
 
         // color
         shader_setUniformV3(unlitShader, "u_color", pointLights.colors.data[i]);
 
-				printf("==========================================\n");
-				for(size_t i = 0; i < pointLights.meshes.VAOs.length; i++)
-					printf("light vaos: idx: %ld val: %ld\n", i, pointLights.meshes.VAOs.data[i]);
+				//printf("==========================================\n");
+				//for(size_t i = 0; i < pointLights.meshes.VAOs.length; i++)
+				//	printf("light vaos: idx: %ld val: %ld\n", i, pointLights.meshes.VAOs.data[i]);
 
         glBindVertexArray(pointLights.meshes.VAOs.data[1]);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
@@ -328,6 +328,21 @@ int main() {
       glfwPollEvents();
     }
   }
+
+	//lights
+	list_vec3_free(&pointLights.positions);
+	list_vec3_free(&pointLights.colors);
+	list_mat4_free(&pointLights.matrices);
+
+	mesh_free(&pointLights.meshes);
+
+  //cubes
+	list_vec3_free(&cubes.positions);
+	list_vec3_free(&cubes.eulers);
+	list_vec3_free(&cubes.colors);
+	list_mat4_free(&cubes.matrices);
+
+	mesh_free(&cubes.meshes);
 
   glfwTerminate();
   return 0;

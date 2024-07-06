@@ -107,7 +107,7 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,G
   printf("\n");
 }
 
-window window_create() {
+window window_create(void) {
   if (!glfwInit()){
     printf("[ERROR_GLFW] Failed to initialize GLFW");
   }
@@ -373,12 +373,12 @@ void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
 	list_GLuint_add(&m->EBOs, EBO);
 }
 
-void mesh_allocCube(mesh* m, size_t index) {
+void mesh_allocCube(mesh* m) {
 	mesh_alloc(m, mesh_cubeVertices, mesh_cubeIndices, 
 			MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
 }
 
-void mesh_allocQuad(mesh* m, size_t index) {
+void mesh_allocQuad(mesh* m) {
 	mesh_alloc(m, mesh_quadVertices, mesh_quadIndices, 
 			MESH_CUBE_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
 }
