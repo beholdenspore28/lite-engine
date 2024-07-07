@@ -30,43 +30,19 @@ typedef struct {
 } cube;
   
 //TODO enclose camera data in a struct
-vec3 cameraPosition = VEC3_ZERO;
-vec3 cameraEulers = VEC3_ZERO;
-float cameraLookSensitivity = 10;
-
-static float lastX = 0;
-static float lastY = 0;
-
-void camera_mouseLook(float xoffset, float yoffset) {
-	(void)yoffset;
-	cameraEulers.y -= xoffset * deltaTime * cameraLookSensitivity;
-}
-
-void mouse_callback(GLFWwindow* windowData, double xposIn, double yposIn) {
-	(void)windowData;
-	static bool firstMouse = true;
-  float xpos = (float)xposIn;
-  float ypos = (float)yposIn;
-  
-  if (firstMouse) {
-    lastX = xpos;
-    lastY = ypos;
-    firstMouse = false;
-  }
-  
-  float xoffset = xpos - lastX;
-  float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-  lastX = xpos;
-  lastY = ypos;
-  
-  camera_mouseLook(xoffset, yoffset);
-}
+typedef struct {
+	vec3	position;
+	vec3	eulers;
+	float	lookSensitivity;
+	float	lastX;
+	float	lastY;
+} camera;
 
 int main(void) {
   printf("Rev up those fryers!\n");
 
   window windowData = window_create();
-  glfwSetCursorPosCallback(windowData.glfwWindow, mouse_callback);
+  //glfwSetCursorPosCallback(windowData.glfwWindow, mouse_callback);
   
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
                                        "res/shaders/diffuse.fs.glsl");
@@ -78,9 +54,15 @@ int main(void) {
   GLuint containerSpecular =
       texture_create("res/textures/container2_specular.png");
 
-  cameraPosition.x = 4;
-  cameraPosition.y = 2;
-  cameraPosition.z = -10;
+	camera cam = {
+		.position = VEC3_ZERO,
+		.eulers = VEC3_ZERO,
+		.lookSensitivity = 10,
+		.lastX = 0,
+		.lastY = 0,
+	};
+
+  cam.position = (vec3) { 4, 2, -10 };
 
   //cubes
 	cube cubes;
@@ -136,25 +118,47 @@ int main(void) {
 
     { // INPUT
       // camera
-      float cameraSpeed = 15 * deltaTime;
-			vec3 velocity = VEC3_ZERO;
+			{ //mouse look
+				static bool firstMouse = true;
 
-			int xaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
-				glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
-      
-			int yaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
-				glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
+				double x, y; 
+				glfwGetCursorPos(windowData.glfwWindow, &x, &y);
 
-			int zaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
-				glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+				if (firstMouse) {
+					cam.lastX = x;
+					cam.lastY = y;
+					firstMouse = false;
+				}
 
-			velocity.x = cameraSpeed * xaxis;
-			velocity.y = cameraSpeed * yaxis;
-			velocity.z = cameraSpeed * zaxis; 
+				float xoffset = x - cam.lastX;
+				//float yoffset = cam.lastY - y; // reversed since y-coordinates go from bottom to top
+				cam.lastX = x;
+				//cam.lastY = y;
 
-			velocity = mat4_multiplyVec3(velocity, view);
+				cam.eulers.y -= xoffset * deltaTime * cam.lookSensitivity;
+			}
 
-			cameraPosition = vec3_add(cameraPosition, velocity);
+			{ // movement
+				float cameraSpeed = 15 * deltaTime;
+				vec3 velocity = VEC3_ZERO;
+
+				int xaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
+					glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
+
+				int yaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
+					glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
+
+				int zaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
+					glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+
+				velocity.x = cameraSpeed * xaxis;
+				velocity.y = cameraSpeed * yaxis;
+				velocity.z = cameraSpeed * zaxis; 
+
+				//velocity = mat4_multiplyVec3(velocity, view);
+
+				cam.position = vec3_add(cam.position, velocity);
+			}
     }
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
@@ -166,10 +170,10 @@ int main(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      view = mat4_translateVec3(vec3_negate(cameraPosition));
-      mat4 viewPitch = mat4_rotate(cameraEulers.x, VEC3_RIGHT);
-      mat4 viewYaw = mat4_rotate(cameraEulers.y, VEC3_UP);
-      mat4 viewRoll = mat4_rotate(cameraEulers.z, VEC3_FORWARD);
+      view = mat4_translateVec3(vec3_negate(cam.position));
+      mat4 viewPitch = mat4_rotate(cam.eulers.x, VEC3_RIGHT);
+      mat4 viewYaw = mat4_rotate(cam.eulers.y, VEC3_UP);
+      mat4 viewRoll = mat4_rotate(cam.eulers.z, VEC3_FORWARD);
       mat4 viewRotation = MAT4_IDENTITY;
       viewRotation = mat4_multiply(viewPitch, mat4_multiply(viewYaw, viewRoll));
       view = mat4_multiply(view, viewRotation);
@@ -183,7 +187,7 @@ int main(void) {
       glBindTexture(GL_TEXTURE_2D, containerSpecular);
 
       //camera
-      shader_setUniformV3(diffuseShader, "u_cameraPos", cameraPosition);
+      shader_setUniformV3(diffuseShader, "u_cameraPos", cam.position);
 
       // directional light
       shader_setUniformV3(diffuseShader, "u_dirLight.direction",
@@ -210,7 +214,7 @@ int main(void) {
 
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
-                          cameraPosition);
+                          cam.position);
       shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_BACK);
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient",
                           ambientLight);
