@@ -171,12 +171,6 @@ int main(void) {
 
       // view matrix
       view = mat4_translateVec3(vec3_negate(cam.position));
-      mat4 viewPitch = mat4_rotate(cam.eulers.x, VEC3_RIGHT);
-      mat4 viewYaw = mat4_rotate(cam.eulers.y, VEC3_UP);
-      mat4 viewRoll = mat4_rotate(cam.eulers.z, VEC3_FORWARD);
-      mat4 viewRotation = MAT4_IDENTITY;
-      viewRotation = mat4_multiply(viewPitch, mat4_multiply(viewYaw, viewRoll));
-      view = mat4_multiply(view, viewRotation);
 
       glUseProgram(diffuseShader);
 
@@ -284,12 +278,6 @@ int main(void) {
 
         //model
         cubes.matrices.data[i] = mat4_translateVec3(cubes.positions.data[i]);
-        mat4 pitch = mat4_rotate(cubes.eulers.data[i].x, VEC3_RIGHT);
-        mat4 yaw = mat4_rotate(cubes.eulers.data[i].y, VEC3_UP);
-        mat4 roll = mat4_rotate(cubes.eulers.data[i].z, VEC3_FORWARD);
-        mat4 rotation = MAT4_IDENTITY;
-        rotation = mat4_multiply(pitch, mat4_multiply(yaw, roll));
-        cubes.matrices.data[i] = mat4_multiply(rotation, cubes.matrices.data[i]);
         shader_setUniformM4(diffuseShader, "u_modelMatrix", &cubes.matrices.data[i]);
 
 				//printf("==========================================\n");
@@ -315,6 +303,7 @@ int main(void) {
         // model matrix
         pointLights.matrices.data[i] = MAT4_IDENTITY;
         pointLights.matrices.data[i] = mat4_translateVec3(pointLights.positions.data[i]);
+
         shader_setUniformM4(unlitShader, "u_modelMatrix", &pointLights.matrices.data[i]);
 
         // color
