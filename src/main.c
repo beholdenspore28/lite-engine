@@ -8,6 +8,8 @@ DECLARE_LIST(vec3)
 DEFINE_LIST(vec3)
 DECLARE_LIST(mat4)
 DEFINE_LIST(mat4)
+DECLARE_LIST(quat)
+DEFINE_LIST(quat)
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -17,6 +19,7 @@ static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 typedef struct {
 	list_mat4 matrices;
 	list_vec3 positions;
+	list_quat rotations;
 	list_vec3 colors;
 	mesh meshes;
 } pointLight;
@@ -24,7 +27,8 @@ typedef struct {
 typedef struct {
 	list_mat4 matrices;
 	list_vec3 positions;
-	list_vec3 eulers;
+	list_quat rotations;
+
 	list_vec3 colors;
 	mesh meshes;
 } cube;
@@ -32,7 +36,7 @@ typedef struct {
 //TODO enclose camera data in a struct
 typedef struct {
 	vec3	position;
-	vec3	eulers;
+	quat rotation;
 	float	lookSensitivity;
 	float	lastX;
 	float	lastY;
@@ -56,7 +60,7 @@ int main(void) {
 
 	camera cam = {
 		.position = VEC3_ZERO,
-		.eulers = VEC3_ZERO,
+		.rotation = QUATERNION_IDENTITY,
 		.lookSensitivity = 10,
 		.lastX = 0,
 		.lastY = 0,
@@ -68,7 +72,7 @@ int main(void) {
 	cube cubes;
 	cubes.matrices = list_mat4_alloc();
 	cubes.positions = list_vec3_alloc();
-	cubes.eulers = list_vec3_alloc();
+	cubes.rotations = list_quat_alloc();
 	cubes.colors = list_vec3_alloc();
 
   for (size_t i = 0; i < 10; i++) {
@@ -76,8 +80,8 @@ int main(void) {
 
 		vec3 pos = (vec3) {i * 2, 0, 0};
 		list_vec3_add(&cubes.positions, pos);
-		list_vec3_add(&cubes.eulers, VEC3_ZERO);
-		list_vec3_add(&cubes.colors, VEC3_ONE);
+		list_quat_add(&cubes.rotations, QUATERNION_IDENTITY);
+		list_vec3_add(&cubes.colors, VEC3_ONE(1.0f));
 		list_mat4_add(&cubes.matrices, MAT4_IDENTITY);
 	}
 
@@ -85,15 +89,17 @@ int main(void) {
 	pointLight pointLights;
 	pointLights.matrices = list_mat4_alloc();
 	pointLights.positions = list_vec3_alloc();
+	pointLights.rotations = list_quat_alloc();
 	pointLights.colors = list_vec3_alloc();
 
   for (size_t i = 0; i < 10; i++) {
     mesh_allocCube(&pointLights.meshes);
 
-		vec3 color = vec3_scale(VEC3_ONE, 0.5f);
+		vec3 color = VEC3_ONE(0.5f);
 		vec3 pos = (vec3) {i * 16, -2, -2};
 		list_vec3_add(&pointLights.colors, color);
 		list_vec3_add(&pointLights.positions, pos);
+		list_quat_add(&pointLights.rotations, QUATERNION_IDENTITY);
 		list_mat4_add(&pointLights.matrices, MAT4_IDENTITY);
 	}
 
@@ -103,7 +109,7 @@ int main(void) {
   mat4 view = MAT4_IDENTITY;
   float aspect;
   mat4 projection = MAT4_IDENTITY;
-  vec3 ambientLight = vec3_scale(VEC3_ONE, 0.2f);
+  vec3 ambientLight = VEC3_ONE(0.2f);
 
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
     { // TIME
@@ -135,7 +141,11 @@ int main(void) {
 				cam.lastX = x;
 				//cam.lastY = y;
 
-				cam.eulers.y -= xoffset * deltaTime * cam.lookSensitivity;
+				//apply rotation
+				//cam.eulers.y -= xoffset * deltaTime * cam.lookSensitivity;
+				float angle = -xoffset * deltaTime * cam.lookSensitivity;
+				quat rotation = quat_fromEuler(VEC3_UP(angle));
+				cam.rotation = quat_mult(cam.rotation, rotation);
 			}
 
 			{ // movement
@@ -155,8 +165,7 @@ int main(void) {
 				velocity.y = cameraSpeed * yaxis;
 				velocity.z = cameraSpeed * zaxis; 
 
-				//velocity = mat4_multiplyVec3(velocity, view);
-
+				velocity = mat4_multiplyVec3(velocity, view);
 				cam.position = vec3_add(cam.position, velocity);
 			}
     }
@@ -171,6 +180,7 @@ int main(void) {
 
       // view matrix
       view = mat4_translateVec3(vec3_negate(cam.position));
+			view = mat4_multiply(view, quat_toMat4(cam.rotation));
 
       glUseProgram(diffuseShader);
 
@@ -209,7 +219,7 @@ int main(void) {
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
                           cam.position);
-      shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_BACK);
+      shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_BACK(1.0f));
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
@@ -325,13 +335,14 @@ int main(void) {
 	//lights
 	list_vec3_free(&pointLights.positions);
 	list_vec3_free(&pointLights.colors);
+	list_quat_free(&pointLights.rotations);
 	list_mat4_free(&pointLights.matrices);
 
 	mesh_free(&pointLights.meshes);
 
   //cubes
 	list_vec3_free(&cubes.positions);
-	list_vec3_free(&cubes.eulers);
+	list_quat_free(&cubes.rotations);
 	list_vec3_free(&cubes.colors);
 	list_mat4_free(&cubes.matrices);
 
