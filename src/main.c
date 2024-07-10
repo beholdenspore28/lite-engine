@@ -151,21 +151,16 @@ int main(void) {
 
 			{ // movement
 				float cameraSpeed = 15 * deltaTime;
-				Vector3 velocity = Vector3_Zero();
+				Vector3 velocity = Vector3_One(cameraSpeed);
 
-				int xaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
+				velocity.x *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
 					glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
 
-				int yaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
+				velocity.y *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
 					glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
 
-				int zaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
+				velocity.z *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
 					glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
-
-				velocity.x = cameraSpeed * xaxis;
-				velocity.y = cameraSpeed * yaxis;
-				velocity.z = cameraSpeed * zaxis;
-
 
 				cam.position = Vector3_Add(cam.position, velocity);
 			}
