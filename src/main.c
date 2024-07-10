@@ -166,12 +166,6 @@ int main(void) {
 				velocity.y = cameraSpeed * yaxis;
 				velocity.z = cameraSpeed * zaxis;
 
-				Quaternion qvel = { velocity.x, velocity.y, velocity.z, 0.0f };
-				qvel = Quaternion_Multiply(qvel, Quaternion_Negate(cam.rotation));
-
-				velocity.x = qvel.x;
-				velocity.y = qvel.y;
-				velocity.z = qvel.z;
 
 				cam.position = Vector3_Add(cam.position, velocity);
 			}
