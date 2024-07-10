@@ -251,12 +251,12 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
   glUniform1f(UniformLocation, f);
 }
 
-void shader_setUniformV3(GLuint shader, const char *uniformName, vec3 v) {
+void shader_setUniformV3(GLuint shader, const char *uniformName, Vector3 v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void shader_setUniformM4(GLuint shader, const char *uniformName, mat4 *m) {
+void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
@@ -264,9 +264,9 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, mat4 *m) {
 //MESH=======================================================================//
 
 typedef struct {
-	vec3 position;
-	vec2 texCoord;
-	vec3 normal;
+	Vector3 position;
+	Vector2 texCoord;
+	Vector3 normal;
 } vertex_t;
 
 // clang-format off

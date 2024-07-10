@@ -4,12 +4,12 @@
 
 #include "blib/b_list.h"
 B_LIST_IMPLEMENTATION 
-DECLARE_LIST(vec3)
-DEFINE_LIST(vec3)
-DECLARE_LIST(mat4)
-DEFINE_LIST(mat4)
-DECLARE_LIST(quat)
-DEFINE_LIST(quat)
+DECLARE_LIST(Vector3)
+DEFINE_LIST(Vector3)
+DECLARE_LIST(Matrix4x4)
+DEFINE_LIST(Matrix4x4)
+DECLARE_LIST(Quaternion)
+DEFINE_LIST(Quaternion)
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -17,26 +17,27 @@ DEFINE_LIST(quat)
 static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 
 typedef struct {
-	list_mat4 matrices;
-	list_vec3 positions;
-	list_quat rotations;
-	list_vec3 colors;
+	list_Matrix4x4 matrices;
+	list_Vector3 positions;
+	list_Quaternion rotations;
+	list_Vector3 colors;
 	mesh meshes;
 } pointLight;
 
 typedef struct {
-	list_mat4 matrices;
-	list_vec3 positions;
-	list_quat rotations;
+	list_Matrix4x4 matrices;
+	list_Vector3 positions;
+	list_Quaternion rotations;
 
-	list_vec3 colors;
+	list_Vector3 colors;
 	mesh meshes;
 } cube;
   
 //TODO enclose camera data in a struct
 typedef struct {
-	vec3	position;
-	quat rotation;
+	Matrix4x4 viewMatrix;
+	Vector3	position;
+	Quaternion rotation;
 	float	lookSensitivity;
 	float	lastX;
 	float	lastY;
@@ -59,57 +60,57 @@ int main(void) {
       texture_create("res/textures/container2_specular.png");
 
 	camera cam = {
-		.position = VEC3_ZERO,
-		.rotation = QUATERNION_IDENTITY,
+		.viewMatrix = Matrix4x4_identity(),
+		.position = Vector3_Zero(),
+		.rotation = Quaternion_Identity(),
 		.lookSensitivity = 10,
 		.lastX = 0,
 		.lastY = 0,
 	};
 
-  cam.position = (vec3) { 4, 2, -10 };
+  cam.position = (Vector3) { 4, 2, -10 };
 
   //cubes
 	cube cubes;
-	cubes.matrices = list_mat4_alloc();
-	cubes.positions = list_vec3_alloc();
-	cubes.rotations = list_quat_alloc();
-	cubes.colors = list_vec3_alloc();
+	cubes.matrices = list_Matrix4x4_alloc();
+	cubes.positions = list_Vector3_alloc();
+	cubes.rotations = list_Quaternion_alloc();
+	cubes.colors = list_Vector3_alloc();
 
   for (size_t i = 0; i < 10; i++) {
 		mesh_allocCube(&cubes.meshes);
 
-		vec3 pos = (vec3) {i * 2, 0, 0};
-		list_vec3_add(&cubes.positions, pos);
-		list_quat_add(&cubes.rotations, QUATERNION_IDENTITY);
-		list_vec3_add(&cubes.colors, VEC3_ONE(1.0f));
-		list_mat4_add(&cubes.matrices, MAT4_IDENTITY);
+		Vector3 pos = (Vector3) {i * 2, 0, 0};
+		list_Vector3_add(&cubes.positions, pos);
+		list_Quaternion_add(&cubes.rotations, Quaternion_Identity());
+		list_Vector3_add(&cubes.colors, Vector3_One(1.0f));
+		list_Matrix4x4_add(&cubes.matrices, Matrix4x4_identity());
 	}
 
 	//lights
 	pointLight pointLights;
-	pointLights.matrices = list_mat4_alloc();
-	pointLights.positions = list_vec3_alloc();
-	pointLights.rotations = list_quat_alloc();
-	pointLights.colors = list_vec3_alloc();
+	pointLights.matrices = list_Matrix4x4_alloc();
+	pointLights.positions = list_Vector3_alloc();
+	pointLights.rotations = list_Quaternion_alloc();
+	pointLights.colors = list_Vector3_alloc();
 
   for (size_t i = 0; i < 10; i++) {
     mesh_allocCube(&pointLights.meshes);
 
-		vec3 color = VEC3_ONE(0.5f);
-		vec3 pos = (vec3) {i * 16, -2, -2};
-		list_vec3_add(&pointLights.colors, color);
-		list_vec3_add(&pointLights.positions, pos);
-		list_quat_add(&pointLights.rotations, QUATERNION_IDENTITY);
-		list_mat4_add(&pointLights.matrices, MAT4_IDENTITY);
+		Vector3 color = Vector3_One(0.5f);
+		Vector3 pos = (Vector3) {i * 16, -2, -2};
+		list_Vector3_add(&pointLights.colors, color);
+		list_Vector3_add(&pointLights.positions, pos);
+		list_Quaternion_add(&pointLights.rotations, Quaternion_Identity());
+		list_Matrix4x4_add(&pointLights.matrices, Matrix4x4_identity());
 	}
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   (void)FPS;
-  mat4 view = MAT4_IDENTITY;
   float aspect;
-  mat4 projection = MAT4_IDENTITY;
-  vec3 ambientLight = VEC3_ONE(0.2f);
+  Matrix4x4 projection = Matrix4x4_identity();
+  Vector3 ambientLight = Vector3_One(0.2f);
 
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
     { // TIME
@@ -144,13 +145,13 @@ int main(void) {
 				//apply rotation
 				//cam.eulers.y -= xoffset * deltaTime * cam.lookSensitivity;
 				float angle = -xoffset * deltaTime * cam.lookSensitivity;
-				quat rotation = quat_fromEuler(VEC3_UP(angle));
-				cam.rotation = quat_mult(cam.rotation, rotation);
+				Quaternion rotation = Quaternion_FromEuler(Vector3_Up(angle));
+				cam.rotation = Quaternion_Multiply(cam.rotation, rotation);
 			}
 
 			{ // movement
 				float cameraSpeed = 15 * deltaTime;
-				vec3 velocity = VEC3_ZERO;
+				Vector3 velocity = Vector3_Zero();
 
 				int xaxis = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
 					glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
@@ -165,22 +166,21 @@ int main(void) {
 				velocity.y = cameraSpeed * yaxis;
 				velocity.z = cameraSpeed * zaxis; 
 
-				velocity = mat4_multiplyVec3(velocity, view);
-				cam.position = vec3_add(cam.position, velocity);
+				cam.position = Vector3_Add(cam.position, velocity);
 			}
     }
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
                       &windowData.height);
     aspect = (float)windowData.width / (float)windowData.height;
-    projection = mat4_perspective(deg2rad(60), aspect, 0.1f, 1000.0f);
+    projection = Matrix4x4_perspective(deg2rad(60), aspect, 0.1f, 1000.0f);
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      view = mat4_translateVec3(vec3_negate(cam.position));
-			view = mat4_multiply(view, quat_toMat4(cam.rotation));
+      cam.viewMatrix = Matrix4x4_translateVec3(Vector3_Negate(cam.position));
+			cam.viewMatrix = Matrix4x4_Multiply(cam.viewMatrix, Quaternion_ToMatrix4x4(cam.rotation));
 
       glUseProgram(diffuseShader);
 
@@ -195,13 +195,13 @@ int main(void) {
 
       // directional light
       shader_setUniformV3(diffuseShader, "u_dirLight.direction",
-                          (vec3){-0.2f, -1.0f, -0.3f});
+                          (Vector3){-0.2f, -1.0f, -0.3f});
       shader_setUniformV3(diffuseShader, "u_dirLight.ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_dirLight.diffuse",
-                          (vec3){0.4f, 0.4f, 0.4f});
+                          (Vector3){0.4f, 0.4f, 0.4f});
       shader_setUniformV3(diffuseShader, "u_dirLight.specular",
-                          (vec3){0.5f, 0.5f, 0.5f});
+                          (Vector3){0.5f, 0.5f, 0.5f});
 
       // point light 0
       shader_setUniformV3(diffuseShader, "u_pointLights[0].position",
@@ -209,9 +209,9 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_pointLights[0].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[0].diffuse",
-                          (vec3){0.8f, 0.8f, 0.8f});
+                          (Vector3){0.8f, 0.8f, 0.8f});
       shader_setUniformV3(diffuseShader, "u_pointLights[0].specular",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformFloat(diffuseShader, "u_pointLights[0].constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[0].linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[0].quadratic", 0.032f);
@@ -219,13 +219,13 @@ int main(void) {
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
                           cam.position);
-      shader_setUniformV3(diffuseShader, "u_spotLight.direction", VEC3_BACK(1.0f));
+      shader_setUniformV3(diffuseShader, "u_spotLight.direction", Vector3_Back(1.0f));
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformV3(diffuseShader, "u_spotLight.specular",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformFloat(diffuseShader, "u_spotLight.constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.quadratic", 0.032f);
@@ -240,9 +240,9 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_pointLights[1].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[1].diffuse",
-                          (vec3){0.8f, 0.8f, 0.8f});
+                          (Vector3){0.8f, 0.8f, 0.8f});
       shader_setUniformV3(diffuseShader, "u_pointLights[1].specular",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformFloat(diffuseShader, "u_pointLights[1].constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[1].linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[1].quadratic", 0.032f);
@@ -253,9 +253,9 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_pointLights[2].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[2].diffuse",
-                          (vec3){0.8f, 0.8f, 0.8f});
+                          (Vector3){0.8f, 0.8f, 0.8f});
       shader_setUniformV3(diffuseShader, "u_pointLights[2].specular",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformFloat(diffuseShader, "u_pointLights[2].constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[2].linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[2].quadratic", 0.032f);
@@ -266,9 +266,9 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_pointLights[3].ambient",
                           ambientLight);
       shader_setUniformV3(diffuseShader, "u_pointLights[3].diffuse",
-                          (vec3){0.8f, 0.8f, 0.8f});
+                          (Vector3){0.8f, 0.8f, 0.8f});
       shader_setUniformV3(diffuseShader, "u_pointLights[3].specular",
-                          (vec3){1.0f, 1.0f, 1.0f});
+                          (Vector3){1.0f, 1.0f, 1.0f});
       shader_setUniformFloat(diffuseShader, "u_pointLights[3].constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[3].linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_pointLights[3].quadratic", 0.032f);
@@ -284,10 +284,10 @@ int main(void) {
         shader_setUniformM4(diffuseShader, "u_projectionMatrix", &projection);
 
         // view matrix
-        shader_setUniformM4(diffuseShader, "u_viewMatrix", &view);
+        shader_setUniformM4(diffuseShader, "u_viewMatrix", &cam.viewMatrix);
 
         //model
-        cubes.matrices.data[i] = mat4_translateVec3(cubes.positions.data[i]);
+        cubes.matrices.data[i] = Matrix4x4_translateVec3(cubes.positions.data[i]);
         shader_setUniformM4(diffuseShader, "u_modelMatrix", &cubes.matrices.data[i]);
 
 				//printf("==========================================\n");
@@ -308,11 +308,11 @@ int main(void) {
         shader_setUniformM4(unlitShader, "u_projectionMatrix", &projection);
 
         // view matrix
-        shader_setUniformM4(unlitShader, "u_viewMatrix", &view);
+        shader_setUniformM4(unlitShader, "u_viewMatrix", &cam.viewMatrix);
 
         // model matrix
-        pointLights.matrices.data[i] = MAT4_IDENTITY;
-        pointLights.matrices.data[i] = mat4_translateVec3(pointLights.positions.data[i]);
+        pointLights.matrices.data[i] = Matrix4x4_identity();
+        pointLights.matrices.data[i] = Matrix4x4_translateVec3(pointLights.positions.data[i]);
 
         shader_setUniformM4(unlitShader, "u_modelMatrix", &pointLights.matrices.data[i]);
 
@@ -333,18 +333,18 @@ int main(void) {
   }
 
 	//lights
-	list_vec3_free(&pointLights.positions);
-	list_vec3_free(&pointLights.colors);
-	list_quat_free(&pointLights.rotations);
-	list_mat4_free(&pointLights.matrices);
+	list_Vector3_free(&pointLights.positions);
+	list_Vector3_free(&pointLights.colors);
+	list_Quaternion_free(&pointLights.rotations);
+	list_Matrix4x4_free(&pointLights.matrices);
 
 	mesh_free(&pointLights.meshes);
 
   //cubes
-	list_vec3_free(&cubes.positions);
-	list_quat_free(&cubes.rotations);
-	list_vec3_free(&cubes.colors);
-	list_mat4_free(&cubes.matrices);
+	list_Vector3_free(&cubes.positions);
+	list_Quaternion_free(&cubes.rotations);
+	list_Vector3_free(&cubes.colors);
+	list_Matrix4x4_free(&cubes.matrices);
 
 	mesh_free(&cubes.meshes);
 

@@ -25,8 +25,8 @@ GLuint texture_create(const char *imageFile);
 
 GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath);
-void shader_setUniformM4(GLuint shader, const char *uniformName, mat4 *m);
-void shader_setUniformV3(GLuint shader, const char *uniformName, vec3 v);
+void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m);
+void shader_setUniformV3(GLuint shader, const char *uniformName, Vector3 v);
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
