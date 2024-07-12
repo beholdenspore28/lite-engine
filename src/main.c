@@ -48,6 +48,7 @@ int main(void) {
 
   window windowData = window_create();
   // glfwSetCursorPosCallback(windowData.glfwWindow, mouse_callback);
+  //glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
                                        "res/shaders/diffuse.fs.glsl");
@@ -165,6 +166,8 @@ int main(void) {
         velocity = Vector3_Normalize(velocity);
         float cameraSpeed = 15 * deltaTime;
         velocity = Vector3_Scale(velocity, cameraSpeed);
+
+					
 
         cam.position = Vector3_Add(cam.position, velocity);
       }
