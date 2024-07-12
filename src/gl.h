@@ -31,9 +31,9 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
 typedef struct {
-	list_GLuint VAOs;
-	list_GLuint VBOs;
-	list_GLuint EBOs;
+	List_GLuint VAOs;
+	List_GLuint VBOs;
+	List_GLuint EBOs;
 	int isInitialized;
 } mesh;
 

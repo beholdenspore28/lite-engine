@@ -325,9 +325,9 @@ void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
     GLuint numVertices, GLuint numIndices) {
 
 	if (!m->isInitialized) {
-		m->VAOs = list_GLuint_alloc();
-		m->VBOs = list_GLuint_alloc();
-		m->EBOs = list_GLuint_alloc();
+		m->VAOs = List_GLuint_Alloc();
+		m->VBOs = List_GLuint_Alloc();
+		m->EBOs = List_GLuint_Alloc();
 		m->isInitialized = 1;
 	}
 
@@ -368,9 +368,9 @@ void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
 
   glBindVertexArray(0);
 
-	list_GLuint_add(&m->VAOs, VAO);
-	list_GLuint_add(&m->VBOs, VBO);
-	list_GLuint_add(&m->EBOs, EBO);
+	List_GLuint_Add(&m->VAOs, VAO);
+	List_GLuint_Add(&m->VBOs, VBO);
+	List_GLuint_Add(&m->EBOs, EBO);
 }
 
 void mesh_allocCube(mesh* m) {
@@ -384,9 +384,9 @@ void mesh_allocQuad(mesh* m) {
 }
 
 void mesh_free(mesh* m) {
-	list_GLuint_free(&m->VAOs);
-	list_GLuint_free(&m->VBOs);
-	list_GLuint_free(&m->EBOs);
+	List_GLuint_Free(&m->VAOs);
+	List_GLuint_Free(&m->VBOs);
+	List_GLuint_Free(&m->EBOs);
 }
 
 //TEXTURE====================================================================//
