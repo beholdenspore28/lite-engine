@@ -1,16 +1,18 @@
+#include "blib/b_list.h"
 #include <gl.h>
 #include <stb_image.h>
-#include "blib/b_list.h"
 
 DEFINE_LIST(GLint)
 DEFINE_LIST(GLuint)
 
 static void error_callback(int error, const char *description) {
   (void)error;
-  fprintf(stderr, "Error: %s\n", description); {
-}}
+  fprintf(stderr, "Error: %s\n", description);
+  {}
+}
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,int mods) {
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods) {
   (void)scancode;
   (void)mods;
 
@@ -19,17 +21,20 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,i
   }
 }
 
-static void framebuffer_size_callback(GLFWwindow *window, int width,int height) {
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height) {
   (void)window;
   glViewport(0, 0, width, height);
 }
 
-static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,GLenum severity, GLsizei length,const char *message, const void *userParam) {
+static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
+                                   GLenum severity, GLsizei length,
+                                   const char *message, const void *userParam) {
   (void)length;
   (void)userParam;
 
   // ignore non-significant error/warning codes
-  if (id == 131169 || id == 131185 || id == 131218 || id == 131204){
+  if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
     return;
   }
 
@@ -108,22 +113,24 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,G
 }
 
 window window_create(void) {
-  if (!glfwInit()){
+  if (!glfwInit()) {
     printf("[ERROR_GLFW] Failed to initialize GLFW");
   }
-  
+
   glfwSetErrorCallback(error_callback);
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE); // comment to toggle debug mode
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,
+                 GLFW_TRUE); // comment to toggle debug mode
 
-  GLFWwindow *glfwWindow = glfwCreateWindow(1280, 720, "Game window", NULL, NULL);
-  if (!glfwWindow){
+  GLFWwindow *glfwWindow =
+      glfwCreateWindow(1280, 720, "Game window", NULL, NULL);
+  if (!glfwWindow) {
     printf("[ERROR_GLFW] Failed to create GLFW window\n");
   }
-  
+
   glfwMakeContextCurrent(glfwWindow);
   glfwSetKeyCallback(glfwWindow, key_callback);
   glfwSetFramebufferSizeCallback(glfwWindow, framebuffer_size_callback);
@@ -132,7 +139,7 @@ window window_create(void) {
   if (!gladLoadGL()) {
     printf("[ERROR_GL] Failed to initialize GLAD\n");
   }
-  
+
   int flags;
   glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
   if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
@@ -160,7 +167,7 @@ window window_create(void) {
   return window;
 }
 
-//SHADER=====================================================================//
+// SHADER=====================================================================//
 
 static GLuint shader_compile(GLuint type, const char *source) {
   /*creation*/
@@ -198,7 +205,8 @@ static GLuint shader_compile(GLuint type, const char *source) {
 
 GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath) {
-	printf("Attempting to load shaders '%s' and '%s'\n", vertexShaderSourcePath, fragmentShaderSourcePath);
+  printf("Attempting to load shaders '%s' and '%s'\n", vertexShaderSourcePath,
+         fragmentShaderSourcePath);
   FileBuffer vertSourceFileBuffer = FileBuffer_read(vertexShaderSourcePath);
   FileBuffer fragSourceFileBuffer = FileBuffer_read(fragmentShaderSourcePath);
 
@@ -261,12 +269,12 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m) {
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
 
-//MESH=======================================================================//
+// MESH=======================================================================//
 
 typedef struct {
-	Vector3 position;
-	Vector2 texCoord;
-	Vector3 normal;
+  Vector3 position;
+  Vector2 texCoord;
+  Vector3 normal;
 } vertex_t;
 
 // clang-format off
@@ -321,17 +329,17 @@ static GLuint mesh_cubeIndices[MESH_CUBE_NUM_INDICES] = {
 
 DEFINE_LIST(mesh)
 
-void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
-    GLuint numVertices, GLuint numIndices) {
+void mesh_alloc(mesh *m, vertex_t *vertices, GLuint *indices,
+                GLuint numVertices, GLuint numIndices) {
 
-	if (!m->isInitialized) {
-		m->VAOs = List_GLuint_Alloc();
-		m->VBOs = List_GLuint_Alloc();
-		m->EBOs = List_GLuint_Alloc();
-		m->isInitialized = 1;
-	}
+  if (!m->isInitialized) {
+    m->VAOs = List_GLuint_Alloc();
+    m->VBOs = List_GLuint_Alloc();
+    m->EBOs = List_GLuint_Alloc();
+    m->isInitialized = 1;
+  }
 
-	GLuint VAO, VBO, EBO;
+  GLuint VAO, VBO, EBO;
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
@@ -351,45 +359,45 @@ void mesh_alloc(mesh* m, vertex_t* vertices, GLuint *indices,
 
   // position attribute
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertStride,
-		(void*)offsetof(vertex_t, position));
+                        (void *)offsetof(vertex_t, position));
   glEnableVertexAttribArray(0);
 
   // texcoord attribute
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertStride,
-		(void*)offsetof(vertex_t,texCoord));
+                        (void *)offsetof(vertex_t, texCoord));
   glEnableVertexAttribArray(1);
 
   // normal attribute
   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertStride,
-		(void*)offsetof(vertex_t, normal));
+                        (void *)offsetof(vertex_t, normal));
   glEnableVertexAttribArray(2);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   glBindVertexArray(0);
 
-	List_GLuint_Add(&m->VAOs, VAO);
-	List_GLuint_Add(&m->VBOs, VBO);
-	List_GLuint_Add(&m->EBOs, EBO);
+  List_GLuint_Add(&m->VAOs, VAO);
+  List_GLuint_Add(&m->VBOs, VBO);
+  List_GLuint_Add(&m->EBOs, EBO);
 }
 
-void mesh_allocCube(mesh* m) {
-	mesh_alloc(m, mesh_cubeVertices, mesh_cubeIndices, 
-			MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
+void mesh_allocCube(mesh *m) {
+  mesh_alloc(m, mesh_cubeVertices, mesh_cubeIndices, MESH_CUBE_NUM_VERTICES,
+             MESH_CUBE_NUM_INDICES);
 }
 
-void mesh_allocQuad(mesh* m) {
-	mesh_alloc(m, mesh_quadVertices, mesh_quadIndices, 
-			MESH_CUBE_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
+void mesh_allocQuad(mesh *m) {
+  mesh_alloc(m, mesh_quadVertices, mesh_quadIndices, MESH_CUBE_NUM_VERTICES,
+             MESH_QUAD_NUM_INDICES);
 }
 
-void mesh_free(mesh* m) {
-	List_GLuint_Free(&m->VAOs);
-	List_GLuint_Free(&m->VBOs);
-	List_GLuint_Free(&m->EBOs);
+void mesh_free(mesh *m) {
+  List_GLuint_Free(&m->VAOs);
+  List_GLuint_Free(&m->VBOs);
+  List_GLuint_Free(&m->EBOs);
 }
 
-//TEXTURE====================================================================//
+// TEXTURE====================================================================//
 
 GLuint texture_create(const char *imageFile) {
   /*create texture*/
