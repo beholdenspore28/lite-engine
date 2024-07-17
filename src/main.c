@@ -33,7 +33,6 @@ typedef struct {
   mesh meshes;
 } cube;
 
-// TODO enclose camera data in a struct
 typedef struct {
   Matrix4x4 viewMatrix;
   Vector3 position;
@@ -125,27 +124,17 @@ int main(void) {
     }
 
     {   // INPUT
-        // camera
       { // mouse look
         static bool firstMouse = true;
-
         double x, y;
         glfwGetCursorPos(windowData.glfwWindow, &x, &y);
-
         if (firstMouse) {
           cam.lastX = x;
           cam.lastY = y;
           firstMouse = false;
         }
-
         float xoffset = x - cam.lastX;
-        // float yoffset = cam.lastY - y; // reversed since y-coordinates go
-        // from bottom to top
         cam.lastX = x;
-        // cam.lastY = y;
-
-        // apply rotation
-        // cam.eulers.y -= xoffset * deltaTime * cam.lookSensitivity;
         float angle = xoffset * deltaTime * cam.lookSensitivity;
         Quaternion rotation = Quaternion_FromEuler(Vector3_Up(angle));
         cam.rotation = Quaternion_Multiply(cam.rotation, rotation);
@@ -153,22 +142,18 @@ int main(void) {
 
       { // movement
         Vector3 velocity = Vector3_One(1.0f);
+        float cameraSpeed = 15 * deltaTime;
 
         velocity.x *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
                       glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
-
         velocity.y *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
                       glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
-
         velocity.z *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
                       glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
 
         velocity = Vector3_Normalize(velocity);
-        float cameraSpeed = 15 * deltaTime;
         velocity = Vector3_Scale(velocity, cameraSpeed);
-
-					
-
+				velocity = Vector3_Rotate(velocity, cam.rotation);
         cam.position = Vector3_Add(cam.position, velocity);
       }
     }
