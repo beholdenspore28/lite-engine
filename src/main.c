@@ -161,7 +161,7 @@ int main(void) {
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
         
-        Quaternion rotation = Quaternion_FromEuler((Vector3) { 0, xangle, yangle});
+        Quaternion rotation = Quaternion_FromEuler((Vector3) { yangle, xangle, 0});
         cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, rotation);
       }
 
