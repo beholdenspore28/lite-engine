@@ -16,38 +16,48 @@ DEFINE_LIST(Quaternion)
 
 static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 
-typedef struct {
+typedef struct Transform{
 	Matrix4x4 modelMatrix;
 	Vector3 position;
-	Vector3 basisForward;
-	Vector3 basisUp;
-	Vector3 basisRight;
 	Quaternion rotation;
 } Transform;
+
+static inline Vector3 Transform_BasisForward (Transform t, float magnitude) { 
+  return Vector3_Rotate(Vector3_Forward(magnitude), t.rotation);
+}
+
+static inline Vector3 Transform_BasisUp (Transform t, float magnitude) {
+  return Vector3_Rotate(Vector3_Up(magnitude), t.rotation); 
+}
+
+static inline Vector3 Transform_BasisRight (Transform t, float magnitude) {
+  return Vector3_Rotate(Vector3_Right(magnitude), t.rotation);
+}
 
 DECLARE_LIST(Transform)
 DEFINE_LIST(Transform)
 
 static const unsigned int NUM_POINT_LIGHTS = 10;
-typedef struct {
+typedef struct pointLight{
 	List_Transform transforms;
   List_Vector3 colors;
   mesh meshes;
 } pointLight;
 
 static const unsigned int NUM_CUBES = 10;
-typedef struct {
+typedef struct cube{
 	List_Transform transforms;
   List_Vector3 colors;
   mesh meshes;
 } cube;
 
-typedef struct {
+typedef struct camera{
 	Transform	transform;
   float lookSensitivity;
   float lastX;
   float lastY;
 } camera;
+
 
 int main(void) {
   printf("Rev up those fryers!\n");
@@ -131,24 +141,13 @@ int main(void) {
       // printf("delta %f : FPS %f\n", deltaTime, FPS);
     }
 
-		{//basis vectors for this frame;
-		 //camera basis vectors are inverted for ease of use.
-			cam.transform.basisForward = Vector3_Rotate(Vector3_Back(1.0f), cam.transform.rotation);
-			cam.transform.basisUp = Vector3_Rotate(Vector3_Down(1.0f), cam.transform.rotation);
-			cam.transform.basisRight = Vector3_Rotate(Vector3_Left(1.0f), cam.transform.rotation);
-
-			for (unsigned int i = 0; i < NUM_CUBES; i++) {
-				cubes.transforms.data[i].basisForward = Vector3_Rotate(Vector3_Forward(1.0f), cam.transform.rotation);
-				cubes.transforms.data[i].basisUp = Vector3_Rotate(Vector3_Up(1.0f), cam.transform.rotation);
-				cubes.transforms.data[i].basisRight = Vector3_Rotate(Vector3_Right(1.0f), cam.transform.rotation);
-			}
-		}
 
     {   // INPUT
       { // mouse look
         static bool firstMouse = true;
         double x, y;
         glfwGetCursorPos(windowData.glfwWindow, &x, &y);
+        
         if (firstMouse) {
           cam.lastX = x;
           cam.lastY = y;
@@ -156,9 +155,13 @@ int main(void) {
         }
 
         float xoffset = x - cam.lastX;
+        float yoffset = y - cam.lastY;
         cam.lastX = x;
-        float angle = xoffset * deltaTime * cam.lookSensitivity;
-        Quaternion rotation = Quaternion_FromEuler(Vector3_Up(angle));
+        cam.lastY = y;
+        float xangle = xoffset * deltaTime * cam.lookSensitivity;
+        float yangle = yoffset * deltaTime * cam.lookSensitivity;
+        
+        Quaternion rotation = Quaternion_FromEuler((Vector3) { 0, xangle, yangle});
         cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, rotation);
       }
 
@@ -179,7 +182,6 @@ int main(void) {
         cam.transform.position = Vector3_Add(cam.transform.position, velocity);
       }
     }
-
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
                       &windowData.height);
@@ -232,7 +234,7 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_spotLight.position", cam.transform.position);
       shader_setUniformV3(
           diffuseShader, "u_spotLight.direction",
-          cam.transform.basisForward);
+          Transform_BasisForward(cam.transform, 1.0));
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
                           (Vector3){1.0f, 1.0f, 1.0f});
