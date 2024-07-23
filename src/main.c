@@ -160,9 +160,14 @@ int main(void) {
         cam.lastY = y;
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
+
+				//TODO figure out why the x and z axes are swapped.
+        Vector3 euler;
+        euler.x = 0;
+        euler.y = -xangle; //this one works! do not change!
+        euler.z = -yangle;
         
-        Quaternion rotation = Quaternion_FromEuler((Vector3) { yangle, xangle, 0});
-        cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, rotation);
+        cam.transform.rotation = Quaternion_Multiply(Quaternion_FromEuler(euler), cam.transform.rotation);
       }
 
       { // movement
@@ -195,6 +200,7 @@ int main(void) {
       cam.transform.modelMatrix = Matrix4x4_Translation(Vector3_Negate(cam.transform.position));
       cam.transform.modelMatrix = Matrix4x4_Multiply(cam.transform.modelMatrix,
                                           Quaternion_ToMatrix4x4(cam.transform.rotation));
+      Matrix4x4_print(cam.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
