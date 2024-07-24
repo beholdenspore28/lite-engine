@@ -196,7 +196,7 @@ int main(void) {
 
         velocity = Vector3_Normalize(velocity);
         velocity = Vector3_Scale(velocity, cameraSpeed);
-				velocity = Vector3_Rotate(velocity, Quaternion_Inverse(cam.transform.rotation));
+				velocity = Vector3_Rotate(velocity, cam.transform.rotation);
         cam.transform.position = Vector3_Add(cam.transform.position, velocity);
       }
     }

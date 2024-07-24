@@ -126,7 +126,7 @@ window window_create(void) {
                  GLFW_TRUE); // comment to toggle debug mode
 
   GLFWwindow *glfwWindow =
-      glfwCreateWindow(1280, 720, "Game window", NULL, NULL);
+      glfwCreateWindow(854, 480, "Game window", NULL, NULL);
   if (!glfwWindow) {
     printf("[ERROR_GLFW] Failed to create GLFW window\n");
   }
