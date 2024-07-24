@@ -34,6 +34,18 @@ static inline Vector3 Transform_BasisRight (Transform t, float magnitude) {
   return Vector3_Rotate(Vector3_Right(magnitude), t.rotation);
 }
 
+static inline Vector3 Transform_BasisBack (Transform t, float magnitude) { 
+  return Vector3_Rotate(Vector3_Back(magnitude), t.rotation);
+}
+
+static inline Vector3 Transform_BasisDown (Transform t, float magnitude) {
+  return Vector3_Rotate(Vector3_Down(magnitude), t.rotation); 
+}
+
+static inline Vector3 Transform_BasisLeft (Transform t, float magnitude) {
+  return Vector3_Rotate(Vector3_Left(magnitude), t.rotation);
+}
+
 DECLARE_LIST(Transform)
 DEFINE_LIST(Transform)
 
@@ -184,20 +196,36 @@ int main(void) {
       }
 
       { // movement
-        Vector3 velocity = Vector3_One(1.0f);
+        Vector3 velocity = Vector3_Zero();
         float cameraSpeed = 15 * deltaTime;
 
-        velocity.x *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
-                      glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
-        velocity.y *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
-                      glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
-        velocity.z *= glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
-                      glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_D)) {
+					velocity = Vector3_Add(velocity, Transform_BasisRight(cam.transform, cameraSpeed));
+				}
 
-        velocity = Vector3_Normalize(velocity);
-        velocity = Vector3_Scale(velocity, cameraSpeed);
-				velocity = Vector3_Rotate(velocity, cam.transform.rotation);
-        cam.transform.position = Vector3_Add(cam.transform.position, velocity);
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_A)) {
+					velocity = Vector3_Add(velocity, Transform_BasisLeft(cam.transform, cameraSpeed));
+				}
+
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE)) {
+					velocity = Vector3_Add(velocity, Transform_BasisUp(cam.transform, cameraSpeed));
+				}
+
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT)) {
+					velocity = Vector3_Add(velocity, Transform_BasisDown(cam.transform, cameraSpeed));
+				}
+
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_W)) {
+					velocity = Vector3_Add(velocity, Transform_BasisForward(cam.transform, cameraSpeed));
+				}
+
+        if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_S)) {
+					velocity = Vector3_Add(velocity, Transform_BasisBack(cam.transform, cameraSpeed));
+				}
+
+				cam.transform.position = Vector3_Add(cam.transform.position, velocity);
+				//Vector3_Print(cam.transform.position, "position");
+				//Vector3_Print(velocity, "velocity");
       }
     }
 
@@ -213,7 +241,7 @@ int main(void) {
       cam.transform.modelMatrix = Matrix4x4_Translation(Vector3_Negate(cam.transform.position));
       cam.transform.modelMatrix = Matrix4x4_Multiply(cam.transform.modelMatrix,
                                           Quaternion_ToMatrix4x4(cam.transform.rotation));
-      //Matrix4x4_print(cam.transform.modelMatrix, "view");
+      Matrix4x4_print(cam.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
