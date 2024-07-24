@@ -61,6 +61,19 @@ typedef struct camera{
 
 int main(void) {
   printf("Rev up those fryers!\n");
+  
+#if 0 //Quaternion test
+	Quaternion q = (Quaternion) { 1,2,3,4 };
+  Quaternion_Print(Quaternion_Inverse(q), "inverse PASSED");
+  Quaternion_Print(Quaternion_Conjugate(q), "conj PASSES");
+  Quaternion_Print(Quaternion_FromEuler(Vector3_Up(1.0)), "fromeuler PASSED");
+  Quaternion_Print(Quaternion_Identity(), "id PASSED");
+  printf("%6f mag\n", Quaternion_Magnitude(q));
+  Quaternion_Print(Quaternion_Multiply(q, q), "mul PASSED");
+  Quaternion_Print(Quaternion_Normalize(q), "normalize");
+  Matrix4x4_print(Quaternion_ToMatrix4x4(q), "mat");
+	return 0;
+#endif
 
   window windowData = window_create();
   glfwSetInputMode(windowData.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -156,18 +169,18 @@ int main(void) {
 
         float xoffset = x - cam.lastX;
         float yoffset = y - cam.lastY;
-        cam.lastX = x;
+				cam.lastX = x;
         cam.lastY = y;
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
 
 				//TODO figure out why the x and z axes are swapped.
         Vector3 euler;
-        euler.x = 0;
-        euler.y = -xangle; //this one works! do not change!
-        euler.z = -yangle;
-        
-        cam.transform.rotation = Quaternion_Multiply(Quaternion_FromEuler(euler), cam.transform.rotation);
+        euler.x += -yangle;
+        euler.y += -xangle; //this one works! do not change!
+        euler.z = 0;
+
+        cam.transform.rotation = Quaternion_FromEuler(euler);
       }
 
       { // movement
@@ -183,7 +196,7 @@ int main(void) {
 
         velocity = Vector3_Normalize(velocity);
         velocity = Vector3_Scale(velocity, cameraSpeed);
-				velocity = Vector3_Rotate(velocity, cam.transform.rotation);
+				velocity = Vector3_Rotate(velocity, Quaternion_Inverse(cam.transform.rotation));
         cam.transform.position = Vector3_Add(cam.transform.position, velocity);
       }
     }
@@ -200,7 +213,7 @@ int main(void) {
       cam.transform.modelMatrix = Matrix4x4_Translation(Vector3_Negate(cam.transform.position));
       cam.transform.modelMatrix = Matrix4x4_Multiply(cam.transform.modelMatrix,
                                           Quaternion_ToMatrix4x4(cam.transform.rotation));
-      Matrix4x4_print(cam.transform.modelMatrix, "view");
+      //Matrix4x4_print(cam.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
