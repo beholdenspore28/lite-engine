@@ -157,7 +157,7 @@ int main(void) {
   Matrix4x4 projection = Matrix4x4_Identity();
   Vector3 ambientLight = Vector3_One(0.2f);
 
-  Vector2 look = Vector2_Zero();
+  Vector3 look = Vector3_Zero();
 
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
     { // TIME
@@ -174,37 +174,37 @@ int main(void) {
     {   // INPUT
       { // mouse look
         static bool firstMouse = true;
-        double x, y;
-        glfwGetCursorPos(windowData.glfwWindow, &x, &y);
+        double mouseX, mouseY;
+        glfwGetCursorPos(windowData.glfwWindow, &mouseX, &mouseY);
         
         if (firstMouse) {
-          cam.lastX = x;
-          cam.lastY = y;
+          cam.lastX = mouseX;
+          cam.lastY = mouseY;
           firstMouse = false;
         }
 
-        float xoffset = x - cam.lastX;
-        float yoffset = y - cam.lastY;
-				cam.lastX = x;
-        cam.lastY = y;
+        float xoffset = mouseX - cam.lastX;
+        float yoffset = mouseY - cam.lastY;
+				cam.lastX = mouseX;
+        cam.lastY = mouseY;
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
 
         look.x += yangle;
         look.y += xangle;
 
-				float epsilon = (1e-10);
-
-				if ((look.y - 2*PI) >= epsilon || (look.y + 2*PI) <= epsilon)
-					look.y = -look.y;
-
+				look.y = loop(look.y, 2*PI);
 				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
+#if 0
 				cam.transform.rotation = Quaternion_Identity();
 				Quaternion rotY = Quaternion_FromEuler(Vector3_Up(look.y));
 				Vector3 localRight = Vector3_Rotate(Vector3_Right(look.x), rotY);
-				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(localRight));
+				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(localRight)); 
 				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(Vector3_Up(look.y)));
+#else
+				cam.transform.rotation = Quaternion_FromEuler(look);
+#endif
       }
 
       { // movement
