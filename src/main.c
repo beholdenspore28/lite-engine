@@ -196,21 +196,13 @@ int main(void) {
 				look.y = loop(look.y, 2*PI);
 				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
-#if 0
-				cam.transform.rotation = Quaternion_Identity();
-				Quaternion rotY = Quaternion_FromEuler(Vector3_Up(look.y));
-				Vector3 localRight = Vector3_Rotate(Vector3_Right(look.x), rotY);
-				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(localRight)); 
-				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(Vector3_Up(look.y)));
-#else
 				cam.transform.rotation = Quaternion_FromEuler(look);
-#endif
       }
 
       { // movement
-        Vector3 velocity = Vector3_Zero();
         float cameraSpeed = 15 * deltaTime;
-
+#if 0 //old
+        Vector3 velocity = Vector3_Zero();
         if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_D)) {
 					velocity = Vector3_Add(velocity, Transform_BasisRight(cam.transform, cameraSpeed));
 				}
@@ -243,13 +235,29 @@ int main(void) {
 				cam.transform.position = Vector3_Add(cam.transform.position, velocity);
 				//Vector3_Print(cam.transform.position, "position");
 				//Vector3_Print(velocity, "velocity");
+#else //new
+				Vector3 movement = Vector3_Zero();
+
+				movement.x = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
+										glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
+				movement.y = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
+										glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
+				movement.z = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
+										glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+
+				movement = Vector3_Normalize(movement);
+				movement = Vector3_Scale(movement, cameraSpeed);
+				movement = Vector3_Rotate(movement, cam.transform.rotation);
+
+				cam.transform.position = Vector3_Add(cam.transform.position, movement);
+#endif
       }
     }
 
     glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
                       &windowData.height);
     aspect = (float)windowData.width / (float)windowData.height;
-    projection = Matrix4x4_perspective(deg2rad(60), aspect, 0.1f, 1000.0f);
+    projection = Matrix4x4_Perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
