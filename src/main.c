@@ -155,6 +155,10 @@ int main(void) {
   Matrix4x4 projection = Matrix4x4_Identity();
   Vector3 ambientLight = Vector3_One(0.2f);
 
+  Vector3 euler = (Vector3) {
+		.y= 1,
+	};
+
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
     { // TIME
       currentTime = glfwGetTime();
@@ -186,13 +190,12 @@ int main(void) {
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
 
-				//TODO figure out why the x and z axes are swapped.
-        Vector3 euler;
-        euler.x += -yangle;
-        euler.y += -xangle; //this one works! do not change!
-        euler.z = 0;
+        euler.x += 0;
+        euler.y += -xangle;
+        euler.z += 0;
 
-        cam.transform.rotation = Quaternion_FromEuler(euler);
+        cam.transform.rotation = Quaternion_Conjugate(Quaternion_FromEuler(euler));
+				//Quaternion_Print(cam.transform.rotation, "camrot");
       }
 
       { // movement
@@ -219,6 +222,11 @@ int main(void) {
 					velocity = Vector3_Add(velocity, Transform_BasisForward(cam.transform, cameraSpeed));
 				}
 
+				Vector3_Print(Transform_BasisRight(cam.transform, 1), "cam x");
+				Vector3_Print(Transform_BasisUp(cam.transform, 1), "cam y");
+				Vector3_Print(Transform_BasisForward(cam.transform, 1), "cam z");
+				puts("");
+
         if (glfwGetKey(windowData.glfwWindow, GLFW_KEY_S)) {
 					velocity = Vector3_Add(velocity, Transform_BasisBack(cam.transform, cameraSpeed));
 				}
@@ -240,8 +248,8 @@ int main(void) {
       // view matrix
       cam.transform.modelMatrix = Matrix4x4_Translation(Vector3_Negate(cam.transform.position));
       cam.transform.modelMatrix = Matrix4x4_Multiply(cam.transform.modelMatrix,
-                                          Quaternion_ToMatrix4x4(cam.transform.rotation));
-      Matrix4x4_print(cam.transform.modelMatrix, "view");
+                                          Quaternion_ToMatrix4x4(Quaternion_Conjugate(cam.transform.rotation)));
+      //Matrix4x4_print(cam.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
@@ -282,6 +290,7 @@ int main(void) {
       shader_setUniformV3(
           diffuseShader, "u_spotLight.direction",
           Transform_BasisForward(cam.transform, 1.0));
+
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
                           (Vector3){1.0f, 1.0f, 1.0f});
