@@ -156,7 +156,7 @@ int main(void) {
   Vector3 ambientLight = Vector3_One(0.2f);
 
   Vector3 euler = (Vector3) {
-		.y= 1,
+		.y= 0,
 	};
 
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
@@ -190,12 +190,15 @@ int main(void) {
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
 
-        euler.x += 0;
-        euler.y += -xangle;
-        euler.z += 0;
+        euler.x += yangle;
+        euler.y += xangle;
+        euler.z = 0;
 
-        cam.transform.rotation = Quaternion_Conjugate(Quaternion_FromEuler(euler));
-				//Quaternion_Print(cam.transform.rotation, "camrot");
+				cam.transform.rotation = Quaternion_Identity();
+				Quaternion rotY = Quaternion_FromEuler(Vector3_Up(euler.y));
+				Vector3 localRight = Vector3_Rotate(Vector3_Right(euler.x), rotY);
+				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(localRight));
+				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(Vector3_Up(euler.y)));
       }
 
       { // movement
