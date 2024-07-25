@@ -11,6 +11,8 @@ DEFINE_LIST(Matrix4x4)
 DECLARE_LIST(Quaternion)
 DEFINE_LIST(Quaternion)
 
+#include "blib/b_math.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -78,7 +80,7 @@ int main(void) {
 	Quaternion q = (Quaternion) { 1,2,3,4 };
   Quaternion_Print(Quaternion_Inverse(q), "inverse PASSED");
   Quaternion_Print(Quaternion_Conjugate(q), "conj PASSES");
-  Quaternion_Print(Quaternion_FromEuler(Vector3_Up(1.0)), "fromeuler PASSED");
+  Quaternion_Print(Quaternion_FromEuler(Vector3_Up(1.0)), "FromEuler PASSED");
   Quaternion_Print(Quaternion_Identity(), "id PASSED");
   printf("%6f mag\n", Quaternion_Magnitude(q));
   Quaternion_Print(Quaternion_Multiply(q, q), "mul PASSED");
@@ -155,9 +157,7 @@ int main(void) {
   Matrix4x4 projection = Matrix4x4_Identity();
   Vector3 ambientLight = Vector3_One(0.2f);
 
-  Vector3 euler = (Vector3) {
-		.y= 0,
-	};
+  Vector2 look = Vector2_Zero();
 
   while (!glfwWindowShouldClose(windowData.glfwWindow)) {
     { // TIME
@@ -190,15 +190,21 @@ int main(void) {
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
 
-        euler.x += yangle;
-        euler.y += xangle;
-        euler.z = 0;
+        look.x += yangle;
+        look.y += xangle;
+
+				float epsilon = (1e-10);
+
+				if ((look.y - 2*PI) >= epsilon || (look.y + 2*PI) <= epsilon)
+					look.y = -look.y;
+
+				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
 				cam.transform.rotation = Quaternion_Identity();
-				Quaternion rotY = Quaternion_FromEuler(Vector3_Up(euler.y));
-				Vector3 localRight = Vector3_Rotate(Vector3_Right(euler.x), rotY);
+				Quaternion rotY = Quaternion_FromEuler(Vector3_Up(look.y));
+				Vector3 localRight = Vector3_Rotate(Vector3_Right(look.x), rotY);
 				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(localRight));
-				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(Vector3_Up(euler.y)));
+				cam.transform.rotation = Quaternion_Multiply(cam.transform.rotation, Quaternion_FromEuler(Vector3_Up(look.y)));
       }
 
       { // movement
