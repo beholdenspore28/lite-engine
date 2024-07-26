@@ -258,12 +258,12 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
   glUniform1f(UniformLocation, f);
 }
 
-void shader_setUniformV3(GLuint shader, const char *uniformName, Vector3 v) {
+void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m) {
+void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
@@ -271,9 +271,9 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m) {
 // MESH=======================================================================//
 
 typedef struct {
-  Vector3 position;
-  Vector2 texCoord;
-  Vector3 normal;
+  vector3_t position;
+  vector2_t texCoord;
+  vector3_t normal;
 } vertex_t;
 
 // clang-format off
@@ -332,9 +332,9 @@ void mesh_alloc(mesh *m, vertex_t *vertices, GLuint *indices,
                 GLuint numVertices, GLuint numIndices) {
 
   if (!m->isInitialized) {
-    m->VAOs = List_GLuint_Alloc();
-    m->VBOs = List_GLuint_Alloc();
-    m->EBOs = List_GLuint_Alloc();
+    m->VAOs = list_GLuint_alloc();
+    m->VBOs = list_GLuint_alloc();
+    m->EBOs = list_GLuint_alloc();
     m->isInitialized = 1;
   }
 
@@ -375,9 +375,9 @@ void mesh_alloc(mesh *m, vertex_t *vertices, GLuint *indices,
 
   glBindVertexArray(0);
 
-  List_GLuint_Add(&m->VAOs, VAO);
-  List_GLuint_Add(&m->VBOs, VBO);
-  List_GLuint_Add(&m->EBOs, EBO);
+  list_GLuint_add(&m->VAOs, VAO);
+  list_GLuint_add(&m->VBOs, VBO);
+  list_GLuint_add(&m->EBOs, EBO);
 }
 
 void mesh_allocCube(mesh *m) {
@@ -391,9 +391,9 @@ void mesh_allocQuad(mesh *m) {
 }
 
 void mesh_free(mesh *m) {
-  List_GLuint_Free(&m->VAOs);
-  List_GLuint_Free(&m->VBOs);
-  List_GLuint_Free(&m->EBOs);
+  list_GLuint_free(&m->VAOs);
+  list_GLuint_free(&m->VBOs);
+  list_GLuint_free(&m->EBOs);
 }
 
 // TEXTURE====================================================================//

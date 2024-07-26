@@ -25,15 +25,15 @@ GLuint texture_create(const char *imageFile);
 
 GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath);
-void shader_setUniformM4(GLuint shader, const char *uniformName, Matrix4x4 *m);
-void shader_setUniformV3(GLuint shader, const char *uniformName, Vector3 v);
+void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m);
+void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v);
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
 typedef struct {
-  List_GLuint VAOs;
-  List_GLuint VBOs;
-  List_GLuint EBOs;
+  list_GLuint VAOs;
+  list_GLuint VBOs;
+  list_GLuint EBOs;
   int isInitialized;
 } mesh;
 
