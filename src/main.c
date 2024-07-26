@@ -256,7 +256,7 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_spotLight.position", cam.transform.position);
       shader_setUniformV3(
           diffuseShader, "u_spotLight.direction",
-          transform_basis_left(cam.transform, 1.0));
+          transform_basis_back(cam.transform, 1.0));
 
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
@@ -267,9 +267,9 @@ int main(void) {
       shader_setUniformFloat(diffuseShader, "u_spotLight.linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.quadratic", 0.032f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.cutOff",
-                             deg2rad(12.5f));
+                             PI/4.0);
       shader_setUniformFloat(diffuseShader, "u_spotLight.outerCutOff",
-                             deg2rad(15.0f));
+                             PI/4.4);
 
       // point light 1
       shader_setUniformV3(diffuseShader, "u_pointLights[1].position",

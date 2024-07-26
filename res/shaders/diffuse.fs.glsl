@@ -95,7 +95,7 @@ vec3 lightSpot(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // spotlight intensity
-    float theta = dot(lightDir, normalize(-light.direction)); 
+    float theta = dot(lightDir, normalize(light.direction)); 
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     // combine results
@@ -113,7 +113,7 @@ void main() {
 	vec3 viewDir = normalize(u_cameraPos- fragPos);
 
 	vec3 result = lightDirectional(u_dirLight, norm, viewDir);
-	for(int i = 0; i < NR_POINT_LIGHTS; i++)
+	//for(int i = 0; i < NR_POINT_LIGHTS; i++)
 		//result += lightPoint(u_pointLights[i], norm, fragPos, viewDir);
 
 	result += lightSpot(u_spotLight, norm, fragPos, viewDir);
