@@ -193,7 +193,7 @@ int main(void) {
         look.x += yangle;
         look.y += xangle;
 
-				look.y = loop(look.y, 2*PI);
+				look.y = loop(look.y, 2 * PI);
 				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
 				cam.transform.rotation = Quaternion_FromEuler(look);
