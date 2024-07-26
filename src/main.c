@@ -256,7 +256,7 @@ int main(void) {
       shader_setUniformV3(diffuseShader, "u_spotLight.position", cam.transform.position);
       shader_setUniformV3(
           diffuseShader, "u_spotLight.direction",
-          transform_basis_forward(cam.transform, 1.0));
+          transform_basis_left(cam.transform, 1.0));
 
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",

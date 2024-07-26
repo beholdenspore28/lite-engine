@@ -50,8 +50,7 @@ uniform PointLight u_pointLights[NR_POINT_LIGHTS];
 uniform SpotLight u_spotLight;
 uniform Material u_material;
 
-vec3 lightDirectional(DirLight light, vec3 normal, vec3 viewDir)
-{
+vec3 lightDirectional(DirLight light, vec3 normal, vec3 viewDir) {
     vec3 lightDir = normalize(-light.direction);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -65,8 +64,7 @@ vec3 lightDirectional(DirLight light, vec3 normal, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-{
+vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -86,8 +84,7 @@ vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-vec3 lightSpot(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-{
+vec3 lightSpot(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -111,13 +108,13 @@ vec3 lightSpot(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-void main(){
+void main() {
 	vec3 norm = normalize(normal);
 	vec3 viewDir = normalize(u_cameraPos- fragPos);
 
 	vec3 result = lightDirectional(u_dirLight, norm, viewDir);
 	for(int i = 0; i < NR_POINT_LIGHTS; i++)
-		result += lightPoint(u_pointLights[i], norm, fragPos, viewDir);
+		//result += lightPoint(u_pointLights[i], norm, fragPos, viewDir);
 
 	result += lightSpot(u_spotLight, norm, fragPos, viewDir);
 	
