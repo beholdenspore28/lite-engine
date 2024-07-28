@@ -142,7 +142,7 @@ int main(void) {
   (void)FPS;
   float aspect;
   matrix4_t projection = matrix4_identity();
-  vector3_t ambientLight = vector3_one(0.2f);
+  vector3_t ambientLight = vector3_one(0.1f);
 
   vector3_t look = vector3_zero();
 
