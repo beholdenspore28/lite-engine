@@ -113,8 +113,8 @@ void main() {
 	vec3 viewDir = normalize(u_cameraPos- fragPos);
 
 	vec3 result = lightDirectional(u_dirLight, norm, viewDir);
-//	for(int i = 0; i < NR_POINT_LIGHTS; i++)
-//		result += lightPoint(u_pointLights[i], norm, fragPos, viewDir);
+	for(int i = 0; i < NR_POINT_LIGHTS; i++)
+		result += lightPoint(u_pointLights[i], norm, fragPos, viewDir);
 
 	result += lightSpot(u_spotLight, norm, fragPos, viewDir);
 	
