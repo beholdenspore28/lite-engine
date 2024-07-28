@@ -19,32 +19,33 @@ DEFINE_LIST(quaternion_t)
 static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 
 typedef struct {
-	matrix4_t modelMatrix;
-	vector3_t position;
-	quaternion_t rotation;
+  matrix4_t modelMatrix;
+  vector3_t position;
+  quaternion_t rotation;
 } transform_t;
 
-static inline vector3_t transform_basis_forward (transform_t t, float magnitude) { 
+static inline vector3_t transform_basis_forward(transform_t t,
+                                                float magnitude) {
   return vector3_rotate(vector3_forward(magnitude), t.rotation);
 }
 
-static inline vector3_t transform_basis_up (transform_t t, float magnitude) {
-  return vector3_rotate(vector3_up(magnitude), t.rotation); 
+static inline vector3_t transform_basis_up(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_up(magnitude), t.rotation);
 }
 
-static inline vector3_t transform_basis_right (transform_t t, float magnitude) {
+static inline vector3_t transform_basis_right(transform_t t, float magnitude) {
   return vector3_rotate(vector3_right(magnitude), t.rotation);
 }
 
-static inline vector3_t transform_basis_back (transform_t t, float magnitude) { 
+static inline vector3_t transform_basis_back(transform_t t, float magnitude) {
   return vector3_rotate(vector3_back(magnitude), t.rotation);
 }
 
-static inline vector3_t transform_basis_down (transform_t t, float magnitude) {
-  return vector3_rotate(vector3_down(magnitude), t.rotation); 
+static inline vector3_t transform_basis_down(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_down(magnitude), t.rotation);
 }
 
-static inline vector3_t transform_basis_left (transform_t t, float magnitude) {
+static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
   return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
@@ -53,29 +54,28 @@ DEFINE_LIST(transform_t)
 
 static const unsigned int NUM_POINT_LIGHTS = 10;
 typedef struct {
-	list_transform_t transforms;
+  list_transform_t transforms;
   list_vector3_t colors;
   mesh meshes;
 } pointLight_t;
 
 static const unsigned int NUM_CUBES = 10;
 typedef struct {
-	list_transform_t transforms;
+  list_transform_t transforms;
   list_vector3_t colors;
   mesh meshes;
 } cube_t;
 
 typedef struct {
-	transform_t	transform;
+  transform_t transform;
   float lookSensitivity;
   float lastX;
   float lastY;
 } camera_t;
 
-
 int main(void) {
   printf("Rev up those fryers!\n");
-  
+
   window windowData = window_create();
   glfwSetInputMode(windowData.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -108,12 +108,12 @@ int main(void) {
   for (size_t i = 0; i < NUM_CUBES; i++) {
     mesh_allocCube(&cubes.meshes);
 
-		transform_t t = (transform_t){
-			.position = (vector3_t){i * 2, 0, 0},
-			.rotation = quaternion_identity(),
-		};
+    transform_t t = (transform_t){
+        .position = (vector3_t){i * 2, 0, 0},
+        .rotation = quaternion_identity(),
+    };
 
-		list_transform_t_add(&cubes.transforms, t);
+    list_transform_t_add(&cubes.transforms, t);
     list_vector3_t_add(&cubes.colors, vector3_one(1.0f));
   }
 
@@ -127,14 +127,14 @@ int main(void) {
 
     vector3_t color = vector3_one(0.5f);
 
-		transform_t t = (transform_t) {
-			.position = (vector3_t){i * 16, -2, -2},
-			.rotation = quaternion_identity(),
-			.modelMatrix = matrix4_identity(),
-		};
+    transform_t t = (transform_t){
+        .position = (vector3_t){i * 16, -2, -2},
+        .rotation = quaternion_identity(),
+        .modelMatrix = matrix4_identity(),
+    };
 
     list_vector3_t_add(&pointLights.colors, color);
-		list_transform_t_add(&pointLights.transforms, t);
+    list_transform_t_add(&pointLights.transforms, t);
   }
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -162,7 +162,7 @@ int main(void) {
         static bool firstMouse = true;
         double mouseX, mouseY;
         glfwGetCursorPos(windowData.glfwWindow, &mouseX, &mouseY);
-        
+
         if (firstMouse) {
           cam.lastX = mouseX;
           cam.lastY = mouseY;
@@ -171,7 +171,7 @@ int main(void) {
 
         float xoffset = mouseX - cam.lastX;
         float yoffset = mouseY - cam.lastY;
-				cam.lastX = mouseX;
+        cam.lastX = mouseX;
         cam.lastY = mouseY;
         float xangle = xoffset * deltaTime * cam.lookSensitivity;
         float yangle = yoffset * deltaTime * cam.lookSensitivity;
@@ -179,28 +179,28 @@ int main(void) {
         look.x += yangle;
         look.y += xangle;
 
-				look.y = loop(look.y, 2 * PI);
-				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
+        look.y = loop(look.y, 2 * PI);
+        look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
-				cam.transform.rotation = quaternion_from_euler(look);
+        cam.transform.rotation = quaternion_from_euler(look);
       }
 
       { // movement
         float cameraSpeed = 15 * deltaTime;
-				vector3_t movement = vector3_zero();
+        vector3_t movement = vector3_zero();
 
-				movement.x = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
-										glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
-				movement.y = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
-										glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
-				movement.z = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
-										glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+        movement.x = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
+                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
+        movement.y = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
+                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
+        movement.z = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
+                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
 
-				movement = vector3_normalize(movement);
-				movement = vector3_scale(movement, cameraSpeed);
-				movement = vector3_rotate(movement, cam.transform.rotation);
+        movement = vector3_normalize(movement);
+        movement = vector3_scale(movement, cameraSpeed);
+        movement = vector3_rotate(movement, cam.transform.rotation);
 
-				cam.transform.position = vector3_add(cam.transform.position, movement);
+        cam.transform.position = vector3_add(cam.transform.position, movement);
       }
     }
 
@@ -213,10 +213,12 @@ int main(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      cam.transform.modelMatrix = matrix4_translation(vector3_negate(cam.transform.position));
-      cam.transform.modelMatrix = matrix4_multiply(cam.transform.modelMatrix,
-                                          quaternion_to_matrix4(quaternion_conjugate(cam.transform.rotation)));
-      //matrix4_print(cam.transform.modelMatrix, "view");
+      cam.transform.modelMatrix =
+          matrix4_translation(vector3_negate(cam.transform.position));
+      cam.transform.modelMatrix = matrix4_multiply(
+          cam.transform.modelMatrix,
+          quaternion_to_matrix4(quaternion_conjugate(cam.transform.rotation)));
+      // matrix4_print(cam.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
@@ -253,10 +255,10 @@ int main(void) {
                              0.032f);
 
       // spot light
-      shader_setUniformV3(diffuseShader, "u_spotLight.position", cam.transform.position);
-      shader_setUniformV3(
-          diffuseShader, "u_spotLight.direction",
-          transform_basis_back(cam.transform, 1.0));
+      shader_setUniformV3(diffuseShader, "u_spotLight.position",
+                          cam.transform.position);
+      shader_setUniformV3(diffuseShader, "u_spotLight.direction",
+                          transform_basis_back(cam.transform, 1.0));
 
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
@@ -266,10 +268,9 @@ int main(void) {
       shader_setUniformFloat(diffuseShader, "u_spotLight.constant", 1.0f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.linear", 0.09f);
       shader_setUniformFloat(diffuseShader, "u_spotLight.quadratic", 0.032f);
-      shader_setUniformFloat(diffuseShader, "u_spotLight.cutOff",
-                             PI/4.0);
+      shader_setUniformFloat(diffuseShader, "u_spotLight.cutOff", PI / 4.0);
       shader_setUniformFloat(diffuseShader, "u_spotLight.outerCutOff",
-                             PI/4.4);
+                             PI / 4.4);
 
       // point light 1
       shader_setUniformV3(diffuseShader, "u_pointLights[1].position",
@@ -324,10 +325,12 @@ int main(void) {
         shader_setUniformM4(diffuseShader, "u_projectionMatrix", &projection);
 
         // view matrix
-        shader_setUniformM4(diffuseShader, "u_viewMatrix", &cam.transform.modelMatrix);
+        shader_setUniformM4(diffuseShader, "u_viewMatrix",
+                            &cam.transform.modelMatrix);
 
         // model
-        cubes.transforms.data[i].modelMatrix = matrix4_translation(cubes.transforms.data[i].position);
+        cubes.transforms.data[i].modelMatrix =
+            matrix4_translation(cubes.transforms.data[i].position);
         shader_setUniformM4(diffuseShader, "u_modelMatrix",
                             &cubes.transforms.data[i].modelMatrix);
 
@@ -345,7 +348,8 @@ int main(void) {
         shader_setUniformM4(unlitShader, "u_projectionMatrix", &projection);
 
         // view matrix
-        shader_setUniformM4(unlitShader, "u_viewMatrix", &cam.transform.modelMatrix);
+        shader_setUniformM4(unlitShader, "u_viewMatrix",
+                            &cam.transform.modelMatrix);
 
         // model matrix
         pointLights.transforms.data[i].modelMatrix = matrix4_identity();
