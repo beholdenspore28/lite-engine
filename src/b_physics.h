@@ -16,23 +16,23 @@ Law III
 For every force acting on a body (action) there is an equal and opposite reacting
 force (reaction), where the reaction is collinear to the acting force.
 
-Quantity               | Symbol       | Dimensions | Units, SI   | Units, English |
-===================================================================================
-Acceleration, linear   | A            | L/T2       | m/s2        | ft/s2          |
-Acceleration, angular  | α			      | radian/T2	 | radian/s2   | radian/s2      |
-Density                | ρ            | M/L3       | kg/m3       | slug/ft3       |
-Force                  | F            | M (L/T2)   | newton,N    | pound, lbs     |
-Kinematic viscosity    | ν            | L2/T       | m2/s        | ft2/s          |
-Length                 | L (or x,y,z) | L          | meters, m   | feet, ft       |
-Mass                   | m            | M          | kilogram, k | gslug          |
-Moment (torque)        | Ma           | M (L2/T2)  | N-m         | ft-lbs         |
-Mass Moment of Inertia | I            | ML2        | kg-m2       | lbs-ft-s2      |
-Pressure               | P            | M/(L T2)   | N/m2        | lbs/ft2        |
-Time                   | T            | T          | seconds, s  | seconds, s     |
-Velocity, linear       | V            | L/T        | m/s         | ft/s           |
-Velocity, angular      | w            | radian/T   | radian/s    | radian/s       |
-Viscosity              | μ            | M/(L T)    | N s/m2      | lbs • s/ft2    |
-===================================================================================
+| Quantity               | Symbol       | Dimensions | Units, SI   | Units, English |
+|====================================================================================
+| Acceleration, linear   | A            | L/T2       | m/s2        | ft/s2          |
+| Acceleration, angular  | α			      | radian/T2	 | radian/s2   | radian/s2      |
+| Density                | ρ            | M/L3       | kg/m3       | slug/ft3       |
+| Force                  | F            | M (L/T2)   | newton,N    | pound, lbs     |
+| Kinematic viscosity    | ν            | L2/T       | m2/s        | ft2/s          |
+| Length                 | L (or x,y,z) | L          | meters, m   | feet, ft       |
+| Mass                   | m            | M          | kilogram, k | gslug          |
+| Moment (torque)        | Ma           | M (L2/T2)  | N-m         | ft-lbs         |
+| Mass Moment of Inertia | I            | ML2        | kg-m2       | lbs-ft-s2      |
+| Pressure               | P            | M/(L T2)   | N/m2        | lbs/ft2        |
+| Time                   | T            | T          | seconds, s  | seconds, s     |
+| Velocity, linear       | V            | L/T        | m/s         | ft/s           |
+| Velocity, angular      | w            | radian/T   | radian/s    | radian/s       |
+| Viscosity              | μ            | M/(L T)    | N s/m2      | lbs • s/ft2    |
+=====================================================================================
 
 
 */
