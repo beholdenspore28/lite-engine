@@ -217,12 +217,12 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 	return m;
 }
 
-mesh_t mesh_alloc_cube() {
+mesh_t mesh_alloc_cube(void) {
   return mesh_alloc(mesh_cube_vertices, mesh_cube_indices, MESH_CUBE_NUM_VERTICES,
              MESH_CUBE_NUM_INDICES);
 }
 
-mesh_t mesh_alloc_quad() {
+mesh_t mesh_alloc_quad(void) {
   return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, MESH_CUBE_NUM_VERTICES,
              MESH_QUAD_NUM_INDICES);
 }
