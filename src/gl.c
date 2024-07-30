@@ -109,13 +109,6 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 
 // MESH=======================================================================//
 
-#if 0
-void mesh_free(mesh_t *m) {
-  list_GLuint_free(&m->VAOs);
-  list_GLuint_free(&m->VBOs);
-  list_GLuint_free(&m->EBOs);
-}
-#else
 typedef struct {
   vector3_t position;
   vector2_t texCoord;
@@ -226,8 +219,6 @@ mesh_t mesh_alloc_quad(void) {
   return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, MESH_CUBE_NUM_VERTICES,
              MESH_QUAD_NUM_INDICES);
 }
-
-#endif
 
 // TEXTURE====================================================================//
 
