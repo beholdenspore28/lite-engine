@@ -35,7 +35,7 @@ typedef struct {
 typedef struct {
 	transform_t transform;
 	material_t material;
-	GLuint VAO;
+	mesh_t mesh;
 } cube_t;
 
 static inline void transform_calculate_matrix(transform_t *t) {
@@ -306,6 +306,7 @@ int main(void) {
 	cube_t cube = {
 		.transform.position = vector3_forward(5.0),
 		.transform.rotation = quaternion_identity(),
+		.mesh = mesh_alloc_cube(),
 		.material = {
 			.shader = shader_create("res/shaders/diffuse.vs.glsl",
 				                      "res/shaders/diffuse.fs.glsl"),
@@ -427,7 +428,7 @@ int main(void) {
         shader_setUniformInt(defaultDiffuseShader, "u_material.specular", 1);
         shader_setUniformFloat(defaultDiffuseShader, "u_material.shininess", 32.0f);
 
-        glBindVertexArray(cube.VAO);
+        glBindVertexArray(cube.mesh.VAO);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 

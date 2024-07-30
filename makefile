@@ -23,6 +23,7 @@ default: build_lite_engine
 
 build_lite_engine:	build_dir \
 										build_glad
+	clear
 	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS} ${CFLAGS} -o ${OUT} 
 	./${OUT}
 

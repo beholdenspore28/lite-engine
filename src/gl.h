@@ -1,5 +1,5 @@
-#ifndef GLECS_GL_H
-#define GLECS_GL_H
+#ifndef GL_H
+#define GL_H
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -31,21 +31,20 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
 typedef struct {
-  list_GLuint VAOs;
-  list_GLuint VBOs;
-  list_GLuint EBOs;
-  int isInitialized;
-} mesh;
+  GLuint VAO;
+  GLuint VBO;
+  GLuint EBO;
+} mesh_t;
 
-DECLARE_LIST(mesh)
+DECLARE_LIST(mesh_t)
 
 #define MESH_QUAD_NUM_VERTS 4
 #define MESH_QUAD_NUM_INDICES 6
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
 
-void mesh_allocCube(mesh *m);
-void mesh_allocQuad(mesh *m);
-void mesh_free(mesh *m);
+mesh_t mesh_alloc_cube(void);
+mesh_t mesh_alloc_quad(void);
+void mesh_free(mesh_t *m);
 
 #endif

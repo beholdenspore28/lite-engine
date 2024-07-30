@@ -109,6 +109,13 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 
 // MESH=======================================================================//
 
+#if 0
+void mesh_free(mesh_t *m) {
+  list_GLuint_free(&m->VAOs);
+  list_GLuint_free(&m->VBOs);
+  list_GLuint_free(&m->EBOs);
+}
+#else
 typedef struct {
   vector3_t position;
   vector2_t texCoord;
@@ -117,7 +124,7 @@ typedef struct {
 
 // clang-format off
 
-static vertex_t mesh_quadVertices[MESH_QUAD_NUM_VERTS] = {
+static vertex_t mesh_quad_vertices[MESH_QUAD_NUM_VERTS] = {
 	//positions         //tex	      //normal
 	{ { 0.5f,  0.5f, 0.0f }, { 1.0f, 1.0f }, { 0.0,  1.0,  0.0 } },// top right
 	{ { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f }, { 0.0,  1.0,  0.0 } },// bottom right
@@ -125,12 +132,12 @@ static vertex_t mesh_quadVertices[MESH_QUAD_NUM_VERTS] = {
 	{ {-0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f }, { 0.0,  1.0,  0.0 } },// top left 
 };
 
-static unsigned int mesh_quadIndices[MESH_QUAD_NUM_INDICES] = {
+static unsigned int mesh_quad_indices[MESH_QUAD_NUM_INDICES] = {
 	3, 1, 0,  // first Triangle
 	3, 2, 1   // second Triangle
 };
 
-static vertex_t mesh_cubeVertices[MESH_CUBE_NUM_VERTICES] = {
+static vertex_t mesh_cube_vertices[MESH_CUBE_NUM_VERTICES] = {
    // position       //tex       //normal
   { {-0.5,  0.5,  0.5 }, { 0.0,  1.0 }, { 0.0,  1.0,  0.0 } },
 	{ {-0.5,  0.5, -0.5 }, { 0.0,  0.0 }, { 0.0,  1.0,  0.0 } },
@@ -158,38 +165,31 @@ static vertex_t mesh_cubeVertices[MESH_CUBE_NUM_VERTICES] = {
 	{ { 0.5, -0.5, -0.5 }, { 1.0,  1.0 }, { 0.0, -1.0,  0.0 } },
 };
 
-static GLuint mesh_cubeIndices[MESH_CUBE_NUM_INDICES] = {
+static GLuint mesh_cube_indices[MESH_CUBE_NUM_INDICES] = {
     0,1,2,    0,2,3,    4,5,6,    4,6,7,    8,9,10,   8,10,11,
     12,13,14, 12,14,15, 16,17,18, 16,18,19, 20,21,22, 20,22,23,
 };
 
 // clang-format on
 
-DEFINE_LIST(mesh)
+DEFINE_LIST(mesh_t)
 
-void mesh_alloc(mesh *m, vertex_t *vertices, GLuint *indices,
+mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
                 GLuint numVertices, GLuint numIndices) {
 
-  if (!m->isInitialized) {
-    m->VAOs = list_GLuint_alloc();
-    m->VBOs = list_GLuint_alloc();
-    m->EBOs = list_GLuint_alloc();
-    m->isInitialized = 1;
-  }
+	mesh_t m = {0};
 
-  GLuint VAO, VBO, EBO;
+  glGenVertexArrays(1, &m.VAO);
+  glGenBuffers(1, &m.VBO);
+  glGenBuffers(1, &m.EBO);
 
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
+  glBindVertexArray(m.VAO);
 
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * numVertices, vertices,
                GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices,
                GL_STATIC_DRAW);
 
@@ -214,26 +214,20 @@ void mesh_alloc(mesh *m, vertex_t *vertices, GLuint *indices,
 
   glBindVertexArray(0);
 
-  list_GLuint_add(&m->VAOs, VAO);
-  list_GLuint_add(&m->VBOs, VBO);
-  list_GLuint_add(&m->EBOs, EBO);
+	return m;
 }
 
-void mesh_allocCube(mesh *m) {
-  mesh_alloc(m, mesh_cubeVertices, mesh_cubeIndices, MESH_CUBE_NUM_VERTICES,
+mesh_t mesh_alloc_cube() {
+  return mesh_alloc(mesh_cube_vertices, mesh_cube_indices, MESH_CUBE_NUM_VERTICES,
              MESH_CUBE_NUM_INDICES);
 }
 
-void mesh_allocQuad(mesh *m) {
-  mesh_alloc(m, mesh_quadVertices, mesh_quadIndices, MESH_CUBE_NUM_VERTICES,
+mesh_t mesh_alloc_quad() {
+  return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, MESH_CUBE_NUM_VERTICES,
              MESH_QUAD_NUM_INDICES);
 }
 
-void mesh_free(mesh *m) {
-  list_GLuint_free(&m->VAOs);
-  list_GLuint_free(&m->VBOs);
-  list_GLuint_free(&m->EBOs);
-}
+#endif
 
 // TEXTURE====================================================================//
 
