@@ -20,15 +20,28 @@ DEFINE_LIST(quaternion_t)
 #define ASSERT_UNIMPLEMENTED 0
 
 typedef struct {
-  matrix4_t modelMatrix;
+	GLuint shader;
+	GLuint diffuseMap;
+	GLuint specularMap;
+} material_t;
+
+	
+typedef struct {
+  matrix4_t matrix;
   vector3_t position;
   quaternion_t rotation;
 } transform_t;
 
+typedef struct {
+	transform_t transform;
+	material_t material;
+	GLuint VAO;
+} cube_t;
+
 static inline void transform_calculate_matrix(transform_t *t) {
-  t->modelMatrix = matrix4_translation(vector3_negate(t->position));
-  t->modelMatrix = matrix4_multiply(
-      t->modelMatrix, quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
+  t->matrix = matrix4_translation(vector3_negate(t->position));
+  t->matrix = matrix4_multiply(
+      t->matrix, quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
 }
 
 static inline vector3_t transform_basis_forward(transform_t t,
@@ -290,10 +303,16 @@ int main(void) {
   GLuint unlitShader =
       shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 
-  GLuint cube_diffuse_texture = texture_create("res/textures/container2.png");
-  GLuint lampDiffuse = texture_create("res/textures/glowstone.png");
-  GLuint cube_specular_texture =
-      texture_create("res/textures/container2_specular.png");
+	cube_t cube = {
+		.transform.position = vector3_forward(5.0),
+		.transform.rotation = quaternion_identity(),
+		.material = {
+			.shader = shader_create("res/shaders/diffuse.vs.glsl",
+				                      "res/shaders/diffuse.fs.glsl"),
+			.diffuseMap = texture_create("res/textures/container2.png"),
+			.specularMap = texture_create("res/textures/container2_specular.png"),
+		},
+	};
 
   camera_t camera = {
       .transform.position = vector3_zero(),
@@ -375,26 +394,41 @@ int main(void) {
 
       // view matrix
       transform_calculate_matrix(&camera.transform);
-      matrix4_print(camera.transform.modelMatrix, "view");
+      matrix4_print(camera.transform.matrix, "view");
 
       { // cube_draw
         glUseProgram(defaultDiffuseShader);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, cube_diffuse_texture);
+        glBindTexture(GL_TEXTURE_2D, cube.material.diffuseMap);
 
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, cube_specular_texture);
+        glBindTexture(GL_TEXTURE_2D, cube.material.specularMap);
 
-        // camera
+        // model matrix
+				transform_calculate_matrix(&cube.transform);
+
+        shader_setUniformM4(defaultDiffuseShader, "u_modelMatrix",
+                            &cube.transform.matrix);
+
+        // view matrix
+        shader_setUniformM4(defaultDiffuseShader, "u_viewMatrix",
+                            &camera.transform.matrix);
+
+				// projection matrix
+        shader_setUniformM4(defaultDiffuseShader, "u_projectionMatrix", &projection);
+
+        // camera position
         shader_setUniformV3(defaultDiffuseShader, "u_cameraPos",
                             camera.transform.position);
 
         // material
         shader_setUniformInt(defaultDiffuseShader, "u_material.diffuse", 0);
         shader_setUniformInt(defaultDiffuseShader, "u_material.specular", 1);
-        shader_setUniformFloat(defaultDiffuseShader, "u_material.shininess",
-                               32.0f);
+        shader_setUniformFloat(defaultDiffuseShader, "u_material.shininess", 32.0f);
+
+        glBindVertexArray(cube.VAO);
+        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 
       glfwSwapBuffers(engine_window);
