@@ -25,6 +25,14 @@ typedef struct {
   quaternion_t rotation;
 } transform_t;
 
+static inline void transform_calculate_matrix(transform_t* t) {
+	t->modelMatrix =
+		matrix4_translation(vector3_negate(t->position));
+	t->modelMatrix = matrix4_multiply(
+			t->modelMatrix,
+			quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
+}
+
 static inline vector3_t transform_basis_forward(transform_t t,
                                                 float magnitude) {
   return vector3_rotate(vector3_forward(magnitude), t.rotation);
@@ -291,10 +299,6 @@ int main(void) {
   GLuint containerSpecular =
       texture_create("res/textures/container2_specular.png");
 
-	for (int i = 0; i < 10; i++) {
-		entity_create_cube();
-	}
-
 	camera_t camera = {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
@@ -372,12 +376,8 @@ int main(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      camera.transform.modelMatrix =
-          matrix4_translation(vector3_negate(camera.transform.position));
-      camera.transform.modelMatrix = matrix4_multiply(
-          camera.transform.modelMatrix,
-          quaternion_to_matrix4(quaternion_conjugate(camera.transform.rotation)));
-      matrix4_print(camera.transform.modelMatrix, "view");
+			transform_calculate_matrix(&camera.transform);
+      //matrix4_print(camera.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
@@ -389,34 +389,6 @@ int main(void) {
 
       // camera
       shader_setUniformV3(diffuseShader, "u_cameraPos", camera.transform.position);
-#if 0
-      // directional light
-      shader_setUniformV3(diffuseShader, "u_dirLight.direction",
-                          (vector3_t){-0.2f, -1.0f, -0.3f});
-      shader_setUniformV3(diffuseShader, "u_dirLight.ambient", ambientLight);
-      shader_setUniformV3(diffuseShader, "u_dirLight.diffuse",
-                          (vector3_t){0.4f, 0.4f, 0.4f});
-      shader_setUniformV3(diffuseShader, "u_dirLight.specular",
-                          (vector3_t){0.5f, 0.5f, 0.5f});
-
-      // spot light
-      shader_setUniformV3(diffuseShader, "u_spotLight.position",
-                          camera.transform.position);
-      shader_setUniformV3(diffuseShader, "u_spotLight.direction",
-                          transform_basis_back(camera.transform, 1.0));
-
-      shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
-      shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformV3(diffuseShader, "u_spotLight.specular",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformFloat(diffuseShader, "u_spotLight.constant", 1.0f);
-      shader_setUniformFloat(diffuseShader, "u_spotLight.linear", 0.09f);
-      shader_setUniformFloat(diffuseShader, "u_spotLight.quadratic", 0.032f);
-      shader_setUniformFloat(diffuseShader, "u_spotLight.cutOff", PI / 4.0);
-      shader_setUniformFloat(diffuseShader, "u_spotLight.outerCutOff",
-                             PI / 4.4);
-#endif
 
       // material
       shader_setUniformInt(diffuseShader, "u_material.diffuse", 0);
