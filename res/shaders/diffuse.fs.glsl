@@ -106,7 +106,7 @@ void main() {
 	vec3 norm = normalize(normal);
 	vec3 viewDir = normalize(u_cameraPos - fragPos);
 
-	vec3 light = lightDirectional(u_directionalLight, norm, viewDir);
+	vec3 directionalLight = lightDirectional(u_directionalLight, norm, viewDir);
 	
-	fragColor = vec4(light, 1.0);
+	fragColor = vec4(directionalLight, 1.0);
 }

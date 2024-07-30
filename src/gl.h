@@ -13,14 +13,6 @@
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)
 
-typedef struct {
-  GLFWwindow *glfwWindow;
-  int width;
-  int height;
-} window;
-
-window window_create(void);
-
 GLuint texture_create(const char *imageFile);
 
 GLuint shader_create(const char *vertexShaderSourcePath,
