@@ -21,11 +21,43 @@ void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v);
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
+typedef enum {
+  ENGINE_RENDERER_API_GL,
+  ENGINE_RENDERER_API_NONE,
+} engine_renderer_API_t;
+
 typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
 } mesh_t;
+
+typedef struct {
+	GLuint shader;
+	GLuint diffuseMap;
+	GLuint specularMap;
+} material_t;
+	
+typedef struct {
+  matrix4_t matrix;
+  vector3_t position;
+  quaternion_t rotation;
+} transform_t;
+
+typedef struct {
+	transform_t transform;
+	material_t material;
+	mesh_t mesh;
+} cube_t;
+
+typedef struct {
+  transform_t transform;
+	matrix4_t projection;
+  float lookSensitivity;
+  float lastX;
+  float lastY;
+} camera_t;
+
 
 DECLARE_LIST(mesh_t)
 

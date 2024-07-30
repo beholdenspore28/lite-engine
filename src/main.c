@@ -19,37 +19,6 @@ DEFINE_LIST(quaternion_t)
 
 #define ASSERT_UNIMPLEMENTED 0
 	
-typedef enum {
-  ENGINE_RENDERER_API_GL,
-  ENGINE_RENDERER_API_NONE,
-} engine_renderer_API_t;
-
-typedef struct {
-	GLuint shader;
-	GLuint diffuseMap;
-	GLuint specularMap;
-} material_t;
-	
-typedef struct {
-  matrix4_t matrix;
-  vector3_t position;
-  quaternion_t rotation;
-} transform_t;
-
-typedef struct {
-	transform_t transform;
-	material_t material;
-	mesh_t mesh;
-} cube_t;
-
-typedef struct {
-  transform_t transform;
-	matrix4_t projection;
-  float lookSensitivity;
-  float lastX;
-  float lastY;
-} camera_t;
-
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
@@ -194,8 +163,8 @@ void engine_start_renderer_api_gl(void) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,
-                 GLFW_TRUE); // comment to toggle debug mode
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
   assert(engine_window_title != NULL);
 
@@ -206,6 +175,7 @@ void engine_start_renderer_api_gl(void) {
 
   glfwSetWindowPos(engine_window, engine_window_position_x,
                    engine_window_position_y);
+	glfwShowWindow(engine_window);
   glfwMakeContextCurrent(engine_window);
   glfwSetKeyCallback(engine_window, key_callback);
   glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
@@ -242,7 +212,6 @@ void engine_start_renderer_api_gl(void) {
 			.projection = matrix4_identity(),
       .lookSensitivity = 10.0f,
   };
-
 }
 
 void engine_start(void) {
@@ -339,18 +308,15 @@ int point_light_create(void) {
 int main(void) {
   printf("Rev up those fryers!\n");
 
-  engine_renderer_set_API(ENGINE_RENDERER_API_GL); // choose your renderer
+  engine_renderer_set_API(ENGINE_RENDERER_API_GL);
   engine_window_title = "Game Window";
   engine_window_size_x = 1280;
-  engine_window_size_y = 720; // set window resolution
+  engine_window_size_y = 720;
   engine_window_position_x = 0;
-  engine_window_position_y = 0; // position window in the center of the screen
+  engine_window_position_y = 0;
   engine_start();
 
-  GLuint defaultDiffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
-                                              "res/shaders/diffuse.fs.glsl");
-  GLuint unlitShader =
-      shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+  vector3_t ambientLight = vector3_one(0.1f);
 
 	cube_t cube = {
 		.transform.position = vector3_back(1.0),
@@ -363,9 +329,6 @@ int main(void) {
 			.specularMap = texture_create("res/textures/container2_specular.png"),
 		},
 	};
-
-  float aspect;
-  vector3_t ambientLight = vector3_one(0.1f);
 
   vector3_t look = vector3_zero();
   while (!glfwWindowShouldClose(engine_window)) {
@@ -408,7 +371,7 @@ int main(void) {
       }
 
       { // movement
-        float cameraSpeed = 15 * engine_time_delta;
+        float cameraSpeed = 5 * engine_time_delta;
         vector3_t movement = vector3_zero();
 
         movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
@@ -429,7 +392,7 @@ int main(void) {
 
     glfwGetWindowSize(engine_window, &engine_window_size_x,
                       &engine_window_size_y);
-    aspect = (float)engine_window_size_x / (float)engine_window_size_y;
+    float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
     engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
     { // draw
