@@ -15,7 +15,7 @@ OPT_SMALL := -Oz -flto
 OPT_RELEASE := -flto -O3 
 OPT_ := ${OPT_DEBUG} 
 OPT := ${OPT_${MODE}}
-CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=5
+CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
 
 LIBS := -lglfw -lGL -lm 
 

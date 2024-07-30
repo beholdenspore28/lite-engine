@@ -96,4 +96,54 @@ bounding_sphere_intersect_sphere(bounding_sphere_t a, bounding_sphere_t b) {
   }
 }
 
+#if 0
+static void aligned_box_test(void) {
+	aligned_box_t box1 = { .min_extents = { 0.0f, 0.0f, 0.0f }, .max_extents = { 1.0f, 1.0f, 1.0f },};
+	aligned_box_t box2 = { .min_extents = { 1.0f, 1.0f, 1.0f }, .max_extents = { 2.0f, 2.0f, 2.0f },};
+	aligned_box_t box3 = { .min_extents = { 1.0f, 0.0f, 0.0f }, .max_extents = { 2.0f, 1.0f, 1.0f },};
+	aligned_box_t box4 = { .min_extents = { 0.0f, 0.0f,-2.0f }, .max_extents = { 1.0f, 1.0f,-1.0f },};
+	aligned_box_t box5 = { .min_extents = { 0.0f, 0.5f, 0.0f }, .max_extents = { 1.0f, 1.5f, 1.0f },};
+
+	intersection_t b1b2 = aligned_box_intersect_aligned_box(box1, box2);
+	intersection_t b1b3 = aligned_box_intersect_aligned_box(box1, box3);
+	intersection_t b1b4 = aligned_box_intersect_aligned_box(box1, box4);
+	intersection_t b1b5 = aligned_box_intersect_aligned_box(box1, box5);
+
+	printf("b1b2: %d %f\n", b1b2.is_intersecting, b1b2.distance);
+	printf("b1b3: %d %f\n", b1b3.is_intersecting, b1b3.distance);
+	printf("b1b4: %d %f\n", b1b4.is_intersecting, b1b4.distance);
+	printf("b1b5: %d %f\n", b1b5.is_intersecting, b1b5.distance);
+
+	return 0;
+}
+
+static void bounding_sphere_test(void) {
+	bounding_sphere_t sphere1 = {
+		.center = vector3_zero(),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere2 = {
+		.center = vector3_up(3.0),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere3 = {
+		.center = vector3_forward(2.0),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere4 = {
+		.center = vector3_right(1.0),
+		.radius = 1.0f,
+	};
+
+	intersection_t i2 = bounding_sphere_intersect_sphere(sphere1, sphere2);
+	intersection_t i3 = bounding_sphere_intersect_sphere(sphere1, sphere3);
+	intersection_t i4 = bounding_sphere_intersect_sphere(sphere1, sphere4);
+
+	printf("i2: %d %f\n", i2.is_intersecting, i2.distance);
+	printf("i3: %d %f\n", i3.is_intersecting, i3.distance);
+	printf("i4: %d %f\n", i4.is_intersecting, i4.distance);
+	return 0;
+}
+#endif
+
 #endif /*B_PHYSICS_H*/
