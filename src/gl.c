@@ -5,7 +5,6 @@
 DEFINE_LIST(GLint)
 DEFINE_LIST(GLuint)
 
-
 // SHADER=====================================================================//
 
 static GLuint shader_compile(GLuint type, const char *source) {
