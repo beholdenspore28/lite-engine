@@ -1,7 +1,9 @@
 #include "gl.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-#include "b_physics.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include "blib/b_list.h"
 B_LIST_IMPLEMENTATION
@@ -13,9 +15,8 @@ DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #include "blib/b_math.h"
+#include "b_physics.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
 
@@ -77,7 +78,7 @@ typedef struct {
 int main(void) {
   printf("Rev up those fryers!\n");
 
-#if 0 //axis aligned bounding box test
+#if 0 // axis aligned bounding box test
 	aligned_box_t box1 = { .min_extents = { 0.0f, 0.0f, 0.0f }, .max_extents = { 1.0f, 1.0f, 1.0f },};
 	aligned_box_t box2 = { .min_extents = { 1.0f, 1.0f, 1.0f }, .max_extents = { 2.0f, 2.0f, 2.0f },};
 	aligned_box_t box3 = { .min_extents = { 1.0f, 0.0f, 0.0f }, .max_extents = { 2.0f, 1.0f, 1.0f },};
@@ -97,7 +98,7 @@ int main(void) {
 	return 0;
 #endif
 
-#if 0 //bounding sphere test
+#if 0 // bounding sphere test
 	bounding_sphere_t sphere1 = {
 		.center = vector3_zero(),
 		.radius = 1.0f,
