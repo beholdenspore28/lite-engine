@@ -18,13 +18,17 @@ DEFINE_LIST(quaternion_t)
 #include "blib/b_math.h"
 
 #define ASSERT_UNIMPLEMENTED 0
+	
+typedef enum {
+  ENGINE_RENDERER_API_GL,
+  ENGINE_RENDERER_API_NONE,
+} engine_renderer_API_t;
 
 typedef struct {
 	GLuint shader;
 	GLuint diffuseMap;
 	GLuint specularMap;
 } material_t;
-
 	
 typedef struct {
   matrix4_t matrix;
@@ -38,42 +42,9 @@ typedef struct {
 	mesh_t mesh;
 } cube_t;
 
-static inline void transform_calculate_matrix(transform_t *t) {
-  t->matrix = matrix4_translation(vector3_negate(t->position));
-  t->matrix = matrix4_multiply(
-      t->matrix, quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
-}
-
-static inline vector3_t transform_basis_forward(transform_t t,
-                                                float magnitude) {
-  return vector3_rotate(vector3_forward(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_up(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_up(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_right(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_right(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_back(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_back(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_down(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_down(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_left(magnitude), t.rotation);
-}
-
-DECLARE_LIST(transform_t)
-DEFINE_LIST(transform_t)
-
 typedef struct {
   transform_t transform;
+	matrix4_t projection;
   float lookSensitivity;
   float lastX;
   float lastY;
@@ -185,10 +156,6 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
   printf("\n");
   printf("\n");
 }
-typedef enum {
-  ENGINE_RENDERER_API_GL,
-  ENGINE_RENDERER_API_NONE,
-} engine_renderer_API_t;
 
 static GLFWwindow *engine_window;
 static int engine_window_size_x;
@@ -201,6 +168,7 @@ static float engine_time_last;
 static float engine_time_delta;
 static float engine_renderer_FPS;
 static engine_renderer_API_t engine_renderer_API;
+static camera_t engine_active_camera;
 
 void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
   engine_renderer_API = renderingAPI;
@@ -215,6 +183,7 @@ void engine_window_set_resolution(int x, int y) {
 void engine_window_set_position(int x, int y) {
   glfwSetWindowPos(engine_window, x, y);
 }
+
 void engine_start_renderer_api_gl(void) {
   if (!glfwInit()) {
     printf("[ERROR_GLFW] Failed to initialize GLFW");
@@ -266,6 +235,14 @@ void engine_start_renderer_api_gl(void) {
 
   glfwSwapInterval(0);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	engine_active_camera = (camera_t) {
+      .transform.position = vector3_zero(),
+      .transform.rotation = quaternion_identity(),
+			.projection = matrix4_identity(),
+      .lookSensitivity = 10.0f,
+  };
+
 }
 
 void engine_start(void) {
@@ -278,6 +255,78 @@ void engine_start(void) {
     break;
   }
 }
+
+static inline void transform_calculate_matrix(transform_t *t) {
+  t->matrix = matrix4_translation(vector3_negate(t->position));
+  t->matrix = matrix4_multiply(
+      t->matrix, quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
+}
+
+static inline vector3_t transform_basis_forward(transform_t t,
+                                                float magnitude) {
+  return vector3_rotate(vector3_forward(magnitude), t.rotation);
+}
+
+static inline vector3_t transform_basis_up(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_up(magnitude), t.rotation);
+}
+
+static inline vector3_t transform_basis_right(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_right(magnitude), t.rotation);
+}
+
+static inline vector3_t transform_basis_back(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_back(magnitude), t.rotation);
+}
+
+static inline vector3_t transform_basis_down(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_down(magnitude), t.rotation);
+}
+
+static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_left(magnitude), t.rotation);
+}
+
+DECLARE_LIST(transform_t)
+DEFINE_LIST(transform_t)
+
+void cube_draw(cube_t* cube) {
+	glUseProgram(cube->material.shader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cube->material.diffuseMap);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, cube->material.specularMap);
+
+	// model matrix
+	transform_calculate_matrix(&cube->transform);
+
+	shader_setUniformM4(cube->material.shader, "u_modelMatrix",
+			&cube->transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(cube->material.shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(cube->material.shader, "u_projectionMatrix", &engine_active_camera.projection);
+
+	// camera position
+	shader_setUniformV3(cube->material.shader, "u_cameraPos",
+			engine_active_camera.transform.position);
+
+	// material
+	shader_setUniformInt(cube->material.shader, "u_material.diffuse", 0);
+	shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
+	shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
+
+	shader_setUniformV3(cube->material.shader, "u_ambientLight", vector3_one(0.2f));
+
+	glBindVertexArray(cube->mesh.VAO);
+	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+}
+
 int point_light_create(void) {
   //	list_int components = list_int_alloc();
   //	list_int_add(components, COMPONENT_BASELINE);
@@ -304,7 +353,7 @@ int main(void) {
       shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 
 	cube_t cube = {
-		.transform.position = vector3_forward(5.0),
+		.transform.position = vector3_back(1.0),
 		.transform.rotation = quaternion_identity(),
 		.mesh = mesh_alloc_cube(),
 		.material = {
@@ -315,14 +364,7 @@ int main(void) {
 		},
 	};
 
-  camera_t camera = {
-      .transform.position = vector3_zero(),
-      .transform.rotation = quaternion_identity(),
-      .lookSensitivity = 10.0f,
-  };
-
   float aspect;
-  matrix4_t projection = matrix4_identity();
   vector3_t ambientLight = vector3_one(0.1f);
 
   vector3_t look = vector3_zero();
@@ -344,17 +386,17 @@ int main(void) {
         glfwGetCursorPos(engine_window, &mouseX, &mouseY);
 
         if (firstMouse) {
-          camera.lastX = mouseX;
-          camera.lastY = mouseY;
+          engine_active_camera.lastX = mouseX;
+          engine_active_camera.lastY = mouseY;
           firstMouse = false;
         }
 
-        float xoffset = mouseX - camera.lastX;
-        float yoffset = mouseY - camera.lastY;
-        camera.lastX = mouseX;
-        camera.lastY = mouseY;
-        float xangle = xoffset * engine_time_delta * camera.lookSensitivity;
-        float yangle = yoffset * engine_time_delta * camera.lookSensitivity;
+        float xoffset = mouseX - engine_active_camera.lastX;
+        float yoffset = mouseY - engine_active_camera.lastY;
+        engine_active_camera.lastX = mouseX;
+        engine_active_camera.lastY = mouseY;
+        float xangle = xoffset * engine_time_delta * engine_active_camera.lookSensitivity;
+        float yangle = yoffset * engine_time_delta * engine_active_camera.lookSensitivity;
 
         look.x += yangle;
         look.y += xangle;
@@ -362,7 +404,7 @@ int main(void) {
         look.y = loop(look.y, 2 * PI);
         look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
-        camera.transform.rotation = quaternion_from_euler(look);
+        engine_active_camera.transform.rotation = quaternion_from_euler(look);
       }
 
       { // movement
@@ -378,60 +420,27 @@ int main(void) {
 
         movement = vector3_normalize(movement);
         movement = vector3_scale(movement, cameraSpeed);
-        movement = vector3_rotate(movement, camera.transform.rotation);
+        movement = vector3_rotate(movement, engine_active_camera.transform.rotation);
 
-        camera.transform.position =
-            vector3_add(camera.transform.position, movement);
+        engine_active_camera.transform.position =
+            vector3_add(engine_active_camera.transform.position, movement);
       }
     } // END INPUT
 
     glfwGetWindowSize(engine_window, &engine_window_size_x,
                       &engine_window_size_y);
     aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-    projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
+    engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      transform_calculate_matrix(&camera.transform);
-      //matrix4_print(camera.transform.matrix, "view");
+      transform_calculate_matrix(&engine_active_camera.transform);
+      //matrix4_print(engine_active_camera.transform.matrix, "view");
 
       { // cube_draw
-        glUseProgram(defaultDiffuseShader);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, cube.material.diffuseMap);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, cube.material.specularMap);
-
-        // model matrix
-				transform_calculate_matrix(&cube.transform);
-
-        shader_setUniformM4(defaultDiffuseShader, "u_modelMatrix",
-                            &cube.transform.matrix);
-
-        // view matrix
-        shader_setUniformM4(defaultDiffuseShader, "u_viewMatrix",
-                            &camera.transform.matrix);
-
-				// projection matrix
-        shader_setUniformM4(defaultDiffuseShader, "u_projectionMatrix", &projection);
-
-        // camera position
-        shader_setUniformV3(defaultDiffuseShader, "u_cameraPos",
-                            camera.transform.position);
-
-        // material
-        shader_setUniformInt(defaultDiffuseShader, "u_material.diffuse", 0);
-        shader_setUniformInt(defaultDiffuseShader, "u_material.specular", 1);
-        shader_setUniformFloat(defaultDiffuseShader, "u_material.shininess", 32.0f);
-
-				shader_setUniformV3(defaultDiffuseShader, "u_ambientLight", vector3_one(0.2f));
-
-        glBindVertexArray(cube.mesh.VAO);
-        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+				cube_draw(&cube);
       }
 
       glfwSwapBuffers(engine_window);

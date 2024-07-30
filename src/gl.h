@@ -1,5 +1,4 @@
-#ifndef GL_H
-#define GL_H
+#pragma once
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -38,5 +37,3 @@ DECLARE_LIST(mesh_t)
 mesh_t mesh_alloc_cube(void);
 mesh_t mesh_alloc_quad(void);
 void mesh_free(mesh_t *m);
-
-#endif

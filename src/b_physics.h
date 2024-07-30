@@ -42,8 +42,7 @@ the context, and we’ll use the ^ (caret) to indicate vector cross product.
 */
 // clang-format on
 
-#ifndef B_PHYSICS_H
-#define B_PHYSICS_H
+#pragma once
 
 #include "blib/b_math.h"
 
@@ -145,5 +144,3 @@ static void bounding_sphere_test(void) {
 	return 0;
 }
 #endif
-
-#endif /*B_PHYSICS_H*/
