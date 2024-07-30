@@ -1,6 +1,7 @@
 #include "gl.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include "b_physics.h"
 
 #include "blib/b_list.h"
 B_LIST_IMPLEMENTATION
@@ -75,6 +76,33 @@ typedef struct {
 
 int main(void) {
   printf("Rev up those fryers!\n");
+
+#if 1
+	bounding_sphere_t sphere1 = {
+		.center = vector3_zero(),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere2 = {
+		.center = vector3_up(3.0),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere3 = {
+		.center = vector3_forward(2.0),
+		.radius = 1.0f,
+	};
+	bounding_sphere_t sphere4 = {
+		.center = vector3_right(1.0),
+		.radius = 1.0f,
+	};
+
+	intersection_t i2 = bounding_sphere_intersect_sphere(sphere1, sphere2);
+	intersection_t i3 = bounding_sphere_intersect_sphere(sphere1, sphere3);
+	intersection_t i4 = bounding_sphere_intersect_sphere(sphere1, sphere4);
+
+	printf("i2: %d %f\n", i2.is_intersecting, i2.distance);
+	printf("i3: %d %f\n", i3.is_intersecting, i3.distance);
+	printf("i4: %d %f\n", i4.is_intersecting, i4.distance);
+#endif
 
   window windowData = window_create();
   glfwSetInputMode(windowData.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
