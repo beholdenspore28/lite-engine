@@ -53,19 +53,6 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
-static const unsigned int NUM_POINT_LIGHTS = 10;
-typedef struct {
-  list_transform_t transforms;
-  list_vector3_t colors;
-  mesh meshes;
-} pointLight_t;
-
-typedef struct {
-  list_transform_t transforms;
-  list_vector3_t colors;
-  mesh meshes;
-} cube_t;
-
 typedef struct {
   transform_t transform;
   float lookSensitivity;
@@ -73,7 +60,6 @@ typedef struct {
   float lastY;
 } camera_t;
 
-#if 1
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
@@ -185,15 +171,17 @@ typedef enum {
 	ENGINE_RENDERER_API_NONE,
 }engine_renderer_API_t;
 
-static GLFWwindow*	engine_window;
-static int					engine_window_size_x;
-static int 					engine_window_size_y;
-static char*				engine_window_title;
-static float 				engine_time_current; 
-static float 				engine_time_last; 
-static float 				engine_time_delta; 
-static float 				engine_FPS;
-static engine_renderer_API_t engine_renderer_API;
+static GLFWwindow*						engine_window;
+static int										engine_window_size_x;
+static int 										engine_window_size_y;
+static int										engine_window_position_x;
+static int 										engine_window_position_y;
+static char*									engine_window_title;
+static float 									engine_time_current; 
+static float 									engine_time_last; 
+static float 									engine_time_delta; 
+static float 									engine_renderer_FPS;
+static engine_renderer_API_t	engine_renderer_API;
 
 void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
 	engine_renderer_API = renderingAPI;
@@ -208,8 +196,7 @@ void engine_window_set_resolution(int x, int y) {
 void engine_window_set_position(int x, int y) {
 		glfwSetWindowPos(engine_window, x, y);
 }
-
-void engine_start(void) {
+void engine_start_renderer_api_gl(void) {
   if (!glfwInit()) {
     printf("[ERROR_GLFW] Failed to initialize GLFW");
   }
@@ -221,13 +208,18 @@ void engine_start(void) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,
                  GLFW_TRUE); // comment to toggle debug mode
+	
+	assert(engine_window_title != NULL);
 
-  engine_window =
-      glfwCreateWindow(engine_window_size_x, engine_window_size_y, engine_window_title, NULL, NULL);
-  if (!engine_window) {
-    printf("[ERROR_GLFW] Failed to create GLFW window\n");
-  }
+  engine_window = glfwCreateWindow(
+			engine_window_size_x, 
+			engine_window_size_y, 
+			engine_window_title, 
+			NULL, NULL);
 
+	assert(engine_window != NULL);
+
+	glfwSetWindowPos(engine_window, engine_window_position_x, engine_window_position_y);
   glfwMakeContextCurrent(engine_window);
   glfwSetKeyCallback(engine_window, key_callback);
   glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
@@ -258,7 +250,17 @@ void engine_start(void) {
   glfwSwapInterval(0);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
-#endif
+
+void engine_start(void) {
+	switch (engine_renderer_API) {
+		case ENGINE_RENDERER_API_GL:
+			engine_start_renderer_api_gl();
+			break;
+		default: 
+			assert(0);
+			break;
+	}
+}
 int point_light_create(void) {
 //	list_int components = list_int_alloc();
 //	list_int_add(components, COMPONENT_BASELINE);
@@ -271,10 +273,12 @@ int point_light_create(void) {
 int main(void) {
   printf("Rev up those fryers!\n");
 
-#if 1
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL); //choose your renderer
-	engine_window_set_resolution(1280, 720); //set window resolution
-	engine_window_set_position(0, 0); //position window in the center of the screen
+	engine_window_title = "Game Window";
+	engine_window_size_x = 1280;
+	engine_window_size_y = 720; //set window resolution
+	engine_window_position_x = 0;
+	engine_window_position_y = 0; //position window in the center of the screen
 	engine_start();
 
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -287,69 +291,15 @@ int main(void) {
   GLuint containerSpecular =
       texture_create("res/textures/container2_specular.png");
 
-	for (int i = 0; i < list_cube.length; i++)
-		cube_create();
+	for (int i = 0; i < 10; i++) {
+		entity_create_cube();
+	}
 
-	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
-		point_light_create();
-
-	camera_t camera;
-#else
-  window windowData = window_create();
-  glfwSetInputMode(windowData.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-
-  camera_t cam = {
-      .transform.modelMatrix = matrix4_identity(),
-      .transform.position = vector3_zero(),
-      .transform.rotation = quaternion_identity(),
-      .lookSensitivity = 10,
-      .lastX = 0,
-      .lastY = 0,
-  };
-
-  cam.transform.position = (vector3_t){4, 2, -10};
-
-  // cubes
-  cube_t cubes;
-  cubes.transforms = list_transform_t_alloc();
-  cubes.colors = list_vector3_t_alloc();
-
-  for (size_t i = 0; i < cubes.length; i++) {
-    mesh_allocCube(&cubes.meshes);
-
-    transform_t t = (transform_t){
-        .position = (vector3_t){i * 2, 0, 0},
-        .rotation = quaternion_identity(),
-    };
-
-    list_transform_t_add(&cubes.transforms, t);
-    list_vector3_t_add(&cubes.colors, vector3_one(1.0f));
-  }
-
-  // lights
-  pointLight_t pointLights;
-  pointLights.transforms = list_transform_t_alloc();
-  pointLights.colors = list_vector3_t_alloc();
-
-  for (size_t i = 0; i < NUM_POINT_LIGHTS; i++) {
-    mesh_allocCube(&pointLights.meshes);
-
-    vector3_t color = vector3_one(0.5f);
-
-    transform_t t = (transform_t){
-        .position = (vector3_t){i * 16, -2, -2},
-        .rotation = quaternion_identity(),
-        .modelMatrix = matrix4_identity(),
-    };
-
-    list_vector3_t_add(&pointLights.colors, color);
-    list_transform_t_add(&pointLights.transforms, t);
-  }
-
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-#endif
+	camera_t camera = {
+		.transform.position = vector3_zero(),
+		.transform.rotation = quaternion_identity(),
+		.lookSensitivity = 1.0f,
+	};
 
   float aspect;
   matrix4_t projection = matrix4_identity();
@@ -362,10 +312,10 @@ int main(void) {
       engine_time_delta = engine_time_current - engine_time_last;
       engine_time_last = engine_time_current;
 
-      engine_FPS = 1 / engine_time_delta;
+      engine_renderer_FPS = 1 / engine_time_delta;
       // printf("============FRAME=START==============\n");
-      // printf("delta %f : FPS %f\n", engine_time_delta, engine_FPS);
-    }
+      // printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
+    } // END TIME
 
     {   // INPUT
       { // mouse look
@@ -412,10 +362,9 @@ int main(void) {
 
         camera.transform.position = vector3_add(camera.transform.position, movement);
       }
-    }
+    } // END INPUT
 
-    glfwGetWindowSize(engine_window, &engine_window_size_x,
-                      &engine_window_size_y);
+    glfwGetWindowSize(engine_window, &engine_window_size_x, &engine_window_size_y);
     aspect = (float)engine_window_size_x / (float)engine_window_size_y;
     projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
@@ -428,7 +377,7 @@ int main(void) {
       camera.transform.modelMatrix = matrix4_multiply(
           camera.transform.modelMatrix,
           quaternion_to_matrix4(quaternion_conjugate(camera.transform.rotation)));
-      // matrix4_print(camera.transform.modelMatrix, "view");
+      matrix4_print(camera.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
@@ -440,7 +389,7 @@ int main(void) {
 
       // camera
       shader_setUniformV3(diffuseShader, "u_cameraPos", camera.transform.position);
-
+#if 0
       // directional light
       shader_setUniformV3(diffuseShader, "u_dirLight.direction",
                           (vector3_t){-0.2f, -1.0f, -0.3f});
@@ -449,20 +398,6 @@ int main(void) {
                           (vector3_t){0.4f, 0.4f, 0.4f});
       shader_setUniformV3(diffuseShader, "u_dirLight.specular",
                           (vector3_t){0.5f, 0.5f, 0.5f});
-
-      // point light 0
-      shader_setUniformV3(diffuseShader, "u_pointLights[0].position",
-                          pointLights.transforms.data[0].position);
-      shader_setUniformV3(diffuseShader, "u_pointLights[0].ambient",
-                          ambientLight);
-      shader_setUniformV3(diffuseShader, "u_pointLights[0].diffuse",
-                          (vector3_t){0.8f, 0.8f, 0.8f});
-      shader_setUniformV3(diffuseShader, "u_pointLights[0].specular",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformFloat(diffuseShader, "u_pointLights[0].constant", 1.0f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[0].linear", 0.09f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[0].quadratic",
-                             0.032f);
 
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
@@ -481,117 +416,17 @@ int main(void) {
       shader_setUniformFloat(diffuseShader, "u_spotLight.cutOff", PI / 4.0);
       shader_setUniformFloat(diffuseShader, "u_spotLight.outerCutOff",
                              PI / 4.4);
-
-      // point light 1
-      shader_setUniformV3(diffuseShader, "u_pointLights[1].position",
-                          pointLights.transforms.data[1].position);
-      shader_setUniformV3(diffuseShader, "u_pointLights[1].ambient",
-                          ambientLight);
-      shader_setUniformV3(diffuseShader, "u_pointLights[1].diffuse",
-                          (vector3_t){0.8f, 0.8f, 0.8f});
-      shader_setUniformV3(diffuseShader, "u_pointLights[1].specular",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformFloat(diffuseShader, "u_pointLights[1].constant", 1.0f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[1].linear", 0.09f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[1].quadratic",
-                             0.032f);
-
-      // point light 2
-      shader_setUniformV3(diffuseShader, "u_pointLights[2].position",
-                          pointLights.transforms.data[2].position);
-      shader_setUniformV3(diffuseShader, "u_pointLights[2].ambient",
-                          ambientLight);
-      shader_setUniformV3(diffuseShader, "u_pointLights[2].diffuse",
-                          (vector3_t){0.8f, 0.8f, 0.8f});
-      shader_setUniformV3(diffuseShader, "u_pointLights[2].specular",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformFloat(diffuseShader, "u_pointLights[2].constant", 1.0f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[2].linear", 0.09f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[2].quadratic",
-                             0.032f);
-
-      // point light 3
-      shader_setUniformV3(diffuseShader, "u_pointLights[3].position",
-                          pointLights.transforms.data[3].position);
-      shader_setUniformV3(diffuseShader, "u_pointLights[3].ambient",
-                          ambientLight);
-      shader_setUniformV3(diffuseShader, "u_pointLights[3].diffuse",
-                          (vector3_t){0.8f, 0.8f, 0.8f});
-      shader_setUniformV3(diffuseShader, "u_pointLights[3].specular",
-                          (vector3_t){1.0f, 1.0f, 1.0f});
-      shader_setUniformFloat(diffuseShader, "u_pointLights[3].constant", 1.0f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[3].linear", 0.09f);
-      shader_setUniformFloat(diffuseShader, "u_pointLights[3].quadratic",
-                             0.032f);
+#endif
 
       // material
       shader_setUniformInt(diffuseShader, "u_material.diffuse", 0);
       shader_setUniformInt(diffuseShader, "u_material.specular", 1);
       shader_setUniformFloat(diffuseShader, "u_material.shininess", 32.0f);
 
-      // cubes
-      for (unsigned int i = 0; i < cubes.length; i++) {
-        // projection matrix
-        shader_setUniformM4(diffuseShader, "u_projectionMatrix", &projection);
-
-        // view matrix
-        shader_setUniformM4(diffuseShader, "u_viewMatrix",
-                            &camera.transform.modelMatrix);
-
-        // model
-        cubes.transforms.data[i].modelMatrix =
-            matrix4_translation(cubes.transforms.data[i].position);
-        shader_setUniformM4(diffuseShader, "u_modelMatrix",
-                            &cubes.transforms.data[i].modelMatrix);
-
-        glBindVertexArray(cubes.meshes.VAOs.data[0]);
-        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
-      }
-
-      for (int i = 0; i < 4; i++) {
-        glUseProgram(unlitShader);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, lampDiffuse);
-
-        // projection matrix
-        shader_setUniformM4(unlitShader, "u_projectionMatrix", &projection);
-
-        // view matrix
-        shader_setUniformM4(unlitShader, "u_viewMatrix",
-                            &camera.transform.modelMatrix);
-
-        // model matrix
-        pointLights.transforms.data[i].modelMatrix = matrix4_identity();
-        pointLights.transforms.data[i].modelMatrix =
-            matrix4_translation(pointLights.transforms.data[i].position);
-
-        shader_setUniformM4(unlitShader, "u_modelMatrix",
-                            &pointLights.transforms.data[i].modelMatrix);
-
-        // color
-        shader_setUniformV3(unlitShader, "u_color", pointLights.colors.data[i]);
-
-        glBindVertexArray(pointLights.meshes.VAOs.data[1]);
-        glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
-      }
-
-      glfwSwapBuffers(engine_window.glfwWindow);
-      glfwPollEvents();
-    }
-  }
-
-  // lights
-  list_transform_t_free(&pointLights.transforms);
-  list_vector3_t_free(&pointLights.colors);
-
-  mesh_free(&pointLights.meshes);
-
-  // cubes
-  list_transform_t_free(&cubes.transforms);
-  list_vector3_t_free(&cubes.colors);
-
-  mesh_free(&cubes.meshes);
+			glfwSwapBuffers(engine_window);
+			glfwPollEvents();
+		}
+	}
 
   glfwTerminate();
   return 0;
