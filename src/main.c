@@ -77,7 +77,7 @@ typedef struct {
 int main(void) {
   printf("Rev up those fryers!\n");
 
-#if 1 //axis aligned bounding box test
+#if 0 //axis aligned bounding box test
 	aligned_box_t box1 = { .min_extents = { 0.0f, 0.0f, 0.0f }, .max_extents = { 1.0f, 1.0f, 1.0f },};
 	aligned_box_t box2 = { .min_extents = { 1.0f, 1.0f, 1.0f }, .max_extents = { 2.0f, 2.0f, 2.0f },};
 	aligned_box_t box3 = { .min_extents = { 1.0f, 0.0f, 0.0f }, .max_extents = { 2.0f, 1.0f, 1.0f },};

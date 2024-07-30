@@ -57,43 +57,43 @@ typedef struct {
   float radius;
 } bounding_sphere_t;
 
-//axis aligned bounding box
+// axis aligned bounding box
 typedef struct {
-	vector3_t min_extents;
-	vector3_t max_extents;
+  vector3_t min_extents;
+  vector3_t max_extents;
 } aligned_box_t;
 
-static inline intersection_t 
+static inline intersection_t
 aligned_box_intersect_aligned_box(aligned_box_t a, aligned_box_t b) {
-	vector3_t diff1 = vector3_subtract(b.min_extents, a.max_extents);
-	vector3_t diff2 = vector3_subtract(a.min_extents, b.max_extents);
-	vector3_t diff = vector3_max(diff1, diff2);
+  vector3_t diff1 = vector3_subtract(b.min_extents, a.max_extents);
+  vector3_t diff2 = vector3_subtract(a.min_extents, b.max_extents);
+  vector3_t diff = vector3_max(diff1, diff2);
 
-	float greatestDistance = diff.x >= diff.y ? diff.x : diff.y;
-	greatestDistance = diff.z >= diff.x ? diff.z : diff.x;
-	
-	return (intersection_t) {
-		.is_intersecting = greatestDistance < 0, 
-		.distance = greatestDistance,
-	};
+  float greatestDistance = diff.x >= diff.y ? diff.x : diff.y;
+  greatestDistance = diff.z >= diff.x ? diff.z : diff.x;
+
+  return (intersection_t){
+      .is_intersecting = greatestDistance < 0,
+      .distance = greatestDistance,
+  };
 }
 
 static inline intersection_t
 bounding_sphere_intersect_sphere(bounding_sphere_t a, bounding_sphere_t b) {
-	float radius_sum = a.radius + b.radius;
-	float center_distance = vector3_distance(b.center, a.center);
-	
-	if (center_distance < radius_sum) {	
-		return (intersection_t) {
-			.is_intersecting = true,
-			.distance = center_distance - radius_sum,
-		};
-	} else {
-		return (intersection_t) {
-			.is_intersecting = false,
-			.distance = center_distance - radius_sum,
-		};
-	}
+  float radius_sum = a.radius + b.radius;
+  float center_distance = vector3_distance(b.center, a.center);
+
+  if (center_distance < radius_sum) {
+    return (intersection_t){
+        .is_intersecting = true,
+        .distance = center_distance - radius_sum,
+    };
+  } else {
+    return (intersection_t){
+        .is_intersecting = false,
+        .distance = center_distance - radius_sum,
+    };
+  }
 }
 
 #endif /*B_PHYSICS_H*/
