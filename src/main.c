@@ -15,10 +15,9 @@ DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #include "blib/b_math.h"
-#include "b_physics.h"
+#include "b_physics.h" 
 
-
-static float currentTime = 0, lastTime = 0, deltaTime = 0, FPS = 0;
+#define ASSERT_UNIMPLEMENTED 0
 
 typedef struct {
   matrix4_t modelMatrix;
@@ -75,6 +74,201 @@ typedef struct {
   float lastY;
 } camera_t;
 
+#if 1
+static void error_callback(int error, const char *description) {
+  (void)error;
+  fprintf(stderr, "Error: %s\n", description);
+  {}
+}
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods) {
+  (void)scancode;
+  (void)mods;
+
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+}
+
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height) {
+  (void)window;
+  glViewport(0, 0, width, height);
+}
+
+static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
+                                   GLenum severity, GLsizei length,
+                                   const char *message, const void *userParam) {
+  (void)length;
+  (void)userParam;
+
+  // ignore non-significant error/warning codes
+  if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
+    return;
+  }
+
+  printf("---------------\n");
+  printf("Debug message (%d) %s\n", id, message);
+
+  switch (source) {
+  case GL_DEBUG_SOURCE_API:
+    printf("Source: API");
+    break;
+  case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+    printf("Source: Window System");
+    break;
+  case GL_DEBUG_SOURCE_SHADER_COMPILER:
+    printf("Source: Shader Compiler");
+    break;
+  case GL_DEBUG_SOURCE_THIRD_PARTY:
+    printf("Source: Third Party");
+    break;
+  case GL_DEBUG_SOURCE_APPLICATION:
+    printf("Source: Application");
+    break;
+  case GL_DEBUG_SOURCE_OTHER:
+    printf("Source: Other");
+    break;
+  }
+  printf("\n");
+
+  switch (type) {
+  case GL_DEBUG_TYPE_ERROR:
+    printf("Type: Error");
+    break;
+  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    printf("Type: Deprecated Behaviour");
+    break;
+  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    printf("Type: Undefined Behaviour");
+    break;
+  case GL_DEBUG_TYPE_PORTABILITY:
+    printf("Type: Portability");
+    break;
+  case GL_DEBUG_TYPE_PERFORMANCE:
+    printf("Type: Performance");
+    break;
+  case GL_DEBUG_TYPE_MARKER:
+    printf("Type: Marker");
+    break;
+  case GL_DEBUG_TYPE_PUSH_GROUP:
+    printf("Type: Push Group");
+    break;
+  case GL_DEBUG_TYPE_POP_GROUP:
+    printf("Type: Pop Group");
+    break;
+  case GL_DEBUG_TYPE_OTHER:
+    printf("Type: Other");
+    break;
+  }
+  printf("\n");
+
+  switch (severity) {
+  case GL_DEBUG_SEVERITY_HIGH:
+    printf("Severity: high");
+    break;
+  case GL_DEBUG_SEVERITY_MEDIUM:
+    printf("Severity: medium");
+    break;
+  case GL_DEBUG_SEVERITY_LOW:
+    printf("Severity: low");
+    break;
+  case GL_DEBUG_SEVERITY_NOTIFICATION:
+    printf("Severity: notification");
+    break;
+  }
+  printf("\n");
+  printf("\n");
+}
+typedef enum { 
+	ENGINE_RENDERER_API_GL, 
+	ENGINE_RENDERER_API_NONE,
+}engine_renderer_API_t;
+
+static GLFWwindow*	engine_window;
+static int					engine_window_size_x;
+static int 					engine_window_size_y;
+static char*				engine_window_title;
+static float 				engine_time_current; 
+static float 				engine_time_last; 
+static float 				engine_time_delta; 
+static float 				engine_FPS;
+static engine_renderer_API_t engine_renderer_API;
+
+void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
+	engine_renderer_API = renderingAPI;
+}
+
+//set window resolution
+void engine_window_set_resolution(int x, int y) {
+	glfwSetWindowSize(engine_window, x, y);
+}
+
+//position window in the center of the screen
+void engine_window_set_position(int x, int y) {
+		glfwSetWindowPos(engine_window, x, y);
+}
+
+void engine_start(void) {
+  if (!glfwInit()) {
+    printf("[ERROR_GLFW] Failed to initialize GLFW");
+  }
+
+  glfwSetErrorCallback(error_callback);
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,
+                 GLFW_TRUE); // comment to toggle debug mode
+
+  engine_window =
+      glfwCreateWindow(engine_window_size_x, engine_window_size_y, engine_window_title, NULL, NULL);
+  if (!engine_window) {
+    printf("[ERROR_GLFW] Failed to create GLFW window\n");
+  }
+
+  glfwMakeContextCurrent(engine_window);
+  glfwSetKeyCallback(engine_window, key_callback);
+  glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
+
+  if (!gladLoadGL()) {
+    printf("[ERROR_GL] Failed to initialize GLAD\n");
+  }
+
+  int flags;
+  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+  if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
+    printf("[ERROR_GL] Failed to set debug context flag\n");
+  } else {
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(glDebugOutput, NULL);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
+                          GL_TRUE);
+  }
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+
+  int width, height;
+  glfwGetFramebufferSize(engine_window, &width, &height);
+  glViewport(0, 0, width, height);
+
+  glfwSwapInterval(0);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+#endif
+int point_light_create(void) {
+//	list_int components = list_int_alloc();
+//	list_int_add(components, COMPONENT_BASELINE);
+//	list_int_add(components, COMPONENT_LIGHT_POINT);
+//	entity e = entity_create();
+//	entity_add_component(ENT_LIGHT_POINT);
+	assert(ASSERT_UNIMPLEMENTED);
+}
+
 int main(void) {
   printf("Rev up those fryers!\n");
 
@@ -126,6 +320,20 @@ int main(void) {
 	return 0;
 #endif
 
+#if 1
+	engine_renderer_set_API(ENGINE_RENDERER_API_GL); //choose your renderer
+	engine_window_set_resolution(1280, 720); //set window resolution
+	engine_window_set_position(0, 0); //position window in the center of the screen
+	engine_start();
+
+	for (int i = 0; i < NUM_CUBES; i++)
+		cube_create();
+
+	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
+		point_light_create();
+
+	camera_t camera;
+#else
   window windowData = window_create();
   glfwSetInputMode(windowData.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -189,42 +397,42 @@ int main(void) {
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  (void)FPS;
+#endif
+
   float aspect;
   matrix4_t projection = matrix4_identity();
   vector3_t ambientLight = vector3_one(0.1f);
 
   vector3_t look = vector3_zero();
-
-  while (!glfwWindowShouldClose(windowData.glfwWindow)) {
+  while (!glfwWindowShouldClose(engine_window)) {
     { // TIME
-      currentTime = glfwGetTime();
-      deltaTime = currentTime - lastTime;
-      lastTime = currentTime;
+      engine_time_current = glfwGetTime();
+      engine_time_delta = engine_time_current - engine_time_last;
+      engine_time_last = engine_time_current;
 
-      FPS = 1 / deltaTime;
+      engine_FPS = 1 / engine_time_delta;
       // printf("============FRAME=START==============\n");
-      // printf("delta %f : FPS %f\n", deltaTime, FPS);
+      // printf("delta %f : FPS %f\n", engine_time_delta, engine_FPS);
     }
 
     {   // INPUT
       { // mouse look
         static bool firstMouse = true;
         double mouseX, mouseY;
-        glfwGetCursorPos(windowData.glfwWindow, &mouseX, &mouseY);
+        glfwGetCursorPos(engine_window, &mouseX, &mouseY);
 
         if (firstMouse) {
-          cam.lastX = mouseX;
-          cam.lastY = mouseY;
+          camera.lastX = mouseX;
+          camera.lastY = mouseY;
           firstMouse = false;
         }
 
-        float xoffset = mouseX - cam.lastX;
-        float yoffset = mouseY - cam.lastY;
-        cam.lastX = mouseX;
-        cam.lastY = mouseY;
-        float xangle = xoffset * deltaTime * cam.lookSensitivity;
-        float yangle = yoffset * deltaTime * cam.lookSensitivity;
+        float xoffset = mouseX - camera.lastX;
+        float yoffset = mouseY - camera.lastY;
+        camera.lastX = mouseX;
+        camera.lastY = mouseY;
+        float xangle = xoffset * engine_time_delta * camera.lookSensitivity;
+        float yangle = yoffset * engine_time_delta * camera.lookSensitivity;
 
         look.x += yangle;
         look.y += xangle;
@@ -232,43 +440,43 @@ int main(void) {
         look.y = loop(look.y, 2 * PI);
         look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
-        cam.transform.rotation = quaternion_from_euler(look);
+        camera.transform.rotation = quaternion_from_euler(look);
       }
 
       { // movement
-        float cameraSpeed = 15 * deltaTime;
+        float cameraSpeed = 15 * engine_time_delta;
         vector3_t movement = vector3_zero();
 
-        movement.x = glfwGetKey(windowData.glfwWindow, GLFW_KEY_D) -
-                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_A);
-        movement.y = glfwGetKey(windowData.glfwWindow, GLFW_KEY_SPACE) -
-                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_LEFT_SHIFT);
-        movement.z = glfwGetKey(windowData.glfwWindow, GLFW_KEY_W) -
-                     glfwGetKey(windowData.glfwWindow, GLFW_KEY_S);
+        movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
+                     glfwGetKey(engine_window, GLFW_KEY_A);
+        movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
+                     glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
+        movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
+                     glfwGetKey(engine_window, GLFW_KEY_S);
 
         movement = vector3_normalize(movement);
         movement = vector3_scale(movement, cameraSpeed);
-        movement = vector3_rotate(movement, cam.transform.rotation);
+        movement = vector3_rotate(movement, camera.transform.rotation);
 
-        cam.transform.position = vector3_add(cam.transform.position, movement);
+        camera.transform.position = vector3_add(camera.transform.position, movement);
       }
     }
 
-    glfwGetWindowSize(windowData.glfwWindow, &windowData.width,
-                      &windowData.height);
-    aspect = (float)windowData.width / (float)windowData.height;
+    glfwGetWindowSize(engine_window, &engine_window_size_x,
+                      &engine_window_size_y);
+    aspect = (float)engine_window_size_x / (float)engine_window_size_y;
     projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // view matrix
-      cam.transform.modelMatrix =
-          matrix4_translation(vector3_negate(cam.transform.position));
-      cam.transform.modelMatrix = matrix4_multiply(
-          cam.transform.modelMatrix,
-          quaternion_to_matrix4(quaternion_conjugate(cam.transform.rotation)));
-      // matrix4_print(cam.transform.modelMatrix, "view");
+      camera.transform.modelMatrix =
+          matrix4_translation(vector3_negate(camera.transform.position));
+      camera.transform.modelMatrix = matrix4_multiply(
+          camera.transform.modelMatrix,
+          quaternion_to_matrix4(quaternion_conjugate(camera.transform.rotation)));
+      // matrix4_print(camera.transform.modelMatrix, "view");
 
       glUseProgram(diffuseShader);
 
@@ -279,7 +487,7 @@ int main(void) {
       glBindTexture(GL_TEXTURE_2D, containerSpecular);
 
       // camera
-      shader_setUniformV3(diffuseShader, "u_cameraPos", cam.transform.position);
+      shader_setUniformV3(diffuseShader, "u_cameraPos", camera.transform.position);
 
       // directional light
       shader_setUniformV3(diffuseShader, "u_dirLight.direction",
@@ -306,9 +514,9 @@ int main(void) {
 
       // spot light
       shader_setUniformV3(diffuseShader, "u_spotLight.position",
-                          cam.transform.position);
+                          camera.transform.position);
       shader_setUniformV3(diffuseShader, "u_spotLight.direction",
-                          transform_basis_back(cam.transform, 1.0));
+                          transform_basis_back(camera.transform, 1.0));
 
       shader_setUniformV3(diffuseShader, "u_spotLight.ambient", ambientLight);
       shader_setUniformV3(diffuseShader, "u_spotLight.diffuse",
@@ -376,7 +584,7 @@ int main(void) {
 
         // view matrix
         shader_setUniformM4(diffuseShader, "u_viewMatrix",
-                            &cam.transform.modelMatrix);
+                            &camera.transform.modelMatrix);
 
         // model
         cubes.transforms.data[i].modelMatrix =
@@ -399,7 +607,7 @@ int main(void) {
 
         // view matrix
         shader_setUniformM4(unlitShader, "u_viewMatrix",
-                            &cam.transform.modelMatrix);
+                            &camera.transform.modelMatrix);
 
         // model matrix
         pointLights.transforms.data[i].modelMatrix = matrix4_identity();
@@ -416,7 +624,7 @@ int main(void) {
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
       }
 
-      glfwSwapBuffers(windowData.glfwWindow);
+      glfwSwapBuffers(engine_window.glfwWindow);
       glfwPollEvents();
     }
   }
