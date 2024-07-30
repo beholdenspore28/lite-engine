@@ -318,7 +318,7 @@ int main(void) {
   camera_t camera = {
       .transform.position = vector3_zero(),
       .transform.rotation = quaternion_identity(),
-      .lookSensitivity = 1.0f,
+      .lookSensitivity = 10.0f,
   };
 
   float aspect;
@@ -395,7 +395,7 @@ int main(void) {
 
       // view matrix
       transform_calculate_matrix(&camera.transform);
-      matrix4_print(camera.transform.matrix, "view");
+      //matrix4_print(camera.transform.matrix, "view");
 
       { // cube_draw
         glUseProgram(defaultDiffuseShader);
@@ -427,6 +427,8 @@ int main(void) {
         shader_setUniformInt(defaultDiffuseShader, "u_material.diffuse", 0);
         shader_setUniformInt(defaultDiffuseShader, "u_material.specular", 1);
         shader_setUniformFloat(defaultDiffuseShader, "u_material.shininess", 32.0f);
+
+				shader_setUniformV3(defaultDiffuseShader, "u_ambientLight", vector3_one(0.2f));
 
         glBindVertexArray(cube.mesh.VAO);
         glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
