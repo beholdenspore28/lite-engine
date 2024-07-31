@@ -207,6 +207,10 @@ void engine_start_renderer_api_gl(void) {
 
   glfwSwapInterval(0);
 
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //TODO API this
+	glClear(GL_COLOR_BUFFER_BIT);
+	glfwSwapBuffers(engine_window);
+
 	engine_active_camera = (camera_t) {
       .transform.position = vector3_zero(),
       .transform.rotation = quaternion_identity(),
@@ -260,6 +264,7 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
+DEFINE_LIST(cube_t)
 void cube_draw(cube_t* cube) {
 	glUseProgram(cube->material.shader);
 
@@ -309,8 +314,8 @@ int point_light_create(void) {
 int main(void) {
   printf("Rev up those fryers!\n");
 
-  engine_renderer_set_API(ENGINE_RENDERER_API_GL);
   engine_window_title = "Game Window";
+	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
   engine_window_size_x = 1280;
   engine_window_size_y = 720;
   engine_window_position_x = 0;
@@ -320,19 +325,30 @@ int main(void) {
   engine_ambient_light = vector3_one(1.0f);
   glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //TODO API this
 
-	cube_t cube = {
-		.transform.position = vector3_back(1.0),
-		.transform.rotation = quaternion_identity(),
-		.mesh = mesh_alloc_cube(),
-		.material = {
-			.shader = shader_create("res/shaders/diffuse.vs.glsl",
-				                      "res/shaders/diffuse.fs.glsl"),
-			.diffuseMap = texture_create("res/textures/container2.png"),
-			.specularMap = texture_create("res/textures/container2_specular.png"),
-		},
-	};
+	GLuint cubeShader = shader_create("res/shaders/diffuse.vs.glsl",
+						                        "res/shaders/diffuse.fs.glsl");
+
+	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
+	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
+
+	list_cube_t cubes = list_cube_t_alloc();
+	for (int i = 0; i < 10; i++) {
+		cube_t cube =  {
+			.transform.position = vector3_back(1.0),
+			.transform.rotation = quaternion_identity(),
+			.mesh = mesh_alloc_cube(),
+			.material = {
+				.shader = cubeShader,
+				.diffuseMap = cubeDiffuseMap,
+				.specularMap = cubeSpecularMap,
+			},
+		};
+
+		list_cube_t_add(&cubes, cube);
+	}
 
   vector3_t look = vector3_zero();
+
   while (!glfwWindowShouldClose(engine_window)) {
     { // TIME
       engine_time_current = glfwGetTime();
@@ -392,6 +408,7 @@ int main(void) {
       }
     } // END INPUT
 
+		//projection
     glfwGetWindowSize(engine_window, &engine_window_size_x,
                       &engine_window_size_y);
     float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
@@ -400,11 +417,16 @@ int main(void) {
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       transform_calculate_matrix(&engine_active_camera.transform);
-			cube_draw(&cube);
+
+			for (int i = 0; i < cubes.length; i++)
+				cube_draw(&cubes.data[i]);
+
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
     }
   }
+
+	list_cube_t_free(&cubes);
 
   glfwTerminate();
   return 0;
