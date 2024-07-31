@@ -126,18 +126,19 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
   printf("\n");
 }
 
-static GLFWwindow *engine_window;
-static int engine_window_size_x;
-static int engine_window_size_y;
-static int engine_window_position_x;
-static int engine_window_position_y;
-static char *engine_window_title;
-static float engine_time_current;
-static float engine_time_last;
-static float engine_time_delta;
-static float engine_renderer_FPS;
-static engine_renderer_API_t engine_renderer_API;
-static camera_t engine_active_camera;
+static GLFWwindow* engine_window;
+static int engine_window_size_x = 640;
+static int engine_window_size_y = 480;
+static int engine_window_position_x = 0;
+static int engine_window_position_y = 0;
+static char* engine_window_title = "Game Window";
+static float engine_time_current = 0.0f;
+static float engine_time_last = 0.0f;
+static float engine_time_delta = 0.0f;
+static float engine_renderer_FPS = 0.0f;
+static vector3_t engine_ambient_light = { 0.0f, 0.0f, 0.0f };
+static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
+static camera_t engine_active_camera = {0};
 
 void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
   engine_renderer_API = renderingAPI;
@@ -179,6 +180,7 @@ void engine_start_renderer_api_gl(void) {
   glfwMakeContextCurrent(engine_window);
   glfwSetKeyCallback(engine_window, key_callback);
   glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
+	glfwSetInputMode(engine_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   if (!gladLoadGL()) {
     printf("[ERROR_GL] Failed to initialize GLAD\n");
@@ -204,7 +206,6 @@ void engine_start_renderer_api_gl(void) {
   glViewport(0, 0, width, height);
 
   glfwSwapInterval(0);
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	engine_active_camera = (camera_t) {
       .transform.position = vector3_zero(),
@@ -290,7 +291,7 @@ void cube_draw(cube_t* cube) {
 	shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
 	shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
 
-	shader_setUniformV3(cube->material.shader, "u_ambientLight", vector3_one(0.2f));
+	shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(cube->mesh.VAO);
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
@@ -316,7 +317,8 @@ int main(void) {
   engine_window_position_y = 0;
   engine_start();
 
-  vector3_t ambientLight = vector3_one(0.1f);
+  engine_ambient_light = vector3_one(1.0f);
+  glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //TODO API this
 
 	cube_t cube = {
 		.transform.position = vector3_back(1.0),
@@ -397,15 +399,8 @@ int main(void) {
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-      // view matrix
       transform_calculate_matrix(&engine_active_camera.transform);
-      //matrix4_print(engine_active_camera.transform.matrix, "view");
-
-      { // cube_draw
-				cube_draw(&cube);
-      }
-
+			cube_draw(&cube);
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
     }
