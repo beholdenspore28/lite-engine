@@ -230,6 +230,14 @@ void engine_start(void) {
   }
 }
 
+void engine_set_clear_color(float r, float g, float b, float a) {
+	switch(engine_renderer_API) {
+		case ENGINE_RENDERER_API_GL:
+			glClearColor((GLfloat)r,(GLfloat)g,(GLfloat)b,(GLfloat)a);
+			break;
+	}
+}
+
 static inline void transform_calculate_matrix(transform_t *t) {
   t->matrix = matrix4_translation(vector3_negate(t->position));
   t->matrix = matrix4_multiply(
@@ -302,15 +310,6 @@ void cube_draw(cube_t* cube) {
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-int point_light_create(void) {
-  //	list_int components = list_int_alloc();
-  //	list_int_add(components, COMPONENT_BASELINE);
-  //	list_int_add(components, COMPONENT_LIGHT_POINT);
-  //	entity e = entity_create();
-  //	entity_add_component(ENT_LIGHT_POINT);
-  assert(ASSERT_UNIMPLEMENTED);
-}
-
 int main(void) {
   printf("Rev up those fryers!\n");
 
@@ -323,7 +322,7 @@ int main(void) {
   engine_start();
 
   engine_ambient_light = vector3_one(1.0f);
-  glClearColor(0.2f, 0.3f, 0.4f, 1.0f); //TODO API this
+  engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint cubeShader = shader_create("res/shaders/diffuse.vs.glsl",
 						                        "res/shaders/diffuse.fs.glsl");
@@ -418,7 +417,7 @@ int main(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       transform_calculate_matrix(&engine_active_camera.transform);
 
-			for (int i = 0; i < cubes.length; i++)
+			for (size_t i = 0; i < cubes.length; i++)
 				cube_draw(&cubes.data[i]);
 
       glfwSwapBuffers(engine_window);
