@@ -214,6 +214,7 @@ void engine_start_renderer_api_gl(void) {
 	engine_active_camera = (camera_t) {
       .transform.position = vector3_zero(),
       .transform.rotation = quaternion_identity(),
+			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
       .lookSensitivity = 10.0f,
   };
@@ -235,13 +236,17 @@ void engine_set_clear_color(float r, float g, float b, float a) {
 		case ENGINE_RENDERER_API_GL:
 			glClearColor((GLfloat)r,(GLfloat)g,(GLfloat)b,(GLfloat)a);
 			break;
+		case ENGINE_RENDERER_API_NONE:
+			break;
 	}
 }
 
 static inline void transform_calculate_matrix(transform_t *t) {
-  t->matrix = matrix4_translation(vector3_negate(t->position));
-  t->matrix = matrix4_multiply(
-      t->matrix, quaternion_to_matrix4(quaternion_conjugate(t->rotation)));
+  matrix4_t translation = matrix4_translate(vector3_negate(t->position));
+  matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(rotation, translation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
 }
 
 static inline vector3_t transform_basis_forward(transform_t t,
@@ -303,7 +308,6 @@ void cube_draw(cube_t* cube) {
 	shader_setUniformInt(cube->material.shader, "u_material.diffuse", 0);
 	shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
 	shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
-
 	shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(cube->mesh.VAO);
@@ -417,8 +421,11 @@ int main(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       transform_calculate_matrix(&engine_active_camera.transform);
 
-			for (size_t i = 0; i < cubes.length; i++)
+			for (size_t i = 0; i < cubes.length; i++) {
+				float scale = fabs(sinf(engine_time_current));
+				cubes.data[i].transform.scale = vector3_one(scale);
 				cube_draw(&cubes.data[i]);
+			}
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();

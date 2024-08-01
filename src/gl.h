@@ -42,6 +42,7 @@ typedef struct {
   matrix4_t matrix;
   vector3_t position;
   quaternion_t rotation;
+  vector3_t scale;
 } transform_t;
 
 typedef struct {
