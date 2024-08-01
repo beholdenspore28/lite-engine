@@ -1,6 +1,5 @@
 SRCFILES := \
 						src/*.c \
-						dep/blib/*.c
 
 OBJFILES := \
 						build/obj/*.o
