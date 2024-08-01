@@ -5,7 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "blib/b_list.h"
+#include "blib/list.h"
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
 DEFINE_LIST(vector3_t)
@@ -14,8 +14,8 @@ DEFINE_LIST(matrix4_t)
 DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
-#include "b_physics.h"
-#include "blib/b_math.h"
+#include "physics.h"
+#include "blib/math.h"
 
 #define ASSERT_UNIMPLEMENTED 0
 	

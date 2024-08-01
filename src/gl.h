@@ -4,10 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-#include "blib/b_3d.h"
-#include "blib/b_file.h"
-#include "blib/b_list.h"
-#include "blib/b_math.h"
+#include "blib/math3d.h"
+#include "blib/file.h"
+#include "blib/list.h"
+#include "blib/math.h"
 
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)
