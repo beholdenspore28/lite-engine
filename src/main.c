@@ -216,7 +216,7 @@ void engine_start_renderer_api_gl(void) {
       .transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
-      .lookSensitivity = 10.0f,
+      .lookSensitivity = 0.01f,
   };
 }
 
@@ -341,19 +341,26 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	list_cube_t cubes = list_cube_t_alloc();
-	for (int i = 0; i < 10; i++) {
-		cube_t cube =  {
-			.transform.position = vector3_back(1.0),
-			.transform.rotation = quaternion_identity(),
-			.mesh = mesh_alloc_cube(),
-			.material = {
-				.shader = cubeShader,
-				.diffuseMap = cubeDiffuseMap,
-				.specularMap = cubeSpecularMap,
-			},
-		};
 
-		list_cube_t_add(&cubes, cube);
+	int dimension = 20;
+	for (int i = 0; i < dimension; i++) {
+		for (int j = 0; j < dimension; j++) {
+			for (int k = 0; k < dimension; k++) {
+				float noise = noise_perlin2d(i, k, 0.8, 8);
+				cube_t cube =  {
+					.transform.position = {i,j+noise,k},
+					.transform.rotation = quaternion_identity(),
+					.mesh = mesh_alloc_cube(),
+					.material = {
+						.shader = cubeShader,
+						.diffuseMap = cubeDiffuseMap,
+						.specularMap = cubeSpecularMap,
+					},
+				};
+
+				list_cube_t_add(&cubes, cube);
+			}
+		}
 	}
 
   vector3_t look = vector3_zero();
@@ -365,8 +372,8 @@ int main(void) {
       engine_time_last = engine_time_current;
 
       engine_renderer_FPS = 1 / engine_time_delta;
-      // printf("============FRAME=START==============\n");
-      // printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
+       printf("============FRAME=START==============\n");
+       printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
     } // END TIME
 
     {   // INPUT
@@ -385,14 +392,14 @@ int main(void) {
         float yoffset = mouseY - engine_active_camera.lastY;
         engine_active_camera.lastX = mouseX;
         engine_active_camera.lastY = mouseY;
-        float xangle = xoffset * engine_time_delta * engine_active_camera.lookSensitivity;
-        float yangle = yoffset * engine_time_delta * engine_active_camera.lookSensitivity;
 
-        look.x += yangle;
-        look.y += xangle;
+        look.x += yoffset * engine_active_camera.lookSensitivity;
+        look.y += xoffset * engine_active_camera.lookSensitivity;
 
         look.y = loop(look.y, 2 * PI);
         look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
+
+				vector3_scale(look, engine_time_delta);
 
         engine_active_camera.transform.rotation = quaternion_from_euler(look);
       }
