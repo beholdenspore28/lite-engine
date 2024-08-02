@@ -7,7 +7,7 @@
 #include "blib/blib.h"
 #include "blib/math3d.h"
 #include "blib/file.h"
-#include "blib/math.h"
+#include "blib/bmath.h"
 
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)

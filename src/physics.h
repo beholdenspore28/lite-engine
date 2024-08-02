@@ -44,7 +44,7 @@ the context, and we’ll use the ^ (caret) to indicate vector cross product.
 
 #pragma once
 
-#include "blib/math.h"
+#include "blib/bmath.h"
 
 typedef struct {
   bool is_intersecting;

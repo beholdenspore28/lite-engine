@@ -15,7 +15,7 @@ DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #include "physics.h"
-#include "blib/math.h"
+#include "blib/bmath.h"
 
 #define ASSERT_UNIMPLEMENTED 0
 	
