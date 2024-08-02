@@ -4,9 +4,9 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#include "blib/blib.h"
 #include "blib/math3d.h"
 #include "blib/file.h"
-#include "blib/list.h"
 #include "blib/math.h"
 
 DECLARE_LIST(GLint)

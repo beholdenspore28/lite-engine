@@ -1,4 +1,4 @@
-#include "blib/list.h"
+#include "blib/blib.h"
 #include <gl.h>
 #include <stb_image.h>
 

@@ -5,7 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "blib/list.h"
+#include "blib/blib.h"
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
 DEFINE_LIST(vector3_t)
