@@ -207,7 +207,7 @@ void engine_start_renderer_api_gl(void) {
 
   glfwSwapInterval(0);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //TODO API this
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glfwSwapBuffers(engine_window);
 
@@ -278,6 +278,7 @@ DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
 DEFINE_LIST(cube_t)
+
 void cube_draw(cube_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
 			cube->transform.scale.y < FLOAT_EPSILON &&
@@ -342,14 +343,14 @@ int main(void) {
 
 	list_cube_t cubes = list_cube_t_alloc();
 
-	int dimension = 20;
+	int dimension = 5;
 	for (int i = 0; i < dimension; i++) {
 		for (int j = 0; j < dimension; j++) {
 			for (int k = 0; k < dimension; k++) {
-				float noise = noise_perlin2d(i, k, 0.8, 8);
 				cube_t cube =  {
-					.transform.position = {i,j+noise,k},
+					.transform.position = vector3_scale((vector3_t){i,j,k}, 2.0),
 					.transform.rotation = quaternion_identity(),
+					.transform.scale = vector3_one(1.0),
 					.mesh = mesh_alloc_cube(),
 					.material = {
 						.shader = cubeShader,
@@ -435,8 +436,8 @@ int main(void) {
       transform_calculate_matrix(&engine_active_camera.transform);
 
 			for (size_t i = 0; i < cubes.length; i++) {
-				float scale = fabs(sinf(engine_time_current));
-				cubes.data[i].transform.scale = vector3_one(scale);
+				//float scale = fabs(sinf(engine_time_current));
+				//cubes.data[i].transform.scale = vector3_one(scale);
 				cube_draw(&cubes.data[i]);
 			}
 
