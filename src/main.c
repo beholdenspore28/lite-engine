@@ -242,6 +242,14 @@ void engine_set_clear_color(float r, float g, float b, float a) {
 }
 
 static inline void transform_calculate_matrix(transform_t *t) {
+  matrix4_t translation = matrix4_translate(t->position);
+  matrix4_t rotation = quaternion_to_matrix4(t->rotation);
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(rotation, translation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
+}
+
+static inline void transform_calculate_view_matrix(transform_t *t) {
   matrix4_t translation = matrix4_translate(vector3_negate(t->position));
   matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
   matrix4_t scale = matrix4_scale(t->scale);
@@ -433,11 +441,12 @@ int main(void) {
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      transform_calculate_matrix(&engine_active_camera.transform);
+      transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			for (size_t i = 0; i < cubes.length; i++) {
 				//float scale = fabs(sinf(engine_time_current));
 				//cubes.data[i].transform.scale = vector3_one(scale);
+				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
 				cube_draw(&cubes.data[i]);
 			}
 
