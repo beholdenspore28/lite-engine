@@ -24,7 +24,7 @@ OPT :=		${OPT_${MODE}}
 CFLAGS +=	${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
 
 
-LIBS := -lglfw -lGL -lm
+LIBS := -lglfw -lGL -lm -lfreetype
 
 default: build_lite_engine
 
