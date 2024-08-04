@@ -334,9 +334,9 @@ int main(void) {
 
   engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 1280;
-  engine_window_size_y = 720;
-  engine_window_position_x = 0;
+  engine_window_size_x = 940;
+  engine_window_size_y = 540;
+  engine_window_position_x = 1280;
   engine_window_position_y = 0;
   engine_start();
 
@@ -381,8 +381,8 @@ int main(void) {
       engine_time_last = engine_time_current;
 
       engine_renderer_FPS = 1 / engine_time_delta;
-       printf("============FRAME=START==============\n");
-       printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
+       //printf("============FRAME=START==============\n");
+       //printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
     } // END TIME
 
     {   // INPUT
