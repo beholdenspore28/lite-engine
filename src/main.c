@@ -6,6 +6,12 @@
 #include <stb_image.h>
 
 #include "blib/blib.h"
+#include "physics.h"
+#include "blib/bmath.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
 DEFINE_LIST(vector3_t)
@@ -14,15 +20,13 @@ DEFINE_LIST(matrix4_t)
 DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
-#include "physics.h"
-#include "blib/bmath.h"
-
 #define ASSERT_UNIMPLEMENTED 0
+#define ENGINE_SHOW_STATS_DRAW_CALLS 1
+#define ENGINE_SHOW_STATS_TIME 0
 	
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
-  {}
 }
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -135,6 +139,7 @@ static char* engine_window_title = "Game Window";
 static float engine_time_current = 0.0f;
 static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
+static ui64 engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
 static vector3_t engine_ambient_light = { 0.0f, 0.0f, 0.0f };
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
@@ -166,6 +171,7 @@ void engine_start_renderer_api_gl(void) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
   assert(engine_window_title != NULL);
 
@@ -287,11 +293,13 @@ DEFINE_LIST(transform_t)
 
 DEFINE_LIST(cube_t)
 
+ui32 drawCallsSaved = 0;
+
 void cube_draw(cube_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
 			cube->transform.scale.y < FLOAT_EPSILON &&
 			cube->transform.scale.z < FLOAT_EPSILON) {
-		//printf("saved a draw call! :D\n"); //this is why this is here...
+		drawCallsSaved++;
 		return;
 	}
 	glUseProgram(cube->material.shader);
@@ -381,8 +389,11 @@ int main(void) {
       engine_time_last = engine_time_current;
 
       engine_renderer_FPS = 1 / engine_time_delta;
-       //printf("============FRAME=START==============\n");
-       //printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
+			engine_time_current_frame++;
+#if ENGINE_SHOW_STATS_TIME
+       printf("============FRAME=START==============\n");
+       printf("DELTA_TIME: %f | FPS: %f | CURRENT_FRAME %d\n", engine_time_delta, engine_renderer_FPS, engine_time_current_frame);
+#endif // ENGINE_SHOW_STATS_TIME
     } // END TIME
 
     {   // INPUT
@@ -444,14 +455,21 @@ int main(void) {
       transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			for (size_t i = 0; i < cubes.length; i++) {
-				//float scale = fabs(sinf(engine_time_current));
-				//cubes.data[i].transform.scale = vector3_one(scale);
+				float scale = fabs(sinf(engine_time_current));
+				cubes.data[i].transform.scale = vector3_one(scale);
 				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
 				cube_draw(&cubes.data[i]);
 			}
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
+
+#if ENGINE_SHOW_STATS_DRAW_CALLS
+			if (drawCallsSaved > 0) {
+				printf("saved %d draw calls this frame\n", drawCallsSaved);
+				drawCallsSaved = 0;
+			}
+#endif // ENGINE_SHOW_STATS_DRAW_CALLS
     }
   }
 
