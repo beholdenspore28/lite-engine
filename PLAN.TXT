@@ -39,6 +39,22 @@
 		-physics
 			-AABB intersection	(ACTIVE)
 			-sphere intersection	(ACTIVE)
+			-kinematics
+			-forces
+			-octree collision resolution
+		-large world support
+			-double precision vectors perhaps
+			-maybe a floating origin system (like i did in unity forever ago)
+		-events
+			struct event {
+				listOfSubscribers
+				void* data
+			}
+
+			-create event
+			-subscribe to event
+			-unsubscribe from event
+			-trigger event
 
 	<WANTS>
 		-vulkan renderer
