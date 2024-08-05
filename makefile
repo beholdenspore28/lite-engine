@@ -16,12 +16,7 @@ OPT_ := ${OPT_DEBUG}
 OPT := ${OPT_${MODE}}
 CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
 
-<<<<<<< HEAD
-
-LIBS := -lglfw -lGL -lm -lfreetype
-=======
 LIBS := -lglfw -lGL -lm 
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 default: build_lite_engine
 

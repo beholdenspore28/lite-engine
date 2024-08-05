@@ -6,149 +6,125 @@
 #include <stb_image.h>
 
 #include "blib/blib.h"
-<<<<<<< HEAD
 #include "physics.h"
 #include "blib/bmath.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-	B_LIST_IMPLEMENTATION
-	DECLARE_LIST(vector3_t)
-	DEFINE_LIST(vector3_t)
-	DECLARE_LIST(matrix4_t)
-	DEFINE_LIST(matrix4_t)
-	DECLARE_LIST(quaternion_t)
-=======
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
 DEFINE_LIST(vector3_t)
 DECLARE_LIST(matrix4_t)
 DEFINE_LIST(matrix4_t)
 DECLARE_LIST(quaternion_t)
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 DEFINE_LIST(quaternion_t)
 
-#include "physics.h"
-#include "blib/bmath.h"
-
 #define ASSERT_UNIMPLEMENTED 0
-<<<<<<< HEAD
 #define ENGINE_SHOW_STATS_DRAW_CALLS 1
 #define ENGINE_SHOW_STATS_TIME 0
-
-	static void error_callback(int error, const char *description) {
-		(void)error;
-		fprintf(stderr, "Error: %s\n", description);
-	}
-=======
 	
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
-  {}
 }
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-		int mods) {
-	(void)scancode;
-	(void)mods;
+                         int mods) {
+  (void)scancode;
+  (void)mods;
 
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	}
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
 }
 
 static void framebuffer_size_callback(GLFWwindow *window, int width,
-		int height) {
-	(void)window;
-	glViewport(0, 0, width, height);
+                                      int height) {
+  (void)window;
+  glViewport(0, 0, width, height);
 }
 
 static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
-		GLenum severity, GLsizei length,
-		const char *message, const void *userParam) {
-	(void)length;
-	(void)userParam;
+                                   GLenum severity, GLsizei length,
+                                   const char *message, const void *userParam) {
+  (void)length;
+  (void)userParam;
 
-	// ignore non-significant error/warning codes
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
-		return;
-	}
+  // ignore non-significant error/warning codes
+  if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
+    return;
+  }
 
-	printf("---------------\n");
-	printf("Debug message (%d) %s\n", id, message);
+  printf("---------------\n");
+  printf("Debug message (%d) %s\n", id, message);
 
-	switch (source) {
-		case GL_DEBUG_SOURCE_API:
-			printf("Source: API");
-			break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-			printf("Source: Window System");
-			break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER:
-			printf("Source: Shader Compiler");
-			break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY:
-			printf("Source: Third Party");
-			break;
-		case GL_DEBUG_SOURCE_APPLICATION:
-			printf("Source: Application");
-			break;
-		case GL_DEBUG_SOURCE_OTHER:
-			printf("Source: Other");
-			break;
-	}
-	printf("\n");
+  switch (source) {
+  case GL_DEBUG_SOURCE_API:
+    printf("Source: API");
+    break;
+  case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+    printf("Source: Window System");
+    break;
+  case GL_DEBUG_SOURCE_SHADER_COMPILER:
+    printf("Source: Shader Compiler");
+    break;
+  case GL_DEBUG_SOURCE_THIRD_PARTY:
+    printf("Source: Third Party");
+    break;
+  case GL_DEBUG_SOURCE_APPLICATION:
+    printf("Source: Application");
+    break;
+  case GL_DEBUG_SOURCE_OTHER:
+    printf("Source: Other");
+    break;
+  }
+  printf("\n");
 
-	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:
-			printf("Type: Error");
-			break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-			printf("Type: Deprecated Behaviour");
-			break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-			printf("Type: Undefined Behaviour");
-			break;
-		case GL_DEBUG_TYPE_PORTABILITY:
-			printf("Type: Portability");
-			break;
-		case GL_DEBUG_TYPE_PERFORMANCE:
-			printf("Type: Performance");
-			break;
-		case GL_DEBUG_TYPE_MARKER:
-			printf("Type: Marker");
-			break;
-		case GL_DEBUG_TYPE_PUSH_GROUP:
-			printf("Type: Push Group");
-			break;
-		case GL_DEBUG_TYPE_POP_GROUP:
-			printf("Type: Pop Group");
-			break;
-		case GL_DEBUG_TYPE_OTHER:
-			printf("Type: Other");
-			break;
-	}
-	printf("\n");
+  switch (type) {
+  case GL_DEBUG_TYPE_ERROR:
+    printf("Type: Error");
+    break;
+  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    printf("Type: Deprecated Behaviour");
+    break;
+  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    printf("Type: Undefined Behaviour");
+    break;
+  case GL_DEBUG_TYPE_PORTABILITY:
+    printf("Type: Portability");
+    break;
+  case GL_DEBUG_TYPE_PERFORMANCE:
+    printf("Type: Performance");
+    break;
+  case GL_DEBUG_TYPE_MARKER:
+    printf("Type: Marker");
+    break;
+  case GL_DEBUG_TYPE_PUSH_GROUP:
+    printf("Type: Push Group");
+    break;
+  case GL_DEBUG_TYPE_POP_GROUP:
+    printf("Type: Pop Group");
+    break;
+  case GL_DEBUG_TYPE_OTHER:
+    printf("Type: Other");
+    break;
+  }
+  printf("\n");
 
-	switch (severity) {
-		case GL_DEBUG_SEVERITY_HIGH:
-			printf("Severity: high");
-			break;
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			printf("Severity: medium");
-			break;
-		case GL_DEBUG_SEVERITY_LOW:
-			printf("Severity: low");
-			break;
-		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			printf("Severity: notification");
-			break;
-	}
-	printf("\n");
-	printf("\n");
+  switch (severity) {
+  case GL_DEBUG_SEVERITY_HIGH:
+    printf("Severity: high");
+    break;
+  case GL_DEBUG_SEVERITY_MEDIUM:
+    printf("Severity: medium");
+    break;
+  case GL_DEBUG_SEVERITY_LOW:
+    printf("Severity: low");
+    break;
+  case GL_DEBUG_SEVERITY_NOTIFICATION:
+    printf("Severity: notification");
+    break;
+  }
+  printf("\n");
+  printf("\n");
 }
 
 static GLFWwindow* engine_window;
@@ -160,100 +136,102 @@ static char* engine_window_title = "Game Window";
 static float engine_time_current = 0.0f;
 static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
+static ui64 engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
 static vector3_t engine_ambient_light = { 0.0f, 0.0f, 0.0f };
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
 static camera_t engine_active_camera = {0};
 
 void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
-	engine_renderer_API = renderingAPI;
+  engine_renderer_API = renderingAPI;
 }
 
 // set window resolution
 void engine_window_set_resolution(int x, int y) {
-	glfwSetWindowSize(engine_window, x, y);
+  glfwSetWindowSize(engine_window, x, y);
 }
 
 // position window in the center of the screen
 void engine_window_set_position(int x, int y) {
-	glfwSetWindowPos(engine_window, x, y);
+  glfwSetWindowPos(engine_window, x, y);
 }
 
 void engine_start_renderer_api_gl(void) {
-	if (!glfwInit()) {
-		printf("[ERROR_GLFW] Failed to initialize GLFW");
-	}
+  if (!glfwInit()) {
+    printf("[ERROR_GLFW] Failed to initialize GLFW");
+  }
 
-	glfwSetErrorCallback(error_callback);
+  glfwSetErrorCallback(error_callback);
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
-	assert(engine_window_title != NULL);
+  assert(engine_window_title != NULL);
 
-	engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-			engine_window_title, NULL, NULL);
+  engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
+                                   engine_window_title, NULL, NULL);
 
-	assert(engine_window != NULL);
+  assert(engine_window != NULL);
 
-	glfwSetWindowPos(engine_window, engine_window_position_x,
-			engine_window_position_y);
+  glfwSetWindowPos(engine_window, engine_window_position_x,
+                   engine_window_position_y);
 	glfwShowWindow(engine_window);
-	glfwMakeContextCurrent(engine_window);
-	glfwSetKeyCallback(engine_window, key_callback);
-	glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
+  glfwMakeContextCurrent(engine_window);
+  glfwSetKeyCallback(engine_window, key_callback);
+  glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
 	glfwSetInputMode(engine_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	if (!gladLoadGL()) {
-		printf("[ERROR_GL] Failed to initialize GLAD\n");
-	}
+  if (!gladLoadGL()) {
+    printf("[ERROR_GL] Failed to initialize GLAD\n");
+  }
 
-	int flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
-		printf("[ERROR_GL] Failed to set debug context flag\n");
-	} else {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, NULL);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
-				GL_TRUE);
-	}
+  int flags;
+  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+  if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
+    printf("[ERROR_GL] Failed to set debug context flag\n");
+  } else {
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(glDebugOutput, NULL);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
+                          GL_TRUE);
+  }
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
 
-	int width, height;
-	glfwGetFramebufferSize(engine_window, &width, &height);
-	glViewport(0, 0, width, height);
+  int width, height;
+  glfwGetFramebufferSize(engine_window, &width, &height);
+  glViewport(0, 0, width, height);
 
-	glfwSwapInterval(0);
+  glfwSwapInterval(0);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glfwSwapBuffers(engine_window);
 
 	engine_active_camera = (camera_t) {
-		.transform.position = vector3_zero(),
-			.transform.rotation = quaternion_identity(),
+      .transform.position = vector3_zero(),
+      .transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
-			.lookSensitivity = 0.01f,
-	};
+      .lookSensitivity = 0.01f,
+  };
 }
 
 void engine_start(void) {
-	switch (engine_renderer_API) {
-		case ENGINE_RENDERER_API_GL:
-			engine_start_renderer_api_gl();
-			break;
-		default:
-			assert(0);
-			break;
-	}
+  switch (engine_renderer_API) {
+  case ENGINE_RENDERER_API_GL:
+    engine_start_renderer_api_gl();
+    break;
+  default:
+    assert(0);
+    break;
+  }
 }
 
 void engine_set_clear_color(float r, float g, float b, float a) {
@@ -267,190 +245,111 @@ void engine_set_clear_color(float r, float g, float b, float a) {
 }
 
 static inline void transform_calculate_matrix(transform_t *t) {
-	matrix4_t translation = matrix4_translate(t->position);
-	matrix4_t rotation = quaternion_to_matrix4(t->rotation);
-	matrix4_t scale = matrix4_scale(t->scale);
-	t->matrix = matrix4_multiply(rotation, translation);
-	t->matrix = matrix4_multiply(scale, t->matrix);
+  matrix4_t translation = matrix4_translate(t->position);
+  matrix4_t rotation = quaternion_to_matrix4(t->rotation);
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(rotation, translation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
 }
 
 static inline void transform_calculate_view_matrix(transform_t *t) {
-	matrix4_t translation = matrix4_translate(vector3_negate(t->position));
-	matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
-	matrix4_t scale = matrix4_scale(t->scale);
-	t->matrix = matrix4_multiply(translation, rotation);
-	t->matrix = matrix4_multiply(scale, t->matrix);
+  matrix4_t translation = matrix4_translate(vector3_negate(t->position));
+  matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(translation, rotation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
 }
 
 static inline vector3_t transform_basis_forward(transform_t t,
-		float magnitude) {
-	return vector3_rotate(vector3_forward(magnitude), t.rotation);
+                                                float magnitude) {
+  return vector3_rotate(vector3_forward(magnitude), t.rotation);
 }
 
 static inline vector3_t transform_basis_up(transform_t t, float magnitude) {
-	return vector3_rotate(vector3_up(magnitude), t.rotation);
+  return vector3_rotate(vector3_up(magnitude), t.rotation);
 }
 
 static inline vector3_t transform_basis_right(transform_t t, float magnitude) {
-	return vector3_rotate(vector3_right(magnitude), t.rotation);
+  return vector3_rotate(vector3_right(magnitude), t.rotation);
 }
 
 static inline vector3_t transform_basis_back(transform_t t, float magnitude) {
-	return vector3_rotate(vector3_back(magnitude), t.rotation);
+  return vector3_rotate(vector3_back(magnitude), t.rotation);
 }
 
 static inline vector3_t transform_basis_down(transform_t t, float magnitude) {
-	return vector3_rotate(vector3_down(magnitude), t.rotation);
+  return vector3_rotate(vector3_down(magnitude), t.rotation);
 }
 
 static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
-	return vector3_rotate(vector3_left(magnitude), t.rotation);
+  return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
-	DECLARE_LIST(transform_t)
+DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
 DEFINE_LIST(cube_t)
 
-<<<<<<< HEAD
-	ui32 drawCallsSaved = 0;
+ui32 drawCallsSaved = 0;
 
-	void cube_draw(cube_t* cube) {
-		if(cube->transform.scale.x < FLOAT_EPSILON &&
-				cube->transform.scale.y < FLOAT_EPSILON &&
-				cube->transform.scale.z < FLOAT_EPSILON) {
-			drawCallsSaved++;
-			return;
-		}
-		glUseProgram(cube->material.shader);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube->material.diffuseMap);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, cube->material.specularMap);
-
-		// model matrix
-		transform_calculate_matrix(&cube->transform);
-
-		shader_setUniformM4(cube->material.shader, "u_modelMatrix",
-				&cube->transform.matrix);
-
-		// view matrix
-		shader_setUniformM4(cube->material.shader, "u_viewMatrix",
-				&engine_active_camera.transform.matrix);
-
-		// projection matrix
-		shader_setUniformM4(cube->material.shader, "u_projectionMatrix", &engine_active_camera.projection);
-
-		// camera position
-		shader_setUniformV3(cube->material.shader, "u_cameraPos",
-				engine_active_camera.transform.position);
-
-		// material
-		shader_setUniformInt(cube->material.shader, "u_material.diffuse", 0);
-		shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
-		shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
-		shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
-
-		glBindVertexArray(cube->mesh.VAO);
-		glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
-=======
 void cube_draw(cube_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
 			cube->transform.scale.y < FLOAT_EPSILON &&
 			cube->transform.scale.z < FLOAT_EPSILON) {
-		//printf("saved a draw call! :D\n"); //this is why this is here...
+		drawCallsSaved++;
 		return;
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 	}
+	glUseProgram(cube->material.shader);
 
-typedef struct {
-	unsigned int textureID;  // ID handle of the glyph texture
-	vector2_t   size;       // Size of glyph
-	vector2_t   bearing;    // Offset from baseline to left/top of glyph
-	unsigned int advance;    // Offset to advance to next glyph
-} character_t;
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cube->material.diffuseMap);
 
-DECLARE_LIST(character_t)
-DEFINE_LIST(character_t)
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, cube->material.specularMap);
+
+	// model matrix
+	transform_calculate_matrix(&cube->transform);
+
+	shader_setUniformM4(cube->material.shader, "u_modelMatrix",
+			&cube->transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(cube->material.shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(cube->material.shader, "u_projectionMatrix", &engine_active_camera.projection);
+
+	// camera position
+	shader_setUniformV3(cube->material.shader, "u_cameraPos",
+			engine_active_camera.transform.position);
+
+	// material
+	shader_setUniformInt(cube->material.shader, "u_material.diffuse", 0);
+	shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
+	shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
+	shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
+
+	glBindVertexArray(cube->mesh.VAO);
+	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+}
 
 int main(void) {
-	printf("Rev up those fryers!\n");
+  printf("Rev up those fryers!\n");
 
-	engine_window_title = "Game Window";
+  engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-	engine_window_size_x = 940;
-	engine_window_size_y = 540;
-	engine_window_position_x = 1280;
-	engine_window_position_y = 0;
-	engine_start();
+  engine_window_size_x = 940;
+  engine_window_size_y = 540;
+  engine_window_position_x = 1280;
+  engine_window_position_y = 0;
+  engine_start();
 
-#if 1
-	FT_Library ft;
-	FT_Face face;
-	list_character_t characters = list_character_t_alloc();
-
-	if (FT_Init_FreeType(&ft)) {
-		printf("ERROR::FREETYPE: Could not init FreeType Library\n");
-		return -1;
-	}
-
-	if (FT_New_Face(ft, "res/fonts/courier-prime-bold.ttf", 0, &face)) {
-		printf("ERROR::FREETYPE: Failed to load font\n");
-		return -1;
-	}
-
-	FT_Set_Pixel_Sizes(face, 0, 48);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
-
-	for (unsigned char c = 0; c < 128; c++) {
-		//load char
-		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-			printf("ERROR::FREETYTPE: Failed to load Glyph");
-			continue;
-		}
-
-		// generate texture
-		unsigned int texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(	GL_TEXTURE_2D,
-				0,
-				GL_RED,
-				face->glyph->bitmap.width,
-				face->glyph->bitmap.rows,
-				0,
-				GL_RED,
-				GL_UNSIGNED_BYTE,
-				face->glyph->bitmap.buffer);
-
-		// set texture options
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// now store character for later use
-		character_t character = {
-			texture, 
-			(vector2_t) { face->glyph->bitmap.width, face->glyph->bitmap.rows },
-			(vector2_t) { face->glyph->bitmap_left, face->glyph->bitmap_top },
-			face->glyph->advance.x
-		};
-		list_character_t_add(&characters, character);
-
-	}
-
-	FT_Done_Face(face);
-	FT_Done_FreeType(ft);
-#endif
-	engine_ambient_light = vector3_one(1.0f);
-	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
+  engine_ambient_light = vector3_one(1.0f);
+  engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint cubeShader = shader_create("res/shaders/diffuse.vs.glsl",
-			"res/shaders/diffuse.fs.glsl");
+						                        "res/shaders/diffuse.fs.glsl");
 
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
@@ -478,97 +377,89 @@ int main(void) {
 		}
 	}
 
-	vector3_t look = vector3_zero();
+  vector3_t look = vector3_zero();
 
-	while (!glfwWindowShouldClose(engine_window)) {
-		{ // TIME
-			engine_time_current = glfwGetTime();
-			engine_time_delta = engine_time_current - engine_time_last;
-			engine_time_last = engine_time_current;
+  while (!glfwWindowShouldClose(engine_window)) {
+    { // TIME
+      engine_time_current = glfwGetTime();
+      engine_time_delta = engine_time_current - engine_time_last;
+      engine_time_last = engine_time_current;
 
-<<<<<<< HEAD
-			engine_renderer_FPS = 1 / engine_time_delta;
+      engine_renderer_FPS = 1 / engine_time_delta;
 			engine_time_current_frame++;
 #if ENGINE_SHOW_STATS_TIME
-			printf("============FRAME=START==============\n");
-			printf("DELTA_TIME: %f | FPS: %f | CURRENT_FRAME %d\n", engine_time_delta, engine_renderer_FPS, engine_time_current_frame);
+       printf("============FRAME=START==============\n");
+       printf("DELTA_TIME: %f | FPS: %f | CURRENT_FRAME %d\n", engine_time_delta, engine_renderer_FPS, engine_time_current_frame);
 #endif // ENGINE_SHOW_STATS_TIME
-		} // END TIME
-=======
-      engine_renderer_FPS = 1 / engine_time_delta;
-       //printf("============FRAME=START==============\n");
-       //printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
     } // END TIME
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
-		{   // INPUT
-			{ // mouse look
-				static bool firstMouse = true;
-				double mouseX, mouseY;
-				glfwGetCursorPos(engine_window, &mouseX, &mouseY);
+    {   // INPUT
+      { // mouse look
+        static bool firstMouse = true;
+        double mouseX, mouseY;
+        glfwGetCursorPos(engine_window, &mouseX, &mouseY);
 
-				if (firstMouse) {
-					engine_active_camera.lastX = mouseX;
-					engine_active_camera.lastY = mouseY;
-					firstMouse = false;
-				}
+        if (firstMouse) {
+          engine_active_camera.lastX = mouseX;
+          engine_active_camera.lastY = mouseY;
+          firstMouse = false;
+        }
 
-				float xoffset = mouseX - engine_active_camera.lastX;
-				float yoffset = mouseY - engine_active_camera.lastY;
-				engine_active_camera.lastX = mouseX;
-				engine_active_camera.lastY = mouseY;
+        float xoffset = mouseX - engine_active_camera.lastX;
+        float yoffset = mouseY - engine_active_camera.lastY;
+        engine_active_camera.lastX = mouseX;
+        engine_active_camera.lastY = mouseY;
 
-				look.x += yoffset * engine_active_camera.lookSensitivity;
-				look.y += xoffset * engine_active_camera.lookSensitivity;
+        look.x += yoffset * engine_active_camera.lookSensitivity;
+        look.y += xoffset * engine_active_camera.lookSensitivity;
 
-				look.y = loop(look.y, 2 * PI);
-				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
+        look.y = loop(look.y, 2 * PI);
+        look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
 
 				vector3_scale(look, engine_time_delta);
 
-				engine_active_camera.transform.rotation = quaternion_from_euler(look);
-			}
+        engine_active_camera.transform.rotation = quaternion_from_euler(look);
+      }
 
-			{ // movement
-				float cameraSpeed = 5 * engine_time_delta;
-				vector3_t movement = vector3_zero();
+      { // movement
+        float cameraSpeed = 5 * engine_time_delta;
+        vector3_t movement = vector3_zero();
 
-				movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
-					glfwGetKey(engine_window, GLFW_KEY_A);
-				movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
-					glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
-				movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
-					glfwGetKey(engine_window, GLFW_KEY_S);
+        movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
+                     glfwGetKey(engine_window, GLFW_KEY_A);
+        movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
+                     glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
+        movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
+                     glfwGetKey(engine_window, GLFW_KEY_S);
 
-				movement = vector3_normalize(movement);
-				movement = vector3_scale(movement, cameraSpeed);
-				movement = vector3_rotate(movement, engine_active_camera.transform.rotation);
+        movement = vector3_normalize(movement);
+        movement = vector3_scale(movement, cameraSpeed);
+        movement = vector3_rotate(movement, engine_active_camera.transform.rotation);
 
-				engine_active_camera.transform.position =
-					vector3_add(engine_active_camera.transform.position, movement);
-			}
-		} // END INPUT
+        engine_active_camera.transform.position =
+            vector3_add(engine_active_camera.transform.position, movement);
+      }
+    } // END INPUT
 
 		//projection
-		glfwGetWindowSize(engine_window, &engine_window_size_x,
-				&engine_window_size_y);
-		float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
+    glfwGetWindowSize(engine_window, &engine_window_size_x,
+                      &engine_window_size_y);
+    float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
+    engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
-		{ // draw
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			transform_calculate_view_matrix(&engine_active_camera.transform);
+    { // draw
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			for (size_t i = 0; i < cubes.length; i++) {
-				//float scale = fabs(sinf(engine_time_current));
-				//cubes.data[i].transform.scale = vector3_one(scale);
+				float scale = fabs(sinf(engine_time_current));
+				cubes.data[i].transform.scale = vector3_one(scale);
 				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
 				cube_draw(&cubes.data[i]);
 			}
 
-<<<<<<< HEAD
-			glfwSwapBuffers(engine_window);
-			glfwPollEvents();
+      glfwSwapBuffers(engine_window);
+      glfwPollEvents();
 
 #if ENGINE_SHOW_STATS_DRAW_CALLS
 			if (drawCallsSaved > 0) {
@@ -576,17 +467,11 @@ int main(void) {
 				drawCallsSaved = 0;
 			}
 #endif // ENGINE_SHOW_STATS_DRAW_CALLS
-		}
-	}
-=======
-      glfwSwapBuffers(engine_window);
-      glfwPollEvents();
     }
   }
->>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 	list_cube_t_free(&cubes);
 
-	glfwTerminate();
-	return 0;
+  glfwTerminate();
+  return 0;
 }
