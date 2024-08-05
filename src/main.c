@@ -6,6 +6,7 @@
 #include <stb_image.h>
 
 #include "blib/blib.h"
+<<<<<<< HEAD
 #include "physics.h"
 #include "blib/bmath.h"
 
@@ -18,9 +19,21 @@
 	DECLARE_LIST(matrix4_t)
 	DEFINE_LIST(matrix4_t)
 	DECLARE_LIST(quaternion_t)
+=======
+B_LIST_IMPLEMENTATION
+DECLARE_LIST(vector3_t)
+DEFINE_LIST(vector3_t)
+DECLARE_LIST(matrix4_t)
+DEFINE_LIST(matrix4_t)
+DECLARE_LIST(quaternion_t)
+>>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 DEFINE_LIST(quaternion_t)
 
+#include "physics.h"
+#include "blib/bmath.h"
+
 #define ASSERT_UNIMPLEMENTED 0
+<<<<<<< HEAD
 #define ENGINE_SHOW_STATS_DRAW_CALLS 1
 #define ENGINE_SHOW_STATS_TIME 0
 
@@ -28,6 +41,14 @@ DEFINE_LIST(quaternion_t)
 		(void)error;
 		fprintf(stderr, "Error: %s\n", description);
 	}
+=======
+	
+static void error_callback(int error, const char *description) {
+  (void)error;
+  fprintf(stderr, "Error: %s\n", description);
+  {}
+}
+>>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 		int mods) {
@@ -139,7 +160,6 @@ static char* engine_window_title = "Game Window";
 static float engine_time_current = 0.0f;
 static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
-static ui64 engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
 static vector3_t engine_ambient_light = { 0.0f, 0.0f, 0.0f };
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
@@ -171,7 +191,6 @@ void engine_start_renderer_api_gl(void) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
 	assert(engine_window_title != NULL);
 
@@ -293,6 +312,7 @@ DEFINE_LIST(transform_t)
 
 DEFINE_LIST(cube_t)
 
+<<<<<<< HEAD
 	ui32 drawCallsSaved = 0;
 
 	void cube_draw(cube_t* cube) {
@@ -335,6 +355,14 @@ DEFINE_LIST(cube_t)
 
 		glBindVertexArray(cube->mesh.VAO);
 		glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+=======
+void cube_draw(cube_t* cube) {
+	if(cube->transform.scale.x < FLOAT_EPSILON &&
+			cube->transform.scale.y < FLOAT_EPSILON &&
+			cube->transform.scale.z < FLOAT_EPSILON) {
+		//printf("saved a draw call! :D\n"); //this is why this is here...
+		return;
+>>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 	}
 
 typedef struct {
@@ -458,6 +486,7 @@ int main(void) {
 			engine_time_delta = engine_time_current - engine_time_last;
 			engine_time_last = engine_time_current;
 
+<<<<<<< HEAD
 			engine_renderer_FPS = 1 / engine_time_delta;
 			engine_time_current_frame++;
 #if ENGINE_SHOW_STATS_TIME
@@ -465,6 +494,12 @@ int main(void) {
 			printf("DELTA_TIME: %f | FPS: %f | CURRENT_FRAME %d\n", engine_time_delta, engine_renderer_FPS, engine_time_current_frame);
 #endif // ENGINE_SHOW_STATS_TIME
 		} // END TIME
+=======
+      engine_renderer_FPS = 1 / engine_time_delta;
+       //printf("============FRAME=START==============\n");
+       //printf("delta %f : FPS %f\n", engine_time_delta, engine_renderer_FPS);
+    } // END TIME
+>>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 		{   // INPUT
 			{ // mouse look
@@ -525,12 +560,13 @@ int main(void) {
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			for (size_t i = 0; i < cubes.length; i++) {
-				float scale = fabs(sinf(engine_time_current));
-				cubes.data[i].transform.scale = vector3_one(scale);
+				//float scale = fabs(sinf(engine_time_current));
+				//cubes.data[i].transform.scale = vector3_one(scale);
 				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
 				cube_draw(&cubes.data[i]);
 			}
 
+<<<<<<< HEAD
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
 
@@ -542,6 +578,12 @@ int main(void) {
 #endif // ENGINE_SHOW_STATS_DRAW_CALLS
 		}
 	}
+=======
+      glfwSwapBuffers(engine_window);
+      glfwPollEvents();
+    }
+  }
+>>>>>>> parent of 706002d (added toggles for printing runtime statistics. included freetype)
 
 	list_cube_t_free(&cubes);
 
