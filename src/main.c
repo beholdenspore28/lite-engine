@@ -339,9 +339,9 @@ int main(void) {
 
   engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 940;
-  engine_window_size_y = 540;
-  engine_window_position_x = 1280;
+  engine_window_size_x = 640;
+  engine_window_size_y = 480;
+  engine_window_position_x = 960;
   engine_window_position_y = 0;
   engine_start();
 
