@@ -138,7 +138,7 @@ static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
 static ui64 engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
-static vector3_t engine_ambient_light = { 0.0f, 0.0f, 0.0f };
+static vector3_t engine_ambient_light = {1.0};
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
 static camera_t engine_active_camera = {0};
 
@@ -404,7 +404,6 @@ int main(void) {
 	engine_window_position_y = 0;
 	engine_start();
 
-	engine_ambient_light = vector3_one(0.0f);
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
