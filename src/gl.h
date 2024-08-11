@@ -30,6 +30,7 @@ typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
+  bool invertFaces;
 } mesh_t;
 
 typedef struct {
@@ -44,6 +45,12 @@ typedef struct {
   quaternion_t rotation;
   vector3_t scale;
 } transform_t;
+
+typedef struct {
+	transform_t transform;
+	material_t material;
+	mesh_t mesh;
+} quad_t;
 
 typedef struct {
 	transform_t transform;
@@ -64,7 +71,7 @@ matrix4_t projection;
 
 DECLARE_LIST(mesh_t)
 
-#define MESH_QUAD_NUM_VERTS 4
+#define MESH_QUAD_NUM_VERTICES 4
 #define MESH_QUAD_NUM_INDICES 6
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36

@@ -303,6 +303,61 @@ typedef struct {
 
 pointLight_t light;
 
+void quad_draw(quad_t* quad) {
+	if(quad->transform.scale.x < FLOAT_EPSILON &&
+			quad->transform.scale.y < FLOAT_EPSILON &&
+			quad->transform.scale.z < FLOAT_EPSILON) {
+		drawCallsSaved++;
+		return;
+	}
+	glUseProgram(quad->material.shader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, quad->material.diffuseMap);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, quad->material.specularMap);
+
+	// light uniforms
+	shader_setUniformV3(quad->material.shader, "u_pointLight.position",
+			light.position);
+	shader_setUniformFloat(quad->material.shader, "u_pointLight.constant",
+			light.constant);
+	shader_setUniformFloat(quad->material.shader, "u_pointLight.linear",
+			light.linear);
+	shader_setUniformFloat(quad->material.shader, "u_pointLight.quadratic",
+			light.quadratic);
+	shader_setUniformV3(quad->material.shader, "u_pointLight.diffuse",
+			light.diffuse);
+	shader_setUniformV3(quad->material.shader, "u_pointLight.specular",
+			light.specular);
+
+	// model matrix
+	transform_calculate_matrix(&quad->transform);
+
+	shader_setUniformM4(quad->material.shader, "u_modelMatrix",
+			&quad->transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(quad->material.shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(quad->material.shader, "u_projectionMatrix", &engine_active_camera.projection);
+
+	// camera position
+	shader_setUniformV3(quad->material.shader, "u_cameraPos",
+			engine_active_camera.transform.position);
+
+	// material
+	shader_setUniformInt(quad->material.shader, "u_material.diffuse", 0);
+	shader_setUniformInt(quad->material.shader, "u_material.specular", 1);
+	shader_setUniformFloat(quad->material.shader, "u_material.shininess", 32.0f);
+	shader_setUniformV3(quad->material.shader, "u_ambientLight", engine_ambient_light);
+
+	glBindVertexArray(quad->mesh.VAO);
+	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+}
 void cube_draw(cube_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
 			cube->transform.scale.y < FLOAT_EPSILON &&
@@ -371,10 +426,24 @@ int main(void) {
 	engine_start();
 
 	engine_ambient_light = vector3_one(0.2f);
-	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
+	engine_set_clear_color(1.0f, 0.0f, 1.0f, 1.0f);
 
-	GLuint cubeShader = shader_create("res/shaders/diffuse.vs.glsl",
+	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
+
+	GLuint quadDiffuseMap = texture_create("res/textures/stars.jpg");
+	quad_t quad = {
+		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
+		.transform.rotation = quaternion_identity(),
+		.transform.scale = vector3_one(100.0),
+		.mesh = mesh_alloc_quad(),
+		.material = {
+			.shader = diffuseShader,
+			.diffuseMap = quadDiffuseMap,
+			.specularMap = 0,
+		},
+	};
+
 
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
@@ -391,7 +460,7 @@ int main(void) {
 					.transform.scale = vector3_one(1.0),
 					.mesh = mesh_alloc_cube(),
 					.material = {
-						.shader = cubeShader,
+						.shader = diffuseShader,
 						.diffuseMap = cubeDiffuseMap,
 						.specularMap = cubeSpecularMap,
 					},
@@ -483,6 +552,11 @@ int main(void) {
 
 		{ // draw
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			engine_active_camera.transform.matrix = matrix4_identity();
+			//quad.transform.rotation = quaternion_conjugate(engine_active_camera.transform.rotation);
+			//quad_draw_background(&quad);
+
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			light.diffuse.x = 1 - sinf(engine_time_current);
