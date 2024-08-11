@@ -426,19 +426,22 @@ int main(void) {
 	engine_start();
 
 	engine_ambient_light = vector3_one(0.2f);
-	engine_set_clear_color(1.0f, 0.0f, 1.0f, 1.0f);
+	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
+	GLuint unlitShader = shader_create("res/shaders/unlit.vs.glsl",
+			"res/shaders/unlit.fs.glsl");
 
 	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
+
 	cube_t skybox = {
-		.transform.position = (vector3_t) { 0.0f, 0.0f, 2.0f },
+		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.5f },
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
 		.mesh = mesh_alloc_cube(),
 		.material = {
-			.shader = diffuseShader,
+			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
 			.specularMap = 0,
 		},
@@ -449,12 +452,12 @@ int main(void) {
 
 	list_cube_t cubes = list_cube_t_alloc();
 
-	int dimension = 5;
+	int dimension = 10;
 	for (int i = 0; i < dimension; i++) {
 		for (int j = 0; j < dimension; j++) {
 			for (int k = 0; k < dimension; k++) {
 				cube_t cube =  {
-					.transform.position = vector3_scale((vector3_t){i,j,k}, 2.0),
+					.transform.position = vector3_scale((vector3_t){i,j,k}, 5.0),
 					.transform.rotation = quaternion_identity(),
 					.transform.scale = vector3_one(1.0),
 					.mesh = mesh_alloc_cube(),
