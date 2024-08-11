@@ -431,19 +431,18 @@ int main(void) {
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
 
-	GLuint quadDiffuseMap = texture_create("res/textures/stars.jpg");
-	quad_t quad = {
+	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
+	cube_t skybox = {
 		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
 		.transform.rotation = quaternion_identity(),
-		.transform.scale = vector3_one(100.0),
-		.mesh = mesh_alloc_quad(),
+		.transform.scale = vector3_one(1.0),
+		.mesh = mesh_alloc_cube(),
 		.material = {
 			.shader = diffuseShader,
-			.diffuseMap = quadDiffuseMap,
+			.diffuseMap = skyboxDiffuseMap,
 			.specularMap = 0,
 		},
 	};
-
 
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
@@ -553,9 +552,11 @@ int main(void) {
 		{ // draw
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			glDisable(GL_DEPTH_TEST);
 			engine_active_camera.transform.matrix = matrix4_identity();
-			//quad.transform.rotation = quaternion_conjugate(engine_active_camera.transform.rotation);
-			//quad_draw_background(&quad);
+			skybox.transform.rotation = quaternion_conjugate(engine_active_camera.transform.rotation);
+			cube_draw(&skybox);
+			glEnable(GL_DEPTH_TEST);
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
