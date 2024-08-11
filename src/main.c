@@ -133,6 +133,7 @@ static int engine_window_size_y = 480;
 static int engine_window_position_x = 0;
 static int engine_window_position_y = 0;
 static char* engine_window_title = "Game Window";
+static bool engine_window_always_on_top = false;
 static float engine_time_current = 0.0f;
 static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
@@ -168,7 +169,9 @@ void engine_start_renderer_api_gl(void) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+
+	if (engine_window_always_on_top)
+		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
 	assert(engine_window_title != NULL);
 
@@ -400,8 +403,9 @@ int main(void) {
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
 	engine_window_size_x = 640;
 	engine_window_size_y = 480;
-	engine_window_position_x = 960;
-	engine_window_position_y = 0;
+	engine_window_position_x = 850;
+	engine_window_position_y = 150;
+	//engine_window_always_on_top = true;
 	engine_start();
 
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
