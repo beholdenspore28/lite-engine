@@ -138,7 +138,7 @@ static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
 static ui64 engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
-static vector3_t engine_ambient_light = {1.0};
+static vector3_t engine_ambient_light = {0.3, 0.3, 0.3};
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
 static camera_t engine_active_camera = {0};
 
