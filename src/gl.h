@@ -55,7 +55,7 @@ DECLARE_LIST(cube_t)
 
 typedef struct {
   transform_t transform;
-	matrix4_t projection;
+matrix4_t projection;
   float lookSensitivity;
   float lastX;
   float lastY;

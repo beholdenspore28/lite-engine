@@ -42,6 +42,7 @@ out vec4 fragColor;
 uniform vec3 u_cameraPos;
 uniform Material u_material;
 uniform vec3 u_ambientLight;
+uniform PointLight u_pointLight;
 uniform directional_light_t u_directionalLight;
 
 vec3 lightDirectional(directional_light_t light, vec3 normal, vec3 viewDir) {
@@ -106,7 +107,9 @@ void main() {
 	vec3 norm = normalize(normal);
 	vec3 viewDir = normalize(u_cameraPos - fragPos);
 
-	vec3 directionalLight = lightDirectional(u_directionalLight, norm, viewDir);
+	//vec3 light = lightDirectional(u_directionalLight, norm, viewDir);
+	vec3 light = u_ambientLight;
+	light += lightPoint(u_pointLight, norm, fragPos, viewDir);
 	
-	fragColor = vec4(directionalLight, 1.0);
+	fragColor = vec4(light, 1.0);
 }

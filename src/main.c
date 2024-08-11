@@ -16,20 +16,18 @@ DECLARE_LIST(matrix4_t)
 DEFINE_LIST(matrix4_t)
 DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
-DECLARE_LIST(transform_t)
-DEFINE_LIST(transform_t)
-DEFINE_LIST(cube_t)
 
 #define ASSERT_UNIMPLEMENTED 0
 #define ENGINE_SHOW_STATS_DRAW_CALLS 1
 #define ENGINE_SHOW_STATS_TIME 0
 
-static void error_callback(int error, const char *description) {
-	(void)error;
-	fprintf(stderr, "Error: %s\n", description);
-}
+	static void error_callback(int error, const char *description) {
+		(void)error;
+		fprintf(stderr, "Error: %s\n", description);
+	}
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+		int mods) {
 	(void)scancode;
 	(void)mods;
 
@@ -287,8 +285,23 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 	return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
+DECLARE_LIST(transform_t)
+DEFINE_LIST(transform_t)
+
+DEFINE_LIST(cube_t)
 
 ui32 drawCallsSaved = 0;
+
+typedef struct {
+	vector3_t position;
+	float constant;
+	float linear;
+	float quadratic;
+	vector3_t diffuse;
+	vector3_t specular;
+} pointLight_t;
+
+pointLight_t light;
 
 void cube_draw(cube_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
@@ -304,6 +317,20 @@ void cube_draw(cube_t* cube) {
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, cube->material.specularMap);
+
+	// light uniforms
+	shader_setUniformV3(cube->material.shader, "u_pointLight.position",
+			light.position);
+	shader_setUniformFloat(cube->material.shader, "u_pointLight.constant",
+			light.constant);
+	shader_setUniformFloat(cube->material.shader, "u_pointLight.linear",
+			light.linear);
+	shader_setUniformFloat(cube->material.shader, "u_pointLight.quadratic",
+			light.quadratic);
+	shader_setUniformV3(cube->material.shader, "u_pointLight.diffuse",
+			light.diffuse);
+	shader_setUniformV3(cube->material.shader, "u_pointLight.specular",
+			light.specular);
 
 	// model matrix
 	transform_calculate_matrix(&cube->transform);
@@ -343,7 +370,7 @@ int main(void) {
 	engine_window_position_y = 0;
 	engine_start();
 
-	engine_ambient_light = vector3_one(1.0f);
+	engine_ambient_light = vector3_one(0.2f);
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint cubeShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -374,6 +401,15 @@ int main(void) {
 			}
 		}
 	}
+
+	light = (pointLight_t) {
+		.position =	vector3_zero(),
+		.diffuse =	vector3_one(0.8f),
+		.specular =	vector3_one(1.0f),
+		.constant =	1.0f,
+		.linear =	0.09f,
+		.quadratic =	0.032f,
+	};
 
 	vector3_t look = vector3_zero();
 
@@ -449,9 +485,13 @@ int main(void) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
+			light.diffuse.x = 1 - sinf(engine_time_current);
+			light.diffuse.y = sinf(engine_time_current);
+			light.diffuse.z = 1 - sinf(engine_time_current);
+
 			for (size_t i = 0; i < cubes.length; i++) {
-				float scale = fabs(sinf(engine_time_current));
-				cubes.data[i].transform.scale = vector3_one(scale);
+				//float scale = fabs(sinf(engine_time_current));
+				//cubes.data[i].transform.scale = vector3_one(scale);
 				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
 				cube_draw(&cubes.data[i]);
 			}
