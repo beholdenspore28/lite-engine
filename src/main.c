@@ -433,7 +433,7 @@ int main(void) {
 
 	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
 	cube_t skybox = {
-		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
+		.transform.position = (vector3_t) { 0.0f, 0.0f, 2.0f },
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
 		.mesh = mesh_alloc_cube(),
