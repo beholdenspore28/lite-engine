@@ -76,6 +76,6 @@ DECLARE_LIST(mesh_t)
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
 
-mesh_t mesh_alloc_cube(void);
-mesh_t mesh_alloc_quad(void);
+mesh_t mesh_alloc_cube(bool invertFaces);
+mesh_t mesh_alloc_quad(bool invertFaces);
 void mesh_free(mesh_t *m);

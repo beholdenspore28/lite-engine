@@ -130,6 +130,11 @@ static unsigned int mesh_quad_indices[MESH_QUAD_NUM_INDICES] = {
 	3, 2, 1   // second Triangle
 };
 
+static unsigned int mesh_quad_indices_reversed[MESH_QUAD_NUM_INDICES] = {
+	0, 1, 3,  // first Triangle
+	1, 2, 3   // second Triangle
+};
+
 static vertex_t mesh_cube_vertices[MESH_CUBE_NUM_VERTICES] = {
 	// position            //tex          //normal
 	{ {-0.5,  0.5,  0.5 }, { 0.0,  1.0 }, { 0.0,  1.0,  0.0 } },
@@ -161,6 +166,10 @@ static vertex_t mesh_cube_vertices[MESH_CUBE_NUM_VERTICES] = {
 static GLuint mesh_cube_indices[MESH_CUBE_NUM_INDICES] = {
 	0,1,2,    0,2,3,    4,5,6,    4,6,7,    8,9,10,   8,10,11,
 	12,13,14, 12,14,15, 16,17,18, 16,18,19, 20,21,22, 20,22,23,
+};
+static GLuint mesh_cube_indices_reversed[MESH_CUBE_NUM_INDICES] = {
+	2,1,0,    3,2,0,    6,5,4,    7,6,4,    10,9,8,   11,10,8,
+	14,13,12, 15,14,12, 18,17,16, 19,18,16, 22,21,20, 23,22,20,
 };
 
 // clang-format on
@@ -211,14 +220,25 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 	return m;
 }
 
-mesh_t mesh_alloc_cube(void) {
-	return mesh_alloc(mesh_cube_vertices, mesh_cube_indices, MESH_CUBE_NUM_VERTICES,
-			MESH_CUBE_NUM_INDICES);
+mesh_t mesh_alloc_quad(bool invertFaces) {
+	if (invertFaces) {
+		return mesh_alloc(mesh_quad_vertices, mesh_quad_indices_reversed,
+				MESH_QUAD_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
+	}
+	else {
+		return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, 
+				MESH_QUAD_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
+	}
 }
-
-mesh_t mesh_alloc_quad(void) {
-	return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, MESH_QUAD_NUM_VERTICES,
-			MESH_QUAD_NUM_INDICES);
+mesh_t mesh_alloc_cube(bool invertFaces) {
+	if (invertFaces) {
+		return mesh_alloc(mesh_cube_vertices, mesh_cube_indices_reversed, 
+				MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
+	}
+	else {
+		return mesh_alloc(mesh_cube_vertices, mesh_cube_indices, 
+				MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
+	}
 }
 
 // TEXTURE====================================================================//
