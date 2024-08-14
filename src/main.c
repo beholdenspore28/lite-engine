@@ -132,6 +132,7 @@ static int engine_window_size_x = 640;
 static int engine_window_size_y = 480;
 static int engine_window_position_x = 0;
 static int engine_window_position_y = 0;
+static bool engine_window_fullscreen = false;
 static char* engine_window_title = "Game Window";
 static bool engine_window_always_on_top = false;
 static float engine_time_current = 0.0f;
@@ -175,6 +176,10 @@ void engine_start_renderer_api_gl(void) {
 
 	assert(engine_window_title != NULL);
 
+	if (engine_window_fullscreen)
+	engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
+			engine_window_title, glfwGetPrimaryMonitor(), NULL);
+	else
 	engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
 			engine_window_title, NULL, NULL);
 
@@ -405,6 +410,7 @@ int main(void) {
 	engine_window_size_y = 480;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
+	engine_window_fullscreen = true;
 	//engine_window_always_on_top = true;
 	engine_start();
 
