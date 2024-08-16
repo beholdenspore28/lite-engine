@@ -18,7 +18,9 @@ DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #define ASSERT_UNIMPLEMENTED 0
-#define ENGINE_SHOW_STATS_DRAW_CALLS 1
+
+//debug toggles
+#define ENGINE_SHOW_STATS_DRAW_CALLS 0
 #define ENGINE_SHOW_STATS_TIME 0
 
 	static void error_callback(int error, const char *description) {
@@ -410,7 +412,7 @@ int main(void) {
 	engine_window_size_y = 480;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
-	engine_window_fullscreen = true;
+	//engine_window_fullscreen = true;
 	//engine_window_always_on_top = true;
 	engine_start();
 
