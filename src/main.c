@@ -6,8 +6,9 @@
 #include <stb_image.h>
 
 #include "blib/blib.h"
-#include "physics.h"
 #include "blib/bmath.h"
+#include "blib/json.h"
+#include "physics.h"
 
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
@@ -405,6 +406,13 @@ void cube_draw(cube_t* cube) {
 
 int main(void) {
 	printf("Rev up those fryers!\n");
+#if 1 // json test
+	char* fileName = "test.json";
+	FILE* file = fopen(fileName, "r");
+	assert(file != NULL);
+	json_parse(file);
+	return 0;
+#endif
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
