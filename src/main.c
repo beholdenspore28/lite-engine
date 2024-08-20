@@ -24,10 +24,10 @@ DEFINE_LIST(quaternion_t)
 #define ENGINE_SHOW_STATS_DRAW_CALLS 0
 #define ENGINE_SHOW_STATS_TIME 0
 
-	static void error_callback(int error, const char *description) {
-		(void)error;
-		fprintf(stderr, "Error: %s\n", description);
-	}
+static void error_callback(int error, const char *description) {
+	(void)error;
+	fprintf(stderr, "Error: %s\n", description);
+}
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 		int mods) {
@@ -382,7 +382,8 @@ void cube_draw(cube_t* cube) {
 			&engine_active_camera.transform.matrix);
 
 	// projection matrix
-	shader_setUniformM4(cube->material.shader, "u_projectionMatrix", &engine_active_camera.projection);
+	shader_setUniformM4(cube->material.shader, "u_projectionMatrix", 
+			&engine_active_camera.projection);
 
 	// camera position
 	shader_setUniformV3(cube->material.shader, "u_cameraPos",
@@ -407,6 +408,9 @@ void cube_draw(cube_t* cube) {
 int main(void) {
 	printf("Rev up those fryers!\n");
 
+	// TODO remove this func call
+	json_test();
+	
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
 	engine_window_size_x = 640;
