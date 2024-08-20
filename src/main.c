@@ -7,27 +7,26 @@
 
 #include "blib/blib.h"
 #include "blib/bmath.h"
-#include "blib/json.h"
 #include "physics.h"
 
-B_LIST_IMPLEMENTATION
-DECLARE_LIST(vector3_t)
-DEFINE_LIST(vector3_t)
-DECLARE_LIST(matrix4_t)
-DEFINE_LIST(matrix4_t)
-DECLARE_LIST(quaternion_t)
+	B_LIST_IMPLEMENTATION
+	DECLARE_LIST(vector3_t)
+	DEFINE_LIST(vector3_t)
+	DECLARE_LIST(matrix4_t)
+	DEFINE_LIST(matrix4_t)
+	DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #define ASSERT_UNIMPLEMENTED 0
 
-//debug toggles
+	//debug toggles
 #define ENGINE_SHOW_STATS_DRAW_CALLS 0
 #define ENGINE_SHOW_STATS_TIME 0
 
-static void error_callback(int error, const char *description) {
-	(void)error;
-	fprintf(stderr, "Error: %s\n", description);
-}
+	static void error_callback(int error, const char *description) {
+		(void)error;
+		fprintf(stderr, "Error: %s\n", description);
+	}
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 		int mods) {
@@ -180,11 +179,11 @@ void engine_start_renderer_api_gl(void) {
 	assert(engine_window_title != NULL);
 
 	if (engine_window_fullscreen)
-	engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-			engine_window_title, glfwGetPrimaryMonitor(), NULL);
+		engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
+				engine_window_title, glfwGetPrimaryMonitor(), NULL);
 	else
-	engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-			engine_window_title, NULL, NULL);
+		engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
+				engine_window_title, NULL, NULL);
 
 	assert(engine_window != NULL);
 
@@ -296,21 +295,21 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 	return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
-DECLARE_LIST(transform_t)
+	DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
 DEFINE_LIST(cube_t)
 
-ui32 drawCallsSaved = 0;
+	ui32 drawCallsSaved = 0;
 
-typedef struct {
-	vector3_t position;
-	float constant;
-	float linear;
-	float quadratic;
-	vector3_t diffuse;
-	vector3_t specular;
-} pointLight_t;
+	typedef struct {
+		vector3_t position;
+		float constant;
+		float linear;
+		float quadratic;
+		vector3_t diffuse;
+		vector3_t specular;
+	} pointLight_t;
 
 pointLight_t light;
 
@@ -409,8 +408,7 @@ int main(void) {
 	printf("Rev up those fryers!\n");
 
 	// TODO remove this func call
-	json_test();
-	
+
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
 	engine_window_size_x = 640;
@@ -423,7 +421,7 @@ int main(void) {
 
 	// SPHERE BEGIN
 
-	
+
 
 	// SPHERE END
 
@@ -476,11 +474,11 @@ int main(void) {
 
 	light = (pointLight_t) {
 		.position =	(vector3_t){ 0.0f,0.0f,2.0f},
-		.diffuse =	vector3_one(0.8f),
-		.specular =	vector3_one(1.0f),
-		.constant =	1.0f,
-		.linear =	0.09f,
-		.quadratic =	0.032f,
+			.diffuse =	vector3_one(0.8f),
+			.specular =	vector3_one(1.0f),
+			.constant =	1.0f,
+			.linear =	0.09f,
+			.quadratic =	0.032f,
 	};
 
 	vector3_t look = vector3_zero();
