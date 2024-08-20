@@ -406,13 +406,6 @@ void cube_draw(cube_t* cube) {
 
 int main(void) {
 	printf("Rev up those fryers!\n");
-#if 1 // json test
-	char* fileName = "test.json";
-	FILE* file = fopen(fileName, "r");
-	assert(file != NULL);
-	json_parse(file);
-	return 0;
-#endif
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
@@ -423,6 +416,12 @@ int main(void) {
 	//engine_window_fullscreen = true;
 	//engine_window_always_on_top = true;
 	engine_start();
+
+	// SPHERE BEGIN
+
+	
+
+	// SPHERE END
 
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
