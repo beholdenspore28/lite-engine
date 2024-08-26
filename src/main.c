@@ -407,8 +407,6 @@ void cube_draw(cube_t* cube) {
 int main(void) {
 	printf("Rev up those fryers!\n");
 
-	// TODO remove this func call
-
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
 	engine_window_size_x = 640;
