@@ -9,12 +9,12 @@
 #include "blib/bmath.h"
 #include "physics.h"
 
-	B_LIST_IMPLEMENTATION
-	DECLARE_LIST(vector3_t)
-	DEFINE_LIST(vector3_t)
-	DECLARE_LIST(matrix4_t)
-	DEFINE_LIST(matrix4_t)
-	DECLARE_LIST(quaternion_t)
+B_LIST_IMPLEMENTATION
+DECLARE_LIST(vector3_t)
+DEFINE_LIST(vector3_t)
+DECLARE_LIST(matrix4_t)
+DEFINE_LIST(matrix4_t)
+DECLARE_LIST(quaternion_t)
 DEFINE_LIST(quaternion_t)
 
 #define ASSERT_UNIMPLEMENTED 0
@@ -417,12 +417,6 @@ int main(void) {
 	//engine_window_always_on_top = true;
 	engine_start();
 
-	// SPHERE BEGIN
-
-
-
-	// SPHERE END
-
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -435,7 +429,7 @@ int main(void) {
 	cube_t skybox = {
 		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
 		.transform.rotation = quaternion_identity(),
-		.transform.scale = vector3_one(10.0),
+		.transform.scale = vector3_one(1000.0),
 		.mesh = mesh_alloc_cube(true),
 		.material = {
 			.shader = unlitShader,
