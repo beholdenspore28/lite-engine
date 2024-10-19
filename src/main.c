@@ -409,7 +409,7 @@ int main(void) {
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-	engine_window_size_x = 640;
+	engine_window_size_x = 854;
 	engine_window_size_y = 480;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
@@ -419,11 +419,13 @@ int main(void) {
 
 	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
 
+	// shader creation.
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
 	GLuint unlitShader = shader_create("res/shaders/unlit.vs.glsl",
 			"res/shaders/unlit.fs.glsl");
 
+	// skybox creation
 	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
 
 	cube_t skybox = {
@@ -438,6 +440,7 @@ int main(void) {
 		},
 	};
 
+	// create a grid of cubes
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
@@ -464,6 +467,7 @@ int main(void) {
 		}
 	}
 
+	// create point lights
 	light = (pointLight_t) {
 		.position =	(vector3_t){ 0.0f,0.0f,2.0f},
 			.diffuse =	vector3_one(0.8f),
@@ -473,7 +477,7 @@ int main(void) {
 			.quadratic =	0.032f,
 	};
 
-	vector3_t look = vector3_zero();
+	vector3_t mouseLookVector = vector3_zero();
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // TIME
@@ -506,15 +510,15 @@ int main(void) {
 				engine_active_camera.lastX = mouseX;
 				engine_active_camera.lastY = mouseY;
 
-				look.x += yoffset * engine_active_camera.lookSensitivity;
-				look.y += xoffset * engine_active_camera.lookSensitivity;
+				mouseLookVector.x += yoffset * engine_active_camera.lookSensitivity;
+				mouseLookVector.y += xoffset * engine_active_camera.lookSensitivity;
 
-				look.y = loop(look.y, 2 * PI);
-				look.x = clamp(look.x, -PI * 0.5, PI * 0.5);
+				mouseLookVector.y = loop(mouseLookVector.y, 2 * PI);
+				mouseLookVector.x = clamp(mouseLookVector.x, -PI * 0.5, PI * 0.5);
 
-				vector3_scale(look, engine_time_delta);
+				vector3_scale(mouseLookVector, engine_time_delta);
 
-				engine_active_camera.transform.rotation = quaternion_from_euler(look);
+				engine_active_camera.transform.rotation = quaternion_from_euler(mouseLookVector);
 			}
 
 			{ // movement
