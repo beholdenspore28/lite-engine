@@ -225,7 +225,7 @@ void engine_start_renderer_api_gl(void) {
 	glfwSwapBuffers(engine_window);
 
 	engine_active_camera = (camera_t) {
-		.transform.position = vector3_zero(),
+		.transform.position = vector3_back(7.0),
 			.transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
@@ -417,7 +417,7 @@ int main(void) {
 	//engine_window_always_on_top = true;
 	engine_start();
 
-	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
+	engine_set_clear_color(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// shader creation.
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -440,32 +440,94 @@ int main(void) {
 		},
 	};
 
-	// create a grid of cubes
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
-	list_cube_t cubes = list_cube_t_alloc();
+	// sphere stats
+	enum { 
+		stacks = 20, 
+		sectors = 10, 
+		radius = 5, 
+		numIndices = 10000,
+	};
 
-	int dimension = 10;
-	for (int i = 0; i < dimension; i++) {
-		for (int j = 0; j < dimension; j++) {
-			for (int k = 0; k < dimension; k++) {
-				cube_t cube =  {
-					.transform.position = vector3_scale((vector3_t){i,j,k}, 5.0),
-					.transform.rotation = quaternion_identity(),
-					.transform.scale = vector3_one(1.0),
-					.mesh = mesh_alloc_cube(false),
-					.material = {
-						.shader = diffuseShader,
-						.diffuseMap = cubeDiffuseMap,
-						.specularMap = cubeSpecularMap,
-					},
-				};
-
-				list_cube_t_add(&cubes, cube);
-			}
+	// create the vertices of the sphere 
+	vertex_t vertices[stacks*sectors];
+	int vertex = 0;
+	for (int i = 0; i < stacks; i++) {
+		float stack = map(i, 0, stacks, -PI, PI);
+		for (int j = 0; j < sectors; j++) {
+		float sector = map(j, 0, sectors, -0.5*PI, 0.5*PI);
+			float x = radius * sin(stack) * cos(sector);
+			float y = radius * sin(stack) * sin(sector);
+			float z = radius * cos(stack);
+			vertices[vertex++].position = (vector3_t) {x, y, z};
 		}
 	}
+
+#if 1 // create indices
+	GLuint indices[numIndices];
+	vertex = 0;
+	for (int i = 1; i < stacks*sectors; i++) {
+		indices[i]   = vertex;
+		indices[++i] = vertex+1; // add 1 to index the next sector
+		indices[++i] = vertex+sectors; //add sectors to index one stack down
+		vertex++;
+	}
+
+	for (int i = 0; i < 100; i++) {
+		printf("%d\n", indices[i]);
+	}
+#endif
+
+	// create sphere mesh using indices and vertices
+	mesh_t sphereMesh = mesh_alloc(vertices, indices, stacks*sectors, numIndices);
+
+	// draw a cube on each of the sphere's vertices
+	list_cube_t cubesOnSphere = list_cube_t_alloc();
+	vertex = 0;
+	for (int i = 0; i < stacks; i++) {
+		for (int j = 0; j < sectors; j++) {
+			cube_t cube = {
+				.transform.position = vertices[vertex++].position,
+				.transform.rotation = quaternion_identity(),
+				.transform.scale = vector3_one(0.02),
+				.mesh = mesh_alloc_cube(false),
+				.material = {
+					.shader = diffuseShader,
+					.diffuseMap = cubeDiffuseMap,
+					.specularMap = cubeSpecularMap,
+				},
+			};
+			list_cube_t_add(&cubesOnSphere, cube);
+		}
+	}
+	// create a grid of cubes
+//	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
+//	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
+//
+//	list_cube_t cubes = list_cube_t_alloc();
+//
+//	int dimension = 10;
+//	for (int i = 0; i < dimension; i++) {
+//		for (int j = 0; j < dimension; j++) {
+//			for (int k = 0; k < dimension; k++) {
+//				cube_t cube =  {
+//					.transform.position = vector3_scale((vector3_t){i,j,k}, 5.0),
+//					.transform.rotation = quaternion_identity(),
+//					.transform.scale = vector3_one(1.0),
+//					.mesh = mesh_alloc_cube(false),
+//					.material = {
+//						.shader = diffuseShader,
+//						.diffuseMap = cubeDiffuseMap,
+//						.specularMap = cubeSpecularMap,
+//					},
+//				};
+//
+//				list_cube_t_add(&cubes, cube);
+//			}
+//		}
+//	}
 
 	// create point lights
 	light = (pointLight_t) {
@@ -548,6 +610,7 @@ int main(void) {
 		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
 		{ // draw
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glDisable(GL_DEPTH_TEST);
@@ -562,12 +625,19 @@ int main(void) {
 			light.diffuse.y = sinf(engine_time_current);
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
-			for (size_t i = 0; i < cubes.length; i++) {
-				//float scale = fabs(sinf(engine_time_current));
-				//cubes.data[i].transform.scale = vector3_one(scale);
-				cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
-				cube_draw(&cubes.data[i]);
+			//for (size_t i = 0; i < cubes.length; i++) {
+			//	//float scale = fabs(sinf(engine_time_current));
+			//	//cubes.data[i].transform.scale = vector3_one(scale);
+			//	cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
+			//	cube_draw(&cubes.data[i]);
+			//}
+
+			// draw cubes on sphere surface
+			for (size_t i = 0; i < cubesOnSphere.length; i++) {
+				cube_draw(&cubesOnSphere.data[i]);
 			}
+
+			// draw sphere
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
@@ -581,7 +651,8 @@ int main(void) {
 		}
 	}
 
-	list_cube_t_free(&cubes);
+	//list_cube_t_free(&cubes);
+	list_cube_t_free(&cubesOnSphere);
 
 	glfwTerminate();
 	return 0;

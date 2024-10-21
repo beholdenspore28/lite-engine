@@ -27,6 +27,12 @@ typedef enum {
 } engine_renderer_API_t;
 
 typedef struct {
+	vector3_t position;
+	vector2_t texCoord;
+	vector3_t normal;
+} vertex_t;
+
+typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
@@ -76,6 +82,8 @@ DECLARE_LIST(mesh_t)
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
 
+mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
+		GLuint numVertices, GLuint numIndices);
 mesh_t mesh_alloc_cube(bool invertFaces);
 mesh_t mesh_alloc_quad(bool invertFaces);
 void mesh_free(mesh_t *m);

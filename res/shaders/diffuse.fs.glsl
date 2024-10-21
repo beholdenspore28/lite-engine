@@ -108,5 +108,6 @@ void main() {
 
 	vec3 light = lightPoint(u_pointLight, norm, fragPos, viewDir);
 	
-	fragColor = vec4(light, 1.0);
+//	fragColor = vec4(light, 1.0);
+	fragColor = vec4(1.0);
 }

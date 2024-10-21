@@ -109,12 +109,6 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 
 // MESH=======================================================================//
 
-typedef struct {
-	vector3_t position;
-	vector2_t texCoord;
-	vector3_t normal;
-} vertex_t;
-
 // clang-format off
 
 static vertex_t mesh_quad_vertices[MESH_QUAD_NUM_VERTICES] = {
