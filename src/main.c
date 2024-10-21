@@ -298,7 +298,7 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 	DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
-DEFINE_LIST(cube_t)
+DEFINE_LIST(primitive_shape_t)
 
 	ui32 drawCallsSaved = 0;
 
@@ -347,7 +347,65 @@ void quad_draw(quad_t* quad) {
 	glBindVertexArray(quad->mesh.VAO);
 	glDrawElements(GL_TRIANGLES, MESH_QUAD_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
-void cube_draw(cube_t* cube) {
+
+void sphere_draw(primitive_shape_t* sphere) {
+	if(sphere->transform.scale.x < FLOAT_EPSILON &&
+			sphere->transform.scale.y < FLOAT_EPSILON &&
+			sphere->transform.scale.z < FLOAT_EPSILON) {
+		drawCallsSaved++;
+		return;
+	}
+	glUseProgram(sphere->material.shader);
+
+	// light uniforms
+	shader_setUniformV3(sphere->material.shader, "u_pointLight.position",
+			light.position);
+	shader_setUniformFloat(sphere->material.shader, "u_pointLight.constant",
+			light.constant);
+	shader_setUniformFloat(sphere->material.shader, "u_pointLight.linear",
+			light.linear);
+	shader_setUniformFloat(sphere->material.shader, "u_pointLight.quadratic",
+			light.quadratic);
+	shader_setUniformV3(sphere->material.shader, "u_pointLight.diffuse",
+			light.diffuse);
+	shader_setUniformV3(sphere->material.shader, "u_pointLight.specular",
+			light.specular);
+
+	// model matrix
+	transform_calculate_matrix(&sphere->transform);
+
+	shader_setUniformM4(sphere->material.shader, "u_modelMatrix",
+			&sphere->transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(sphere->material.shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(sphere->material.shader, "u_projectionMatrix", 
+			&engine_active_camera.projection);
+
+	// camera position
+	shader_setUniformV3(sphere->material.shader, "u_cameraPos",
+			engine_active_camera.transform.position);
+
+	// material
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, sphere->material.diffuseMap);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sphere->material.specularMap);
+
+	shader_setUniformInt(sphere->material.shader, "u_material.diffuse", 0);
+	shader_setUniformInt(sphere->material.shader, "u_material.specular", 1);
+	shader_setUniformFloat(sphere->material.shader, "u_material.shininess", 32.0f);
+	shader_setUniformV3(sphere->material.shader, "u_ambientLight", engine_ambient_light);
+
+	glBindVertexArray(sphere->mesh.VAO);
+	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+}
+
+void cube_draw(primitive_shape_t* cube) {
 	if(cube->transform.scale.x < FLOAT_EPSILON &&
 			cube->transform.scale.y < FLOAT_EPSILON &&
 			cube->transform.scale.z < FLOAT_EPSILON) {
@@ -401,7 +459,7 @@ void cube_draw(cube_t* cube) {
 	shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(cube->mesh.VAO);
-	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 67, GL_UNSIGNED_INT, 0);
 }
 
 int main(void) {
@@ -428,7 +486,7 @@ int main(void) {
 	// skybox creation
 	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
 
-	cube_t skybox = {
+	primitive_shape_t skybox = {
 		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1000.0),
@@ -475,20 +533,30 @@ int main(void) {
 		vertex++;
 	}
 
-	for (int i = 0; i < 100; i++) {
-		printf("%d\n", indices[i]);
+	for (int i = 0; i < 202; i++) {
+		//printf("[%d] = %d\n", i, indices[i]);
 	}
 #endif
 
-	// create sphere mesh using indices and vertices
-	mesh_t sphereMesh = mesh_alloc(vertices, indices, stacks*sectors, numIndices);
+	// create sphere using indices and vertices
+	primitive_shape_t sphere = {
+		.transform.position = vector3_zero(),
+		.transform.rotation = quaternion_identity(),
+		.transform.scale = vector3_one(1.0),
+		.mesh = mesh_alloc(vertices, indices, stacks*sectors, numIndices),
+		.material = {
+			.shader = unlitShader,
+			.diffuseMap = skyboxDiffuseMap,
+			.specularMap = 0,
+		},
+	};
 
 	// draw a cube on each of the sphere's vertices
-	list_cube_t cubesOnSphere = list_cube_t_alloc();
+	list_primitive_shape_t cubesOnSphere = list_primitive_shape_t_alloc();
 	vertex = 0;
 	for (int i = 0; i < stacks; i++) {
 		for (int j = 0; j < sectors; j++) {
-			cube_t cube = {
+			primitive_shape_t cube = {
 				.transform.position = vertices[vertex++].position,
 				.transform.rotation = quaternion_identity(),
 				.transform.scale = vector3_one(0.02),
@@ -499,20 +567,20 @@ int main(void) {
 					.specularMap = cubeSpecularMap,
 				},
 			};
-			list_cube_t_add(&cubesOnSphere, cube);
+			list_primitive_shape_t_add(&cubesOnSphere, cube);
 		}
 	}
 	// create a grid of cubes
 //	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 //	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 //
-//	list_cube_t cubes = list_cube_t_alloc();
+//	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
 //
 //	int dimension = 10;
 //	for (int i = 0; i < dimension; i++) {
 //		for (int j = 0; j < dimension; j++) {
 //			for (int k = 0; k < dimension; k++) {
-//				cube_t cube =  {
+//				primitive_shape_t cube =  {
 //					.transform.position = vector3_scale((vector3_t){i,j,k}, 5.0),
 //					.transform.rotation = quaternion_identity(),
 //					.transform.scale = vector3_one(1.0),
@@ -524,7 +592,7 @@ int main(void) {
 //					},
 //				};
 //
-//				list_cube_t_add(&cubes, cube);
+//				list_primitive_shape_t_add(&cubes, cube);
 //			}
 //		}
 //	}
@@ -638,6 +706,7 @@ int main(void) {
 			}
 
 			// draw sphere
+			sphere_draw(&sphere);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
@@ -651,8 +720,8 @@ int main(void) {
 		}
 	}
 
-	//list_cube_t_free(&cubes);
-	list_cube_t_free(&cubesOnSphere);
+	//list_primitive_shape_t_free(&cubes);
+	list_primitive_shape_t_free(&cubesOnSphere);
 
 	glfwTerminate();
 	return 0;

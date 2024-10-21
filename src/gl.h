@@ -62,9 +62,9 @@ typedef struct {
 	transform_t transform;
 	material_t material;
 	mesh_t mesh;
-} cube_t;
+} primitive_shape_t;
 
-DECLARE_LIST(cube_t)
+DECLARE_LIST(primitive_shape_t)
 
 typedef struct {
   transform_t transform;
