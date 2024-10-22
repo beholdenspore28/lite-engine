@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -517,8 +517,8 @@ int main(void) {
 		for (int j = 0; j < sectors; j++) {
 		float sector = map(j, 0, sectors, -0.5*PI, 0.5*PI);
 			float x = radius * sin(stack) * cos(sector);
-			float y = radius * sin(stack) * sin(sector);
-			float z = radius * cos(stack);
+			float y = radius * cos(stack);
+			float z = radius * sin(stack) * sin(sector);
 			vertices[vertex++].position = (vector3_t) {x, y, z};
 		}
 	}
