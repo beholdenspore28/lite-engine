@@ -225,7 +225,7 @@ void engine_start_renderer_api_gl(void) {
 	glfwSwapBuffers(engine_window);
 
 	engine_active_camera = (camera_t) {
-		.transform.position = vector3_back(7.0),
+		.transform.position = (vector3_t){0.0, 0.0, -30.0},
 			.transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
@@ -402,7 +402,7 @@ void sphere_draw(primitive_shape_t* sphere) {
 	shader_setUniformV3(sphere->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(sphere->mesh.VAO);
-	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 1000, GL_UNSIGNED_INT, 0);
 }
 
 void cube_draw(primitive_shape_t* cube) {
@@ -459,7 +459,7 @@ void cube_draw(primitive_shape_t* cube) {
 	shader_setUniformV3(cube->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(cube->mesh.VAO);
-	glDrawElements(GL_TRIANGLES, 67, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
 int main(void) {
@@ -503,23 +503,29 @@ int main(void) {
 
 	enum {
 		total = 20,
-		radius = 5,
+		radius = 20,
 		iBufferSize = 1000,
 	};
 
 	// create sphere's vertices
 	vertex_t vertices[total][total] = {0};
 	int vertex = 0;
-	for (int i = 0; i < total; i++) {
+	for (int i = 0; i < total*0.5+1; i++) {
 		float lon = map(i, 0, total, -PI, PI);
 		for (int j = 0; j < total; j++) {
-			float lat = map(j, 0, total, -0.5*PI, 0.5*PI);
+			float lat = map(j, 0, total, -PI, PI);
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
 			float z = radius * cos(lon);
 			vertices[i][j].position = (vector3_t){x,y,z};
+			printf("[%d][%d] (%f, %f, %f)\n", i, j, x,y,z);
+			if (i == 0) j = total; // this solves multiple south pole vertices
+			if (i == total*0.5) j = total; // this solves multiple south pole vertices
 		}
 	}
+
+	// create sphere's indices
+	GLuint indices[iBufferSize] = {0, 1, 2, 0, 2, 3};
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -527,8 +533,8 @@ int main(void) {
 		for (int j = 0; j < total; j++) {
 			primitive_shape_t cube = {
 				.transform.position = vertices[i][j].position,
-				.transform.rotation = quaternion_identity(),
-				.transform.scale    = vector3_one(0.1+(0.001*i)),
+				.transform.rotation = quaternion_from_euler((vector3_t){0,i,j}),
+				.transform.scale    = vector3_one(1.0),
 				.mesh = mesh_alloc_cube(false),
 				.material = {
 					.shader = unlitShader,
@@ -539,9 +545,6 @@ int main(void) {
 			list_primitive_shape_t_add(&cubes, cube);
 		}
 	}
-
-	// create sphere's indices
-	GLuint indices[iBufferSize] = {0};
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
@@ -652,12 +655,15 @@ int main(void) {
 			light.diffuse.y = sinf(engine_time_current);
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
-			for (int i = 0; i < cubes.length; i++) {
+			sphere_draw(&sphere);
+			for (int i = 0; i < engine_time_current_frame; i++) {
+				if (i >= cubes.length) break;
 				cube_draw(&cubes.data[i]);
 			}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
+			//sleep(1);
 
 #if ENGINE_SHOW_STATS_DRAW_CALLS
 			if (drawCallsSaved > 0) {
