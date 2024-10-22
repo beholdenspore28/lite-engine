@@ -506,37 +506,28 @@ int main(void) {
 		stacks = 20, 
 		sectors = 10, 
 		radius = 5, 
-		numIndices = 10000,
+		numIndices = 1000,
 	};
 
-	// create the vertices of the sphere 
+	GLuint indices[numIndices] = {0};
 	vertex_t vertices[stacks*sectors];
-	int vertex = 0;
+
+	int vert = 0;
 	for (int i = 0; i < stacks; i++) {
 		float stack = map(i, 0, stacks, -PI, PI);
 		for (int j = 0; j < sectors; j++) {
-		float sector = map(j, 0, sectors, -0.5*PI, 0.5*PI);
+			float sector = map(j, 0, sectors, -0.5*PI, 0.5*PI);
+			if (i == 0 || i == stacks) {
+				j = sectors;
+				printf("0\n");
+			}
 			float x = radius * sin(stack) * cos(sector);
 			float y = radius * cos(stack);
 			float z = radius * sin(stack) * sin(sector);
-			vertices[vertex++].position = (vector3_t) {x, y, z};
+			vertices[vert++].position = (vector3_t) {x, y, z};
 		}
 	}
 
-#if 1 // create indices
-	GLuint indices[numIndices];
-	vertex = 0;
-	for (int i = 1; i < stacks*sectors; i++) {
-		indices[i]   = vertex;
-		indices[++i] = vertex+1; // add 1 to index the next sector
-		indices[++i] = vertex+sectors; //add sectors to index one stack down
-		vertex++;
-	}
-
-	for (int i = 0; i < 202; i++) {
-		//printf("[%d] = %d\n", i, indices[i]);
-	}
-#endif
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
@@ -553,13 +544,13 @@ int main(void) {
 
 	// draw a cube on each of the sphere's vertices
 	list_primitive_shape_t cubesOnSphere = list_primitive_shape_t_alloc();
-	vertex = 0;
+	vert = 0;
 	for (int i = 0; i < stacks; i++) {
 		for (int j = 0; j < sectors; j++) {
 			primitive_shape_t cube = {
-				.transform.position = vertices[vertex++].position,
+				.transform.position = vertices[vert++].position,
 				.transform.rotation = quaternion_identity(),
-				.transform.scale = vector3_one(0.02),
+				.transform.scale = vector3_one(0.1+0.02*(i+j)),
 				.mesh = mesh_alloc_cube(false),
 				.material = {
 					.shader = diffuseShader,
