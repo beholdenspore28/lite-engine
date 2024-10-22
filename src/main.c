@@ -502,7 +502,7 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	enum {
-		total = 10,
+		total = 20,
 		radius = 5,
 		iBufferSize = 1000,
 	};
@@ -521,12 +521,13 @@ int main(void) {
 		}
 	}
 
+	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
 	for (int i = 0; i < total*total; i++) {
 		primitive_shape_t cube = {
 			.transform.position = vertices[i].position,
 			.transform.rotation = quaternion_identity(),
-			.transform.scale    = vector3_one(1.0),
+			.transform.scale    = vector3_one(0.1+(0.001*i)),
 			.mesh = mesh_alloc_cube(false),
 			.material = {
 				.shader = unlitShader,
