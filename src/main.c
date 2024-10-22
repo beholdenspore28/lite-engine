@@ -508,7 +508,7 @@ int main(void) {
 	};
 
 	// create sphere's vertices
-	vertex_t vertices[total*total] = {0};
+	vertex_t vertices[total][total] = {0};
 	int vertex = 0;
 	for (int i = 0; i < total; i++) {
 		float lon = map(i, 0, total, -PI, PI);
@@ -517,25 +517,27 @@ int main(void) {
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
 			float z = radius * cos(lon);
-			vertices[vertex++].position = (vector3_t){x,y,z};
+			vertices[i][j].position = (vector3_t){x,y,z};
 		}
 	}
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
-	for (int i = 0; i < total*total; i++) {
-		primitive_shape_t cube = {
-			.transform.position = vertices[i].position,
-			.transform.rotation = quaternion_identity(),
-			.transform.scale    = vector3_one(0.1+(0.001*i)),
-			.mesh = mesh_alloc_cube(false),
-			.material = {
-				.shader = unlitShader,
-				.diffuseMap = cubeDiffuseMap,
-				.specularMap = cubeSpecularMap
-			},
-		};
-		list_primitive_shape_t_add(&cubes, cube);
+	for (int i = 0; i < total; i++) {
+		for (int j = 0; j < total; j++) {
+			primitive_shape_t cube = {
+				.transform.position = vertices[i][j].position,
+				.transform.rotation = quaternion_identity(),
+				.transform.scale    = vector3_one(0.1+(0.001*i)),
+				.mesh = mesh_alloc_cube(false),
+				.material = {
+					.shader = unlitShader,
+					.diffuseMap = cubeDiffuseMap,
+					.specularMap = cubeSpecularMap
+				},
+			};
+			list_primitive_shape_t_add(&cubes, cube);
+		}
 	}
 
 	// create sphere's indices
