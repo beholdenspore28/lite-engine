@@ -501,40 +501,51 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
-	// sphere stats
-	enum { 
-		stacks = 20, 
-		sectors = 10, 
-		radius = 5, 
-		numIndices = 1000,
+	enum {
+		total = 10,
+		radius = 5,
+		iBufferSize = 1000,
 	};
 
-	GLuint indices[numIndices] = {0};
-	vertex_t vertices[stacks*sectors];
-
-	int vert = 0;
-	for (int i = 0; i < stacks; i++) {
-		float stack = map(i, 0, stacks, -PI, PI);
-		for (int j = 0; j < sectors; j++) {
-			float sector = map(j, 0, sectors, -0.5*PI, 0.5*PI);
-			if (i == 0 || i == stacks) {
-				j = sectors;
-				printf("0\n");
-			}
-			float x = radius * sin(stack) * cos(sector);
-			float y = radius * cos(stack);
-			float z = radius * sin(stack) * sin(sector);
-			vertices[vert++].position = (vector3_t) {x, y, z};
+	// create sphere's vertices
+	vertex_t vertices[total*total] = {0};
+	int vertex = 0;
+	for (int i = 0; i < total; i++) {
+		float lon = map(i, 0, total, -PI, PI);
+		for (int j = 0; j < total; j++) {
+			float lat = map(j, 0, total, -0.5*PI, 0.5*PI);
+			float x = radius * sin(lon) * cos(lat);
+			float y = radius * sin(lon) * sin(lat);
+			float z = radius * cos(lon);
+			vertices[vertex++].position = (vector3_t){x,y,z};
 		}
 	}
 
+	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
+	for (int i = 0; i < total*total; i++) {
+		primitive_shape_t cube = {
+			.transform.position = vertices[i].position,
+			.transform.rotation = quaternion_identity(),
+			.transform.scale    = vector3_one(1.0),
+			.mesh = mesh_alloc_cube(false),
+			.material = {
+				.shader = unlitShader,
+				.diffuseMap = cubeDiffuseMap,
+				.specularMap = cubeSpecularMap
+			},
+		};
+		list_primitive_shape_t_add(&cubes, cube);
+	}
+
+	// create sphere's indices
+	GLuint indices[iBufferSize] = {0};
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(vertices, indices, stacks*sectors, numIndices),
+		.mesh = mesh_alloc(vertices, indices, total*total, iBufferSize),
 		.material = {
 			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
@@ -542,53 +553,7 @@ int main(void) {
 		},
 	};
 
-	// draw a cube on each of the sphere's vertices
-	list_primitive_shape_t cubesOnSphere = list_primitive_shape_t_alloc();
-	vert = 0;
-	for (int i = 0; i < stacks; i++) {
-		for (int j = 0; j < sectors; j++) {
-			primitive_shape_t cube = {
-				.transform.position = vertices[vert++].position,
-				.transform.rotation = quaternion_identity(),
-				.transform.scale = vector3_one(0.1+0.02*(i+j)),
-				.mesh = mesh_alloc_cube(false),
-				.material = {
-					.shader = diffuseShader,
-					.diffuseMap = cubeDiffuseMap,
-					.specularMap = cubeSpecularMap,
-				},
-			};
-			list_primitive_shape_t_add(&cubesOnSphere, cube);
-		}
-	}
-	// create a grid of cubes
-//	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
-//	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
-//
-//	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
-//
-//	int dimension = 10;
-//	for (int i = 0; i < dimension; i++) {
-//		for (int j = 0; j < dimension; j++) {
-//			for (int k = 0; k < dimension; k++) {
-//				primitive_shape_t cube =  {
-//					.transform.position = vector3_scale((vector3_t){i,j,k}, 5.0),
-//					.transform.rotation = quaternion_identity(),
-//					.transform.scale = vector3_one(1.0),
-//					.mesh = mesh_alloc_cube(false),
-//					.material = {
-//						.shader = diffuseShader,
-//						.diffuseMap = cubeDiffuseMap,
-//						.specularMap = cubeSpecularMap,
-//					},
-//				};
-//
-//				list_primitive_shape_t_add(&cubes, cube);
-//			}
-//		}
-//	}
-
-	// create point lights
+	// create point light
 	light = (pointLight_t) {
 		.position =	(vector3_t){ 0.0f,0.0f,2.0f},
 			.diffuse =	vector3_one(0.8f),
@@ -684,20 +649,9 @@ int main(void) {
 			light.diffuse.y = sinf(engine_time_current);
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
-			//for (size_t i = 0; i < cubes.length; i++) {
-			//	//float scale = fabs(sinf(engine_time_current));
-			//	//cubes.data[i].transform.scale = vector3_one(scale);
-			//	cubes.data[i].transform.rotation = quaternion_from_euler(vector3_up(engine_time_current));
-			//	cube_draw(&cubes.data[i]);
-			//}
-
-			// draw cubes on sphere surface
-			for (size_t i = 0; i < cubesOnSphere.length; i++) {
-				cube_draw(&cubesOnSphere.data[i]);
+			for (int i = 0; i < cubes.length; i++) {
+				cube_draw(&cubes.data[i]);
 			}
-
-			// draw sphere
-			sphere_draw(&sphere);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
@@ -710,9 +664,6 @@ int main(void) {
 #endif // ENGINE_SHOW_STATS_DRAW_CALLS
 		}
 	}
-
-	//list_primitive_shape_t_free(&cubes);
-	list_primitive_shape_t_free(&cubesOnSphere);
 
 	glfwTerminate();
 	return 0;
