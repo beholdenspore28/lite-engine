@@ -462,6 +462,9 @@ void cube_draw(primitive_shape_t* cube) {
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
+DECLARE_LIST(vertex_t)
+	DEFINE_LIST(vertex_t)
+
 int main(void) {
 	printf("Rev up those fryers!\n");
 
@@ -508,8 +511,7 @@ int main(void) {
 	};
 
 	// create sphere's vertices
-	vertex_t vertices[total][total] = {0};
-	int vertex = 0;
+	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int i = 0; i < total*0.5+1; i++) {
 		float lon = map(i, 0, total, -PI, PI);
 		for (int j = 0; j < total; j++) {
@@ -517,8 +519,12 @@ int main(void) {
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
 			float z = radius * cos(lon);
-			vertices[i][j].position = (vector3_t){x,y,z};
-			printf("[%d][%d] (%f, %f, %f)\n", i, j, x,y,z);
+
+			vertex_t newVertex = {
+				.position = (vector3_t){x,y,z},
+			};
+			list_vertex_t_add(&vertices, newVertex);
+
 			if (i == 0) j = total; // this solves multiple south pole vertices
 			if (i == total*0.5) j = total; // this solves multiple south pole vertices
 		}
@@ -529,21 +535,19 @@ int main(void) {
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
-	for (int i = 0; i < total; i++) {
-		for (int j = 0; j < total; j++) {
+	for (size_t i = 0; i < vertices.length; i++) {
 			primitive_shape_t cube = {
-				.transform.position = vertices[i][j].position,
-				.transform.rotation = quaternion_from_euler((vector3_t){0,i,j}),
+				.transform.position = vertices.data[i].position,
+				.transform.rotation = quaternion_from_euler((vector3_t){0,i,0}),
 				.transform.scale    = vector3_one(1.0),
 				.mesh = mesh_alloc_cube(false),
 				.material = {
-					.shader = unlitShader,
+					.shader = diffuseShader,
 					.diffuseMap = cubeDiffuseMap,
 					.specularMap = cubeSpecularMap
 				},
 			};
 			list_primitive_shape_t_add(&cubes, cube);
-		}
 	}
 
 	// create sphere using indices and vertices
@@ -551,7 +555,7 @@ int main(void) {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(vertices, indices, total*total, iBufferSize),
+		.mesh = mesh_alloc(&vertices.data[0], indices, sizeof(vertices.data), iBufferSize),
 		.material = {
 			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
@@ -656,7 +660,7 @@ int main(void) {
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere_draw(&sphere);
-			for (int i = 0; i < engine_time_current_frame; i++) {
+			for (size_t i = 0; i < engine_time_current_frame; i++) {
 				if (i >= cubes.length) break;
 				cube_draw(&cubes.data[i]);
 			}
