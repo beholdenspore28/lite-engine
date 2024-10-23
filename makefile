@@ -9,7 +9,7 @@ INCDIR := -Isrc -Idep
 C = clang
 OUT := build/bin/lite-engine
 
-OPT_DEBUG := -g3 -gdwarf-2
+OPT_DEBUG := -g3 -fsanitize=address
 OPT_SMALL := -Oz -flto
 OPT_RELEASE := -flto -O3 
 OPT_ := ${OPT_DEBUG} 

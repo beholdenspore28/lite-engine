@@ -505,18 +505,16 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	enum {
-		total = 20,
+		total = 24,
 		radius = 20,
 		iBufferSize = 9999,
 	};
-
 
 	// create sphere's vertices
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int i = 0; i < total*0.5+1; i++) {
 		float lon = map(i, 0, total, -PI, PI);
 		for (int j = 0; j < total; j++) {
-			//if (i+1 == 0.5*total && j+1 == total) break;
 			float lat = map(j, 0, total, -PI, PI);
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
@@ -525,21 +523,18 @@ int main(void) {
 				.position = (vector3_t){x,y,z},
 			};
 			list_vertex_t_add(&vertices, newVertex);
-			if (i == 0) j = total; // this solves multiple south pole vertices
-			if (i == total*0.5) j = total; // this solves multiple south pole vertices
+			if (i == 0) j = total;
+			if (i == total*0.5) j = total;
 		}
 	}
 
-	int iBufferUsed = 3;
-	// create sphere's indices for the triangle strips at its poles
 	GLuint indices[iBufferSize] = {0,1,2};
 	for (int i = 3; i < total*3; i+=3) {
-		printf("length %zu\n", vertices.length);
 		indices[i]   = 0;
 		indices[i+1] = indices[i-2]+1;
 		indices[i+2] = indices[i-1]+1;
-		iBufferUsed+=3;
 	}
+	indices[total*3-1] = indices[1];
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -555,9 +550,7 @@ int main(void) {
 					.specularMap = cubeSpecularMap
 				},
 			};
-			if (i == 8) cube.transform.scale = vector3_one(0.4);
 			list_primitive_shape_t_add(&cubes, cube);
-			//printf("(%f, %f, %f)\n", vertices.data[i].position.x,vertices.data[i].position.y,vertices.data[i].position.z);
 	}
 
 	// create sphere using indices and vertices
@@ -565,7 +558,7 @@ int main(void) {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(&vertices.data[0], indices, sizeof(vertex_t) * vertices.length, iBufferUsed),
+		.mesh = mesh_alloc(&vertices.data[0], indices, vertices.length, iBufferSize),
 		.material = {
 			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
