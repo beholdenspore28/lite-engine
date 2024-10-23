@@ -525,25 +525,20 @@ int main(void) {
 				.position = (vector3_t){x,y,z},
 			};
 			list_vertex_t_add(&vertices, newVertex);
-			printf("[%d] [%d] (%f, %f, %f)\n", i, j, x, y, z);
 			if (i == 0) j = total; // this solves multiple south pole vertices
 			if (i == total*0.5) j = total; // this solves multiple south pole vertices
 		}
 	}
 
 	int iBufferUsed = 3;
-	// create sphere's indices
+	// create sphere's indices for the triangle strips at its poles
 	GLuint indices[iBufferSize] = {0,1,2};
-	for (int i = 3; i < iBufferSize-2; i+=3) {
+	for (int i = 3; i < total*3; i+=3) {
 		printf("length %zu\n", vertices.length);
-		if (indices[i-1]+1 >= vertices.length) break;
-		if (indices[i-2]+1 >= vertices.length) break;
 		indices[i]   = 0;
 		indices[i+1] = indices[i-2]+1;
 		indices[i+2] = indices[i-1]+1;
-		//printf("indices: %d %d %d\n", indices[i], indices[i+1], indices[i+2]);
 		iBufferUsed+=3;
-		printf("indicies[%d, %d, %d] = %d %d %d\n", i, i+1, i+2, indices[i], indices[i+1], indices[i+2]);
 	}
 
 	// create a cube on each of the sphere's vertices
@@ -679,10 +674,10 @@ int main(void) {
 			for (size_t i = 0; i < (size_t)engine_time_current; i++) {
 #else
 			for (size_t i = 0; i < engine_time_current_frame; i++) {
+#endif
 				if (i >= cubes.length) break;
 				cube_draw(&cubes.data[i]);
 			}
-#endif
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
