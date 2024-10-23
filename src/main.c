@@ -507,14 +507,16 @@ int main(void) {
 	enum {
 		total = 20,
 		radius = 20,
-		iBufferSize = 1000,
+		iBufferSize = 9999,
 	};
+
 
 	// create sphere's vertices
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int i = 0; i < total*0.5+1; i++) {
 		float lon = map(i, 0, total, -PI, PI);
 		for (int j = 0; j < total; j++) {
+			//if (i+1 == 0.5*total && j+1 == total) break;
 			float lat = map(j, 0, total, -PI, PI);
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
@@ -523,36 +525,26 @@ int main(void) {
 				.position = (vector3_t){x,y,z},
 			};
 			list_vertex_t_add(&vertices, newVertex);
+			printf("[%d] [%d] (%f, %f, %f)\n", i, j, x, y, z);
 			if (i == 0) j = total; // this solves multiple south pole vertices
 			if (i == total*0.5) j = total; // this solves multiple south pole vertices
 		}
 	}
 
+	int iBufferUsed = 3;
 	// create sphere's indices
-	/*
-		0
-		|\
-		| \
-		|  \
-		|   \
-		+-+  \
-		| |   \
-		1-+----2
-	*/
-	GLuint indices[iBufferSize] = {0, 1, 2};
+	GLuint indices[iBufferSize] = {0,1,2};
 	for (int i = 3; i < iBufferSize-2; i+=3) {
+		printf("length %zu\n", vertices.length);
+		if (indices[i-1]+1 >= vertices.length) break;
+		if (indices[i-2]+1 >= vertices.length) break;
 		indices[i]   = 0;
 		indices[i+1] = indices[i-2]+1;
 		indices[i+2] = indices[i-1]+1;
+		//printf("indices: %d %d %d\n", indices[i], indices[i+1], indices[i+2]);
+		iBufferUsed+=3;
+		printf("indicies[%d, %d, %d] = %d %d %d\n", i, i+1, i+2, indices[i], indices[i+1], indices[i+2]);
 	}
-	/*
-	   i ------i+1
-	   |        |
-	   |        |
-	   |        |
-	   |        |
-	   i+total--i+total+1
-	*/
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -568,7 +560,9 @@ int main(void) {
 					.specularMap = cubeSpecularMap
 				},
 			};
+			if (i == 8) cube.transform.scale = vector3_one(0.4);
 			list_primitive_shape_t_add(&cubes, cube);
+			//printf("(%f, %f, %f)\n", vertices.data[i].position.x,vertices.data[i].position.y,vertices.data[i].position.z);
 	}
 
 	// create sphere using indices and vertices
@@ -576,7 +570,7 @@ int main(void) {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(&vertices.data[0], indices, sizeof(vertices.data), iBufferSize),
+		.mesh = mesh_alloc(&vertices.data[0], indices, sizeof(vertex_t) * vertices.length, iBufferUsed),
 		.material = {
 			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
@@ -681,14 +675,17 @@ int main(void) {
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere_draw(&sphere);
+#if 0
+			for (size_t i = 0; i < (size_t)engine_time_current; i++) {
+#else
 			for (size_t i = 0; i < engine_time_current_frame; i++) {
 				if (i >= cubes.length) break;
 				cube_draw(&cubes.data[i]);
 			}
+#endif
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
-			sleep(1);
 
 #if ENGINE_SHOW_STATS_DRAW_CALLS
 			if (drawCallsSaved > 0) {
