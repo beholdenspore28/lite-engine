@@ -519,19 +519,40 @@ int main(void) {
 			float x = radius * sin(lon) * cos(lat);
 			float y = radius * sin(lon) * sin(lat);
 			float z = radius * cos(lon);
-
 			vertex_t newVertex = {
 				.position = (vector3_t){x,y,z},
 			};
 			list_vertex_t_add(&vertices, newVertex);
-
 			if (i == 0) j = total; // this solves multiple south pole vertices
 			if (i == total*0.5) j = total; // this solves multiple south pole vertices
 		}
 	}
 
 	// create sphere's indices
-	GLuint indices[iBufferSize] = {0, 1, 2, 0, 2, 3};
+	/*
+		0
+		|\
+		| \
+		|  \
+		|   \
+		+-+  \
+		| |   \
+		1-+----2
+	*/
+	GLuint indices[iBufferSize] = {0, 1, 2};
+	for (int i = 3; i < iBufferSize-2; i+=3) {
+		indices[i]   = 0;
+		indices[i+1] = indices[i-2]+1;
+		indices[i+2] = indices[i-1]+1;
+	}
+	/*
+	   i ------i+1
+	   |        |
+	   |        |
+	   |        |
+	   |        |
+	   i+total--i+total+1
+	*/
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -539,7 +560,7 @@ int main(void) {
 			primitive_shape_t cube = {
 				.transform.position = vertices.data[i].position,
 				.transform.rotation = quaternion_from_euler((vector3_t){0,i,0}),
-				.transform.scale    = vector3_one(1.0),
+				.transform.scale    = vector3_one(0.2),
 				.mesh = mesh_alloc_cube(false),
 				.material = {
 					.shader = diffuseShader,
@@ -667,7 +688,7 @@ int main(void) {
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
-			//sleep(1);
+			sleep(1);
 
 #if ENGINE_SHOW_STATS_DRAW_CALLS
 			if (drawCallsSaved > 0) {
