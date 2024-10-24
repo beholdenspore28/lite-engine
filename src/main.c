@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -507,7 +507,7 @@ int main(void) {
 	enum {
 		total = 20,
 		radius = 20,
-		iBufferSize = 9999,
+		iBufferSize = 10000,
 	};
 
 	// create sphere's vertices
@@ -517,8 +517,8 @@ int main(void) {
 		for (int j = 0; j < total; j++) {
 			float lat = map(j, 0, total, -PI, PI);
 			float x = radius * sin(lon) * cos(lat);
-			float y = radius * sin(lon) * sin(lat);
-			float z = radius * cos(lon);
+			float z = radius * sin(lon) * sin(lat);
+			float y = radius * cos(lon);
 			vertex_t newVertex = {
 				.position = (vector3_t){x,y,z},
 			};
@@ -528,7 +528,7 @@ int main(void) {
 		}
 	}
 
-	// create sphere indices
+	// create triangles at the south pole
 	GLuint indices[iBufferSize] = {0,1,2};
 	int i;
 	for (i = 3; i < total*3; i+=3) {
@@ -538,26 +538,16 @@ int main(void) {
 	}
 	indices[i-1] = indices[1];
 
-#if 0
-	indices[i] = 1;
-	indices[i+1] = 21;
-	indices[i+2] = 22;
-	indices[i+3] = 1;
-	indices[i+4] = 22;
-	indices[i+5] = 2;
-#else
+	// create quads 
 	int x = 0;
-	for (i = i; i < total*9; i+=6, x++) {
-		indices[i]   = x + total-(total-1);
-		indices[i+1] = x + total+1;
-		indices[i+2] = x + total+2;
-
-		indices[i+3] = x + total-(total-1);
-		indices[i+4] = x + total+2;
-		indices[i+5] = x + total-(total-2);
+	for (i = i; i < iBufferSize-6; i+=6, x++) {
+		indices[i]   = x + total - (total - 1);
+		indices[i+1] = x + total + 1;
+		indices[i+2] = x + total + 2;
+		indices[i+3] = x + total - (total - 1);
+		indices[i+4] = x + total + 2;
+		indices[i+5] = x + total - (total - 2);
 	}
-#endif
-	
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -646,7 +636,7 @@ int main(void) {
 			}
 
 			{ // movement
-				float cameraSpeed = 5 * engine_time_delta;
+				float cameraSpeed = 15 * engine_time_delta;
 				vector3_t movement = vector3_zero();
 
 				movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
@@ -663,9 +653,9 @@ int main(void) {
 				engine_active_camera.transform.position =
 					vector3_add(engine_active_camera.transform.position, movement);
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				} else {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				}
 			}
 		} // END INPUT
@@ -692,10 +682,10 @@ int main(void) {
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere_draw(&sphere);
-			for (size_t i = 0; i < engine_time_current_frame; i++) {
-				if (i >= cubes.length) break;
-				cube_draw(&cubes.data[i]);
-			}
+			//for (size_t i = 0; i < engine_time_current_frame; i++) {
+			//	if (i >= cubes.length) break;
+			//	cube_draw(&cubes.data[i]);
+			//}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
