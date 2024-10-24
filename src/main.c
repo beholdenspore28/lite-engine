@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -505,7 +505,7 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	enum {
-		total = 10,
+		total = 20,
 		radius = 20,
 		iBufferSize = 9999,
 	};
@@ -556,7 +556,6 @@ int main(void) {
 		indices[i+4] = x + total+2;
 		indices[i+5] = x + total-(total-2);
 	}
-	indices[i-1] = 1;
 #endif
 	
 
@@ -602,6 +601,7 @@ int main(void) {
 	};
 
 	vector3_t mouseLookVector = vector3_zero();
+	int useWireframeMode = false;
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // TIME
@@ -662,6 +662,11 @@ int main(void) {
 
 				engine_active_camera.transform.position =
 					vector3_add(engine_active_camera.transform.position, movement);
+				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				} else {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
 			}
 		} // END INPUT
 
@@ -672,7 +677,6 @@ int main(void) {
 		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
 
 		{ // draw
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glDisable(GL_DEPTH_TEST);
