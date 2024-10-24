@@ -470,8 +470,8 @@ int main(void) {
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-	engine_window_size_x = 854;
-	engine_window_size_y = 480;
+	engine_window_size_x = 1280;
+	engine_window_size_y = 720;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
 	//engine_window_fullscreen = true;
@@ -505,7 +505,7 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	enum {
-		total = 24,
+		total = 10,
 		radius = 20,
 		iBufferSize = 9999,
 	};
@@ -528,13 +528,37 @@ int main(void) {
 		}
 	}
 
+	// create sphere indices
 	GLuint indices[iBufferSize] = {0,1,2};
-	for (int i = 3; i < total*3; i+=3) {
+	int i;
+	for (i = 3; i < total*3; i+=3) {
 		indices[i]   = 0;
 		indices[i+1] = indices[i-2]+1;
 		indices[i+2] = indices[i-1]+1;
 	}
-	indices[total*3-1] = indices[1];
+	indices[i-1] = indices[1];
+
+#if 0
+	indices[i] = 1;
+	indices[i+1] = 21;
+	indices[i+2] = 22;
+	indices[i+3] = 1;
+	indices[i+4] = 22;
+	indices[i+5] = 2;
+#else
+	int x = 0;
+	for (i = i; i < total*9; i+=6, x++) {
+		indices[i]   = x + total-(total-1);
+		indices[i+1] = x + total+1;
+		indices[i+2] = x + total+2;
+
+		indices[i+3] = x + total-(total-1);
+		indices[i+4] = x + total+2;
+		indices[i+5] = x + total-(total-2);
+	}
+	indices[i-1] = 1;
+#endif
+	
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
@@ -552,6 +576,7 @@ int main(void) {
 			};
 			list_primitive_shape_t_add(&cubes, cube);
 	}
+	cubes.data[total].transform.scale = vector3_one(1.0);
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
@@ -560,9 +585,9 @@ int main(void) {
 		.transform.scale = vector3_one(1.0),
 		.mesh = mesh_alloc(&vertices.data[0], indices, vertices.length, iBufferSize),
 		.material = {
-			.shader = unlitShader,
-			.diffuseMap = skyboxDiffuseMap,
-			.specularMap = 0,
+			.shader = diffuseShader,
+			.diffuseMap = cubeDiffuseMap,
+			.specularMap = cubeSpecularMap,
 		},
 	};
 
@@ -653,7 +678,7 @@ int main(void) {
 			glDisable(GL_DEPTH_TEST);
 			engine_active_camera.transform.matrix = matrix4_identity();
 			skybox.transform.rotation = quaternion_conjugate(engine_active_camera.transform.rotation);
-			cube_draw(&skybox);
+			//cube_draw(&skybox);
 			glEnable(GL_DEPTH_TEST);
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
@@ -663,11 +688,7 @@ int main(void) {
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere_draw(&sphere);
-#if 0
-			for (size_t i = 0; i < (size_t)engine_time_current; i++) {
-#else
 			for (size_t i = 0; i < engine_time_current_frame; i++) {
-#endif
 				if (i >= cubes.length) break;
 				cube_draw(&cubes.data[i]);
 			}
