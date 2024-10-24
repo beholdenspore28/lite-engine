@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -505,7 +505,7 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	enum {
-		total = 20,
+		total = 18,
 		radius = 20,
 		iBufferSize = 10000,
 	};
@@ -540,8 +540,11 @@ int main(void) {
 
 	// create quads 
 	int quad = 0;
-	for (i = i; i < total*total*3; i+=6, quad++) {
-		if (quad % total-total+1 == 0) continue; // this is where you patch the start to the end
+	for (i = i; i < total*3+total*6*7; i+=6, quad++) {
+		if (quad % total-total+1 == 0) {
+			// this is where you patch the start to the end
+			continue; 
+		}	
 		indices[i]   = quad + total - (total - 1);
 		indices[i+1] = quad + total + 1;
 		indices[i+2] = quad + total + 2;
@@ -549,6 +552,7 @@ int main(void) {
 		indices[i+4] = quad + total + 2;
 		indices[i+5] = quad + total - (total - 2);
 	}
+
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
 	for (size_t i = 0; i < vertices.length; i++) {
@@ -565,6 +569,7 @@ int main(void) {
 			};
 			list_primitive_shape_t_add(&cubes, cube);
 	}
+	
 	cubes.data[total].transform.scale = vector3_one(0.4);
 	cubes.data[total+total].transform.scale = vector3_one(0.5);
 	cubes.data[1].transform.scale = vector3_one(0.6);
@@ -684,11 +689,12 @@ int main(void) {
 			light.diffuse.y = sinf(engine_time_current);
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
+			sphere.transform.rotation = quaternion_from_euler(vector3_up(engine_time_current*0.1));
 			sphere_draw(&sphere);
-			for (size_t i = 0; i < engine_time_current_frame; i++) {
-				if (i >= cubes.length) break;
-				cube_draw(&cubes.data[i]);
-			}
+			//for (size_t i = 0; i < engine_time_current_frame; i++) {
+			//	if (i >= cubes.length) break;
+			//	cube_draw(&cubes.data[i]);
+			//}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
