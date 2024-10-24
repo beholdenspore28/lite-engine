@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -470,8 +470,8 @@ int main(void) {
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-	engine_window_size_x = 1280;
-	engine_window_size_y = 720;
+	engine_window_size_x = 640;
+	engine_window_size_y = 480;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
 	//engine_window_fullscreen = true;
@@ -517,8 +517,8 @@ int main(void) {
 		for (int j = 0; j < total; j++) {
 			float lat = map(j, 0, total, -PI, PI);
 			float x = radius * sin(lon) * cos(lat);
-			float z = radius * sin(lon) * sin(lat);
-			float y = radius * cos(lon);
+			float y = radius * sin(lon) * sin(lat);
+			float z = radius * cos(lon);
 			vertex_t newVertex = {
 				.position = (vector3_t){x,y,z},
 			};
@@ -539,16 +539,16 @@ int main(void) {
 	indices[i-1] = indices[1];
 
 	// create quads 
-	int x = 0;
-	for (i = i; i < iBufferSize-6; i+=6, x++) {
-		indices[i]   = x + total - (total - 1);
-		indices[i+1] = x + total + 1;
-		indices[i+2] = x + total + 2;
-		indices[i+3] = x + total - (total - 1);
-		indices[i+4] = x + total + 2;
-		indices[i+5] = x + total - (total - 2);
+	int quad = 0;
+	for (i = i; i < total*total*3; i+=6, quad++) {
+		if (quad % total-total+1 == 0) continue; // this is where you patch the start to the end
+		indices[i]   = quad + total - (total - 1);
+		indices[i+1] = quad + total + 1;
+		indices[i+2] = quad + total + 2;
+		indices[i+3] = quad + total - (total - 1);
+		indices[i+4] = quad + total + 2;
+		indices[i+5] = quad + total - (total - 2);
 	}
-
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
 	for (size_t i = 0; i < vertices.length; i++) {
@@ -565,7 +565,10 @@ int main(void) {
 			};
 			list_primitive_shape_t_add(&cubes, cube);
 	}
-	cubes.data[total].transform.scale = vector3_one(1.0);
+	cubes.data[total].transform.scale = vector3_one(0.4);
+	cubes.data[total+total].transform.scale = vector3_one(0.5);
+	cubes.data[1].transform.scale = vector3_one(0.6);
+	cubes.data[total+1].transform.scale = vector3_one(0.7);
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
@@ -682,10 +685,10 @@ int main(void) {
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere_draw(&sphere);
-			//for (size_t i = 0; i < engine_time_current_frame; i++) {
-			//	if (i >= cubes.length) break;
-			//	cube_draw(&cubes.data[i]);
-			//}
+			for (size_t i = 0; i < engine_time_current_frame; i++) {
+				if (i >= cubes.length) break;
+				cube_draw(&cubes.data[i]);
+			}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
