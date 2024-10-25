@@ -174,6 +174,8 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 		GLuint numVertices, GLuint numIndices) {
 
 	mesh_t m = {0};
+	m.vertexCount = numVertices;
+	m.indexCount = numIndices;
 	m.invertFaces = true;
 
 	glGenVertexArrays(1, &m.VAO);

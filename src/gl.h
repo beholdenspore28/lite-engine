@@ -36,6 +36,8 @@ typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
+  GLuint vertexCount;
+  GLuint indexCount;
   bool invertFaces;
 } mesh_t;
 

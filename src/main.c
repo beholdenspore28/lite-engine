@@ -211,7 +211,7 @@ void engine_start_renderer_api_gl(void) {
 				GL_TRUE);
 	}
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	int width, height;
@@ -402,7 +402,7 @@ void sphere_draw(primitive_shape_t* sphere) {
 	shader_setUniformV3(sphere->material.shader, "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(sphere->mesh.VAO);
-	glDrawElements(GL_TRIANGLES, 1000, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, sphere->mesh.indexCount, GL_UNSIGNED_INT, 0);
 }
 
 void cube_draw(primitive_shape_t* cube) {
@@ -470,8 +470,8 @@ int main(void) {
 
 	engine_window_title = "Game Window";
 	engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-	engine_window_size_x = 640;
-	engine_window_size_y = 480;
+	engine_window_size_x = 1024;
+	engine_window_size_y = 768;
 	engine_window_position_x = 850;
 	engine_window_position_y = 150;
 	//engine_window_fullscreen = true;
@@ -504,60 +504,43 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
-	enum {
-		total = 18,
-		radius = 20,
-		iBufferSize = 10000,
-	};
-
-	// create sphere's vertices
-	list_vertex_t vertices = list_vertex_t_alloc();
-	for (int i = 0; i < total*0.5+1; i++) {
-		float lon = map(i, 0, total, -PI, PI);
-		for (int j = 0; j < total; j++) {
-			float lat = map(j, 0, total, -PI, PI);
-			float x = radius * sin(lon) * cos(lat);
-			float y = radius * sin(lon) * sin(lat);
-			float z = radius * cos(lon);
-			vertex_t newVertex = {
-				.position = (vector3_t){x,y,z},
-			};
-			list_vertex_t_add(&vertices, newVertex);
-			if (i == 0) j = total;
-			if (i == total*0.5) j = total;
+	const int latCount = 32;
+	const int lonCount = 16;
+	const int radius = 10;
+	const int vertexCount = (lonCount+1) * (latCount+1);
+	vertex_t vertices[vertexCount];
+	for (int lat = 0; lat <= latCount; lat++) {
+		float theta = PI * lat / latCount;
+		for (int lon = 0; lon <= lonCount; lon++) {
+			float phi = 2 * PI * lon / lonCount;	
+			float x = radius * sin(theta) * cos(phi);
+			float y = radius * cos(theta);
+			float z = radius * sin(theta) * sin(phi);
+			vertices[lat * (lonCount + 1) + lon].position = (vector3_t){x, y, z};
 		}
 	}
 
-	// create triangles at the south pole
-	GLuint indices[iBufferSize] = {0,1,2};
-	int i;
-	for (i = 3; i < total*3; i+=3) {
-		indices[i]   = 0;
-		indices[i+1] = indices[i-2]+1;
-		indices[i+2] = indices[i-1]+1;
-	}
-	indices[i-1] = indices[1];
-
-	// create quads 
-	int quad = 0;
-	for (i = i; i < total*3+total*6*7; i+=6, quad++) {
-		if (quad % total-total+1 == 0) {
-			// this is where you patch the start to the end
-			continue; 
-		}	
-		indices[i]   = quad + total - (total - 1);
-		indices[i+1] = quad + total + 1;
-		indices[i+2] = quad + total + 2;
-		indices[i+3] = quad + total - (total - 1);
-		indices[i+4] = quad + total + 2;
-		indices[i+5] = quad + total - (total - 2);
+	const int indexCount = latCount * lonCount * 6;
+	int indices[indexCount] = {0};
+	int index = 0;
+	for (int lat = 0; lat < latCount; lat++) {
+		for (int lon = 0; lon < lonCount; lon++) {
+			int first = (lat*(lonCount+1)) + lon;
+			int second = first+lonCount+1;
+			indices[index++] = first;	
+			indices[index++] = second;	
+			indices[index++] = first + 1;	
+			indices[index++] = second;
+			indices[index++] = second+1;
+			indices[index++] = first + 1;	
+		}
 	}
 
 	// create a cube on each of the sphere's vertices
 	list_primitive_shape_t cubes = list_primitive_shape_t_alloc();
-	for (size_t i = 0; i < vertices.length; i++) {
+	for (int i = 0; i < vertexCount; i++) {
 			primitive_shape_t cube = {
-				.transform.position = vertices.data[i].position,
+				.transform.position = vertices[i].position,
 				.transform.rotation = quaternion_from_euler((vector3_t){0,i,0}),
 				.transform.scale    = vector3_one(0.2),
 				.mesh = mesh_alloc_cube(false),
@@ -569,18 +552,13 @@ int main(void) {
 			};
 			list_primitive_shape_t_add(&cubes, cube);
 	}
-	
-	cubes.data[total].transform.scale = vector3_one(0.4);
-	cubes.data[total+total].transform.scale = vector3_one(0.5);
-	cubes.data[1].transform.scale = vector3_one(0.6);
-	cubes.data[total+1].transform.scale = vector3_one(0.7);
 
 	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(&vertices.data[0], indices, vertices.length, iBufferSize),
+		.mesh = mesh_alloc(&vertices, indices, vertexCount, indexCount),
 		.material = {
 			.shader = diffuseShader,
 			.diffuseMap = cubeDiffuseMap,
@@ -661,9 +639,9 @@ int main(void) {
 				engine_active_camera.transform.position =
 					vector3_add(engine_active_camera.transform.position, movement);
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				} else {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
 			}
 		} // END INPUT
@@ -689,12 +667,12 @@ int main(void) {
 			light.diffuse.y = sinf(engine_time_current);
 			light.diffuse.z = 1 - sinf(engine_time_current);
 
-			sphere.transform.rotation = quaternion_from_euler(vector3_up(engine_time_current*0.1));
+			//sphere.transform.rotation = quaternion_from_euler(vector3_up(engine_time_current*0.1));
 			sphere_draw(&sphere);
-			//for (size_t i = 0; i < engine_time_current_frame; i++) {
-			//	if (i >= cubes.length) break;
-			//	cube_draw(&cubes.data[i]);
-			//}
+			for (size_t i = 0; i < engine_time_current_frame; i++) {
+				if (i >= cubes.length) break;
+				cube_draw(&cubes.data[i]);
+			}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
