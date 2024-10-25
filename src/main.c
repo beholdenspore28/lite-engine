@@ -465,6 +465,44 @@ void cube_draw(primitive_shape_t* cube) {
 DECLARE_LIST(vertex_t)
 	DEFINE_LIST(vertex_t)
 
+mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float radius) {
+	float halfRadius = radius * 0.5;
+	const int vertexCount = (lonCount+1) * (latCount+1);
+	vertex_t vertices[vertexCount];
+	for (int lat = 0; lat <= latCount; lat++) {
+		float theta = PI * lat / latCount;
+		for (int lon = 0; lon <= lonCount; lon++) {
+			float phi = 2 * PI * lon / lonCount;	
+			float x = halfRadius * sin(theta) * cos(phi);
+			float y = halfRadius * cos(theta);
+			float z = halfRadius * sin(theta) * sin(phi);
+			int v = lat * (lonCount + 1) + lon;
+			vertices[v].position = (vector3_t){x, y, z};
+			vertices[v].normal   = vector3_normalize((vector3_t){x,y,z});
+			vertices[v].texCoord   = (vector2_t){x,y};
+		}
+	}
+
+	const int indexCount = latCount * lonCount * 6;
+	int indices[indexCount] = {0};
+	int index = 0;
+	for (int lat = 0; lat < latCount; lat++) {
+		for (int lon = 0; lon < lonCount; lon++) {
+			int first = (lat*(lonCount+1)) + lon;
+			int second = first+lonCount+1;
+			indices[index++] = first;	
+			indices[index++] = second;	
+			indices[index++] = first + 1;	
+			indices[index++] = second;
+			indices[index++] = second+1;
+			indices[index++] = first + 1;	
+		}
+	}
+
+	mesh_t m = {0};
+	return m;
+}
+
 int main(void) {
 	printf("Rev up those fryers!\n");
 
@@ -504,47 +542,11 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
-	const int latCount = 16;
-	const int lonCount = 32;
-	float radius = 0.5;
-	const int vertexCount = (lonCount+1) * (latCount+1);
-	vertex_t vertices[vertexCount];
-	for (int lat = 0; lat <= latCount; lat++) {
-		float theta = PI * lat / latCount;
-		for (int lon = 0; lon <= lonCount; lon++) {
-			float phi = 2 * PI * lon / lonCount;	
-			float x = radius * sin(theta) * cos(phi);
-			float y = radius * cos(theta);
-			float z = radius * sin(theta) * sin(phi);
-			int v = lat * (lonCount + 1) + lon;
-			vertices[v].position = (vector3_t){x, y, z};
-			vertices[v].normal   = vector3_normalize((vector3_t){x,y,z});
-			vertices[v].texCoord   = (vector2_t){x,y};
-		}
-	}
-
-	const int indexCount = latCount * lonCount * 6;
-	int indices[indexCount] = {0};
-	int index = 0;
-	for (int lat = 0; lat < latCount; lat++) {
-		for (int lon = 0; lon < lonCount; lon++) {
-			int first = (lat*(lonCount+1)) + lon;
-			int second = first+lonCount+1;
-			indices[index++] = first;	
-			indices[index++] = second;	
-			indices[index++] = first + 1;	
-			indices[index++] = second;
-			indices[index++] = second+1;
-			indices[index++] = first + 1;	
-		}
-	}
-
-	// create sphere using indices and vertices
 	primitive_shape_t sphere = {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc(&vertices, indices, vertexCount, indexCount),
+		.mesh = mesh_alloc_sphere(10,10,1),
 		.material = {
 			.shader = diffuseShader,
 			.diffuseMap = cubeDiffuseMap,
