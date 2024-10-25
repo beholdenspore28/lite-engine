@@ -467,8 +467,7 @@ DECLARE_LIST(vertex_t)
 
 mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float radius) {
 	float halfRadius = radius * 0.5;
-	const int vertexCount = (lonCount+1) * (latCount+1);
-	vertex_t vertices[vertexCount];
+	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int lat = 0; lat <= latCount; lat++) {
 		float theta = PI * lat / latCount;
 		for (int lon = 0; lon <= lonCount; lon++) {
@@ -476,30 +475,34 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 			float x = halfRadius * sin(theta) * cos(phi);
 			float y = halfRadius * cos(theta);
 			float z = halfRadius * sin(theta) * sin(phi);
-			int v = lat * (lonCount + 1) + lon;
-			vertices[v].position = (vector3_t){x, y, z};
-			vertices[v].normal   = vector3_normalize((vector3_t){x,y,z});
-			vertices[v].texCoord   = (vector2_t){x,y};
+			vertex_t newVert = (vertex_t){
+				.position = (vector3_t){x, y, z},
+				.normal   = vector3_normalize((vector3_t){x,y,z}),
+				.texCoord   = (vector2_t){x,y},
+			};
+			list_vertex_t_add(&vertices, newVert);
 		}
 	}
 
-	const int indexCount = latCount * lonCount * 6;
-	int indices[indexCount] = {0};
+	list_ui32 indices = list_ui32_alloc();
 	int index = 0;
 	for (int lat = 0; lat < latCount; lat++) {
 		for (int lon = 0; lon < lonCount; lon++) {
 			int first = (lat*(lonCount+1)) + lon;
 			int second = first+lonCount+1;
-			indices[index++] = first;	
-			indices[index++] = second;	
-			indices[index++] = first + 1;	
-			indices[index++] = second;
-			indices[index++] = second+1;
-			indices[index++] = first + 1;	
+			for (int i = 0; i < 6; i++) {
+				list_ui32_add(&indices, 0);
+			}
+			indices.data[index++] = first;	
+			indices.data[index++] = second;	
+			indices.data[index++] = first + 1;	
+			indices.data[index++] = second;
+			indices.data[index++] = second+1;
+			indices.data[index++] = first + 1;	
 		}
 	}
 
-	mesh_t m = {0};
+	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length, indices.length); 
 	return m;
 }
 
@@ -578,7 +581,6 @@ int main(void) {
 	};
 
 	vector3_t mouseLookVector = vector3_zero();
-	int useWireframeMode = false;
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // TIME
