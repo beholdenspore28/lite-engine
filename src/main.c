@@ -504,9 +504,9 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
-	const int latCount = 8;
-	const int lonCount = 16;
-	const int radius = 10;
+	const int latCount = 16;
+	const int lonCount = 32;
+	float radius = 0.5;
 	const int vertexCount = (lonCount+1) * (latCount+1);
 	vertex_t vertices[vertexCount];
 	for (int lat = 0; lat <= latCount; lat++) {
@@ -516,7 +516,10 @@ int main(void) {
 			float x = radius * sin(theta) * cos(phi);
 			float y = radius * cos(theta);
 			float z = radius * sin(theta) * sin(phi);
-			vertices[lat * (lonCount + 1) + lon].position = (vector3_t){x, y, z};
+			int v = lat * (lonCount + 1) + lon;
+			vertices[v].position = (vector3_t){x, y, z};
+			vertices[v].normal   = vector3_normalize((vector3_t){x,y,z});
+			vertices[v].texCoord   = (vector2_t){x,y};
 		}
 	}
 
@@ -543,14 +546,15 @@ int main(void) {
 		.transform.scale = vector3_one(1.0),
 		.mesh = mesh_alloc(&vertices, indices, vertexCount, indexCount),
 		.material = {
-			.shader = unlitShader,
+			.shader = diffuseShader,
 			.diffuseMap = cubeDiffuseMap,
+			.specularMap = cubeSpecularMap,
 		},
 	};
 
 	// create a cube
 	primitive_shape_t cube = {
-		.transform.position = (vector3_t) {-3, 0, 0},
+		.transform.position = (vector3_t) {-2, 0, 0},
 		.transform.rotation = quaternion_identity(),
 		.transform.scale    = vector3_one(1.0),
 		.mesh = mesh_alloc_cube(false),
@@ -617,7 +621,13 @@ int main(void) {
 			}
 
 			{ // movement
-				float cameraSpeed = 5 * engine_time_delta;
+				float cameraSpeed = 4 * engine_time_delta;
+				float cameraSpeedCurrent = 10 * engine_time_delta;
+				if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
+					cameraSpeedCurrent = 4*cameraSpeed;	
+				} else {
+					cameraSpeedCurrent = cameraSpeed;
+				}
 				vector3_t movement = vector3_zero();
 
 				movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
@@ -628,11 +638,12 @@ int main(void) {
 					glfwGetKey(engine_window, GLFW_KEY_S);
 
 				movement = vector3_normalize(movement);
-				movement = vector3_scale(movement, cameraSpeed);
+				movement = vector3_scale(movement, cameraSpeedCurrent);
 				movement = vector3_rotate(movement, engine_active_camera.transform.rotation);
 
 				engine_active_camera.transform.position =
 					vector3_add(engine_active_camera.transform.position, movement);
+
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
@@ -658,9 +669,9 @@ int main(void) {
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			light.diffuse.x = 1 - sinf(engine_time_current);
-			light.diffuse.y = sinf(engine_time_current);
-			light.diffuse.z = 1 - sinf(engine_time_current);
+			//light.diffuse.x = 1 - sinf(engine_time_current);
+			//light.diffuse.y = sinf(engine_time_current);
+			//light.diffuse.z = 1 - sinf(engine_time_current);
 
 			sphere.transform.rotation = quaternion_from_euler(vector3_up(engine_time_current*0.1));
 			sphere_draw(&sphere);
