@@ -501,7 +501,7 @@ int main(void) {
 		},
 	};
 
-	GLuint cubeDiffuseMap = texture_create("res/textures/container2.png");
+	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	const int latCount = 16;
