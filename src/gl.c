@@ -4,6 +4,7 @@
 
 DEFINE_LIST(GLint)
 DEFINE_LIST(GLuint)
+DEFINE_LIST(vertex_t)
 
 // SHADER=====================================================================//
 

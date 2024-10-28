@@ -11,10 +11,10 @@
 
 B_LIST_IMPLEMENTATION
 DECLARE_LIST(vector3_t)
-DEFINE_LIST(vector3_t)
 DECLARE_LIST(matrix4_t)
-DEFINE_LIST(matrix4_t)
 DECLARE_LIST(quaternion_t)
+DEFINE_LIST(vector3_t)
+DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
 #define ASSERT_UNIMPLEMENTED 0
@@ -295,7 +295,7 @@ static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
 	return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
-	DECLARE_LIST(transform_t)
+DECLARE_LIST(transform_t)
 DEFINE_LIST(transform_t)
 
 DEFINE_LIST(primitive_shape_t)
@@ -462,9 +462,6 @@ void cube_draw(primitive_shape_t* cube) {
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-DECLARE_LIST(vertex_t)
-	DEFINE_LIST(vertex_t)
-
 mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float radius) {
 	float halfRadius = radius * 0.5;
 	list_vertex_t vertices = list_vertex_t_alloc();
@@ -480,7 +477,7 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 				.normal   = vector3_normalize((vector3_t){x,y,z}),
 				.texCoord   = (vector2_t){x,y},
 			};
-			list_vertex_t_add(&vertices, newVert);
+			list_vertex_t_add(&vertices, newVert); // LEAK
 		}
 	}
 
@@ -491,7 +488,7 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 			int first = (lat*(lonCount+1)) + lon;
 			int second = first+lonCount+1;
 			for (int i = 0; i < 6; i++) {
-				list_ui32_add(&indices, 0);
+				list_ui32_add(&indices, 0); // LEAK
 			}
 			indices.data[index++] = first;	
 			indices.data[index++] = second;	
@@ -502,8 +499,16 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 		}
 	}
 
+
 	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length, indices.length); 
+	m.vertices = vertices;
+	m.indices = indices;
 	return m;
+}
+
+void mesh_free(mesh_t* m) {
+	list_vertex_t_free(&m->vertices);
+	list_ui32_free(&m->indices);
 }
 
 int main(void) {
@@ -549,7 +554,7 @@ int main(void) {
 		.transform.position = vector3_zero(),
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc_sphere(10,10,1),
+		.mesh = mesh_alloc_sphere(20,10,1),
 		.material = {
 			.shader = diffuseShader,
 			.diffuseMap = cubeDiffuseMap,
@@ -572,7 +577,7 @@ int main(void) {
 
 	// create point light
 	light = (pointLight_t) {
-		.position =	(vector3_t){ 0.0f,0.0f,2.0f},
+		.position =	(vector3_t){ 0.0f,0.0f,-2.0f},
 			.diffuse =	vector3_one(0.8f),
 			.specular =	vector3_one(1.0f),
 			.constant =	1.0f,
@@ -692,6 +697,8 @@ int main(void) {
 #endif // ENGINE_SHOW_STATS_DRAW_CALLS
 		}
 	}
+	mesh_free(&cube.mesh);
+	mesh_free(&sphere.mesh);
 
 	glfwTerminate();
 	return 0;

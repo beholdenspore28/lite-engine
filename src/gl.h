@@ -31,15 +31,19 @@ typedef struct {
 	vector2_t texCoord;
 	vector3_t normal;
 } vertex_t;
+DECLARE_LIST(vertex_t)
 
 typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
+  list_vertex_t vertices;
+  list_ui32 indices;
   GLuint vertexCount;
   GLuint indexCount;
   bool invertFaces;
 } mesh_t;
+DECLARE_LIST(mesh_t)
 
 typedef struct {
 	GLuint shader;
@@ -65,7 +69,6 @@ typedef struct {
 	material_t material;
 	mesh_t mesh;
 } primitive_shape_t;
-
 DECLARE_LIST(primitive_shape_t)
 
 typedef struct {
@@ -77,8 +80,6 @@ matrix4_t projection;
 } camera_t;
 
 
-DECLARE_LIST(mesh_t)
-
 #define MESH_QUAD_NUM_VERTICES 4
 #define MESH_QUAD_NUM_INDICES 6
 #define MESH_CUBE_NUM_VERTICES 24
@@ -88,4 +89,3 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 		GLuint numVertices, GLuint numIndices);
 mesh_t mesh_alloc_cube(bool invertFaces);
 mesh_t mesh_alloc_quad(bool invertFaces);
-void mesh_free(mesh_t *m);
