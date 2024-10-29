@@ -10,9 +10,6 @@
 #include "physics.h"
 
 B_LIST_IMPLEMENTATION
-DECLARE_LIST(vector3_t)
-DECLARE_LIST(matrix4_t)
-DECLARE_LIST(quaternion_t)
 DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
@@ -524,7 +521,7 @@ int main(void) {
 	//engine_window_always_on_top = true;
 	engine_start();
 
-	engine_set_clear_color(0.2f, 0.3f, 0.4f, 1.0f);
+	engine_set_clear_color(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// shader creation.
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -547,7 +544,7 @@ int main(void) {
 		},
 	};
 
-	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
+	GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	primitive_shape_t sphere = {
