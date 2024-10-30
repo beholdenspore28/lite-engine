@@ -544,12 +544,12 @@ int main(void) {
 		},
 	};
 
-	GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
+	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	primitive_shape_t sphere = {
 		.transform.position = vector3_zero(),
-		.transform.rotation = quaternion_identity(),
+		.transform.rotation = quaternion_from_euler(vector3_up(PI/2)),
 		.transform.scale = vector3_one(1.0),
 		.mesh = mesh_alloc_sphere(20,10,1),
 		.material = {
@@ -679,7 +679,8 @@ int main(void) {
 			//light.diffuse.y = sinf(engine_time_current);
 			//light.diffuse.z = 1 - sinf(engine_time_current);
 
-			sphere.transform.rotation = quaternion_from_euler(vector3_up(engine_time_current*0.1));
+			quaternion_t rotation = quaternion_from_euler(vector3_up(0.2*engine_time_delta));
+			sphere.transform.rotation = quaternion_multiply(sphere.transform.rotation, rotation);
 			sphere_draw(&sphere);
 			cube_draw(&cube);
 
