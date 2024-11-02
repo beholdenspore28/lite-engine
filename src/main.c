@@ -137,9 +137,9 @@ static bool engine_window_always_on_top = false;
 static float engine_time_current = 0.0f;
 static float engine_time_last = 0.0f;
 static float engine_time_delta = 0.0f;
-static ui64 engine_time_current_frame = 0;
+static uint64_t engine_time_current_frame = 0;
 static float engine_renderer_FPS = 0.0f;
-static vector3_t engine_ambient_light = {0.3, 0.3, 0.3};
+static vector3_t engine_ambient_light = {0.01, 0.01, 0.01};
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
 static camera_t engine_active_camera = {0};
 
@@ -297,16 +297,16 @@ DEFINE_LIST(transform_t)
 
 DEFINE_LIST(primitive_shape_t)
 
-	ui32 drawCallsSaved = 0;
+uint32_t drawCallsSaved = 0;
 
-	typedef struct {
-		vector3_t position;
-		float constant;
-		float linear;
-		float quadratic;
-		vector3_t diffuse;
-		vector3_t specular;
-	} pointLight_t;
+typedef struct {
+	vector3_t position;
+	float constant;
+	float linear;
+	float quadratic;
+	vector3_t diffuse;
+	vector3_t specular;
+} pointLight_t;
 
 pointLight_t light;
 
@@ -469,23 +469,25 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 			float x = halfRadius * sin(theta) * cos(phi);
 			float y = halfRadius * cos(theta);
 			float z = halfRadius * sin(theta) * sin(phi);
+			float u = 0.5 + atan2(z, x) / (2 * PI);
+			float v = 0.5 + asinf(y) / (PI/2);
 			vertex_t newVert = (vertex_t){
 				.position = (vector3_t){x, y, z},
 				.normal   = vector3_normalize((vector3_t){x,y,z}),
-				.texCoord   = (vector2_t){x,y},
+				.texCoord = (vector2_t){u, v},
 			};
 			list_vertex_t_add(&vertices, newVert); // LEAK
 		}
 	}
 
-	list_ui32 indices = list_ui32_alloc();
+	list_uint32_t indices = list_uint32_t_alloc();
 	int index = 0;
 	for (int lat = 0; lat < latCount; lat++) {
 		for (int lon = 0; lon < lonCount; lon++) {
 			int first = (lat*(lonCount+1)) + lon;
 			int second = first+lonCount+1;
 			for (int i = 0; i < 6; i++) {
-				list_ui32_add(&indices, 0); // LEAK
+				list_uint32_t_add(&indices, 0); // LEAK
 			}
 			indices.data[index++] = first;	
 			indices.data[index++] = second;	
@@ -505,7 +507,7 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 
 void mesh_free(mesh_t* m) {
 	list_vertex_t_free(&m->vertices);
-	list_ui32_free(&m->indices);
+	list_uint32_t_free(&m->indices);
 }
 
 int main(void) {
@@ -530,13 +532,23 @@ int main(void) {
 			"res/shaders/unlit.fs.glsl");
 
 	// skybox creation
-	GLuint skyboxDiffuseMap = texture_create("res/textures/stars.jpg");
+	GLuint skyboxDiffuseMap = texture_create("res/textures/space.jpg");
 
+	vertex_t* vertices = mesh_cube_vertices;
+	GLuint* indices = mesh_cube_indices_reversed; 
+
+	// TODO move this tiling to the diffuse shader
+	for (int i = 0; i < MESH_CUBE_NUM_VERTICES; i++) {
+		vertices[i].texCoord.x *= 4;
+		vertices[i].texCoord.y *= 4;
+	}
+
+	mesh_t skyboxMesh = mesh_alloc(vertices, indices, MESH_CUBE_NUM_VERTICES , MESH_CUBE_NUM_INDICES);
 	primitive_shape_t skybox = {
 		.transform.position = (vector3_t) { 0.0f, 0.0f, 0.0f },
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1000.0),
-		.mesh = mesh_alloc_cube(true),
+		.mesh = skyboxMesh,
 		.material = {
 			.shader = unlitShader,
 			.diffuseMap = skyboxDiffuseMap,
@@ -544,24 +556,26 @@ int main(void) {
 		},
 	};
 
+	GLuint earthDiffuseMap = texture_create("res/textures/earth.png");
+	GLuint earthSpecularMap = texture_create("res/textures/container2_specular.png");
 	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
 	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
 
 	primitive_shape_t sphere = {
-		.transform.position = vector3_zero(),
+		.transform.position = (vector3_t) {0,0,2},
 		.transform.rotation = quaternion_from_euler(vector3_up(PI/2)),
-		.transform.scale = vector3_one(1.0),
-		.mesh = mesh_alloc_sphere(20,10,1),
+		.transform.scale = vector3_one(10.0),
+		.mesh = mesh_alloc_sphere(50,25,1),
 		.material = {
 			.shader = diffuseShader,
-			.diffuseMap = cubeDiffuseMap,
-			.specularMap = cubeSpecularMap,
+			.diffuseMap = earthDiffuseMap,
+			.specularMap = earthSpecularMap,
 		},
 	};
 
 	// create a cube
 	primitive_shape_t cube = {
-		.transform.position = (vector3_t) {-2, 0, 0},
+		.transform.position = (vector3_t) {-7, 0, 0},
 		.transform.rotation = quaternion_identity(),
 		.transform.scale    = vector3_one(1.0),
 		.mesh = mesh_alloc_cube(false),
@@ -574,12 +588,12 @@ int main(void) {
 
 	// create point light
 	light = (pointLight_t) {
-		.position =	(vector3_t){ 0.0f,0.0f,-2.0f},
-			.diffuse =	vector3_one(0.8f),
-			.specular =	vector3_one(1.0f),
-			.constant =	1.0f,
-			.linear =	0.09f,
-			.quadratic =	0.032f,
+		.position  = (vector3_t){ 0.0f,10.0f,-12.0f},
+		.diffuse   = vector3_one(0.8f),
+		.specular  = vector3_one(1.0f),
+		.constant  = 1.0f,
+		.linear    = 0.0009f, // changed from 0.09
+		.quadratic = 0.000000032f, // changed from 0.032
 	};
 
 	vector3_t mouseLookVector = vector3_zero();
@@ -662,7 +676,7 @@ int main(void) {
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
 				&engine_window_size_y);
 		float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.1f, 1000.0f);
+		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.001f, 1000.0f);
 
 		{ // draw
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -675,14 +689,10 @@ int main(void) {
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			//light.diffuse.x = 1 - sinf(engine_time_current);
-			//light.diffuse.y = sinf(engine_time_current);
-			//light.diffuse.z = 1 - sinf(engine_time_current);
-
-			quaternion_t rotation = quaternion_from_euler(vector3_up(0.2*engine_time_delta));
+			quaternion_t rotation = quaternion_from_euler(vector3_up(0.05*engine_time_delta));
 			sphere.transform.rotation = quaternion_multiply(sphere.transform.rotation, rotation);
 			sphere_draw(&sphere);
-			cube_draw(&cube);
+			//cube_draw(&cube);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
