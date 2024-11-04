@@ -226,7 +226,7 @@ void engine_start_renderer_api_gl(void) {
 			.transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
-			.lookSensitivity = 0.01f,
+			.lookSensitivity = 0.002f,
 	};
 }
 
@@ -460,23 +460,26 @@ void cube_draw(primitive_shape_t* cube) {
 }
 
 mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float radius) {
-	float halfRadius = radius * 0.5;
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int lat = 0; lat <= latCount; lat++) {
 		float theta = PI * lat / latCount;
 		for (int lon = 0; lon <= lonCount; lon++) {
-			float phi = 2 * PI * lon / lonCount;	
-			float x = halfRadius * sin(theta) * cos(phi);
-			float y = halfRadius * cos(theta);
-			float z = halfRadius * sin(theta) * sin(phi);
-			float u = 0.5 + atan2(z, x) / (2 * PI);
-			float v = 0.5 + asinf(y) / (PI/2);
+			float phi = 2 * PI * lon / lonCount;
+			vector3_t point = (vector3_t) {
+				.x = radius * sin(theta) * cos(phi),
+				.y = radius * cos(theta),
+				.z = radius * sin(theta) * sin(phi),
+			};
+			vector3_t normPoint = vector3_normalize(point);
+			float
+				u = map(lon, 0, lonCount, 0, 1),
+				v = map(lat, 0, latCount, 0, 1);
 			vertex_t newVert = (vertex_t){
-				.position = (vector3_t){x, y, z},
-				.normal   = vector3_normalize((vector3_t){x,y,z}),
+				.position = point,
+				.normal   = normPoint,
 				.texCoord = (vector2_t){u, v},
 			};
-			list_vertex_t_add(&vertices, newVert); // LEAK
+			list_vertex_t_add(&vertices, newVert);
 		}
 	}
 
@@ -487,7 +490,7 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 			int first = (lat*(lonCount+1)) + lon;
 			int second = first+lonCount+1;
 			for (int i = 0; i < 6; i++) {
-				list_uint32_t_add(&indices, 0); // LEAK
+				list_uint32_t_add(&indices, 0);
 			}
 			indices.data[index++] = first;	
 			indices.data[index++] = second;	
@@ -497,7 +500,6 @@ mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float rad
 			indices.data[index++] = first + 1;	
 		}
 	}
-
 
 	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length, indices.length); 
 	m.vertices = vertices;
@@ -532,16 +534,16 @@ int main(void) {
 			"res/shaders/unlit.fs.glsl");
 
 	// skybox creation
-	GLuint skyboxDiffuseMap = texture_create("res/textures/space.jpg");
+	GLuint skyboxDiffuseMap = texture_create("res/textures/space.png");
 
 	vertex_t* vertices = mesh_cube_vertices;
 	GLuint* indices = mesh_cube_indices_reversed; 
 
 	// TODO move this tiling to the diffuse shader
-	for (int i = 0; i < MESH_CUBE_NUM_VERTICES; i++) {
-		vertices[i].texCoord.x *= 4;
-		vertices[i].texCoord.y *= 4;
-	}
+//	for (int i = 0; i < MESH_CUBE_NUM_VERTICES; i++) {
+//		vertices[i].texCoord.x *= 8;
+//		vertices[i].texCoord.y *= 8;
+//	}
 
 	mesh_t skyboxMesh = mesh_alloc(vertices, indices, MESH_CUBE_NUM_VERTICES , MESH_CUBE_NUM_INDICES);
 	primitive_shape_t skybox = {
@@ -556,20 +558,19 @@ int main(void) {
 		},
 	};
 
-	GLuint earthDiffuseMap = texture_create("res/textures/earth.png");
-	GLuint earthSpecularMap = texture_create("res/textures/container2_specular.png");
-	GLuint cubeDiffuseMap = texture_create("res/textures/glowstone.png");
-	GLuint cubeSpecularMap = texture_create("res/textures/container2_specular.png");
+	GLuint earthDiffuseMap = texture_create("res/textures/earth.jpg");
+	//GLuint earthSpecularMap = texture_create("res/textures/container2_specular.png");
+	GLuint cubeDiffuseMap = texture_create("res/textures/earth.jpg");
+	GLuint cubeSpecularMap = texture_create("res/textures/earth.jpg");
 
 	primitive_shape_t sphere = {
-		.transform.position = (vector3_t) {0,0,2},
-		.transform.rotation = quaternion_from_euler(vector3_up(PI/2)),
-		.transform.scale = vector3_one(10.0),
-		.mesh = mesh_alloc_sphere(50,25,1),
+		.transform.position = (vector3_t) {0,0,100},
+		.transform.rotation = quaternion_from_euler(vector3_up(90)),
+		.transform.scale = vector3_one(100.0),
+		.mesh = mesh_alloc_sphere(24,48,1),
 		.material = {
-			.shader = diffuseShader,
+			.shader = unlitShader,
 			.diffuseMap = earthDiffuseMap,
-			.specularMap = earthSpecularMap,
 		},
 	};
 
@@ -641,8 +642,8 @@ int main(void) {
 			}
 
 			{ // movement
-				float cameraSpeed = 4 * engine_time_delta;
-				float cameraSpeedCurrent = 10 * engine_time_delta;
+				float cameraSpeed = 40 * engine_time_delta;
+				float cameraSpeedCurrent;
 				if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
 					cameraSpeedCurrent = 4*cameraSpeed;	
 				} else {
@@ -676,7 +677,7 @@ int main(void) {
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
 				&engine_window_size_y);
 		float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-		engine_active_camera.projection = matrix4_perspective(deg2rad(90), aspect, 0.001f, 1000.0f);
+		engine_active_camera.projection = matrix4_perspective(deg2rad(60), aspect, 0.001f, 1000.0f);
 
 		{ // draw
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -689,7 +690,7 @@ int main(void) {
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			quaternion_t rotation = quaternion_from_euler(vector3_up(0.05*engine_time_delta));
+			quaternion_t rotation = quaternion_from_euler(vector3_up(0.02*engine_time_delta));
 			sphere.transform.rotation = quaternion_multiply(sphere.transform.rotation, rotation);
 			sphere_draw(&sphere);
 			//cube_draw(&cube);
