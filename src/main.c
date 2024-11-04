@@ -461,22 +461,58 @@ void cube_draw(primitive_shape_t* cube) {
 
 mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
-	for (int i = 0; i < subDivisions; i++) {
-		for (int j = 0; j < subDivisions; j++) {
-			vector3_t point = {
-				map(i, 0, subDivisions, -radius, radius),
-				map(j, 0, subDivisions, -radius, radius),
-				radius,
-			};
-			vertex_t vertex = {
-				.position = vector3_normalize(point),
-				.normal = {0},
-				.texCoord = {0},
-			};
-			list_vertex_t_add(&vertices, vertex);
+	for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
+		for (int i = 0; i < subDivisions; i++) {
+			for (int j = 0; j < subDivisions; j++) {
+				vector3_t point = {
+					map(i, 0, subDivisions-1, -1, 1),
+					map(j, 0, subDivisions-1, -1, 1),
+					1,
+				};
+				switch (faceDirection) {
+					case 0: {
+						point = point;
+					} break;
+					case 1: {
+						point = vector3_negate(point);
+					} break;
+					case 2: {
+						float temp = point.x;
+						point.x = point.y;
+						point.y = point.z;
+						point.z = temp;
+					} break;
+					case 3: {
+						float temp = -point.x;
+						point.x = -point.y;
+						point.y = -point.z;
+						point.z = temp;
+					} break;
+					case 4: {
+						float temp = point.y;
+						point.y = point.x;
+						point.x = point.z;
+						point.z = temp;
+					} break;
+					case 5: {
+						float temp = -point.y;
+						point.y = -point.x;
+						point.x = -point.z;
+						point.z = temp;
+					} break;
+					default:
+					break;
+				}
+				vector3_t normal = vector3_normalize(point);
+				vertex_t vertex = {
+					.position = vector3_scale(normal, radius),
+					.normal = normal,
+					.texCoord = {0},
+				};
+				list_vertex_t_add(&vertices, vertex);
+			}
 		}
 	}
-
 	list_uint32_t indices = list_uint32_t_alloc();
 	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length, indices.length); 
 	m.vertices = vertices;
@@ -592,15 +628,15 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/earth.jpg");
 	GLuint cubeSpecularMap = texture_create("res/textures/earth.jpg");
 
-	mesh_t test = mesh_alloc_cube_sphere(10, 1);
+	mesh_t test = mesh_alloc_cube_sphere(10, 10);
 
 	list_primitive_shape_t testCubes = list_primitive_shape_t_alloc();
 	for (int i = 0; i < test.vertices.length; i++) {
 		//printf("i is %d\n", i);
 		primitive_shape_t testCube = {
 			.transform.position = test.vertices.data[i].position,
-			.transform.rotation = quaternion_identity(),
-			.transform.scale    = vector3_one(0.01),
+			.transform.rotation = quaternion_from_euler(vector3_one(i)),
+			.transform.scale    = vector3_one(0.1),
 			.mesh = mesh_alloc_cube(false),
 			.material = {
 				.shader = unlitShader,
