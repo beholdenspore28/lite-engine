@@ -459,6 +459,31 @@ void cube_draw(primitive_shape_t* cube) {
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
+mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
+	list_vertex_t vertices = list_vertex_t_alloc();
+	for (int i = 0; i < subDivisions; i++) {
+		for (int j = 0; j < subDivisions; j++) {
+			vector3_t point = {
+				map(i, 0, subDivisions, -radius, radius),
+				map(j, 0, subDivisions, -radius, radius),
+				radius,
+			};
+			vertex_t vertex = {
+				.position = vector3_normalize(point),
+				.normal = {0},
+				.texCoord = {0},
+			};
+			list_vertex_t_add(&vertices, vertex);
+		}
+	}
+
+	list_uint32_t indices = list_uint32_t_alloc();
+	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length, indices.length); 
+	m.vertices = vertices;
+	m.indices = indices;
+	return m;
+}
+
 mesh_t mesh_alloc_sphere(const int latCount, const int lonCount, const float radius) {
 	const float halfRadius = radius * 0.5;
 	list_vertex_t vertices = list_vertex_t_alloc();
@@ -567,6 +592,25 @@ int main(void) {
 	GLuint cubeDiffuseMap = texture_create("res/textures/earth.jpg");
 	GLuint cubeSpecularMap = texture_create("res/textures/earth.jpg");
 
+	mesh_t test = mesh_alloc_cube_sphere(10, 1);
+
+	list_primitive_shape_t testCubes = list_primitive_shape_t_alloc();
+	for (int i = 0; i < test.vertices.length; i++) {
+		//printf("i is %d\n", i);
+		primitive_shape_t testCube = {
+			.transform.position = test.vertices.data[i].position,
+			.transform.rotation = quaternion_identity(),
+			.transform.scale    = vector3_one(0.01),
+			.mesh = mesh_alloc_cube(false),
+			.material = {
+				.shader = unlitShader,
+				.diffuseMap = cubeDiffuseMap,
+				.specularMap = cubeSpecularMap
+			},
+		};
+		list_primitive_shape_t_add(&testCubes, testCube);
+	}
+
 	primitive_shape_t sphere = {
 		.transform.position = (vector3_t) {0,0,10},
 		.transform.rotation = quaternion_from_euler(vector3_up(90)),
@@ -669,11 +713,15 @@ int main(void) {
 				engine_active_camera.transform.position =
 					vector3_add(engine_active_camera.transform.position, movement);
 
+#if 1
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
+#else
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 			}
 		} // END INPUT
 
@@ -689,15 +737,19 @@ int main(void) {
 			glDisable(GL_DEPTH_TEST);
 			engine_active_camera.transform.matrix = matrix4_identity();
 			skybox.transform.rotation = quaternion_conjugate(engine_active_camera.transform.rotation);
-			cube_draw(&skybox);
+			//cube_draw(&skybox);
 			glEnable(GL_DEPTH_TEST);
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			quaternion_t rotation = quaternion_from_euler(vector3_up(0.02*engine_time_delta));
 			sphere.transform.rotation = quaternion_multiply(sphere.transform.rotation, rotation);
-			sphere_draw(&sphere);
+			//sphere_draw(&sphere);
 			//cube_draw(&cube);
+
+			for (int i = 0; i < testCubes.length; i++) {
+				cube_draw(&testCubes.data[i]);
+			}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
