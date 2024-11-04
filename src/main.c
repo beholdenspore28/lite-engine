@@ -459,25 +459,29 @@ void cube_draw(primitive_shape_t* cube) {
 	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-mesh_t mesh_alloc_sphere(const int lonCount, const int latCount, const float radius) {
+mesh_t mesh_alloc_sphere(const int latCount, const int lonCount, const float radius) {
+	const float halfRadius = radius * 0.5;
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (int lat = 0; lat <= latCount; lat++) {
 		float theta = PI * lat / latCount;
 		for (int lon = 0; lon <= lonCount; lon++) {
 			float phi = 2 * PI * lon / lonCount;
-			vector3_t point = (vector3_t) {
-				.x = radius * sin(theta) * cos(phi),
-				.y = radius * cos(theta),
-				.z = radius * sin(theta) * sin(phi),
-			};
-			vector3_t normPoint = vector3_normalize(point);
+
 			float
+				x = halfRadius * sin(theta) * cos(phi),
+				y = halfRadius * cos(theta),
+				z = halfRadius * sin(theta) * sin(phi),
 				u = map(lon, 0, lonCount, 0, 1),
 				v = map(lat, 0, latCount, 0, 1);
-			vertex_t newVert = (vertex_t){
+
+			vector3_t point    = {x, y, z};
+			vector2_t texCoord = {u, v};
+			vector3_t normal   = vector3_normalize(point);
+
+			vertex_t newVert = {
 				.position = point,
-				.normal   = normPoint,
-				.texCoord = (vector2_t){u, v},
+				.texCoord = texCoord,
+				.normal   = normal,
 			};
 			list_vertex_t_add(&vertices, newVert);
 		}
@@ -541,8 +545,8 @@ int main(void) {
 
 	// TODO move this tiling to the diffuse shader
 //	for (int i = 0; i < MESH_CUBE_NUM_VERTICES; i++) {
-//		vertices[i].texCoord.x *= 8;
-//		vertices[i].texCoord.y *= 8;
+//		vertices[i].texCoord.x *= 2;
+//		vertices[i].texCoord.y *= 2;
 //	}
 
 	mesh_t skyboxMesh = mesh_alloc(vertices, indices, MESH_CUBE_NUM_VERTICES , MESH_CUBE_NUM_INDICES);
@@ -564,9 +568,9 @@ int main(void) {
 	GLuint cubeSpecularMap = texture_create("res/textures/earth.jpg");
 
 	primitive_shape_t sphere = {
-		.transform.position = (vector3_t) {0,0,100},
+		.transform.position = (vector3_t) {0,0,10},
 		.transform.rotation = quaternion_from_euler(vector3_up(90)),
-		.transform.scale = vector3_one(100.0),
+		.transform.scale = vector3_one(10.0),
 		.mesh = mesh_alloc_sphere(24,48,1),
 		.material = {
 			.shader = unlitShader,
@@ -589,12 +593,12 @@ int main(void) {
 
 	// create point light
 	light = (pointLight_t) {
-		.position  = (vector3_t){ 0.0f,10.0f,-12.0f},
+		.position  = (vector3_t){ 0.0f,10.0f,-10.0f},
 		.diffuse   = vector3_one(0.8f),
 		.specular  = vector3_one(1.0f),
 		.constant  = 1.0f,
 		.linear    = 0.0009f, // changed from 0.09
-		.quadratic = 0.000000032f, // changed from 0.032
+		.quadratic = 0.00032f, // changed from 0.032
 	};
 
 	vector3_t mouseLookVector = vector3_zero();
@@ -642,7 +646,7 @@ int main(void) {
 			}
 
 			{ // movement
-				float cameraSpeed = 40 * engine_time_delta;
+				float cameraSpeed = 4 * engine_time_delta;
 				float cameraSpeedCurrent;
 				if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
 					cameraSpeedCurrent = 4*cameraSpeed;	
