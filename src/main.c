@@ -464,73 +464,81 @@ void cube_draw(primitive_shape_t *cube) {
 
 mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
+  list_uint32_t indices = list_uint32_t_alloc();
+  int index = 0;
   for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-    for (int i = 0; i < subDivisions; i++) {
+    int offset = subDivisions*subDivisions*faceDirection;
+    for (int k = 0; k < subDivisions; k++) {
       for (int j = 0; j < subDivisions; j++) {
         vector3_t point = {
-            map(i, 0, subDivisions - 1, -1, 1),
+            map(k, 0, subDivisions - 1, -1, 1),
             map(j, 0, subDivisions - 1, -1, 1),
             1,
         };
+        if (k < subDivisions-1 && j < subDivisions-1) {
+          int first  = offset + (k * (subDivisions)) + j;
+          int second = first + subDivisions;
+          for (int i = 0; i < 6; i++) {
+            list_uint32_t_add(&indices, 0);
+          }
+          indices.data[index++] = first + 1;
+          indices.data[index++] = second;
+          indices.data[index++] = first;
+          indices.data[index++] = first + 1;
+          indices.data[index++] = second + 1;
+          indices.data[index++] = second;
+        }
+
+        enum { 
+          FACE_FRONT, FACE_BACK, 
+          FACE_RIGHT, FACE_LEFT, 
+          FACE_UP, FACE_DOWN, 
+        };
+
+        vector3_t original = point;
         switch (faceDirection) {
-        case 0: {
+        case FACE_FRONT: {
+          point.x = original.x;
+          point.y = original.y;
+          point.z = -original.z;
         } break;
-        case 1: {
-          point = vector3_negate(point);
+        case FACE_BACK: {
+          point.x = original.x;
+          point.y = -original.y;
+          point.z = original.z;
         } break;
-        case 2: {
-          float temp = point.x;
-          point.x = point.y;
-          point.y = point.z;
-          point.z = temp;
+        case FACE_RIGHT: {
+          point.x = original.z;
+          point.y = -original.y;
+          point.z = original.x;
         } break;
-        case 3: {
-          float temp = -point.x;
-          point.x = -point.y;
-          point.y = -point.z;
-          point.z = temp;
+        case FACE_LEFT: {
+          point.x = -original.z;
+          point.y = original.y;
+          point.z = original.x;
         } break;
-        case 4: {
-          float temp = point.y;
-          point.y = point.x;
-          point.x = point.z;
-          point.z = temp;
+        case FACE_UP: {
+          point.x = original.x;
+          point.y = original.z;
+          point.z = -original.y;
         } break;
-        case 5: {
-          float temp = -point.y;
-          point.y = -point.x;
-          point.x = -point.z;
-          point.z = temp;
+        case FACE_DOWN: {
+          point.x = -original.x;
+          point.y = -original.z;
+          point.z = -original.y;
         } break;
         default:
           break;
         }
+        float u = map(k, 0, subDivisions-1, 0, 1),
+              v = map(j, 0, subDivisions-1, 0, 1);
         vector3_t normal = vector3_normalize(point);
         vertex_t vertex = {
-            .position = vector3_scale(normal, radius),
+            .position = vector3_scale(normal, radius * 0.5),
             .normal = normal,
-            .texCoord = {0},
+            .texCoord = {u, v},
         };
         list_vertex_t_add(&vertices, vertex);
-      }
-    }
-  }
-  list_uint32_t indices = list_uint32_t_alloc();
-  int index = 0;
-  for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-    for (int i = 0; i < subDivisions-1; i++) {
-      for (int j = 0; j < subDivisions-1; j++) {
-        int first = (i * (subDivisions)) + j;
-        int second = first + subDivisions;
-        for (int i = 0; i < 6; i++) {
-          list_uint32_t_add(&indices, 0);
-        }
-        indices.data[index++] = first;
-        indices.data[index++] = second;
-        indices.data[index++] = first + 1;
-        indices.data[index++] = second;
-        indices.data[index++] = second + 1;
-        indices.data[index++] = first + 1;
       }
     }
   }
@@ -552,7 +560,8 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 
       float x = halfRadius * sin(theta) * cos(phi), y = halfRadius * cos(theta),
             z = halfRadius * sin(theta) * sin(phi),
-            u = map(lon, 0, lonCount, 0, 1), v = map(lat, 0, latCount, 0, 1);
+            u =  map(lon, 0, lonCount, 0, 1), 
+            v = -map(lat, 0, latCount, 0, 1);
 
       vector3_t point = {x, y, z};
       vector2_t texCoord = {u, v};
@@ -610,7 +619,7 @@ int main(void) {
   // engine_window_always_on_top = true;
   engine_start();
 
-  engine_set_clear_color(0.0,0.0,0.0,1.0);
+  engine_set_clear_color(0.3,0.3,0.3,1.0);
 
   // shader creation.
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -645,54 +654,39 @@ int main(void) {
           },
   };
 
-  GLuint earthDiffuseMap = texture_create("res/textures/earth.jpg");
+  GLuint earthDiffuseMap = texture_create("res/textures/mar0kuu2.jpg");
   // GLuint earthSpecularMap =
   // texture_create("res/textures/container2_specular.png");
-  GLuint cubeDiffuseMap = texture_create("res/textures/earth.jpg");
-  GLuint cubeSpecularMap = texture_create("res/textures/earth.jpg");
+  GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
+  GLuint cubeSpecularMap = texture_create("res/textures/test.png");
 
   primitive_shape_t cubeSphere = (primitive_shape_t) {
-    .transform.position = (vector3_t){0, 0, 0},
+    .transform.position = (vector3_t){20, 0, 20},
     .transform.rotation = quaternion_identity(),
-    .transform.scale = vector3_one(1.0),
-    .mesh = mesh_alloc_cube_sphere(10, 10),
+    .transform.scale = vector3_one(10.0),
+    .mesh = mesh_alloc_cube_sphere(10, 1),
     .material =
     {
-      .shader = unlitShader,
-      .diffuseMap = earthDiffuseMap,
+      .shader = diffuseShader,
+      .diffuseMap = cubeDiffuseMap,
     },
   };
 
-  list_primitive_shape_t testCubes = list_primitive_shape_t_alloc();
-  for (int i = 0; i < cubeSphere.mesh.vertices.length; i++) {
-    // printf("i is %d\n", i);
-    primitive_shape_t testCube = {
-        .transform.position = cubeSphere.mesh.vertices.data[i].position,
-        .transform.rotation = quaternion_from_euler(vector3_one(i)),
-        .transform.scale = vector3_one(0.1),
-        .mesh = mesh_alloc_cube(false),
-        .material = {.shader = unlitShader,
-                     .diffuseMap = cubeDiffuseMap,
-                     .specularMap = cubeSpecularMap},
-    };
-    list_primitive_shape_t_add(&testCubes, testCube);
-  }
-
   primitive_shape_t sphere = {
-      .transform.position = (vector3_t){0, 0, 10},
-      .transform.rotation = quaternion_from_euler(vector3_up(90)),
+      .transform.position = (vector3_t){0, 0, 20},
+      .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(10.0),
       .mesh = mesh_alloc_sphere(24, 48, 1),
       .material =
           {
-              .shader = unlitShader,
+              .shader = diffuseShader,
               .diffuseMap = earthDiffuseMap,
           },
   };
 
   // create a cube
   primitive_shape_t cube = {
-      .transform.position = (vector3_t){-7, 0, 0},
+      .transform.position = (vector3_t){0, 0, 2},
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(1.0),
       .mesh = mesh_alloc_cube(false),
@@ -784,9 +778,9 @@ int main(void) {
 
 #if 1
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 #else
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -804,11 +798,11 @@ int main(void) {
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      glDisable(GL_DEPTH_TEST);
       engine_active_camera.transform.matrix = matrix4_identity();
+      glDisable(GL_DEPTH_TEST);
       skybox.transform.rotation =
-          quaternion_conjugate(engine_active_camera.transform.rotation);
-      // cube_draw(&skybox);
+        quaternion_conjugate(engine_active_camera.transform.rotation);
+      cube_draw(&skybox);
       glEnable(GL_DEPTH_TEST);
 
       transform_calculate_view_matrix(&engine_active_camera.transform);
@@ -817,13 +811,9 @@ int main(void) {
           quaternion_from_euler(vector3_up(0.02 * engine_time_delta));
       sphere.transform.rotation =
           quaternion_multiply(sphere.transform.rotation, rotation);
-      // sphere_draw(&sphere);
-      // cube_draw(&cube);
-      
-      sphere_draw(&cubeSphere); 
-      for (int i = 0; i < testCubes.length; i++) {
-        cube_draw(&testCubes.data[i]);
-      }
+      sphere_draw(&cubeSphere);
+      sphere_draw(&sphere);
+      cube_draw(&cube);
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
