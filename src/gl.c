@@ -110,11 +110,6 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 
 // MESH=======================================================================//
 
-// clang-format off
-
-
-// clang-format on
-
 DEFINE_LIST(mesh_t)
 
 mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
