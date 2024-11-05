@@ -209,7 +209,7 @@ void engine_start_renderer_api_gl(void) {
                           GL_TRUE);
   }
 
-  //glEnable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
   int width, height;
@@ -462,6 +462,111 @@ void cube_draw(primitive_shape_t *cube) {
   glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
+mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
+  list_vertex_t vertices = list_vertex_t_alloc();
+  list_uint32_t indices = list_uint32_t_alloc();
+  int index = 0;
+  
+  enum { 
+    FACE_FRONT, FACE_BACK, 
+    FACE_RIGHT, FACE_LEFT, 
+    FACE_UP, FACE_DOWN, 
+  };
+  
+  for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
+    int offset = subDivisions*subDivisions*faceDirection;
+    for (int k = 0; k < subDivisions; k++) {
+      for (int j = 0; j < subDivisions; j++) {
+        vector3_t point = {
+            map(k, 0, subDivisions - 1, -1, 1),
+            map(j, 0, subDivisions - 1, -1, 1),
+            1,
+        };
+        
+        if (k < subDivisions-1 && j < subDivisions-1) {
+          int first  = offset + (k * (subDivisions)) + j;
+          int second = first + subDivisions;
+        
+          for (int i = 0; i < 6; i++) {
+            list_uint32_t_add(&indices, 0);
+          }
+        
+          indices.data[index++] = first + 1;
+          indices.data[index++] = second;
+          indices.data[index++] = first;
+          indices.data[index++] = first + 1;
+          indices.data[index++] = second + 1;
+          indices.data[index++] = second;
+        }
+
+        vector3_t original = point;
+        float noise = noise_perlin2d(j/2, k/2, 0.8, 8);
+        if (j == subDivisions-1 || j == 0 ||
+						k == subDivisions-1 || k == 0) {
+					noise = 0;
+				}
+        switch (faceDirection) {
+        case FACE_FRONT: {
+          point.x = original.x;
+          point.y = original.y;
+          point.z = original.z;
+        } break;
+        
+        case FACE_BACK: {
+          point.x = original.x;
+          point.y = -original.y;
+          point.z = -original.z;
+        } break;
+        
+        case FACE_RIGHT: {
+          point.x = original.z;
+          point.y = -original.y;
+          point.z = original.x;
+        } break;
+        
+        case FACE_LEFT: {
+          point.x = -original.z;
+          point.y = original.y;
+          point.z = original.x;
+        } break;
+        
+        case FACE_UP: {
+          point.x = original.x;
+          point.y = original.z;
+          point.z = -original.y;
+        } break;
+        
+        case FACE_DOWN: {
+          point.x = -original.x;
+          point.y = -original.z;
+          point.z = -original.y;
+        } break;
+        
+        default:
+          break;
+        }
+        
+        float u = map(k, 0, subDivisions-1, 0, 1) * 8,
+              v = map(j, 0, subDivisions-1, 0, 1) * 8;
+        
+        vector3_t normal = vector3_normalize(point);
+        
+        vertex_t vertex = {
+            .position = vector3_scale(normal, (noise*0.01) +radius * 0.5),
+            .normal = normal,
+            .texCoord = {u, v},
+        };
+        
+        list_vertex_t_add(&vertices, vertex);
+      }
+    }
+  }
+  mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
+                        indices.length);
+  m.vertices = vertices;
+  m.indices = indices;
+  return m;
+}
 mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -500,12 +605,12 @@ mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
         case FACE_FRONT: {
           point.x = original.x;
           point.y = original.y;
-          point.z = -original.z;
+          point.z = original.z;
         } break;
         case FACE_BACK: {
           point.x = original.x;
           point.y = -original.y;
-          point.z = original.z;
+          point.z = -original.z;
         } break;
         case FACE_RIGHT: {
           point.x = original.z;
@@ -611,10 +716,10 @@ int main(void) {
 
   engine_window_title = "Game Window";
   engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 1024;
-  engine_window_size_y = 768;
-  engine_window_position_x = 850;
-  engine_window_position_y = 150;
+  engine_window_size_x = 800;
+  engine_window_size_y = 600;
+  engine_window_position_x = 0;
+  engine_window_position_y = 0;
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
@@ -633,12 +738,6 @@ int main(void) {
   vertex_t *vertices = mesh_cube_vertices;
   GLuint *indices = mesh_cube_indices_reversed;
 
-  // TODO move this tiling to the diffuse shader
-  //	for (int i = 0; i < MESH_CUBE_NUM_VERTICES; i++) {
-  //		vertices[i].texCoord.x *= 2;
-  //		vertices[i].texCoord.y *= 2;
-  //	}
-
   mesh_t skyboxMesh = mesh_alloc(vertices, indices, MESH_CUBE_NUM_VERTICES,
                                  MESH_CUBE_NUM_INDICES);
   primitive_shape_t skybox = {
@@ -646,28 +745,24 @@ int main(void) {
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(1000.0),
       .mesh = skyboxMesh,
-      .material =
-          {
-              .shader = unlitShader,
-              .diffuseMap = skyboxDiffuseMap,
-              .specularMap = 0,
-          },
+      .material = {
+        .shader = unlitShader,
+        .diffuseMap = skyboxDiffuseMap,
+        .specularMap = 0,
+      },
   };
 
-  GLuint earthDiffuseMap = texture_create("res/textures/mar0kuu2.jpg");
-  // GLuint earthSpecularMap =
-  // texture_create("res/textures/container2_specular.png");
-  GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
+  GLuint earthDiffuseMap = texture_create("res/textures/2_17.png");
+  GLuint cubeDiffuseMap = earthDiffuseMap;
   GLuint cubeSpecularMap = texture_create("res/textures/test.png");
 
   primitive_shape_t cubeSphere = (primitive_shape_t) {
-    .transform.position = (vector3_t){20, 0, 20},
+    .transform.position = (vector3_t){40, -40, 40},
     .transform.rotation = quaternion_identity(),
-    .transform.scale = vector3_one(10.0),
-    .mesh = mesh_alloc_cube_sphere(10, 1),
-    .material =
-    {
-      .shader = diffuseShader,
+    .transform.scale = vector3_one(100.0),
+    .mesh = mesh_alloc_planet(100, 1),
+    .material = {
+      .shader = unlitShader,
       .diffuseMap = cubeDiffuseMap,
     },
   };
@@ -776,15 +871,11 @@ int main(void) {
         engine_active_camera.transform.position =
             vector3_add(engine_active_camera.transform.position, movement);
 
-#if 1
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
-#else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#endif
       }
     } // END INPUT
 
@@ -793,7 +884,7 @@ int main(void) {
                       &engine_window_size_y);
     float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
     engine_active_camera.projection =
-        matrix4_perspective(deg2rad(60), aspect, 0.001f, 1000.0f);
+        matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 
     { // draw
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
