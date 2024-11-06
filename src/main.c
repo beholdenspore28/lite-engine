@@ -850,6 +850,9 @@ int main(void) {
         engine_active_camera.transform.position =
             vector3_add(engine_active_camera.transform.position, movement);
 
+        if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
+          engine_active_camera.transform.position = vector3_zero();
+        }
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         } else {
