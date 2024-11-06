@@ -500,11 +500,15 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         }
 
         vector3_t original = point;
-        float noise = noise_perlin2d(j/2, k/2, 0.8, 8);
-        if (j == subDivisions-1 || j == 0 ||
-						k == subDivisions-1 || k == 0) {
-					noise = 0;
-				}
+        float noise = noise_perlin2d(j, k, 0.8, 8);
+        
+        #if 0
+					if (j == subDivisions-1 || j == 0 ||
+							k == subDivisions-1 || k == 0) {
+						noise = 0;
+					}
+				#endif
+        
         switch (faceDirection) {
         case FACE_FRONT: {
           point.x = original.x;
@@ -752,11 +756,9 @@ int main(void) {
       },
   };
 
-  GLuint earthDiffuseMap = texture_create("res/textures/2_17.png");
-  GLuint cubeDiffuseMap = earthDiffuseMap;
-  GLuint cubeSpecularMap = texture_create("res/textures/test.png");
+  GLuint cubeDiffuseMap = texture_create("res/textures/2_17.png");
 
-  primitive_shape_t cubeSphere = (primitive_shape_t) {
+  primitive_shape_t planet = (primitive_shape_t) {
     .transform.position = (vector3_t){40, -40, 40},
     .transform.rotation = quaternion_identity(),
     .transform.scale = vector3_one(100.0),
@@ -765,29 +767,6 @@ int main(void) {
       .shader = unlitShader,
       .diffuseMap = cubeDiffuseMap,
     },
-  };
-
-  primitive_shape_t sphere = {
-      .transform.position = (vector3_t){0, 0, 20},
-      .transform.rotation = quaternion_identity(),
-      .transform.scale = vector3_one(10.0),
-      .mesh = mesh_alloc_sphere(24, 48, 1),
-      .material =
-          {
-              .shader = diffuseShader,
-              .diffuseMap = earthDiffuseMap,
-          },
-  };
-
-  // create a cube
-  primitive_shape_t cube = {
-      .transform.position = (vector3_t){0, 0, 2},
-      .transform.rotation = quaternion_identity(),
-      .transform.scale = vector3_one(1.0),
-      .mesh = mesh_alloc_cube(false),
-      .material = {.shader = diffuseShader,
-                   .diffuseMap = cubeDiffuseMap,
-                   .specularMap = cubeSpecularMap},
   };
 
   // create point light
@@ -897,14 +876,7 @@ int main(void) {
       glEnable(GL_DEPTH_TEST);
 
       transform_calculate_view_matrix(&engine_active_camera.transform);
-
-      quaternion_t rotation =
-          quaternion_from_euler(vector3_up(0.02 * engine_time_delta));
-      sphere.transform.rotation =
-          quaternion_multiply(sphere.transform.rotation, rotation);
-      sphere_draw(&cubeSphere);
-      sphere_draw(&sphere);
-      cube_draw(&cube);
+      sphere_draw(&planet);
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
@@ -917,8 +889,7 @@ int main(void) {
 #endif // ENGINE_SHOW_STATS_DRAW_CALLS
     }
   }
-  mesh_free(&cube.mesh);
-  mesh_free(&sphere.mesh);
+  mesh_free(&planet.mesh);
 
   glfwTerminate();
   return 0;
