@@ -482,6 +482,7 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
             map(j, 0, subDivisions - 1, -1, 1),
             1,
         };
+
         
         if (k < subDivisions-1 && j < subDivisions-1) {
           int first  = offset + (k * (subDivisions)) + j;
@@ -499,16 +500,9 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
           indices.data[index++] = second;
         }
 
+        float noise = noise_perlin2d(j*0.1, k*0.1, 0.8, 32) * 0.1;
+        
         vector3_t original = point;
-        float noise = noise_perlin2d(j, k, 0.8, 8);
-        
-        #if 0
-					if (j == subDivisions-1 || j == 0 ||
-							k == subDivisions-1 || k == 0) {
-						noise = 0;
-					}
-				#endif
-        
         switch (faceDirection) {
         case FACE_FRONT: {
           point.x = original.x;
@@ -556,7 +550,7 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         vector3_t normal = vector3_normalize(point);
         
         vertex_t vertex = {
-            .position = vector3_scale(normal, (noise*0.01) +radius * 0.5),
+            .position = vector3_scale(normal, noise + radius * 0.5),
             .normal = normal,
             .texCoord = {u, v},
         };
@@ -720,10 +714,10 @@ int main(void) {
 
   engine_window_title = "Game Window";
   engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 800;
-  engine_window_size_y = 600;
-  engine_window_position_x = 0;
-  engine_window_position_y = 0;
+  engine_window_size_x = 1920*0.6;
+  engine_window_size_y = 1080*0.6;
+  engine_window_position_x = 1920/2;
+  engine_window_position_y = 1080/2;
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
@@ -762,7 +756,7 @@ int main(void) {
     .transform.position = (vector3_t){40, -40, 40},
     .transform.rotation = quaternion_identity(),
     .transform.scale = vector3_one(100.0),
-    .mesh = mesh_alloc_planet(100, 1),
+    .mesh = mesh_alloc_planet(200, 1),
     .material = {
       .shader = unlitShader,
       .diffuseMap = cubeDiffuseMap,
