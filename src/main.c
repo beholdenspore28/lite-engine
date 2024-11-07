@@ -466,15 +466,9 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
   int index = 0;
-  
-  enum { 
-    FACE_FRONT, FACE_BACK, 
-    FACE_RIGHT, FACE_LEFT, 
-    FACE_UP, FACE_DOWN, 
-  };
-  
+  enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
   for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-    int offset = subDivisions*subDivisions*faceDirection;
+    int offset = subDivisions * subDivisions * faceDirection;
     for (int k = 0; k < subDivisions; k++) {
       for (int j = 0; j < subDivisions; j++) {
         vector3_t point = {
@@ -482,16 +476,12 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
             map(j, 0, subDivisions - 1, -1, 1),
             1,
         };
-
-        
-        if (k < subDivisions-1 && j < subDivisions-1) {
-          int first  = offset + (k * (subDivisions)) + j;
+        if (k < subDivisions - 1 && j < subDivisions - 1) {
+          int first = offset + (k * (subDivisions)) + j;
           int second = first + subDivisions;
-        
           for (int i = 0; i < 6; i++) {
             list_uint32_t_add(&indices, 0);
           }
-        
           indices.data[index++] = first + 1;
           indices.data[index++] = second;
           indices.data[index++] = first;
@@ -499,8 +489,6 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
           indices.data[index++] = second + 1;
           indices.data[index++] = second;
         }
-
-        
         vector3_t original = point;
         switch (faceDirection) {
         case FACE_FRONT: {
@@ -508,55 +496,50 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
           point.y = original.y;
           point.z = original.z;
         } break;
-        
         case FACE_BACK: {
           point.x = original.x;
           point.y = -original.y;
           point.z = -original.z;
         } break;
-        
         case FACE_RIGHT: {
           point.x = original.z;
           point.y = -original.y;
           point.z = original.x;
         } break;
-        
         case FACE_LEFT: {
           point.x = -original.z;
           point.y = original.y;
           point.z = original.x;
         } break;
-        
         case FACE_UP: {
           point.x = original.x;
           point.y = original.z;
           point.z = -original.y;
         } break;
-        
         case FACE_DOWN: {
           point.x = -original.x;
           point.y = -original.z;
           point.z = -original.y;
         } break;
-        
         default:
           break;
         }
-        
-        float u = map(k, 0, subDivisions-1, 0, 1) * 8,
-              v = map(j, 0, subDivisions-1, 0, 1) * 8;
-        
+        float u = map(k, 0, subDivisions - 1, 0, 1) * 8,
+              v = map(j, 0, subDivisions - 1, 0, 1) * 8;
         vector3_t pointOnSphere = vector3_normalize(point);
-
-        float scale = 10;
-        float noise = noise_perlin3d(point.x*scale, point.y*scale, point.z*scale, 0.8, 8) * 0.01;
-        
+#if 1
+        float noiseScale = 20,
+              noise = noise_perlin3d(pointOnSphere.x * noiseScale,
+                                     pointOnSphere.y * noiseScale,
+                                     pointOnSphere.z * noiseScale);
+#else
+        float noise = noise_perlin2d(j, k, 0.25, 2) * 0.02;
+#endif
         vertex_t vertex = {
             .position = vector3_scale(pointOnSphere, noise + radius * 0.5),
             .normal = pointOnSphere,
             .texCoord = {u, v},
         };
-        
         list_vertex_t_add(&vertices, vertex);
       }
     }
@@ -572,7 +555,7 @@ mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
   list_uint32_t indices = list_uint32_t_alloc();
   int index = 0;
   for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-    int offset = subDivisions*subDivisions*faceDirection;
+    int offset = subDivisions * subDivisions * faceDirection;
     for (int k = 0; k < subDivisions; k++) {
       for (int j = 0; j < subDivisions; j++) {
         vector3_t point = {
@@ -580,8 +563,8 @@ mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
             map(j, 0, subDivisions - 1, -1, 1),
             1,
         };
-        if (k < subDivisions-1 && j < subDivisions-1) {
-          int first  = offset + (k * (subDivisions)) + j;
+        if (k < subDivisions - 1 && j < subDivisions - 1) {
+          int first = offset + (k * (subDivisions)) + j;
           int second = first + subDivisions;
           for (int i = 0; i < 6; i++) {
             list_uint32_t_add(&indices, 0);
@@ -594,10 +577,13 @@ mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
           indices.data[index++] = second;
         }
 
-        enum { 
-          FACE_FRONT, FACE_BACK, 
-          FACE_RIGHT, FACE_LEFT, 
-          FACE_UP, FACE_DOWN, 
+        enum {
+          FACE_FRONT,
+          FACE_BACK,
+          FACE_RIGHT,
+          FACE_LEFT,
+          FACE_UP,
+          FACE_DOWN,
         };
 
         vector3_t original = point;
@@ -635,8 +621,8 @@ mesh_t mesh_alloc_cube_sphere(const int subDivisions, const float radius) {
         default:
           break;
         }
-        float u = map(k, 0, subDivisions-1, 0, 1),
-              v = map(j, 0, subDivisions-1, 0, 1);
+        float u = map(k, 0, subDivisions - 1, 0, 1),
+              v = map(j, 0, subDivisions - 1, 0, 1);
         vector3_t normal = vector3_normalize(point);
         vertex_t vertex = {
             .position = vector3_scale(normal, radius * 0.5),
@@ -665,8 +651,7 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 
       float x = halfRadius * sin(theta) * cos(phi), y = halfRadius * cos(theta),
             z = halfRadius * sin(theta) * sin(phi),
-            u =  map(lon, 0, lonCount, 0, 1), 
-            v = -map(lat, 0, latCount, 0, 1);
+            u = map(lon, 0, lonCount, 0, 1), v = -map(lat, 0, latCount, 0, 1);
 
       vector3_t point = {x, y, z};
       vector2_t texCoord = {u, v};
@@ -716,15 +701,15 @@ int main(void) {
 
   engine_window_title = "Game Window";
   engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 1920*0.6;
-  engine_window_size_y = 1080*0.6;
-  engine_window_position_x = 1920/2;
-  engine_window_position_y = 1080/2;
+  engine_window_size_x = 1920 * 0.6;
+  engine_window_size_y = 1080 * 0.6;
+  engine_window_position_x = 1920 / 2;
+  engine_window_position_y = 1080 / 2;
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
 
-  engine_set_clear_color(0.3,0.3,0.3,1.0);
+  engine_set_clear_color(0.3, 0.3, 0.3, 1.0);
 
   // shader creation.
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -745,24 +730,26 @@ int main(void) {
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(1000.0),
       .mesh = skyboxMesh,
-      .material = {
-        .shader = unlitShader,
-        .diffuseMap = skyboxDiffuseMap,
-        .specularMap = 0,
-      },
+      .material =
+          {
+              .shader = unlitShader,
+              .diffuseMap = skyboxDiffuseMap,
+              .specularMap = 0,
+          },
   };
 
   GLuint cubeDiffuseMap = texture_create("res/textures/2_17.png");
 
-  primitive_shape_t planet = (primitive_shape_t) {
-    .transform.position = (vector3_t){40, -40, 40},
-    .transform.rotation = quaternion_identity(),
-    .transform.scale = vector3_one(100.0),
-    .mesh = mesh_alloc_planet(200, 1),
-    .material = {
-      .shader = unlitShader,
-      .diffuseMap = cubeDiffuseMap,
-    },
+  primitive_shape_t planet = (primitive_shape_t){
+      .transform.position = (vector3_t){40, -40, 40},
+      .transform.rotation = quaternion_identity(),
+      .transform.scale = vector3_one(100.0),
+      .mesh = mesh_alloc_planet(200, 1),
+      .material =
+          {
+              .shader = unlitShader,
+              .diffuseMap = cubeDiffuseMap,
+          },
   };
 
   // create point light
@@ -870,7 +857,7 @@ int main(void) {
       engine_active_camera.transform.matrix = matrix4_identity();
       glDisable(GL_DEPTH_TEST);
       skybox.transform.rotation =
-        quaternion_conjugate(engine_active_camera.transform.rotation);
+          quaternion_conjugate(engine_active_camera.transform.rotation);
       cube_draw(&skybox);
       glEnable(GL_DEPTH_TEST);
 
