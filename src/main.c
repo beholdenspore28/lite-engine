@@ -528,10 +528,11 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
               v = map(j, 0, subDivisions - 1, 0, 1) * 8;
         vector3_t pointOnSphere = vector3_normalize(point);
 #if 1
-        float noiseScale = 20,
-              noise = noise_perlin3d(pointOnSphere.x * noiseScale,
-                                     pointOnSphere.y * noiseScale,
-                                     pointOnSphere.z * noiseScale);
+        float noiseScale = 10,
+              noise = noise_smoothed3d(
+                  pointOnSphere.x * noiseScale,
+                  pointOnSphere.y * noiseScale,
+                  pointOnSphere.z * noiseScale);
 #else
         float noise = noise_perlin2d(j, k, 0.25, 2) * 0.02;
 #endif
@@ -809,7 +810,7 @@ int main(void) {
       }
 
       { // movement
-        float cameraSpeed = 4 * engine_time_delta;
+        float cameraSpeed = 16 * engine_time_delta;
         float cameraSpeedCurrent;
         if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
           cameraSpeedCurrent = 4 * cameraSpeed;
@@ -837,9 +838,9 @@ int main(void) {
           engine_active_camera.transform.position = vector3_zero();
         }
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        } else {
+          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
       }
     } // END INPUT
