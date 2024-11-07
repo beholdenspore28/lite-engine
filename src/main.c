@@ -500,7 +500,6 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
           indices.data[index++] = second;
         }
 
-        float noise = noise_perlin2d(j*0.1, k*0.1, 0.8, 32) * 0.1;
         
         vector3_t original = point;
         switch (faceDirection) {
@@ -547,11 +546,14 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         float u = map(k, 0, subDivisions-1, 0, 1) * 8,
               v = map(j, 0, subDivisions-1, 0, 1) * 8;
         
-        vector3_t normal = vector3_normalize(point);
+        vector3_t pointOnSphere = vector3_normalize(point);
+
+        float scale = 10;
+        float noise = noise_perlin3d(point.x*scale, point.y*scale, point.z*scale, 0.8, 8) * 0.01;
         
         vertex_t vertex = {
-            .position = vector3_scale(normal, noise + radius * 0.5),
-            .normal = normal,
+            .position = vector3_scale(pointOnSphere, noise + radius * 0.5),
+            .normal = pointOnSphere,
             .texCoord = {u, v},
         };
         
