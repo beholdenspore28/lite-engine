@@ -524,10 +524,11 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         default:
           break;
         }
-        vector3_t pointOnSphere = point; // <<== THIS IS WHY ITS NOT ROUND
+        vector3_t pointOnSphere = vector3_normalize(point); // <<== THIS IS WHY ITS NOT ROUND
         float freq = 5,
-              amp = 2.0,
-              wave = noise3_lerp(pointOnSphere.x*freq, pointOnSphere.y*freq, pointOnSphere.z*freq) * amp,
+              amp = 1.0,
+              offset = 10,
+              wave = noise3_perlin(pointOnSphere.x*freq + offset, pointOnSphere.y*freq + offset, pointOnSphere.z*freq + offset) * amp,
               u = map(k, 0, subDivisions - 1, 0, 1) * 8,
               v = map(j, 0, subDivisions - 1, 0, 1) * 8;
         vertex_t vertex = {
@@ -736,10 +737,10 @@ int main(void) {
   GLuint cubeDiffuseMap = texture_create("res/textures/2_17.png");
 
   primitive_shape_t planet = (primitive_shape_t){
-      .transform.position = (vector3_t){40, -40, 40},
+      .transform.position = (vector3_t){0, -50, 150},
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(100.0),
-      .mesh = mesh_alloc_planet(200, 1),
+      .mesh = mesh_alloc_planet(500, 1),
       .material =
           {
               .shader = unlitShader,

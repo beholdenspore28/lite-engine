@@ -11,7 +11,7 @@ OUT := build/bin/lite-engine
 
 OPT_DEBUG := -g3 -fsanitize=address
 OPT_SMALL := -Oz -flto
-OPT_RELEASE := -flto -O3 
+OPT_RELEASE := -O3 -flto 
 OPT_ := ${OPT_DEBUG} 
 OPT := ${OPT_${MODE}}
 CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
@@ -23,7 +23,7 @@ default: build_lite_engine
 build_lite_engine:	build_dir \
 										build_glad
 	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS} ${CFLAGS} -o ${OUT} 
-	./${OUT}
+	time ./${OUT}
 
 build_glad: build_dir
 	${C} -c dep/glad.c ${CFLAGS} -Idep -o build/obj/glad.o
