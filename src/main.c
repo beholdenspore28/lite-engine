@@ -525,12 +525,12 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
           break;
         }
         vector3_t pointOnSphere = vector3_normalize(point); // <<== THIS IS WHY ITS NOT ROUND
-        float freq = 5,
-              amp = 1.0,
+        float freq = 1,
+              amp = 10.0,
               offset = 10,
               wave = noise3_perlin(pointOnSphere.x*freq + offset, pointOnSphere.y*freq + offset, pointOnSphere.z*freq + offset) * amp,
-              u = map(k, 0, subDivisions - 1, 0, 1) * 8,
-              v = map(j, 0, subDivisions - 1, 0, 1) * 8;
+              u = map(k, 0, subDivisions - 1, 0, 1),
+              v = map(j, 0, subDivisions - 1, 0, 1);
         vertex_t vertex = {
             .position = vector3_scale(pointOnSphere, wave + radius * 0.5),
             .normal = pointOnSphere,
@@ -734,13 +734,13 @@ int main(void) {
           },
   };
 
-  GLuint cubeDiffuseMap = texture_create("res/textures/2_17.png");
+  GLuint cubeDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 
   primitive_shape_t planet = (primitive_shape_t){
       .transform.position = (vector3_t){0, -50, 150},
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(100.0),
-      .mesh = mesh_alloc_planet(500, 1),
+      .mesh = mesh_alloc_planet(200, 1),
       .material =
           {
               .shader = unlitShader,
@@ -833,9 +833,9 @@ int main(void) {
           engine_active_camera.transform.position = vector3_zero();
         }
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
       }
     } // END INPUT
