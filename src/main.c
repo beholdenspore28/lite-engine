@@ -524,20 +524,14 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         default:
           break;
         }
-        float u = map(k, 0, subDivisions - 1, 0, 1) * 8,
+        vector3_t pointOnSphere = point; // <<== THIS IS WHY ITS NOT ROUND
+        float freq = 5,
+              amp = 2.0,
+              wave = noise3_lerp(pointOnSphere.x*freq, pointOnSphere.y*freq, pointOnSphere.z*freq) * amp,
+              u = map(k, 0, subDivisions - 1, 0, 1) * 8,
               v = map(j, 0, subDivisions - 1, 0, 1) * 8;
-        vector3_t pointOnSphere = vector3_normalize(point);
-#if 1
-        float noiseScale = 10,
-              noise = noise_smoothed3d(
-                  pointOnSphere.x * noiseScale,
-                  pointOnSphere.y * noiseScale,
-                  pointOnSphere.z * noiseScale);
-#else
-        float noise = noise_perlin2d(j, k, 0.25, 2) * 0.02;
-#endif
         vertex_t vertex = {
-            .position = vector3_scale(pointOnSphere, noise + radius * 0.5),
+            .position = vector3_scale(pointOnSphere, wave + radius * 0.5),
             .normal = pointOnSphere,
             .texCoord = {u, v},
         };
@@ -702,15 +696,15 @@ int main(void) {
 
   engine_window_title = "Game Window";
   engine_renderer_set_API(ENGINE_RENDERER_API_GL);
-  engine_window_size_x = 1920 * 0.6;
-  engine_window_size_y = 1080 * 0.6;
-  engine_window_position_x = 1920 / 2;
-  engine_window_position_y = 1080 / 2;
+  engine_window_size_x = 1920;
+  engine_window_size_y = 1080;
+  engine_window_position_x = 0;
+  engine_window_position_y = 0;
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
 
-  engine_set_clear_color(0.3, 0.3, 0.3, 1.0);
+  engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
   // shader creation.
   GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
