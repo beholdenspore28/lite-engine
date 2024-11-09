@@ -524,13 +524,24 @@ mesh_t mesh_alloc_planet(const int subDivisions, const float radius) {
         default:
           break;
         }
+
         vector3_t pointOnSphere = vector3_normalize(point); // <<== THIS IS WHY ITS NOT ROUND
-        float freq = 1,
-              amp = 10.0,
-              offset = 10,
-              wave = noise3_perlin(pointOnSphere.x*freq + offset, pointOnSphere.y*freq + offset, pointOnSphere.z*freq + offset) * amp,
-              u = map(k, 0, subDivisions - 1, 0, 1),
+        float freq = 10,
+              amp = 1.0,
+              offset = 10;
+
+        float wave = noise3_perlin(
+            pointOnSphere.x*freq + offset, 
+            pointOnSphere.y*freq + offset, 
+            pointOnSphere.z*freq + offset) * amp;
+
+        float u = map(k, 0, subDivisions - 1, 0, 1),
               v = map(j, 0, subDivisions - 1, 0, 1);
+#if 1
+        if (wave < 0.02) {
+          wave = wave = 0.02;
+        }
+#endif
         vertex_t vertex = {
             .position = vector3_scale(pointOnSphere, wave + radius * 0.5),
             .normal = pointOnSphere,
@@ -726,12 +737,11 @@ int main(void) {
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(1000.0),
       .mesh = skyboxMesh,
-      .material =
-          {
-              .shader = unlitShader,
-              .diffuseMap = skyboxDiffuseMap,
-              .specularMap = 0,
-          },
+      .material = {
+        .shader = unlitShader,
+        .diffuseMap = skyboxDiffuseMap,
+        .specularMap = 0,
+      },
   };
 
   GLuint cubeDiffuseMap = texture_create("res/textures/lunarrock_d.png");
@@ -754,8 +764,8 @@ int main(void) {
       .diffuse = vector3_one(0.8f),
       .specular = vector3_one(1.0f),
       .constant = 1.0f,
-      .linear = 0.0009f,     // changed from 0.09
-      .quadratic = 0.00032f, // changed from 0.032
+      .linear = 0.09f,     // changed from 0.09
+      .quadratic = 0.032f, // changed from 0.032
   };
 
   vector3_t mouseLookVector = vector3_zero();
@@ -833,9 +843,9 @@ int main(void) {
           engine_active_camera.transform.position = vector3_zero();
         }
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        } else {
+          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
       }
     } // END INPUT
@@ -858,6 +868,9 @@ int main(void) {
       glEnable(GL_DEPTH_TEST);
 
       transform_calculate_view_matrix(&engine_active_camera.transform);
+
+      quaternion_t rotation = quaternion_from_euler(vector3_up(engine_time_delta*0.03));
+      planet.transform.rotation = quaternion_multiply(planet.transform.rotation, rotation);
       sphere_draw(&planet);
 
       glfwSwapBuffers(engine_window);
