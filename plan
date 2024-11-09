@@ -1,0 +1,20 @@
+The Plan For Procedural Generation Of Large Planets.
+
+Level of Detail
+  Parts of the planet which are closer to the player
+    will have more vertices
+Noise
+  Basic fractal gradient noise
+  Mountain peaks
+Biomes
+  Multiple climates on one planet
+Sea level
+  Is there any kind of ocean?
+  Is it molten rock or metal?
+  Is it water?
+Temperature
+  Hot planets use different textures than cold planets
+Atmosphere
+  Is it breathable?
+  What color is it?
+  How thick is it?
