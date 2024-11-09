@@ -73,8 +73,22 @@ vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, texCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, texCoord));
     vec3 specular = light.specular * spec * vec3(texture(u_material.specular, texCoord));
-    //diffuse *= attenuation;
-    //specular *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
+}
+
+vec3 lightPointInfiniteRange(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+    vec3 lightDir = normalize(light.position - fragPos);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
+    // combine results
+    vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, texCoord));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, texCoord));
+    vec3 specular = light.specular * spec * vec3(texture(u_material.specular, texCoord));
     return (ambient + diffuse + specular);
 }
 
@@ -106,7 +120,7 @@ void main() {
 	vec3 norm = normalize(normal);
 	vec3 viewDir = normalize(u_cameraPos - fragPos);
 
-	vec3 light = lightPoint(u_pointLight, norm, fragPos, viewDir);
+	vec3 light = lightPointInfiniteRange(u_pointLight, norm, fragPos, viewDir);
 	
 	fragColor = vec4(light, 1.0);
 //	fragColor = vec4(1.0);

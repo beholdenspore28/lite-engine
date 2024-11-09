@@ -751,8 +751,7 @@ int main(void) {
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(100.0),
       .mesh = mesh_alloc_planet(200, 1),
-      .material =
-          {
+      .material = {
               .shader = unlitShader,
               .diffuseMap = cubeDiffuseMap,
           },
