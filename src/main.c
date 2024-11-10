@@ -462,7 +462,6 @@ void cube_draw(primitive_shape_t *cube) {
   glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-#if 0
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -526,22 +525,23 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
           break;
         }
 
-        vector3_t pointOnSphere = vector3_normalize(point); // <<== THIS IS WHY ITS NOT ROUND
+        vector3_t pointOnSphere = vector3_normalize(point);
 
-        float freq = 10,
-              amp = 1.0,
+        float freq = 1,
+              amp = 0.1,
               offset = 10;
 
-        float wave = noise3_perlin(
+        float wave = noise3_fbm(
             pointOnSphere.x*freq + offset, 
             pointOnSphere.y*freq + offset, 
             pointOnSphere.z*freq + offset) * amp;
 
         float u = map(k, 0, subdivisions - 1, 0, 1),
               v = map(j, 0, subdivisions - 1, 0, 1);
-#if 1
-        if (wave < 0.02) {
-          wave = 0.02;
+#if 0
+        float seaLevel = 0.1;
+        if (wave < seaLevel) {
+          wave = seaLevel;
         }
 #endif
         vertex_t vertex = {
@@ -559,52 +559,7 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   m.indices = indices;
   return m;
 }
-#else
-mesh_t mesh_alloc_planet(const float radius) {
-  const float subdivisions = 10;
-  list_vertex_t vertices = list_vertex_t_alloc();
-  list_uint32_t indices = list_uint32_t_alloc();
-  int index = 0;
-  for (int k = 0; k < subdivisions; k++) {
-    for (int j = 0; j < subdivisions; j++) {
-      vector3_t point = {
-        map(k, 0, subdivisions - 1, -1, 1),
-        map(j, 0, subdivisions - 1, -1, 1),
-        1,
-      };
-      if (k < subdivisions - 1 && j < subdivisions - 1) {
-        int first = (k * (subdivisions)) + j;
-        int second = first + subdivisions;
-        for (int i = 0; i < 6; i++) {
-          list_uint32_t_add(&indices, 0);
-        }
-        indices.data[index++] = first + 1;
-        indices.data[index++] = second;
-        indices.data[index++] = first;
-        indices.data[index++] = first + 1;
-        indices.data[index++] = second + 1;
-        indices.data[index++] = second;
-      }
 
-      vector3_t pointOnSphere = vector3_normalize(point);
-      float u = map(k, 0, subdivisions - 1, 0, 1),
-            v = map(j, 0, subdivisions - 1, 0, 1);
-
-      vertex_t vertex = {
-        .position = vector3_scale(pointOnSphere, radius * 0.5),
-        .normal = pointOnSphere,
-        .texCoord = {u, v},
-      };
-      list_vertex_t_add(&vertices, vertex);
-    }
-  }
-  mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
-                        indices.length);
-  m.vertices = vertices;
-  m.indices = indices;
-  return m;
-}
-#endif
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -795,10 +750,10 @@ int main(void) {
   GLuint cubeDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 
   primitive_shape_t planet = (primitive_shape_t){
-      .transform.position = (vector3_t){0, -20, 100},
+      .transform.position = (vector3_t){0, -32, 32},
       .transform.rotation = quaternion_from_euler(vector3_up(PI)),
       .transform.scale = vector3_one(100.0),
-      .mesh = mesh_alloc_planet(1),
+      .mesh = mesh_alloc_planet(200, 1),
       .material = {
               .shader = unlitShader,
               .diffuseMap = cubeDiffuseMap,
@@ -862,7 +817,7 @@ int main(void) {
       }
 
       { // movement
-        float cameraSpeed = 16 * engine_time_delta;
+        float cameraSpeed = 64 * engine_time_delta;
         float cameraSpeedCurrent;
         if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
           cameraSpeedCurrent = 4 * cameraSpeed;
@@ -916,8 +871,8 @@ int main(void) {
 
       transform_calculate_view_matrix(&engine_active_camera.transform);
 
-      quaternion_t rotation = quaternion_from_euler(vector3_up(engine_time_delta*0.03));
-      planet.transform.rotation = quaternion_multiply(planet.transform.rotation, rotation);
+      //quaternion_t rotation = quaternion_from_euler(vector3_up(engine_time_delta*0.03));
+      //planet.transform.rotation = quaternion_multiply(planet.transform.rotation, rotation);
       sphere_draw(&planet);
 
       glfwSwapBuffers(engine_window);
