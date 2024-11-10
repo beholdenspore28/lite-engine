@@ -209,7 +209,7 @@ void engine_start_renderer_api_gl(void) {
                           GL_TRUE);
   }
 
-  //glEnable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
   int width, height;
@@ -462,6 +462,7 @@ void cube_draw(primitive_shape_t *cube) {
   glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
+#if 0
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -559,6 +560,111 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   m.indices = indices;
   return m;
 }
+#else
+mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
+  list_vertex_t vertices = list_vertex_t_alloc();
+  list_uint32_t indices = list_uint32_t_alloc();
+  int index = 0;
+  enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
+  for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
+    int offset = subdivisions * subdivisions * faceDirection;
+    for (int k = 0; k < subdivisions; k++) {
+      for (int j = 0; j < subdivisions; j++) {
+
+        // calculate vertex position on unit cube's surface
+        vector3_t point = {0};
+        point.y = map(k, 0, subdivisions - 1, -0.5, 0.5);
+        point.x = map(j, 0, subdivisions - 1, -0.5, 0.5);
+        point.z = 0.5;
+
+        // calculate indices
+        if (k < subdivisions - 1 && j < subdivisions - 1) {
+          int first = offset + (k * (subdivisions)) + j;
+          int second = first + subdivisions;
+          for (int i = 0; i < 6; i++) {
+            list_uint32_t_add(&indices, 0);
+          }
+          // one quad face
+          indices.data[index++] = first; // triangle 1
+          indices.data[index++] = second;
+          indices.data[index++] = first + 1;
+          indices.data[index++] = second; // triangle 2
+          indices.data[index++] = second + 1;
+          indices.data[index++] = first + 1;
+        }
+
+        { // calculate face direction
+          vector3_t original = point;
+          switch (faceDirection) {
+            case FACE_FRONT: {
+              point.x = original.x;
+              point.y = original.y;
+              point.z = original.z;
+            } break;
+            case FACE_BACK: {
+              point.x = original.x;
+              point.y = -original.y;
+              point.z = -original.z;
+            } break;
+            case FACE_RIGHT: {
+              point.x = original.z;
+              point.y = -original.y;
+              point.z = original.x;
+            } break;
+            case FACE_LEFT: {
+              point.x = -original.z;
+              point.y = original.y;
+              point.z = original.x;
+            } break;
+            case FACE_UP: {
+              point.x = original.x;
+              point.y = original.z;
+              point.z = -original.y;
+            } break;
+            case FACE_DOWN: {
+              point.x = -original.x;
+              point.y = -original.z;
+              point.z = -original.y;
+            } break;
+            default:
+              break;
+          }
+        }
+
+        // sphere-ify
+        vector3_t pointOnSphere = vector3_normalize(point);
+
+        // noise
+        float freq = 1,
+              amp = 0.1,
+              offset = 10,
+              wave = noise3_fbm(
+                  pointOnSphere.x*freq + offset, 
+                  pointOnSphere.y*freq + offset, 
+                  pointOnSphere.z*freq + offset) * amp;
+
+        // texture coordinates
+        float tu = map(k, 0, subdivisions - 1, 0, 1),
+              tv = map(j, 0, subdivisions - 1, 0, 1);
+
+        // add vertex
+        vertex_t vertex = {
+            .position = vector3_scale(pointOnSphere, wave + radius),
+            .normal = pointOnSphere,
+            .texCoord = {tu, tv},
+        };
+        list_vertex_t_add(&vertices, vertex);
+      }
+    }
+  }
+  mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
+                        indices.length);
+  m.vertices = vertices;
+  m.indices = indices;
+  return m;
+}
+
+#endif
 
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
@@ -750,7 +856,7 @@ int main(void) {
   GLuint cubeDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 
   primitive_shape_t planet = (primitive_shape_t){
-      .transform.position = (vector3_t){0, -32, 32},
+      .transform.position = (vector3_t){0, 0, 150},
       .transform.rotation = quaternion_from_euler(vector3_up(PI)),
       .transform.scale = vector3_one(100.0),
       .mesh = mesh_alloc_planet(200, 1),
