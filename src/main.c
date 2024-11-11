@@ -519,7 +519,7 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 #else
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
-  list_uint32_t indices = list_uint32_t_alloc();
+  list_uint32_t indices  = list_uint32_t_alloc();
   int index = 0;
   enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
   for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
@@ -615,8 +615,8 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   }
   mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
                         indices.length);
-  m.vertices = vertices;
-  m.indices = indices;
+  list_vertex_t_free(&vertices);
+  list_uint32_t_free(&indices);
   return m;
 }
 
@@ -707,13 +707,12 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
   }
   mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
                         indices.length);
-  m.vertices = vertices;
-  m.indices = indices;
+  list_vertex_t_free(&vertices);
+  list_uint32_t_free(&indices);
   return m;
 }
 
-mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
-                         const float radius) {
+mesh_t mesh_alloc_sphere(const int latCount, const int lonCount, const float radius) {
   const float halfRadius = radius * 0.5;
   list_vertex_t vertices = list_vertex_t_alloc();
   for (int lat = 0; lat <= latCount; lat++) {
@@ -758,14 +757,9 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 
   mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
                         indices.length);
-  m.vertices = vertices;
-  m.indices = indices;
+  list_vertex_t_free(&vertices);
+  list_uint32_t_free(&indices);
   return m;
-}
-
-void mesh_free(mesh_t *m) {
-  list_vertex_t_free(&m->vertices);
-  list_uint32_t_free(&m->indices);
 }
 
 int main(void) {
