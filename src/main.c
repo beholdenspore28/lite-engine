@@ -209,7 +209,7 @@ void engine_start_renderer_api_gl(void) {
                           GL_TRUE);
   }
 
-  glEnable(GL_CULL_FACE);
+  // glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
   int width, height;
@@ -859,7 +859,7 @@ int main(void) {
       .transform.position = (vector3_t){0, 0, 150},
       .transform.rotation = quaternion_from_euler(vector3_up(PI)),
       .transform.scale = vector3_one(100.0),
-      .mesh = mesh_alloc_planet(200, 1),
+      .mesh = mesh_alloc_planet(50, 1),
       .material = {
               .shader = unlitShader,
               .diffuseMap = cubeDiffuseMap,
