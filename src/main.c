@@ -14,12 +14,6 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define ASSERT_UNIMPLEMENTED 0
-
-// debug toggles
-#define ENGINE_SHOW_STATS_DRAW_CALLS 0
-#define ENGINE_SHOW_STATS_TIME 0
-
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
@@ -252,54 +246,6 @@ void engine_set_clear_color(float r, float g, float b, float a) {
   }
 }
 
-static inline void transform_calculate_matrix(transform_t *t) {
-  matrix4_t translation = matrix4_translate(t->position);
-  matrix4_t rotation = quaternion_to_matrix4(t->rotation);
-  matrix4_t scale = matrix4_scale(t->scale);
-  t->matrix = matrix4_multiply(rotation, translation);
-  t->matrix = matrix4_multiply(scale, t->matrix);
-}
-
-static inline void transform_calculate_view_matrix(transform_t *t) {
-  matrix4_t translation = matrix4_translate(vector3_negate(t->position));
-  matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
-  matrix4_t scale = matrix4_scale(t->scale);
-  t->matrix = matrix4_multiply(translation, rotation);
-  t->matrix = matrix4_multiply(scale, t->matrix);
-}
-
-static inline vector3_t transform_basis_forward(transform_t t,
-                                                float magnitude) {
-  return vector3_rotate(vector3_forward(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_up(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_up(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_right(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_right(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_back(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_back(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_down(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_down(magnitude), t.rotation);
-}
-
-static inline vector3_t transform_basis_left(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_left(magnitude), t.rotation);
-}
-
-DECLARE_LIST(transform_t)
-DEFINE_LIST(transform_t)
-
-DEFINE_LIST(primitive_shape_t)
-
-uint32_t drawCallsSaved = 0;
-
 typedef struct {
   vector3_t position;
   float constant;
@@ -312,12 +258,6 @@ typedef struct {
 pointLight_t light;
 
 void quad_draw(quad_t *quad) {
-  if (quad->transform.scale.x < FLOAT_EPSILON &&
-      quad->transform.scale.y < FLOAT_EPSILON &&
-      quad->transform.scale.z < FLOAT_EPSILON) {
-    drawCallsSaved++;
-    return;
-  }
   glUseProgram(quad->material.shader);
 
   // model matrix
@@ -345,13 +285,7 @@ void quad_draw(quad_t *quad) {
   glDrawElements(GL_TRIANGLES, MESH_QUAD_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-void sphere_draw(primitive_shape_t *sphere) {
-  if (sphere->transform.scale.x < FLOAT_EPSILON &&
-      sphere->transform.scale.y < FLOAT_EPSILON &&
-      sphere->transform.scale.z < FLOAT_EPSILON) {
-    drawCallsSaved++;
-    return;
-  }
+void planet_draw(primitive_shape_t *sphere) {
   glUseProgram(sphere->material.shader);
 
   // light uniforms
@@ -403,14 +337,9 @@ void sphere_draw(primitive_shape_t *sphere) {
   glBindVertexArray(sphere->mesh.VAO);
   glDrawElements(GL_TRIANGLES, sphere->mesh.indexCount, GL_UNSIGNED_INT, 0);
 }
+#if 0
 
 void cube_draw(primitive_shape_t *cube) {
-  if (cube->transform.scale.x < FLOAT_EPSILON &&
-      cube->transform.scale.y < FLOAT_EPSILON &&
-      cube->transform.scale.z < FLOAT_EPSILON) {
-    drawCallsSaved++;
-    return;
-  }
   glUseProgram(cube->material.shader);
 
   // light uniforms
@@ -461,8 +390,9 @@ void cube_draw(primitive_shape_t *cube) {
   glBindVertexArray(cube->mesh.VAO);
   glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
+#endif
 
-#if 0
+#if 1
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -833,12 +763,12 @@ int main(void) {
   GLuint unlitShader =
       shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 
+#if 0
   // skybox creation
   GLuint skyboxDiffuseMap = texture_create("res/textures/space.png");
 
   vertex_t *vertices = mesh_cube_vertices;
   GLuint *indices = mesh_cube_indices_reversed;
-
   mesh_t skyboxMesh = mesh_alloc(vertices, indices, MESH_CUBE_NUM_VERTICES,
                                  MESH_CUBE_NUM_INDICES);
   primitive_shape_t skybox = {
@@ -852,9 +782,10 @@ int main(void) {
         .specularMap = 0,
       },
   };
+#endif
 
-  GLuint cubeDiffuseMap = texture_create("res/textures/lunarrock_d.png");
-
+#if 0
+  GLuint planetDiffuseMap = texture_create("res/textures/lunarrock_d.png");
   primitive_shape_t planet = (primitive_shape_t){
       .transform.position = (vector3_t){0, 0, 150},
       .transform.rotation = quaternion_from_euler(vector3_up(PI)),
@@ -862,9 +793,23 @@ int main(void) {
       .mesh = mesh_alloc_planet(50, 1),
       .material = {
               .shader = unlitShader,
-              .diffuseMap = cubeDiffuseMap,
+              .diffuseMap = planetDiffuseMap,
           },
   };
+#else
+  GLuint planetDiffuseMap = texture_create("res/textures/lunarrock_d.png");
+  transform_t planet_transform = {
+    .position = {0},
+    .rotation = quaternion_identity(),
+    .scale = vector3_one(1.0),
+  };
+  mesh_t planet_mesh = mesh_alloc_planet(100, 0);
+  material_t planet_material = {
+    .shader = unlitShader,
+    .diffuseMap = planetDiffuseMap,
+  };
+
+#endif
 
   // create point light
   light = (pointLight_t){
@@ -970,29 +915,23 @@ int main(void) {
 
       engine_active_camera.transform.matrix = matrix4_identity();
       glDisable(GL_DEPTH_TEST);
-      skybox.transform.rotation =
-          quaternion_conjugate(engine_active_camera.transform.rotation);
-      cube_draw(&skybox);
+      //skybox.transform.rotation =
+          //quaternion_conjugate(engine_active_camera.transform.rotation);
+      //cube_draw(&skybox);
       glEnable(GL_DEPTH_TEST);
 
       transform_calculate_view_matrix(&engine_active_camera.transform);
 
       //quaternion_t rotation = quaternion_from_euler(vector3_up(engine_time_delta*0.03));
       //planet.transform.rotation = quaternion_multiply(planet.transform.rotation, rotation);
-      sphere_draw(&planet);
+      sphere_draw(&planet_mesh);
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
 
-#if ENGINE_SHOW_STATS_DRAW_CALLS
-      if (drawCallsSaved > 0) {
-        printf("saved %d draw calls this frame\n", drawCallsSaved);
-        drawCallsSaved = 0;
-      }
-#endif // ENGINE_SHOW_STATS_DRAW_CALLS
     }
   }
-  mesh_free(&planet.mesh);
+  //mesh_free(&planet.mesh);
 
   glfwTerminate();
   return 0;
