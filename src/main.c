@@ -146,7 +146,6 @@ EntityId entity_register(void) {
   return entity_count;
 }
 
-// checkpoint
 typedef struct {
   mesh_t* mesh;
   GLuint* shader;
@@ -291,31 +290,31 @@ typedef struct {
 
 pointLight_t light;
 
-void quad_draw(quad_t *quad) {
-  glUseProgram(quad->material.shader);
+void quad_draw(component_registry* r, EntityId e) {
+  glUseProgram(r->shader[e]);
 
   // model matrix
-  transform_calculate_matrix(&quad->transform);
+  transform_calculate_matrix(&r->transform[e]);
 
-  shader_setUniformM4(quad->material.shader, "u_modelMatrix",
-                      &quad->transform.matrix);
+  shader_setUniformM4(r->shader[e], "u_modelMatrix",
+                      &r->transform[e].matrix);
 
   // view matrix
-  shader_setUniformM4(quad->material.shader, "u_viewMatrix",
+  shader_setUniformM4(r->shader[e], "u_viewMatrix",
                       &engine_active_camera.transform.matrix);
 
   // projection matrix
-  shader_setUniformM4(quad->material.shader, "u_projectionMatrix",
+  shader_setUniformM4(r->shader[e], "u_projectionMatrix",
                       &engine_active_camera.projection);
 
   // material
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, quad->material.diffuseMap);
+  glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
   vector3_t color = {1.0f, 0.0f, 0.0f};
-  shader_setUniformV3(quad->material.shader, "u_color", color);
-  shader_setUniformInt(quad->material.shader, "u_texture", 0);
+  shader_setUniformV3(r->shader[e], "u_color", color);
+  shader_setUniformInt(r->shader[e], "u_texture", 0);
 
-  glBindVertexArray(quad->mesh.VAO);
+  glBindVertexArray(r->mesh[e].VAO);
   glDrawElements(GL_TRIANGLES, MESH_QUAD_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
@@ -788,11 +787,8 @@ int main(void) {
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
+  engine_set_clear_color(0.2, 0.3, 0.4, 1.0);
 
-  engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
-
-  // checkpoint 
-  
   component_registry* registry = component_registry_alloc();
 
   // shader creation.
@@ -807,9 +803,8 @@ int main(void) {
   EntityId cube = entity_register();
   registry->mesh[cube] = mesh_alloc_cube(false);
   registry->shader[cube] = unlitShader;
-  GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
   registry->material[cube] = (material_t) {
-        .diffuseMap = cubeDiffuseMap,
+        .diffuseMap = texture_create("res/textures/test.png"),
         .specularMap = 0, };
   registry->transform[cube] = (transform_t) {
     .position = {0},
