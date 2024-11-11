@@ -161,7 +161,6 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 	mesh_t m = {0};
 	m.vertexCount = numVertices;
 	m.indexCount = numIndices;
-	m.invertFaces = true;
 
 	glGenVertexArrays(1, &m.VAO);
 	glGenBuffers(1, &m.VBO);
@@ -201,25 +200,13 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 	return m;
 }
 
-mesh_t mesh_alloc_quad(bool invertFaces) {
-	if (invertFaces) {
-		return mesh_alloc(mesh_quad_vertices, mesh_quad_indices_reversed,
-				MESH_QUAD_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
-	}
-	else {
+mesh_t mesh_alloc_quad(void) {
 		return mesh_alloc(mesh_quad_vertices, mesh_quad_indices, 
 				MESH_QUAD_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
-	}
 }
-mesh_t mesh_alloc_cube(bool invertFaces) {
-	if (invertFaces) {
-		return mesh_alloc(mesh_cube_vertices, mesh_cube_indices_reversed, 
-				MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
-	}
-	else {
+mesh_t mesh_alloc_cube(void) {
 		return mesh_alloc(mesh_cube_vertices, mesh_cube_indices, 
 				MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
-	}
 }
 
 // TEXTURE====================================================================//

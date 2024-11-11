@@ -236,7 +236,7 @@ void engine_start_renderer_api_gl(void) {
                           GL_TRUE);
   }
 
-  // glEnable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
   int width, height;
@@ -774,7 +774,7 @@ int main(void) {
   // engine_window_fullscreen = true;
   // engine_window_always_on_top = true;
   engine_start();
-  engine_set_clear_color(0.2, 0.3, 0.4, 1.0);
+  engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
   component_registry* registry = component_registry_alloc();
 
@@ -789,21 +789,9 @@ int main(void) {
   GLuint testDiffuseMap = texture_create("res/textures/test.png");
   GLuint testSpecularMap = texture_create("res/textures/test.png");
 
-  // create planet
-  EntityId planet = entity_register();
-  registry->mesh[planet] = mesh_alloc_planet(100, 1);
-  registry->shader[planet] = unlitShader;
-  registry->material[planet] = (material_t) {
-        .diffuseMap = testDiffuseMap,
-        .specularMap = testSpecularMap, };
-  registry->transform[planet] = (transform_t) {
-    .position = {1, 0, 150},
-    .rotation = quaternion_identity(),
-    .scale = vector3_one(100.0), };
-
   // skybox creation
   EntityId skybox = entity_register();
-  registry->mesh[skybox] = mesh_alloc_cube(true);
+  registry->mesh[skybox] = mesh_alloc_cube();
   registry->shader[skybox] = unlitShader;
   registry->material[skybox] = (material_t) {
         .diffuseMap = texture_create("res/textures/space.png"),
@@ -815,7 +803,7 @@ int main(void) {
 
   // cube creation
   EntityId cube = entity_register();
-  registry->mesh[cube] = mesh_alloc_cube(false);
+  registry->mesh[cube] = mesh_alloc_cube();
   registry->shader[cube] = unlitShader;
   registry->material[cube] = (material_t) {
         .diffuseMap = testDiffuseMap,
@@ -824,6 +812,18 @@ int main(void) {
     .position = {-10, 0, 0},
     .rotation = quaternion_identity(),
     .scale = vector3_one(1.0), };
+
+  // create planet
+  EntityId planet = entity_register();
+  registry->mesh[planet] = mesh_alloc_planet(100, 1);
+  registry->shader[planet] = unlitShader;
+  registry->material[planet] = (material_t) {
+        .diffuseMap = texture_create("res/textures/lunarrock_d.png"),
+        .specularMap = testSpecularMap, };
+  registry->transform[planet] = (transform_t) {
+    .position = {1, 0, 150},
+    .rotation = quaternion_identity(),
+    .scale = vector3_one(100.0), };
 
   // create point light
   light = (pointLight_t){
@@ -910,9 +910,9 @@ int main(void) {
           engine_active_camera.transform.position = vector3_zero();
         }
         if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        } else {
           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
       }
     } // END INPUT
