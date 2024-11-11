@@ -921,7 +921,7 @@ int main(void) {
       }
 
       { // movement
-        float cameraSpeed = 64 * engine_time_delta;
+        float cameraSpeed = 8 * engine_time_delta;
         float cameraSpeedCurrent;
         if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
           cameraSpeedCurrent = 4 * cameraSpeed;
