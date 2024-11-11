@@ -57,6 +57,7 @@ typedef struct {
   quaternion_t rotation;
   vector3_t scale;
 } transform_t;
+DECLARE_LIST(transform_t)
 
 void transform_calculate_matrix(transform_t *t);
 void transform_calculate_view_matrix(transform_t *t);
@@ -66,7 +67,6 @@ vector3_t transform_basis_right(transform_t t, float magnitude);
 vector3_t transform_basis_back(transform_t t, float magnitude);
 vector3_t transform_basis_down(transform_t t, float magnitude);
 vector3_t transform_basis_left(transform_t t, float magnitude);
-DECLARE_LIST(transform_t)
 
 typedef struct {
 	transform_t transform;

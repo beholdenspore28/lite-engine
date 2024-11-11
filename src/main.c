@@ -19,8 +19,7 @@ static void error_callback(int error, const char *description) {
   fprintf(stderr, "Error: %s\n", description);
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods) {
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
   (void)scancode;
   (void)mods;
 
@@ -137,6 +136,41 @@ static vector3_t engine_ambient_light = {0.01, 0.01, 0.01};
 static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
 static camera_t engine_active_camera = {0};
 
+typedef uint32_t EntityId;
+static EntityId entity_count;
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 8 };
+
+EntityId entity_register(void) {
+  assert(entity_count < MAX_ENTITIES);
+  entity_count++;
+  return entity_count;
+}
+
+// checkpoint
+typedef struct {
+  mesh_t* mesh;
+  GLuint* shader;
+  transform_t* transform;
+  material_t* material;
+} component_registry;
+
+component_registry* component_registry_alloc(void) {
+  component_registry* r = malloc(sizeof(component_registry));
+  r->mesh = calloc(sizeof(mesh_t), MAX_ENTITIES);
+  r->shader = calloc(sizeof(GLuint), MAX_ENTITIES);
+  r->transform = calloc(sizeof(transform_t), MAX_ENTITIES);
+  r->material = calloc(sizeof(material_t), MAX_ENTITIES);
+  return r;
+}
+
+void component_registry_free(component_registry* r) {
+  free(r->mesh);
+  free(r->shader);
+  free(r->transform);
+  free(r->material);
+  free(r);
+}
+
 void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
   engine_renderer_API = renderingAPI;
 }
@@ -217,7 +251,7 @@ void engine_start_renderer_api_gl(void) {
   glfwSwapBuffers(engine_window);
 
   engine_active_camera = (camera_t){
-      .transform.position = (vector3_t){0.0, 0.0, -5.0},
+      .transform.position = (vector3_t){0.0, 0.0, -20.0},
       .transform.rotation = quaternion_identity(),
       .transform.scale = vector3_one(1.0),
       .projection = matrix4_identity(),
@@ -285,7 +319,8 @@ void quad_draw(quad_t *quad) {
   glDrawElements(GL_TRIANGLES, MESH_QUAD_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
-void planet_draw(primitive_shape_t *sphere) {
+#if 0
+void planet_draw(EntityId e) {
   glUseProgram(sphere->material.shader);
 
   // light uniforms
@@ -337,60 +372,59 @@ void planet_draw(primitive_shape_t *sphere) {
   glBindVertexArray(sphere->mesh.VAO);
   glDrawElements(GL_TRIANGLES, sphere->mesh.indexCount, GL_UNSIGNED_INT, 0);
 }
-#if 0
+#endif
 
-void cube_draw(primitive_shape_t *cube) {
-  glUseProgram(cube->material.shader);
+void cube_draw(component_registry* r, EntityId e) {
+  glUseProgram(r->shader[e]);
 
   // light uniforms
-  shader_setUniformV3(cube->material.shader, "u_pointLight.position",
+  shader_setUniformV3(r->shader[e], "u_pointLight.position",
                       light.position);
-  shader_setUniformFloat(cube->material.shader, "u_pointLight.constant",
+  shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
                          light.constant);
-  shader_setUniformFloat(cube->material.shader, "u_pointLight.linear",
+  shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
                          light.linear);
-  shader_setUniformFloat(cube->material.shader, "u_pointLight.quadratic",
+  shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
                          light.quadratic);
-  shader_setUniformV3(cube->material.shader, "u_pointLight.diffuse",
+  shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
                       light.diffuse);
-  shader_setUniformV3(cube->material.shader, "u_pointLight.specular",
+  shader_setUniformV3(r->shader[e], "u_pointLight.specular",
                       light.specular);
 
   // model matrix
-  transform_calculate_matrix(&cube->transform);
+  transform_calculate_matrix(&r->transform[e]);
 
-  shader_setUniformM4(cube->material.shader, "u_modelMatrix",
-                      &cube->transform.matrix);
+  shader_setUniformM4(r->shader[e], "u_modelMatrix",
+                      &r->transform[e].matrix);
 
   // view matrix
-  shader_setUniformM4(cube->material.shader, "u_viewMatrix",
+  shader_setUniformM4(r->shader[e], "u_viewMatrix",
                       &engine_active_camera.transform.matrix);
 
   // projection matrix
-  shader_setUniformM4(cube->material.shader, "u_projectionMatrix",
+  shader_setUniformM4(r->shader[e], "u_projectionMatrix",
                       &engine_active_camera.projection);
 
   // camera position
-  shader_setUniformV3(cube->material.shader, "u_cameraPos",
+  shader_setUniformV3(r->shader[e], "u_cameraPos",
                       engine_active_camera.transform.position);
 
   // material
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, cube->material.diffuseMap);
+  glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
 
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, cube->material.specularMap);
+  glBindTexture(GL_TEXTURE_2D, r->material[e].specularMap);
 
-  shader_setUniformInt(cube->material.shader, "u_material.diffuse", 0);
-  shader_setUniformInt(cube->material.shader, "u_material.specular", 1);
-  shader_setUniformFloat(cube->material.shader, "u_material.shininess", 32.0f);
-  shader_setUniformV3(cube->material.shader, "u_ambientLight",
+  shader_setUniformInt(r->shader[e], "u_material.diffuse", 0);
+  shader_setUniformInt(r->shader[e], "u_material.specular", 1);
+  shader_setUniformFloat(r->shader[e], "u_material.shininess", 32.0f);
+  shader_setUniformV3(r->shader[e], "u_ambientLight",
                       engine_ambient_light);
 
-  glBindVertexArray(cube->mesh.VAO);
+  glBindVertexArray(r->mesh[e].VAO);
   glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
-#endif
 
 #if 1
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
@@ -757,11 +791,30 @@ int main(void) {
 
   engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
+  // checkpoint 
+  
+  component_registry* registry = component_registry_alloc();
+
   // shader creation.
-  GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
-                                       "res/shaders/diffuse.fs.glsl");
-  GLuint unlitShader =
-      shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+  GLuint diffuseShader = shader_create(
+      "res/shaders/diffuse.vs.glsl", 
+      "res/shaders/diffuse.fs.glsl");
+  GLuint unlitShader = shader_create(
+      "res/shaders/unlit.vs.glsl",
+      "res/shaders/unlit.fs.glsl");
+
+  // cube creation
+  EntityId cube = entity_register();
+  registry->mesh[cube] = mesh_alloc_cube(false);
+  registry->shader[cube] = unlitShader;
+  GLuint cubeDiffuseMap = texture_create("res/textures/test.png");
+  registry->material[cube] = (material_t) {
+        .diffuseMap = cubeDiffuseMap,
+        .specularMap = 0, };
+  registry->transform[cube] = (transform_t) {
+    .position = {0},
+    .rotation = quaternion_identity(),
+    .scale = vector3_one(1.0), };
 
 #if 0
   // skybox creation
@@ -796,7 +849,8 @@ int main(void) {
               .diffuseMap = planetDiffuseMap,
           },
   };
-#else
+#endif
+#if 0
   GLuint planetDiffuseMap = texture_create("res/textures/lunarrock_d.png");
   transform_t planet_transform = {
     .position = {0},
@@ -808,7 +862,6 @@ int main(void) {
     .shader = unlitShader,
     .diffuseMap = planetDiffuseMap,
   };
-
 #endif
 
   // create point light
@@ -924,7 +977,8 @@ int main(void) {
 
       //quaternion_t rotation = quaternion_from_euler(vector3_up(engine_time_delta*0.03));
       //planet.transform.rotation = quaternion_multiply(planet.transform.rotation, rotation);
-      sphere_draw(&planet_mesh);
+      //sphere_draw(&planet_mesh);
+      cube_draw(registry, cube);
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
@@ -933,6 +987,7 @@ int main(void) {
   }
   //mesh_free(&planet.mesh);
 
+  component_registry_free(registry);
   glfwTerminate();
   return 0;
 }

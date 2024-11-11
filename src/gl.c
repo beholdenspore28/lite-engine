@@ -109,6 +109,7 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 }
 // TRANSFORM==================================================================//
 
+DEFINE_LIST(transform_t)
 void transform_calculate_matrix(transform_t *t) {
   matrix4_t translation = matrix4_translate(t->position);
   matrix4_t rotation = quaternion_to_matrix4(t->rotation);
