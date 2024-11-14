@@ -783,15 +783,15 @@ int main(void) {
 
 #if DEBUG_LOG_TIME // log time
       printf("time_current  %f\n"
-          "time_last     %f\n"
-          "time_delta    %f\n"
-          "FPS           %f\n"
-          "frame_current %d\n", 
-          engine_time_current, 
-          engine_time_last,
-          engine_time_delta,
-          engine_renderer_FPS,
-          engine_frame_current);
+             "time_last     %f\n"
+             "time_delta    %f\n"
+             "FPS           %f\n"
+             "frame_current %d\n", 
+             engine_time_current, 
+             engine_time_last,
+             engine_time_delta,
+             engine_renderer_FPS,
+             engine_frame_current);
 #endif // log time
     }
 
