@@ -131,11 +131,11 @@ static int         engine_window_position_y    = 0;
 static bool        engine_window_fullscreen    = false;
 static char*       engine_window_title         = "Game Window";
 static bool        engine_window_always_on_top = false;
-static float       engine_time_current         = 0.0f;
-static float       engine_time_last            = 0.0f;
-static float       engine_time_delta           = 0.0f;
+static float        engine_time_current         = 0.0f;
+static float        engine_time_last            = 0.0f;
+static float        engine_time_delta           = 0.0f;
 static uint64_t    engine_frame_current        = 0;
-static float       engine_renderer_FPS         = 0.0f;
+static float        engine_renderer_FPS         = 0.0f;
 static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
 static camera_t    engine_active_camera        = { 0 };
 
@@ -506,30 +506,35 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   return m;
 }
 #else
-mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
+mesh_t mesh_alloc_planet(const int resolution, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
+  
   int index = 0;
-  for (int k = 0; k < subdivisions; k++) {
-    for (int j = 0; j < subdivisions; j++) {
+  for (int k = 0; k < resolution; k++) {
+    for (int j = 0; j < resolution; j++) {    
       vector3_t point = {0};
-      point.x = map(j, 0, subdivisions - 1, -0.25, 0.25) + 0.25;
-      point.y = map(k, 0, subdivisions - 1, -0.25, 0.25) + 0.25;
+      point.x = map(j, 0, resolution - 1, -0.25, 0.25) + 0.25;
+      point.y = map(k, 0, resolution - 1, -0.25, 0.25) + 0.25;
       point.z = 0.5;
-      if (k < subdivisions - 1 && j < subdivisions - 1) {
-        int first = (k * (subdivisions)) + j;
-        int second = first + subdivisions;
+      
+      if (k < resolution - 1 && j < resolution - 1) {
+        int first = (k * (resolution)) + j;
+        int second = first + resolution;
         for (int i = 0; i < 6; i++) {
           list_uint32_t_add(&indices, 0);
         }
         indices.data[index++] = first;
         indices.data[index++] = second;
-        indices.data[index++] = first + 1;
+        indices.data[index++] = first    + 1;
+  
         indices.data[index++] = second;
-        indices.data[index++] = second + 1;
-        indices.data[index++] = first + 1;
+        indices.data[index++] = second  + 1;
+        indices.data[index++] = first    + 1;
       }
+      
       vector3_t pointOnSphere = vector3_normalize(point);
+      
       float freq = 1, 
             amp = 0.4, 
             offset = 10,
@@ -537,10 +542,12 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
                 pointOnSphere.x * freq + offset,
                 pointOnSphere.y * freq + offset,
                 pointOnSphere.z * freq + offset) * amp;
-      float tu = map(k, 0, subdivisions - 1, 0, 1),
-            tv = map(j, 0, subdivisions - 1, 0, 1);
+      
+      float tu = map(k, 0, resolution - 1, 0, 1),
+            tv = map(j, 0, resolution - 1, 0, 1);
+      
       vertex_t vertex = {
-        .position = vector3_scale(pointOnSphere, radius),
+        .position = vector3_scale(pointOnSphere, radius*0.5),
         .normal = pointOnSphere,
         .texCoord = {tu, tv},
       };
@@ -562,11 +569,13 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
     int offset = subdivisions * subdivisions * faceDirection;
     for (int k = 0; k < subdivisions; k++) {
       for (int j = 0; j < subdivisions; j++) {
+        
         vector3_t point = {
             map(k, 0, subdivisions - 1, -1, 1),
             map(j, 0, subdivisions - 1, -1, 1),
             1,
         };
+        
         if (k < subdivisions - 1 && j < subdivisions - 1) {
           int first = offset + (k * (subdivisions)) + j;
           int second = first + subdivisions;
@@ -625,9 +634,12 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
         default:
           break;
         }
+        
         float u = map(k, 0, subdivisions - 1, 0, 1),
               v = map(j, 0, subdivisions - 1, 0, 1);
+        
         vector3_t normal = vector3_normalize(point);
+        
         vertex_t vertex = {
             .position = vector3_scale(normal, radius * 0.5),
             .normal = normal,
@@ -699,9 +711,9 @@ int main(void) {
   printf("Rev up those fryers!\n");
 
   engine_window_title = "Game Window";
-  engine_window_size_x = 1920 / 2;
-  engine_window_size_y = 1080 / 2;
-  engine_window_position_x = 1920 / 2;
+  engine_window_size_x = 1280;
+  engine_window_size_y = 720;
+  engine_window_position_x = 1280 / 2;
   engine_window_position_y = 0;
   engine_start();
   engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
@@ -748,7 +760,7 @@ int main(void) {
 
   // create planet
   EntityId planet = entity_register();
-  registry->mesh[planet] = mesh_alloc_planet(100, 1);
+  registry->mesh[planet] = mesh_alloc_planet(10, 1);
   registry->shader[planet] = unlitShader;
   registry->material[planet] = (material_t){
       .diffuseMap = texture_create("res/textures/lunarrock_d.png"),
@@ -786,7 +798,7 @@ int main(void) {
              "time_last     %f\n"
              "time_delta    %f\n"
              "FPS           %f\n"
-             "frame_current %d\n", 
+             "frame_current %lu\n", 
              engine_time_current, 
              engine_time_last,
              engine_time_delta,
