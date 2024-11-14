@@ -124,20 +124,20 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
 }
 
 static GLFWwindow *engine_window;
-static int         engine_window_size_x = 640;
-static int         engine_window_size_y = 480;
-static int         engine_window_position_x = 0;
-static int         engine_window_position_y = 0;
-static bool        engine_window_fullscreen = false;
-static char*       engine_window_title = "Game Window";
+static int         engine_window_size_x        = 640;
+static int         engine_window_size_y        = 480;
+static int         engine_window_position_x    = 0;
+static int         engine_window_position_y    = 0;
+static bool        engine_window_fullscreen    = false;
+static char*       engine_window_title         = "Game Window";
 static bool        engine_window_always_on_top = false;
-static float       engine_time_current = 0.0f;
-static float       engine_time_last = 0.0f;
-static float       engine_time_delta = 0.0f;
-static uint64_t    engine_frame_current = 0;
-static float       engine_renderer_FPS = 0.0f;
-static vector3_t   engine_ambient_light = {0.1, 0.1, 0.1};
-static camera_t engine_active_camera = {0};
+static float       engine_time_current         = 0.0f;
+static float       engine_time_last            = 0.0f;
+static float       engine_time_delta           = 0.0f;
+static uint64_t    engine_frame_current        = 0;
+static float       engine_renderer_FPS         = 0.0f;
+static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
+static camera_t    engine_active_camera        = { 0 };
 
 typedef uint32_t EntityId;
 static EntityId entity_count;

@@ -18,7 +18,7 @@ force (reaction), where the reaction is collinear to the acting force.
 | Quantity               | Symbol       | Dimensions | Units, SI   | Units, English |
 |====================================================================================
 | Acceleration, linear   | A            | L/T2       | m/s2        | ft/s2          |
-| Acceleration, angular  | α			      | radian/T2	 | radian/s2   | radian/s2      |
+| Acceleration, angular  | α			| radian/T2	 | radian/s2   | radian/s2      |
 | Density                | ρ            | M/L3       | kg/m3       | slug/ft3       |
 | Force                  | F            | M (L/T2)   | newton,N    | pound, lbs     |
 | Kinematic viscosity    | ν            | L2/T       | m2/s        | ft2/s          |
