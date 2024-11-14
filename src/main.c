@@ -14,6 +14,9 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
+#define DEBUG_LOG_TIME 1
+#define USE_DEPRECATED_TIME 0
+
 static void error_callback(int error, const char *description) {
   (void)error;
   fprintf(stderr, "Error: %s\n", description);
@@ -121,20 +124,19 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
 }
 
 static GLFWwindow *engine_window;
-static int engine_window_size_x = 640;
-static int engine_window_size_y = 480;
-static int engine_window_position_x = 0;
-static int engine_window_position_y = 0;
-static bool engine_window_fullscreen = false;
-static char *engine_window_title = "Game Window";
-static bool engine_window_always_on_top = false;
-static float engine_time_current = 0.0f;
-static float engine_time_last = 0.0f;
-static float engine_time_delta = 0.0f;
-static uint64_t engine_time_current_frame = 0;
-static float engine_renderer_FPS = 0.0f;
-static vector3_t engine_ambient_light = {0.01, 0.01, 0.01};
-static engine_renderer_API_t engine_renderer_API = ENGINE_RENDERER_API_GL;
+static int         engine_window_size_x = 640;
+static int         engine_window_size_y = 480;
+static int         engine_window_position_x = 0;
+static int         engine_window_position_y = 0;
+static bool        engine_window_fullscreen = false;
+static char*       engine_window_title = "Game Window";
+static bool        engine_window_always_on_top = false;
+static float       engine_time_current = 0.0f;
+static float       engine_time_last = 0.0f;
+static float       engine_time_delta = 0.0f;
+static uint64_t    engine_frame_current = 0;
+static float       engine_renderer_FPS = 0.0f;
+static vector3_t   engine_ambient_light = {0.1, 0.1, 0.1};
 static camera_t engine_active_camera = {0};
 
 typedef uint32_t EntityId;
@@ -184,10 +186,6 @@ void component_registry_free(component_registry *r) {
   free(r);
 }
 
-void engine_renderer_set_API(engine_renderer_API_t renderingAPI) {
-  engine_renderer_API = renderingAPI;
-}
-
 // set window resolution
 void engine_window_set_resolution(int x, int y) {
   glfwSetWindowSize(engine_window, x, y);
@@ -198,7 +196,8 @@ void engine_window_set_position(int x, int y) {
   glfwSetWindowPos(engine_window, x, y);
 }
 
-void engine_start_renderer_api_gl(void) {
+
+void engine_start(void) {
   if (!glfwInit()) {
     printf("[ERROR_GLFW] Failed to initialize GLFW");
   }
@@ -250,7 +249,7 @@ void engine_start_renderer_api_gl(void) {
                           GL_TRUE);
   }
 
-  glEnable(GL_CULL_FACE);
+  //glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
   int width, height;
@@ -272,25 +271,8 @@ void engine_start_renderer_api_gl(void) {
   };
 }
 
-void engine_start(void) {
-  switch (engine_renderer_API) {
-  case ENGINE_RENDERER_API_GL:
-    engine_start_renderer_api_gl();
-    break;
-  default:
-    assert(0);
-    break;
-  }
-}
-
 void engine_set_clear_color(float r, float g, float b, float a) {
-  switch (engine_renderer_API) {
-  case ENGINE_RENDERER_API_GL:
-    glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
-    break;
-  case ENGINE_RENDERER_API_NONE:
-    break;
-  }
+  glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
 void quad_draw(component_registry *r, EntityId e) {
@@ -430,99 +412,6 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
     int offset = subdivisions * subdivisions * faceDirection;
     for (int k = 0; k < subdivisions; k++) {
       for (int j = 0; j < subdivisions; j++) {
-        vector3_t point = {
-            map(k, 0, subdivisions - 1, -1, 1),
-            map(j, 0, subdivisions - 1, -1, 1),
-            1,
-        };
-        if (k < subdivisions - 1 && j < subdivisions - 1) {
-          int first = offset + (k * (subdivisions)) + j;
-          int second = first + subdivisions;
-          for (int i = 0; i < 6; i++) {
-            list_uint32_t_add(&indices, 0);
-          }
-          indices.data[index++] = first + 1;
-          indices.data[index++] = second;
-          indices.data[index++] = first;
-          indices.data[index++] = first + 1;
-          indices.data[index++] = second + 1;
-          indices.data[index++] = second;
-        }
-        vector3_t original = point;
-        switch (faceDirection) {
-        case FACE_FRONT: {
-          point.x = original.x;
-          point.y = original.y;
-          point.z = original.z;
-        } break;
-        case FACE_BACK: {
-          point.x = original.x;
-          point.y = -original.y;
-          point.z = -original.z;
-        } break;
-        case FACE_RIGHT: {
-          point.x = original.z;
-          point.y = -original.y;
-          point.z = original.x;
-        } break;
-        case FACE_LEFT: {
-          point.x = -original.z;
-          point.y = original.y;
-          point.z = original.x;
-        } break;
-        case FACE_UP: {
-          point.x = original.x;
-          point.y = original.z;
-          point.z = -original.y;
-        } break;
-        case FACE_DOWN: {
-          point.x = -original.x;
-          point.y = -original.z;
-          point.z = -original.y;
-        } break;
-        default:
-          break;
-        }
-
-        vector3_t pointOnSphere = vector3_normalize(point);
-
-        float freq = 1,
-              amp = 0.1,
-              offset = 10;
-
-        float wave = noise3_fbm(
-            pointOnSphere.x*freq + offset, 
-            pointOnSphere.y*freq + offset, 
-            pointOnSphere.z*freq + offset) * amp;
-
-        float u = map(k, 0, subdivisions - 1, 0, 1),
-              v = map(j, 0, subdivisions - 1, 0, 1);
-
-        vertex_t vertex = {
-            .position = vector3_scale(pointOnSphere, wave + radius * 0.5),
-            .normal = pointOnSphere,
-            .texCoord = {u, v},
-        };
-        list_vertex_t_add(&vertices, vertex);
-      }
-    }
-  }
-  mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
-                        indices.length);
-  m.vertices = vertices;
-  m.indices = indices;
-  return m;
-}
-#else
-mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
-  list_vertex_t vertices = list_vertex_t_alloc();
-  list_uint32_t indices = list_uint32_t_alloc();
-  int index = 0;
-  enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
-  for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-    int offset = subdivisions * subdivisions * faceDirection;
-    for (int k = 0; k < subdivisions; k++) {
-      for (int j = 0; j < subdivisions; j++) {
 
         // calculate vertex position on unit cube's surface
         vector3_t point = {0};
@@ -588,11 +477,13 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
         vector3_t pointOnSphere = vector3_normalize(point);
 
         // noise
-        float freq = 1, amp = 0.1, offset = 10,
-              wave = noise3_fbm(pointOnSphere.x * freq + offset,
-                                pointOnSphere.y * freq + offset,
-                                pointOnSphere.z * freq + offset) *
-                     amp;
+        float freq = 1, 
+              amp = 0.4, 
+              offset = 10,
+              wave = noise3_fbm(
+                  pointOnSphere.x * freq + offset,
+                  pointOnSphere.y * freq + offset,
+                  pointOnSphere.z * freq + offset) * amp;
 
         // texture coordinates
         float tu = map(k, 0, subdivisions - 1, 0, 1),
@@ -614,9 +505,55 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
   list_uint32_t_free(&indices);
   return m;
 }
-
+#else
+mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
+  list_vertex_t vertices = list_vertex_t_alloc();
+  list_uint32_t indices = list_uint32_t_alloc();
+  int index = 0;
+  for (int k = 0; k < subdivisions; k++) {
+    for (int j = 0; j < subdivisions; j++) {
+      vector3_t point = {0};
+      point.x = map(j, 0, subdivisions - 1, -0.25, 0.25) + 0.25;
+      point.y = map(k, 0, subdivisions - 1, -0.25, 0.25) + 0.25;
+      point.z = 0.5;
+      if (k < subdivisions - 1 && j < subdivisions - 1) {
+        int first = (k * (subdivisions)) + j;
+        int second = first + subdivisions;
+        for (int i = 0; i < 6; i++) {
+          list_uint32_t_add(&indices, 0);
+        }
+        indices.data[index++] = first;
+        indices.data[index++] = second;
+        indices.data[index++] = first + 1;
+        indices.data[index++] = second;
+        indices.data[index++] = second + 1;
+        indices.data[index++] = first + 1;
+      }
+      vector3_t pointOnSphere = vector3_normalize(point);
+      float freq = 1, 
+            amp = 0.4, 
+            offset = 10,
+            wave = noise3_fbm(
+                pointOnSphere.x * freq + offset,
+                pointOnSphere.y * freq + offset,
+                pointOnSphere.z * freq + offset) * amp;
+      float tu = map(k, 0, subdivisions - 1, 0, 1),
+            tv = map(j, 0, subdivisions - 1, 0, 1);
+      vertex_t vertex = {
+        .position = vector3_scale(pointOnSphere, radius),
+        .normal = pointOnSphere,
+        .texCoord = {tu, tv},
+      };
+      list_vertex_t_add(&vertices, vertex);
+    }
+  }
+  mesh_t m = mesh_alloc(vertices.data, indices.data, vertices.length,
+                        indices.length);
+  list_vertex_t_free(&vertices);
+  list_uint32_t_free(&indices);
+  return m;
+}
 #endif
-
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
   list_vertex_t vertices = list_vertex_t_alloc();
   list_uint32_t indices = list_uint32_t_alloc();
@@ -762,7 +699,6 @@ int main(void) {
   printf("Rev up those fryers!\n");
 
   engine_window_title = "Game Window";
-  engine_renderer_set_API(ENGINE_RENDERER_API_GL);
   engine_window_size_x = 1920 / 2;
   engine_window_size_y = 1080 / 2;
   engine_window_position_x = 1920 / 2;
@@ -824,6 +760,7 @@ int main(void) {
       .scale = vector3_one(100.0),
   };
 
+  // create light
   light = entity_register();
   registry->pointlight[light] = (pointLight_t){
       .diffuse = vector3_one(0.8f),
@@ -836,19 +773,27 @@ int main(void) {
   vector3_t mouseLookVector = vector3_zero();
 
   while (!glfwWindowShouldClose(engine_window)) {
-    { // TIME
+    { // update time
       engine_time_current = glfwGetTime();
-      engine_time_delta = engine_time_current - engine_time_last;
-      engine_time_last = engine_time_current;
+      engine_time_delta   = engine_time_current - engine_time_last;
+      engine_time_last    = engine_time_current;
 
       engine_renderer_FPS = 1 / engine_time_delta;
-      engine_time_current_frame++;
-#if ENGINE_SHOW_STATS_TIME
-      printf("============FRAME=START==============\n");
-      printf("DELTA_TIME: %f | FPS: %f | CURRENT_FRAME %d\n", engine_time_delta,
-             engine_renderer_FPS, engine_time_current_frame);
-#endif // ENGINE_SHOW_STATS_TIME
-    }  // END TIME
+      engine_frame_current++;
+
+#if DEBUG_LOG_TIME // log time
+      printf("time_current  %f\n"
+          "time_last     %f\n"
+          "time_delta    %f\n"
+          "FPS           %f\n"
+          "frame_current %d\n", 
+          engine_time_current, 
+          engine_time_last,
+          engine_time_delta,
+          engine_renderer_FPS,
+          engine_frame_current);
+#endif // log time
+    }
 
     {   // INPUT
       { // mouse look
@@ -880,7 +825,7 @@ int main(void) {
       }
 
       { // movement
-        float cameraSpeed = 8 * engine_time_delta;
+        float cameraSpeed = 32 * engine_time_delta;
         float cameraSpeedCurrent;
         if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
           cameraSpeedCurrent = 4 * cameraSpeed;
