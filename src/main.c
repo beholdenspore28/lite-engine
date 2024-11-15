@@ -159,11 +159,20 @@ typedef struct {
 EntityId light;
 
 typedef struct {
+	float angle;
+	float power;
+	bool isLaunched;
+	vector3_t initialPosition;
+	vector3_t initialVelocity;
+}kinematic_body_t;
+
+typedef struct {
 	mesh_t *mesh;
 	GLuint *shader;
 	transform_t *transform;
 	material_t *material;
 	pointLight_t *pointlight;
+	kinematic_body_t *kinematic_body;
 } component_registry;
 
 component_registry *component_registry_alloc(void) {
@@ -173,6 +182,7 @@ component_registry *component_registry_alloc(void) {
 	r->transform = calloc(sizeof(transform_t), MAX_ENTITIES);
 	r->material = calloc(sizeof(material_t), MAX_ENTITIES);
 	r->pointlight = calloc(sizeof(pointLight_t), MAX_ENTITIES);
+	r->kinematic_body = calloc(sizeof(kinematic_body_t), MAX_ENTITIES);
 	return r;
 }
 
@@ -182,7 +192,34 @@ void component_registry_free(component_registry *r) {
 	free(r->transform);
 	free(r->material);
 	free(r->pointlight);
+	free(r->kinematic_body);
 	free(r);
+}
+
+void kinematic_body_launch(component_registry* r, EntityId e) {
+	kinematic_body_t* k = &r->kinematic_body[e];
+	k->initialVelocity = (vector3_t){
+		cosf(k->angle * PI/180.0f) * k->power,
+		sinf(k->angle * PI/180.0f) * k->power,
+		0};
+	k->initialPosition = r->transform[e].position;
+	k->isLaunched = true;
+}
+
+static inline float kinematic_equation(float acceleration, float velocity,
+		float position, float time) {
+	return 0.5f * acceleration * time * time + velocity * time + position;
+}
+
+void kinematic_body_update(component_registry* r, EntityId e) {
+	kinematic_body_t* k = &r->kinematic_body[e];
+	if (!k->isLaunched)
+		return;
+	float newPosX = kinematic_equation(0.0f,k->initialVelocity.x,
+		k->initialPosition.x,engine_time_current/100.0f);
+	float newPosY = kinematic_equation(-9.81f,	k->initialVelocity.y, 
+		k->initialPosition.y, engine_time_current/100.0f);
+	r->transform[e].position = (vector3_t){newPosX, newPosY, r->transform[e].position.z};
 }
 
 // set window resolution
@@ -722,6 +759,8 @@ int main(void) {
 
 	// cube creation
 	EntityId cube = entity_register();
+	registry->kinematic_body[cube].angle = 30.0f;
+	registry->kinematic_body[cube].power = 0.5f;
 	registry->mesh[cube] = mesh_alloc_cube();
 	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
@@ -840,14 +879,21 @@ int main(void) {
 				if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
 					engine_active_camera.transform.position = vector3_zero();
 				}
-				if (!glfwGetKey(engine_window, GLFW_KEY_X)) {
+				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
+				if (glfwGetKey(engine_window, GLFW_KEY_L)) {
+					kinematic_body_launch(registry, cube);
+				}
 			}
 		} // END INPUT
 
+		{ // Physics simulation
+			kinematic_body_update(registry, cube);
+		}
+		
 		// projection
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
 				&engine_window_size_y);
