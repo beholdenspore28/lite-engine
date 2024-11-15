@@ -692,7 +692,7 @@ int main(void) {
 	engine_window_position_x = 1280 / 2;
 	engine_window_position_y = 0;
 	engine_start();
-	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
+	engine_set_clear_color(0.5, 0.6, 0.7, 1.0);
 
 	component_registry *registry = component_registry_alloc();
 
@@ -739,8 +739,8 @@ int main(void) {
 	registry->mesh[planet] = mesh_alloc_planet(4, 1);
 	registry->shader[planet] = unlitShader;
 	registry->material[planet] = (material_t){
-		.diffuseMap = texture_create("res/textures/lunarrock_d.png"),
-			.specularMap = testSpecularMap,
+		.diffuseMap = testDiffuseMap,
+		.specularMap = testSpecularMap,
 	};
 	registry->transform[planet] = (transform_t){
 		.position = {1, 0, 150},
@@ -840,7 +840,7 @@ int main(void) {
 				if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
 					engine_active_camera.transform.position = vector3_zero();
 				}
-				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
+				if (!glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
