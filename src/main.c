@@ -48,7 +48,7 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
 		return;
 	}
-
+	
 	printf("---------------\n");
 	printf("Debug message (%d) %s\n", id, message);
 
@@ -75,52 +75,51 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
 	printf("\n");
 
 	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:
+		case GL_DEBUG_TYPE_ERROR: {
 			printf("Type: Error");
-			break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		} break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: {
 			printf("Type: Deprecated Behaviour");
-			break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		} break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {
 			printf("Type: Undefined Behaviour");
-			break;
-		case GL_DEBUG_TYPE_PORTABILITY:
+		} break;
+		case GL_DEBUG_TYPE_PORTABILITY: {
 			printf("Type: Portability");
-			break;
-		case GL_DEBUG_TYPE_PERFORMANCE:
+		} break;
+		case GL_DEBUG_TYPE_PERFORMANCE: {
 			printf("Type: Performance");
-			break;
-		case GL_DEBUG_TYPE_MARKER:
+		} break;
+		case GL_DEBUG_TYPE_MARKER: {
 			printf("Type: Marker");
-			break;
-		case GL_DEBUG_TYPE_PUSH_GROUP:
+		} break;
+		case GL_DEBUG_TYPE_PUSH_GROUP: {
 			printf("Type: Push Group");
-			break;
-		case GL_DEBUG_TYPE_POP_GROUP:
+		} break;
+		case GL_DEBUG_TYPE_POP_GROUP: {
 			printf("Type: Pop Group");
-			break;
-		case GL_DEBUG_TYPE_OTHER:
+		} break;
+		case GL_DEBUG_TYPE_OTHER: {
 			printf("Type: Other");
-			break;
+		} break;
 	}
 	printf("\n");
 
 	switch (severity) {
-		case GL_DEBUG_SEVERITY_HIGH:
+		case GL_DEBUG_SEVERITY_HIGH: {
 			printf("Severity: high");
-			break;
-		case GL_DEBUG_SEVERITY_MEDIUM:
+		} break;
+		case GL_DEBUG_SEVERITY_MEDIUM: {
 			printf("Severity: medium");
-			break;
-		case GL_DEBUG_SEVERITY_LOW:
+		} break;
+		case GL_DEBUG_SEVERITY_LOW: {
 			printf("Severity: low");
-			break;
-		case GL_DEBUG_SEVERITY_NOTIFICATION:
+		} break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: {
 			printf("Severity: notification");
-			break;
+		} break;
 	}
-	printf("\n");
-	printf("\n");
+	printf("\n\n");
 }
 
 static GLFWwindow *engine_window;
@@ -131,11 +130,11 @@ static int         engine_window_position_y    = 0;
 static bool        engine_window_fullscreen    = false;
 static char*       engine_window_title         = "Game Window";
 static bool        engine_window_always_on_top = false;
-static float        engine_time_current         = 0.0f;
-static float        engine_time_last            = 0.0f;
-static float        engine_time_delta           = 0.0f;
+static float       engine_time_current         = 0.0f;
+static float       engine_time_last            = 0.0f;
+static float       engine_time_delta           = 0.0f;
 static uint64_t    engine_frame_current        = 0;
-static float        engine_renderer_FPS         = 0.0f;
+static float       engine_renderer_FPS         = 0.0f;
 static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
 static camera_t    engine_active_camera        = { 0 };
 
@@ -210,28 +209,32 @@ void engine_start(void) {
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	if (engine_window_always_on_top)
+	if (engine_window_always_on_top) {
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-
+	}
 	assert(engine_window_title != NULL);
 
-	if (engine_window_fullscreen)
-		engine_window =
-			glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-					engine_window_title, glfwGetPrimaryMonitor(), NULL);
-	else
-		engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-				engine_window_title, NULL, NULL);
-
+	if (engine_window_fullscreen) {
+		engine_window = glfwCreateWindow(
+		engine_window_size_x, 
+		engine_window_size_y,
+		engine_window_title,
+		glfwGetPrimaryMonitor(), NULL);
+	} else {
+		engine_window = glfwCreateWindow(engine_window_size_x,
+		engine_window_size_y,
+		engine_window_title, NULL, NULL);
+	}
 	assert(engine_window != NULL);
 
-	glfwSetWindowPos(engine_window, engine_window_position_x,
-			engine_window_position_y);
+	glfwSetWindowPos(engine_window, engine_window_position_x, engine_window_position_y);
 	glfwShowWindow(engine_window);
 	glfwMakeContextCurrent(engine_window);
 	glfwSetKeyCallback(engine_window, key_callback);
 	glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
 	glfwSetInputMode(engine_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
+	glfwSwapInterval(0);
 
 	if (!gladLoadGL()) {
 		printf("[ERROR_GL] Failed to initialize GLAD\n");
@@ -251,17 +254,8 @@ void engine_start(void) {
 
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-
-	int width, height;
-	glfwGetFramebufferSize(engine_window, &width, &height);
-	glViewport(0, 0, width, height);
-
-	glfwSwapInterval(0);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glfwSwapBuffers(engine_window);
-
+	
+	
 	engine_active_camera = (camera_t){
 		.transform.position = (vector3_t){0.0, 0.0, -20.0},
 			.transform.rotation = quaternion_identity(),
@@ -362,37 +356,37 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 					vector3_t original = point;
 					switch (faceDirection) {
 						case FACE_FRONT: {
-											 point.x = original.x;
-											 point.y = original.y;
-											 point.z = original.z;
-										 } break;
+							point.x = original.x;
+							point.y = original.y;
+							point.z = original.z;
+						} break;
 						case FACE_BACK: {
-											point.x = original.x;
-											point.y = -original.y;
-											point.z = -original.z;
-										} break;
+							point.x = original.x;
+							point.y = -original.y;
+							point.z = -original.z;
+						} break;
 						case FACE_RIGHT: {
-											 point.x = original.z;
-											 point.y = -original.y;
-											 point.z = original.x;
-										 } break;
+							point.x = original.z;
+							point.y = -original.y;
+							point.z = original.x;
+						} break;
 						case FACE_LEFT: {
-											point.x = -original.z;
-											point.y = original.y;
-											point.z = original.x;
-										} break;
+							point.x = -original.z;
+							point.y = original.y;
+							point.z = original.x;
+						} break;
 						case FACE_UP: {
-										  point.x = original.x;
-										  point.y = original.z;
-										  point.z = -original.y;
-									  } break;
+							point.x = original.x;
+							point.y = original.z;
+							point.z = -original.y;
+						} break;
 						case FACE_DOWN: {
-											point.x = -original.x;
-											point.y = -original.z;
-											point.z = -original.y;
-										} break;
+							point.x = -original.x;
+							point.y = -original.z;
+							point.z = -original.y;
+						} break;
 						default:
-										break;
+						break;
 					}
 				}
 
