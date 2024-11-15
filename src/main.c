@@ -290,13 +290,36 @@ void mesh_draw(component_registry *r, EntityId e) {
 	// projection matrix
 	shader_setUniformM4(r->shader[e], "u_projectionMatrix",
 			&engine_active_camera.projection);
+	
+	// camera position
+	shader_setUniformV3(r->shader[e], "u_cameraPos",
+			engine_active_camera.transform.position);
 
+	// light uniforms
+	shader_setUniformV3(r->shader[e], "u_pointLight.position",
+			r->transform[light].position);
+	shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
+			r->pointlight[light].constant);
+	shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
+			r->pointlight[light].linear);
+	shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
+			r->pointlight[light].quadratic);
+	shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
+			r->pointlight[light].diffuse);
+	shader_setUniformV3(r->shader[e], "u_pointLight.specular",
+			r->pointlight[light].specular);
+			
 	// material
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
-	vector3_t color = {1.0f, 0.0f, 0.0f};
-	shader_setUniformV3(r->shader[e], "u_color", color);
-	shader_setUniformInt(r->shader[e], "u_texture", 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, r->material[e].specularMap);
+
+	shader_setUniformInt(r->shader[e], "u_material.diffuse", 0);
+	shader_setUniformInt(r->shader[e], "u_material.specular", 1);
+	shader_setUniformFloat(r->shader[e], "u_material.shininess", 32.0f);
+	shader_setUniformV3(r->shader[e], "u_ambientLight", engine_ambient_light);
 
 	glBindVertexArray(r->mesh[e].VAO);
 	glDrawElements(GL_TRIANGLES, r->mesh[e].indexCount, GL_UNSIGNED_INT, 0);
@@ -680,8 +703,8 @@ int main(void) {
 	component_registry *registry = component_registry_alloc();
 
 	// shader creation.
-	//~ GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
-			//~ "res/shaders/diffuse.fs.glsl");
+	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
+			"res/shaders/diffuse.fs.glsl");
 
 	GLuint unlitShader =
 		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
@@ -706,7 +729,7 @@ int main(void) {
 	// cube creation
 	EntityId cube = entity_register();
 	registry->mesh[cube] = mesh_alloc_cube();
-	registry->shader[cube] = unlitShader;
+	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
 		.diffuseMap = testDiffuseMap,
 			.specularMap = testSpecularMap,
