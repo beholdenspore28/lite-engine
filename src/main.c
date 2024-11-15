@@ -14,16 +14,15 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define DEBUG_LOG_TIME 1
-#define USE_DEPRECATED_TIME 0
+#define DEBUG_LOG_TIME 0
 
-static void error_callback(int error, const char *description) {
+static void error_callback(const int error, const char *description) {
 	(void)error;
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-		int mods) {
+static void key_callback(GLFWwindow *window, const int key, 
+		const int scancode, const int action, const int mods) {
 	(void)scancode;
 	(void)mods;
 
@@ -32,15 +31,15 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 	}
 }
 
-static void framebuffer_size_callback(GLFWwindow *window, int width,
-		int height) {
+static void framebuffer_size_callback(GLFWwindow *window, const int width,
+		const int height) {
 	(void)window;
 	glViewport(0, 0, width, height);
 }
 
-static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
-		GLenum severity, GLsizei length,
-		const char *message, const void *userParam) {
+static void APIENTRY glDebugOutput(const GLenum source, const GLenum type, const unsigned int id,
+		const GLenum severity, const GLsizei length, const char *message, 
+		const void *userParam) {
 	(void)length;
 	(void)userParam;
 
@@ -122,6 +121,7 @@ static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
 	printf("\n\n");
 }
 
+// TODO move all of this global state to an engine object
 static GLFWwindow *engine_window;
 static int         engine_window_size_x        = 640;
 static int         engine_window_size_y        = 480;
@@ -186,12 +186,12 @@ void component_registry_free(component_registry *r) {
 }
 
 // set window resolution
-void engine_window_set_resolution(int x, int y) {
+void engine_window_set_resolution(const int x, const int y) {
 	glfwSetWindowSize(engine_window, x, y);
 }
 
 // position window in the center of the screen
-void engine_window_set_position(int x, int y) {
+void engine_window_set_position(const int x, const int y) {
 	glfwSetWindowPos(engine_window, x, y);
 }
 
@@ -255,7 +255,6 @@ void engine_start(void) {
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	
-	
 	engine_active_camera = (camera_t){
 		.transform.position = (vector3_t){0.0, 0.0, -20.0},
 			.transform.rotation = quaternion_identity(),
@@ -265,13 +264,14 @@ void engine_start(void) {
 	};
 }
 
-void engine_set_clear_color(float r, float g, float b, float a) {
+void engine_set_clear_color(const float r, const float g, const float b, const float a) {
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
 void mesh_draw(component_registry *r, EntityId e) {
+	// TODO dereference these pointers to avoid following them so many times.
 	glUseProgram(r->shader[e]);
-
+	
 	// model matrix
 	transform_calculate_matrix(&r->transform[e]);
 
@@ -434,7 +434,7 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 		for(int quad = 0; quad < 4; quad++) {
 			for (int k = 0; k < resolution; k++) {
 				for (int j = 0; j < resolution; j++) {
-					int offset = resolution*resolution*quad*face;
+					const int offset = resolution*resolution*quad*face;
 				
 					vector3_t point = {0};
 					
@@ -454,7 +454,7 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 					point.z = 0.5;
 					
 					{ // calculate face direction
-						vector3_t original = point;
+						const vector3_t original = point;
 						switch (face) {
 							case FACE_FRONT: {
 								point.x = original.x;
@@ -491,8 +491,8 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 						}
 					}
 					if (k < resolution - 1 && j < resolution - 1) {
-						int first = offset + (k * (resolution)) + j;
-						int second = first + resolution;
+						const int first = offset + (k * (resolution)) + j;
+						const int second = first + resolution;
 						for (int i = 0; i < 6; i++) {
 							list_uint32_t_add(&indices, 0);
 						}
@@ -505,9 +505,9 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 						indices.data[index++] = first    + 1;
 					}
 	
-					vector3_t pointOnSphere = vector3_normalize(point);
+					const vector3_t pointOnSphere = vector3_normalize(point);
 	
-					float freq = 1, 
+					const float freq = 1, 
 						amp = 0.4, 
 						noiseOffset = 10,
 						wave = noise3_fbm(
@@ -515,10 +515,10 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 								pointOnSphere.y * freq + noiseOffset,
 								pointOnSphere.z * freq + noiseOffset) * amp;
 	
-					float tx = map(k, 0, resolution - 1, 0, 1),
+					const float tx = map(k, 0, resolution - 1, 0, 1),
 						ty = map(j, 0, resolution - 1, 0, 1);
 	
-					vertex_t vertex = {
+					const vertex_t vertex = {
 						//~ .position = vector3_scale(pointOnSphere, radius*0.5),
 						.position = vector3_scale(point, radius*0.5),
 						.normal = pointOnSphere,
