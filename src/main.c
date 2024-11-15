@@ -275,7 +275,7 @@ void engine_set_clear_color(float r, float g, float b, float a) {
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-void quad_draw(component_registry *r, EntityId e) {
+void mesh_draw(component_registry *r, EntityId e) {
 	glUseProgram(r->shader[e]);
 
 	// model matrix
@@ -299,107 +299,7 @@ void quad_draw(component_registry *r, EntityId e) {
 	shader_setUniformInt(r->shader[e], "u_texture", 0);
 
 	glBindVertexArray(r->mesh[e].VAO);
-	glDrawElements(GL_TRIANGLES, MESH_QUAD_NUM_INDICES, GL_UNSIGNED_INT, 0);
-}
-
-void planet_draw(component_registry *r, EntityId e) {
-	glUseProgram(r->shader[e]);
-
-	// light uniforms
-	shader_setUniformV3(r->shader[e], "u_pointLight.position",
-			r->transform[light].position);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
-			r->pointlight[light].constant);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
-			r->pointlight[light].linear);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
-			r->pointlight[light].quadratic);
-	shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
-			r->pointlight[light].diffuse);
-	shader_setUniformV3(r->shader[e], "u_pointLight.specular",
-			r->pointlight[light].specular);
-
-	// model matrix
-	transform_calculate_matrix(&r->transform[e]);
-
-	shader_setUniformM4(r->shader[e], "u_modelMatrix", &r->transform[e].matrix);
-
-	// view matrix
-	shader_setUniformM4(r->shader[e], "u_viewMatrix",
-			&engine_active_camera.transform.matrix);
-
-	// projection matrix
-	shader_setUniformM4(r->shader[e], "u_projectionMatrix",
-			&engine_active_camera.projection);
-
-	// camera position
-	shader_setUniformV3(r->shader[e], "u_cameraPos",
-			engine_active_camera.transform.position);
-
-	// material
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].specularMap);
-
-	shader_setUniformInt(r->shader[e], "u_material.diffuse", 0);
-	shader_setUniformInt(r->shader[e], "u_material.specular", 1);
-	shader_setUniformFloat(r->shader[e], "u_material.shininess", 32.0f);
-	shader_setUniformV3(r->shader[e], "u_ambientLight", engine_ambient_light);
-
-	glBindVertexArray(r->mesh[e].VAO);
 	glDrawElements(GL_TRIANGLES, r->mesh[e].indexCount, GL_UNSIGNED_INT, 0);
-}
-
-void cube_draw(component_registry *r, EntityId e) {
-	glUseProgram(r->shader[e]);
-
-	// light uniforms
-	shader_setUniformV3(r->shader[e], "u_pointLight.position",
-			r->transform[light].position);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
-			r->pointlight[light].constant);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
-			r->pointlight[light].linear);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
-			r->pointlight[light].quadratic);
-	shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
-			r->pointlight[light].diffuse);
-	shader_setUniformV3(r->shader[e], "u_pointLight.specular",
-			r->pointlight[light].specular);
-
-	// model matrix
-	transform_calculate_matrix(&r->transform[e]);
-
-	shader_setUniformM4(r->shader[e], "u_modelMatrix", &r->transform[e].matrix);
-
-	// view matrix
-	shader_setUniformM4(r->shader[e], "u_viewMatrix",
-			&engine_active_camera.transform.matrix);
-
-	// projection matrix
-	shader_setUniformM4(r->shader[e], "u_projectionMatrix",
-			&engine_active_camera.projection);
-
-	// camera position
-	shader_setUniformV3(r->shader[e], "u_cameraPos",
-			engine_active_camera.transform.position);
-
-	// material
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].specularMap);
-
-	shader_setUniformInt(r->shader[e], "u_material.diffuse", 0);
-	shader_setUniformInt(r->shader[e], "u_material.specular", 1);
-	shader_setUniformFloat(r->shader[e], "u_material.shininess", 32.0f);
-	shader_setUniformV3(r->shader[e], "u_ambientLight", engine_ambient_light);
-
-	glBindVertexArray(r->mesh[e].VAO);
-	glDrawElements(GL_TRIANGLES, MESH_CUBE_NUM_INDICES, GL_UNSIGNED_INT, 0);
 }
 
 #if 0
@@ -780,8 +680,8 @@ int main(void) {
 	component_registry *registry = component_registry_alloc();
 
 	// shader creation.
-	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
-			"res/shaders/diffuse.fs.glsl");
+	//~ GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
+			//~ "res/shaders/diffuse.fs.glsl");
 
 	GLuint unlitShader =
 		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
@@ -806,7 +706,7 @@ int main(void) {
 	// cube creation
 	EntityId cube = entity_register();
 	registry->mesh[cube] = mesh_alloc_cube();
-	registry->shader[cube] = diffuseShader;
+	registry->shader[cube] = unlitShader;
 	registry->material[cube] = (material_t){
 		.diffuseMap = testDiffuseMap,
 			.specularMap = testSpecularMap,
@@ -946,24 +846,19 @@ int main(void) {
 			glDisable(GL_DEPTH_TEST);
 			registry->transform[skybox].rotation =
 				quaternion_conjugate(engine_active_camera.transform.rotation);
-			cube_draw(registry, skybox);
+			mesh_draw(registry, skybox);
 			glEnable(GL_DEPTH_TEST);
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			// quaternion_t rotation =
-			// quaternion_from_euler(vector3_up(engine_time_delta*0.03));
-			// planet.transform.rotation =
-			// quaternion_multiply(planet.transform.rotation, rotation);
-			planet_draw(registry, planet);
-			cube_draw(registry, cube);
+			mesh_draw(registry, planet);
+			mesh_draw(registry, cube);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
 		}
 	}
-	// mesh_free(&planet.mesh);
-
+	
 	component_registry_free(registry);
 	glfwTerminate();
 	return 0;
