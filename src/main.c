@@ -162,6 +162,7 @@ typedef struct {
 	float angle;
 	float power;
 	vector3_t position;
+	vector3_t acceleration;
 	vector3_t velocity;
 }kinematic_body_t;
 
@@ -211,11 +212,13 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	float newPosX = kinematic_equation(0.0f,k->velocity.x,
+	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
 		k->position.x,engine_time_current);
-	float newPosY = kinematic_equation(-9.81f,	k->velocity.y, 
+	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y, 
 		k->position.y, engine_time_current);
-	r->transform[e].position = (vector3_t){newPosX, newPosY, r->transform[e].position.z};
+	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
+		k->position.z, engine_time_current);
+	r->transform[e].position = (vector3_t){newPosX, newPosY, newPosZ};
 }
 
 // set window resolution
@@ -611,37 +614,37 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 				vector3_t original = point;
 				switch (faceDirection) {
 					case FACE_FRONT: {
-										 point.x = original.x;
-										 point.y = original.y;
-										 point.z = original.z;
-									 } break;
+						 point.x = original.x;
+						 point.y = original.y;
+						 point.z = original.z;
+					 } break;
 					case FACE_BACK: {
-										point.x = original.x;
-										point.y = -original.y;
-										point.z = -original.z;
-									} break;
+						point.x = original.x;
+						point.y = -original.y;
+						point.z = -original.z;
+					} break;
 					case FACE_RIGHT: {
-										 point.x = original.z;
-										 point.y = -original.y;
-										 point.z = original.x;
-									 } break;
+						point.x = original.z;
+						point.y = -original.y;
+						point.z = original.x;
+					} break;
 					case FACE_LEFT: {
-										point.x = -original.z;
-										point.y = original.y;
-										point.z = original.x;
-									} break;
+						point.x = -original.z;
+						point.y = original.y;
+						point.z = original.x;
+					} break;
 					case FACE_UP: {
-									  point.x = original.x;
-									  point.y = original.z;
-									  point.z = -original.y;
-								  } break;
+						point.x = original.x;
+						point.y = original.z;
+						point.z = -original.y;
+					} break;
 					case FACE_DOWN: {
-										point.x = -original.x;
-										point.y = -original.z;
-										point.z = -original.y;
-									} break;
+						point.x = -original.x;
+						point.y = -original.z;
+						point.z = -original.y;
+					} break;
 					default:
-									break;
+					break;
 				}
 
 				float u = map(k, 0, subdivisions - 1, 0, 1),
@@ -757,6 +760,7 @@ int main(void) {
 	EntityId cube = entity_register();
 	registry->kinematic_body[cube].angle = PI/4.0;
 	registry->kinematic_body[cube].power = 20.0;
+	registry->kinematic_body[cube].acceleration = (vector3_t){ 0.0, -9.81, 0.0 };
 	registry->mesh[cube] = mesh_alloc_cube();
 	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
