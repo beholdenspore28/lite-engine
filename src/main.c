@@ -14,7 +14,7 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define DEBUG_LOG_TIME 0
+#define DEBUG_LOG_TIME 1
 
 static void error_callback(const int error, const char *description) {
 	(void)error;
@@ -138,34 +138,129 @@ static float       engine_renderer_FPS         = 0.0f;
 static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
 static camera_t    engine_active_camera        = { 0 };
 
-typedef struct {
+typedef struct quad_tree {
 	vector3_t position;
 	float quadSize;
 	uint32_t capacity;
 	list_vector3_t points;
+	bool isSubdivided;
+	struct quad_tree* frontNorthEast;
+	struct quad_tree* frontNorthWest;
+	struct quad_tree* frontSouthEast;
+	struct quad_tree* frontSouthWest;
+	struct quad_tree* backNorthEast;
+	struct quad_tree* backNorthWest;
+	struct quad_tree* backSouthEast;
+	struct quad_tree* backSouthWest;
 } quad_tree_t;
 
-quad_tree_t* quad_tree_alloc(void) {
+quad_tree_t* quad_tree_alloc(float positionX, float positionY, float positionZ, float quadSize) {
 	quad_tree_t* tree = malloc(sizeof(quad_tree_t));
-	tree->position = (vector3_t){0};
-	tree->quadSize = 1.0;
+	tree->position.x = positionY;
+	tree->position.y = positionX;
+	tree->position.z = positionZ;
+	tree->quadSize = quadSize;
 	tree->capacity = 4;
 	tree->points = list_vector3_t_alloc();
+	tree->isSubdivided = false;
 	return tree;
 }
 
 void quad_tree_free(quad_tree_t* tree) {
+	if (tree->isSubdivided == true) {
+		quad_tree_free(tree->frontNorthEast);
+		quad_tree_free(tree->frontNorthWest);
+		quad_tree_free(tree->frontSouthEast);
+		quad_tree_free(tree->frontSouthWest);
+		quad_tree_free(tree->backNorthEast);
+		quad_tree_free(tree->backNorthWest);
+		quad_tree_free(tree->backSouthEast);
+		quad_tree_free(tree->backSouthWest);
+	}
 	list_vector3_t_free(&tree->points);
 	free(tree);
 }
 
+void quad_tree_subdivide(quad_tree_t* tree) {
+	tree->isSubdivided = true;
+	vector3_t tPos = tree->position;
+	float halfQuadSize = tree->quadSize * 0.5;
+	tree->frontNorthEast = quad_tree_alloc(
+		tPos.x + halfQuadSize,
+		tPos.y + halfQuadSize,
+		tPos.z + halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->frontNorthWest = quad_tree_alloc(
+		tPos.x - halfQuadSize,
+		tPos.y + halfQuadSize,
+		tPos.z + halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->frontSouthEast = quad_tree_alloc(
+		tPos.x + halfQuadSize,
+		tPos.y - halfQuadSize,
+		tPos.z + halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->frontSouthWest = quad_tree_alloc(
+		tPos.x - halfQuadSize,
+		tPos.y - halfQuadSize,
+		tPos.z + halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->backNorthEast = quad_tree_alloc(
+		tPos.x + halfQuadSize,
+		tPos.y + halfQuadSize,
+		tPos.z - halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->backNorthWest = quad_tree_alloc(
+		tPos.x - halfQuadSize,
+		tPos.y + halfQuadSize,
+		tPos.z - halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->backSouthEast = quad_tree_alloc(
+		tPos.x + halfQuadSize,
+		tPos.y - halfQuadSize,
+		tPos.z - halfQuadSize,
+		tree->quadSize * 0.5);
+	tree->backSouthWest = quad_tree_alloc(
+		tPos.x - halfQuadSize,
+		tPos.y - halfQuadSize,
+		tPos.z - halfQuadSize,
+		tree->quadSize * 0.5);
+}
+
+bool quad_tree_contains(quad_tree_t* tree, vector3_t point) {
+	float halfQuadSize = tree->quadSize * 0.5;
+	return
+		point.x < tree->position.x + halfQuadSize &&
+		point.x > tree->position.x - halfQuadSize &&
+		point.y < tree->position.y + halfQuadSize &&
+		point.y > tree->position.y - halfQuadSize &&
+		point.z < tree->position.z + halfQuadSize &&
+		point.z > tree->position.z - halfQuadSize;
+}
+
 void quad_tree_insert(quad_tree_t* tree, vector3_t point) {
-	
+	if (quad_tree_contains(tree, point) == false)
+		return;
+	if (tree->points.length < tree->capacity) {
+		list_vector3_t_add(&tree->points, point);
+	} else {
+		if (tree->isSubdivided == false){
+			quad_tree_subdivide(tree);
+		}
+		quad_tree_insert(tree->frontNorthEast, point);
+		quad_tree_insert(tree->frontNorthWest, point);
+		quad_tree_insert(tree->frontSouthEast, point);
+		quad_tree_insert(tree->frontSouthWest, point);
+		quad_tree_insert(tree->backNorthEast, point);
+		quad_tree_insert(tree->backNorthWest, point);
+		quad_tree_insert(tree->backSouthEast, point);
+		quad_tree_insert(tree->backSouthWest, point);
+	}
 }
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 128 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -742,7 +837,9 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 
 int main(void) {
 	printf("Rev up those fryers!\n");
-
+	quad_tree_t* qt = quad_tree_alloc(0.0, 0.0, 0.0, 1.0);
+	quad_tree_free(qt);
+	return 0;
 	engine_window_title = "Game Window";
 	engine_window_size_x = 1280;
 	engine_window_size_y = 720;
@@ -777,13 +874,13 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	for (int i = 1; i <= 100; i++) {
+	for (int i = 1; i <= 10; i++) {
 		// create cube1
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
-			.position = {-10, 0, 0},
-				.rotation = quaternion_from_euler(vector3_up(PI/i)),
-				.scale = vector3_one(1.0),
+			.position = (vector3_t){i, 0, 0},
+			.rotation = quaternion_from_euler(vector3_up(PI/i)),
+			.scale = vector3_one(1.0),
 		};
 		registry->kinematic_body[cube].enabled = true;
 		registry->kinematic_body[cube].acceleration = transform_basis_left(
@@ -935,11 +1032,13 @@ int main(void) {
 			engine_active_camera.transform.matrix = matrix4_identity();
 
 			glDisable(GL_DEPTH_TEST);
+			registry->mesh[skybox].enabled = true;
 			registry->transform[skybox].rotation =
 				quaternion_conjugate(engine_active_camera.transform.rotation);
 			mesh_draw(registry, skybox);
+			registry->mesh[skybox].enabled = false;
 			glEnable(GL_DEPTH_TEST);
-
+			
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			for(EntityId e = 1; e < MAX_ENTITIES; e++) {

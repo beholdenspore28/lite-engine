@@ -9,8 +9,7 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	//
-aligned_box_intersect_aligned_box	./src/physics.h	66;"	function	typeref:typename:intersection_t	signature:(aligned_box_t a,aligned_box_t b)
-aligned_box_t	./src/physics.h	63;"	typedef	typeref:struct:__anonfcfd40520308
+acceleration	./src/main.c	214;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
 all_a	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
 angleDelta	./dep/blib/bmath.h	98;"	function	typeref:typename:float	signature:(const float a,const float b)
 APIENTRY	./dep/glad/glad.h	650;"	macro
@@ -21,8 +20,6 @@ aproxequal	./dep/blib/bmath.h	78;"	function	typeref:typename:int	signature:(floa
 background	./dep/stb_image.h	6561;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc *
 bgindex	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 bits_per_channel	./dep/stb_image.h	902;"	member	struct:__anon901ef9eb0508	typeref:typename:int
-bounding_sphere_intersect_sphere	./src/physics.h	81;"	function	typeref:typename:intersection_t	signature:(bounding_sphere_t a,bounding_sphere_t b)
-bounding_sphere_t	./src/physics.h	57;"	typedef	typeref:struct:__anonfcfd40520208
 bpp	./dep/stb_image.h	5414;"	member	struct:__anon901ef9eb1008	typeref:typename:int
 buffer_start	./dep/stb_image.h	814;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi_uc[128]
 buflen	./dep/stb_image.h	813;"	member	struct:__anon901ef9eb0308	typeref:typename:int
@@ -34,8 +31,8 @@ B_FILE_BUFFER_GROWTH	./dep/blib/file.h	34;"	macro
 B_LIST_IMPLEMENTATION	./dep/blib/blib.h	129;"	macro
 C	./makefile	9;"	macro
 callback_already_read	./dep/stb_image.h	815;"	member	struct:__anon901ef9eb0308	typeref:typename:int
-camera_t	./src/gl.h	80;"	typedef	typeref:struct:__anona5e9e4220708
-center	./src/physics.h	55;"	member	struct:__anonfcfd40520208	typeref:typename:vector3_t
+camera_t	./src/gl.h	81;"	typedef	typeref:struct:__anona5e9e4220708
+capacity	./src/main.c	144;"	member	struct:quad_tree	typeref:typename:uint32_t	file:
 channel	./dep/stb_image.h	6361;"	member	struct:__anon901ef9eb1108	typeref:typename:stbi_uc
 channel_order	./dep/stb_image.h	904;"	member	struct:__anon901ef9eb0508	typeref:typename:int
 clamp	./dep/blib/bmath.h	55;"	function	typeref:typename:float	signature:(float n,const float min,const float max)
@@ -51,13 +48,12 @@ coeff	./dep/stb_image.h	1974;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0
 coeff_h	./dep/stb_image.h	1975;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 coeff_w	./dep/stb_image.h	1975;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 color_table	./dep/stb_image.h	6567;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc *
-component_registry	./src/main.c	168;"	typedef	typeref:struct:__anond54bd50f0308	file:
-component_registry_alloc	./src/main.c	170;"	function	typeref:typename:component_registry *	signature:(void)
-component_registry_free	./src/main.c	180;"	function	typeref:typename:void	signature:(component_registry * r)
-constant	./src/main.c	153;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
+component_registry	./src/main.c	225;"	typedef	typeref:struct:__anond54bd50f0408	file:
+component_registry_alloc	./src/main.c	227;"	function	typeref:typename:component_registry *	signature:(void)
+component_registry_free	./src/main.c	238;"	function	typeref:typename:void	signature:(component_registry * r)
+constant	./src/main.c	201;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
 const_void_ptr	./dep/blib/blib.h	42;"	typedef	typeref:typename:const void *
 cosInterpolate	./dep/blib/bmath.h	82;"	function	typeref:typename:float	signature:(float a,float b,float t)
-cube_draw	./src/main.c	355;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
 cur_x	./dep/stb_image.h	6572;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 cur_y	./dep/stb_image.h	6572;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 data	./dep/stb_image.h	1971;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:stbi_uc *
@@ -88,7 +84,7 @@ DEBUG_LOG_TIME	./src/main.c	17;"	macro	file:
 DECLARE_LIST	./dep/blib/blib.h	45;"	macro	signature:(type)
 DECLARE_LIST	./dep/blib/math3d.h	67;"	function	signature:(quaternion_t)
 DECLARE_LIST	./src/gl.h	13;"	prototype	typeref:typename:GLint	signature:(GLuint)
-DECLARE_LIST	./src/gl.h	57;"	prototype	signature:(transform_t)
+DECLARE_LIST	./src/gl.h	58;"	prototype	signature:(transform_t)
 DECLARE_LIST_ALIAS	./dep/blib/blib.h	91;"	macro	signature:(baseType,targetType)
 default	./makefile	21;"	target
 DEFINE_LIST	./dep/blib/blib.h	56;"	macro	signature:(type)
@@ -103,38 +99,39 @@ delay	./dep/stb_image.h	6574;"	member	struct:__anon901ef9eb1308	typeref:typename
 delta	./dep/stb_image.h	1945;"	member	struct:__anon901ef9eb0708	typeref:typename:int[17]
 depth	./dep/stb_image.h	4633;"	member	struct:__anon901ef9eb0e08	typeref:typename:int
 dequant	./dep/stb_image.h	1953;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__uint16[4][64]
-diffuse	./src/main.c	156;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
-diffuseMap	./src/gl.h	47;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
-distance	./src/physics.h	51;"	member	struct:__anonfcfd40520108	typeref:typename:float
-EBO	./src/gl.h	39;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+diffuse	./src/main.c	204;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
+diffuseMap	./src/gl.h	48;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+EBO	./src/gl.h	40;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
 eflags	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 elements	./dep/blib/math3d.h	57;"	member	struct:__anonb2ddaee90408	typeref:typename:float[16]
-engine_active_camera	./src/main.c	140;"	variable	typeref:typename:camera_t	file:
-engine_ambient_light	./src/main.c	139;"	variable	typeref:typename:vector3_t	file:
-engine_frame_current	./src/main.c	137;"	variable	typeref:typename:uint64_t	file:
+enabled	./src/gl.h	37;"	member	struct:__anona5e9e4220308	typeref:typename:bool
+enabled	./src/main.c	211;"	member	struct:__anond54bd50f0308	typeref:typename:bool	file:
+engine_active_camera	./src/main.c	139;"	variable	typeref:typename:camera_t	file:
+engine_ambient_light	./src/main.c	138;"	variable	typeref:typename:vector3_t	file:
+engine_frame_current	./src/main.c	136;"	variable	typeref:typename:uint64_t	file:
 ENGINE_RENDERER_API_GL	./src/gl.h	25;"	enumerator	enum:__anona5e9e4220103
 ENGINE_RENDERER_API_NONE	./src/gl.h	26;"	enumerator	enum:__anona5e9e4220103
 engine_renderer_API_t	./src/gl.h	27;"	typedef	typeref:enum:__anona5e9e4220103
-engine_renderer_FPS	./src/main.c	138;"	variable	typeref:typename:float	file:
-engine_set_clear_color	./src/main.c	274;"	function	typeref:typename:void	signature:(float r,float g,float b,float a)
-engine_start	./src/main.c	200;"	function	typeref:typename:void	signature:(void)
-engine_time_current	./src/main.c	134;"	variable	typeref:typename:float	file:
-engine_time_delta	./src/main.c	136;"	variable	typeref:typename:float	file:
-engine_time_last	./src/main.c	135;"	variable	typeref:typename:float	file:
-engine_window	./src/main.c	126;"	variable	typeref:typename:GLFWwindow *	file:
-engine_window_always_on_top	./src/main.c	133;"	variable	typeref:typename:bool	file:
-engine_window_fullscreen	./src/main.c	131;"	variable	typeref:typename:bool	file:
-engine_window_position_x	./src/main.c	129;"	variable	typeref:typename:int	file:
-engine_window_position_y	./src/main.c	130;"	variable	typeref:typename:int	file:
-engine_window_set_position	./src/main.c	195;"	function	typeref:typename:void	signature:(int x,int y)
-engine_window_set_resolution	./src/main.c	190;"	function	typeref:typename:void	signature:(int x,int y)
-engine_window_size_x	./src/main.c	127;"	variable	typeref:typename:int	file:
-engine_window_size_y	./src/main.c	128;"	variable	typeref:typename:int	file:
-engine_window_title	./src/main.c	132;"	variable	typeref:typename:char *	file:
-EntityId	./src/main.c	142;"	typedef	typeref:typename:uint32_t	file:
-entity_count	./src/main.c	143;"	variable	typeref:typename:EntityId	file:
-ENTITY_NULL	./src/main.c	144;"	enumerator	enum:__anond54bd50f0103	file:
-entity_register	./src/main.c	146;"	function	typeref:typename:EntityId	signature:(void)
+engine_renderer_FPS	./src/main.c	137;"	variable	typeref:typename:float	file:
+engine_set_clear_color	./src/main.c	345;"	function	typeref:typename:void	signature:(const float r,const float g,const float b,const float a)
+engine_start	./src/main.c	277;"	function	typeref:typename:void	signature:(void)
+engine_time_current	./src/main.c	133;"	variable	typeref:typename:float	file:
+engine_time_delta	./src/main.c	135;"	variable	typeref:typename:float	file:
+engine_time_last	./src/main.c	134;"	variable	typeref:typename:float	file:
+engine_window	./src/main.c	125;"	variable	typeref:typename:GLFWwindow *	file:
+engine_window_always_on_top	./src/main.c	132;"	variable	typeref:typename:bool	file:
+engine_window_fullscreen	./src/main.c	130;"	variable	typeref:typename:bool	file:
+engine_window_position_x	./src/main.c	128;"	variable	typeref:typename:int	file:
+engine_window_position_y	./src/main.c	129;"	variable	typeref:typename:int	file:
+engine_window_set_position	./src/main.c	272;"	function	typeref:typename:void	signature:(const int x,const int y)
+engine_window_set_resolution	./src/main.c	267;"	function	typeref:typename:void	signature:(const int x,const int y)
+engine_window_size_x	./src/main.c	126;"	variable	typeref:typename:int	file:
+engine_window_size_y	./src/main.c	127;"	variable	typeref:typename:int	file:
+engine_window_title	./src/main.c	131;"	variable	typeref:typename:char *	file:
+EntityId	./src/main.c	190;"	typedef	typeref:typename:uint32_t	file:
+entity_count	./src/main.c	191;"	variable	typeref:typename:EntityId	file:
+ENTITY_NULL	./src/main.c	192;"	enumerator	enum:__anond54bd50f0103	file:
+entity_register	./src/main.c	194;"	function	typeref:typename:EntityId	signature:(void)
 eob_run	./dep/stb_image.h	1988;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 eof	./dep/stb_image.h	414;"	member	struct:__anon901ef9eb0208	typeref:typename:int (*)(void * user)
 error	./dep/blib/file.h	43;"	member	struct:__anon085c9f080108	typeref:typename:bool:1
@@ -142,12 +139,18 @@ expanded	./dep/stb_image.h	4632;"	member	struct:__anon901ef9eb0e08	typeref:typen
 extra_read	./dep/stb_image.h	5416;"	member	struct:__anon901ef9eb1008	typeref:typename:int
 exts	./dep/glad.c	786;"	variable	typeref:typename:const char *	file:
 exts_i	./dep/glad.c	788;"	variable	typeref:typename:char **	file:
-FACE_BACK	./src/main.c	586;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
-FACE_DOWN	./src/main.c	590;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
-FACE_FRONT	./src/main.c	585;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
-FACE_LEFT	./src/main.c	588;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
-FACE_RIGHT	./src/main.c	587;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
-FACE_UP	./src/main.c	589;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0403	file:
+FACE_BACK	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_BACK	./src/main.c	652;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
+FACE_DOWN	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_DOWN	./src/main.c	656;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
+FACE_FRONT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_FRONT	./src/main.c	651;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
+FACE_LEFT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_LEFT	./src/main.c	654;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
+FACE_RIGHT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_RIGHT	./src/main.c	653;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
+FACE_UP	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
+FACE_UP	./src/main.c	655;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
 false	./dep/blib/blib.h	39;"	macro
 fast	./dep/stb_image.h	1939;"	member	struct:__anon901ef9eb0708	typeref:typename:stbi_uc[]
 fast	./dep/stb_image.h	4098;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi__uint16[]
@@ -165,7 +168,7 @@ first_row_filter	./dep/stb_image.h	4647;"	variable	typeref:typename:stbi_uc[5]
 flags	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 FLOAT_EPSILON	./dep/blib/bmath.h	36;"	macro
 fraction	./dep/blib/bmath.h	106;"	function	typeref:typename:float	signature:(float x)
-framebuffer_size_callback	./src/main.c	35;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,int width,int height)
+framebuffer_size_callback	./src/main.c	34;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int width,const int height)
 free_exts	./dep/glad.c	824;"	function	typeref:typename:void	file:	signature:(void)
 get_exts	./dep/glad.c	790;"	function	typeref:typename:int	file:	signature:(void)
 get_proc	./dep/glad.c	645;"	prototype	typeref:typename:void *	file:	signature:(const char * namez)
@@ -7891,7 +7894,7 @@ glDebugMessageInsert	./dep/glad/glad.h	5339;"	macro
 glDebugMessageInsertAMD	./dep/glad/glad.h	9058;"	macro
 glDebugMessageInsertARB	./dep/glad/glad.h	9728;"	macro
 glDebugMessageInsertKHR	./dep/glad/glad.h	14096;"	macro
-glDebugOutput	./src/main.c	41;"	function	typeref:typename:void APIENTRY	file:	signature:(GLenum source,GLenum type,unsigned int id,GLenum severity,GLsizei length,const char * message,const void * userParam)
+glDebugOutput	./src/main.c	40;"	function	typeref:typename:void APIENTRY	file:	signature:(const GLenum source,const GLenum type,const unsigned int id,const GLenum severity,const GLsizei length,const char * message,const void * userParam)
 GLDEBUGPROC	./dep/glad/glad.h	747;"	typedef	typeref:typename:void (APIENTRY *)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar * message,const void * userParam)
 GLDEBUGPROCAMD	./dep/glad/glad.h	750;"	typedef	typeref:typename:void (APIENTRY *)(GLuint id,GLenum category,GLenum severity,GLsizei length,const GLchar * message,void * userParam)
 GLDEBUGPROCARB	./dep/glad/glad.h	748;"	typedef	typeref:typename:void (APIENTRY *)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar * message,const void * userParam)
@@ -16246,14 +16249,13 @@ img_v_max	./dep/stb_image.h	1957;"	member	struct:__anon901ef9eb0808	typeref:type
 img_x	./dep/stb_image.h	806;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi__uint32
 img_y	./dep/stb_image.h	806;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi__uint32
 INCDIR	./makefile	7;"	macro
-indexCount	./src/gl.h	41;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
-intersection_t	./src/physics.h	52;"	typedef	typeref:struct:__anonfcfd40520108
+indexCount	./src/gl.h	42;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
 io	./dep/stb_image.h	809;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi_io_callbacks
 io_user_data	./dep/stb_image.h	810;"	member	struct:__anon901ef9eb0308	typeref:typename:void *
-is_intersecting	./src/physics.h	50;"	member	struct:__anonfcfd40520108	typeref:typename:bool
+isSubdivided	./src/main.c	146;"	member	struct:quad_tree	typeref:typename:bool	file:
 IS_UWP	./dep/glad.c	670;"	macro	file:
 jfif	./dep/stb_image.h	1989;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-key_callback	./src/main.c	25;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,int key,int scancode,int action,int mods)
+key_callback	./src/main.c	24;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int key,const int scancode,const int action,const int mods)
 KHRONOS_APIATTRIBUTES	./dep/KHR/khrplatform.h	135;"	macro
 KHRONOS_APIATTRIBUTES	./dep/KHR/khrplatform.h	137;"	macro
 KHRONOS_APICALL	./dep/KHR/khrplatform.h	105;"	macro
@@ -16323,8 +16325,12 @@ KHRONOS_USE_INTPTR_T	./dep/KHR/khrplatform.h	167;"	macro
 khronos_usize_t	./dep/KHR/khrplatform.h	265;"	typedef	typeref:typename:unsigned long long int
 khronos_usize_t	./dep/KHR/khrplatform.h	268;"	typedef	typeref:typename:unsigned long int
 khronos_utime_nanoseconds_t	./dep/KHR/khrplatform.h	288;"	typedef	typeref:typename:khronos_uint64_t
-lastX	./src/gl.h	78;"	member	struct:__anona5e9e4220708	typeref:typename:float
-lastY	./src/gl.h	79;"	member	struct:__anona5e9e4220708	typeref:typename:float
+kinematic_body	./src/main.c	224;"	member	struct:__anond54bd50f0408	typeref:typename:kinematic_body_t *	file:
+kinematic_body_t	./src/main.c	216;"	typedef	typeref:struct:__anond54bd50f0308	file:
+kinematic_body_update	./src/main.c	253;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
+kinematic_equation	./src/main.c	248;"	function	typeref:typename:float	file:	signature:(float acceleration,float velocity,float position,float time)
+lastX	./src/gl.h	79;"	member	struct:__anona5e9e4220708	typeref:typename:float
+lastY	./src/gl.h	80;"	member	struct:__anona5e9e4220708	typeref:typename:float
 len	./dep/blib/file.h	41;"	member	struct:__anon085c9f080108	typeref:typename:size_t
 length	./dep/stb_image.h	4608;"	member	struct:__anon901ef9eb0d08	typeref:typename:stbi__uint32
 lerp	./dep/blib/bmath.h	65;"	function	typeref:typename:float	signature:(float a,float b,float t)
@@ -16333,10 +16339,10 @@ lflags	./dep/stb_image.h	6569;"	member	struct:__anon901ef9eb1308	typeref:typenam
 libGL	./dep/glad.c	652;"	variable	typeref:typename:HMODULE	file:
 libGL	./dep/glad.c	698;"	variable	typeref:typename:void *	file:
 LIBS	./makefile	19;"	macro
-light	./src/main.c	160;"	variable	typeref:typename:EntityId
+light	./src/main.c	208;"	variable	typeref:typename:EntityId
 line0	./dep/stb_image.h	3850;"	member	struct:__anon901ef9eb0a08	typeref:typename:stbi_uc *
 line1	./dep/stb_image.h	3850;"	member	struct:__anon901ef9eb0a08	typeref:typename:stbi_uc *
-linear	./src/main.c	154;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
+linear	./src/main.c	202;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
 linebuf	./dep/stb_image.h	1973;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:stbi_uc *
 line_size	./dep/stb_image.h	6573;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 Lite-Engine is under development and should not be used for production projects yet.	./README.md	1;"	chapter
@@ -16669,60 +16675,60 @@ load_GL_VERSION_4_5	./dep/glad.c	5497;"	function	typeref:typename:void	file:	sig
 load_GL_VERSION_4_6	./dep/glad.c	5622;"	function	typeref:typename:void	file:	signature:(GLADloadproc load)
 load_jpeg_image	./dep/stb_image.h	3864;"	function	typeref:typename:stbi_uc *	signature:(stbi__jpeg * z,int * out_x,int * out_y,int * comp,int req_comp)
 long_double	./dep/blib/blib.h	43;"	typedef	typeref:typename:const void *
-lookSensitivity	./src/gl.h	77;"	member	struct:__anona5e9e4220708	typeref:typename:float
+lookSensitivity	./src/gl.h	78;"	member	struct:__anona5e9e4220708	typeref:typename:float
 loop	./dep/blib/bmath.h	89;"	function	typeref:typename:float	signature:(float n,const float length)
 lpal	./dep/stb_image.h	6565;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc[256][4]
 ma	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
-main	./src/main.c	698;"	function	typeref:typename:int	signature:(void)
+main	./src/main.c	767;"	function	typeref:typename:int	signature:(void)
 major	./dep/glad/glad.h	669;"	member	struct:gladGLversionStruct	typeref:typename:int
 map	./dep/blib/bmath.h	73;"	function	typeref:typename:float	signature:(float n,float fromMin,float fromMax,float toMin,float toMax)
 marker	./dep/stb_image.h	1980;"	member	struct:__anon901ef9eb0808	typeref:typename:unsigned char
-material	./src/gl.h	70;"	member	struct:__anona5e9e4220608	typeref:typename:material_t
-material	./src/main.c	166;"	member	struct:__anond54bd50f0308	typeref:typename:material_t *	file:
-material_t	./src/gl.h	49;"	typedef	typeref:struct:__anona5e9e4220408
-matrix	./src/gl.h	52;"	member	struct:__anona5e9e4220508	typeref:typename:matrix4_t
-matrix4_identity	./dep/blib/math3d.h	505;"	function	typeref:typename:matrix4_t	signature:(void)
-matrix4_lookAt	./dep/blib/math3d.h	518;"	function	typeref:typename:matrix4_t	signature:(vector3_t eye,vector3_t center,vector3_t up)
-matrix4_multiply	./dep/blib/math3d.h	617;"	function	typeref:typename:matrix4_t	signature:(const matrix4_t a,const matrix4_t b)
-matrix4_multiplyVec3	./dep/blib/math3d.h	573;"	function	typeref:typename:vector3_t	signature:(vector3_t Left,matrix4_t Right)
-matrix4_multiplyVec4	./dep/blib/math3d.h	591;"	function	typeref:typename:vector4_t	signature:(vector4_t Left,matrix4_t Right)
-matrix4_perspective	./dep/blib/math3d.h	560;"	function	typeref:typename:matrix4_t	signature:(float fov,float aspect,float near,float far)
-matrix4_print	./dep/blib/math3d.h	683;"	function	typeref:typename:void	signature:(matrix4_t m,const char * label)
-matrix4_scale	./dep/blib/math3d.h	664;"	function	typeref:typename:matrix4_t	signature:(const vector3_t scale)
-matrix4_Subtract	./dep/blib/math3d.h	549;"	function	typeref:typename:matrix4_t	signature:(const matrix4_t min,const matrix4_t sub)
+mass	./src/main.c	212;"	member	struct:__anond54bd50f0308	typeref:typename:float	file:
+material	./src/gl.h	71;"	member	struct:__anona5e9e4220608	typeref:typename:material_t
+material	./src/main.c	222;"	member	struct:__anond54bd50f0408	typeref:typename:material_t *	file:
+material_t	./src/gl.h	50;"	typedef	typeref:struct:__anona5e9e4220408
+matrix	./src/gl.h	53;"	member	struct:__anona5e9e4220508	typeref:typename:matrix4_t
+matrix4_identity	./dep/blib/math3d.h	523;"	function	typeref:typename:matrix4_t	signature:(void)
+matrix4_lookAt	./dep/blib/math3d.h	536;"	function	typeref:typename:matrix4_t	signature:(vector3_t eye,vector3_t center,vector3_t up)
+matrix4_multiply	./dep/blib/math3d.h	635;"	function	typeref:typename:matrix4_t	signature:(const matrix4_t a,const matrix4_t b)
+matrix4_multiplyVec3	./dep/blib/math3d.h	591;"	function	typeref:typename:vector3_t	signature:(vector3_t Left,matrix4_t Right)
+matrix4_multiplyVec4	./dep/blib/math3d.h	609;"	function	typeref:typename:vector4_t	signature:(vector4_t Left,matrix4_t Right)
+matrix4_perspective	./dep/blib/math3d.h	578;"	function	typeref:typename:matrix4_t	signature:(float fov,float aspect,float near,float far)
+matrix4_print	./dep/blib/math3d.h	701;"	function	typeref:typename:void	signature:(matrix4_t m,const char * label)
+matrix4_scale	./dep/blib/math3d.h	682;"	function	typeref:typename:matrix4_t	signature:(const vector3_t scale)
+matrix4_Subtract	./dep/blib/math3d.h	567;"	function	typeref:typename:matrix4_t	signature:(const matrix4_t min,const matrix4_t sub)
 matrix4_t	./dep/blib/math3d.h	58;"	typedef	typeref:struct:__anonb2ddaee90408
-matrix4_translate	./dep/blib/math3d.h	674;"	function	typeref:typename:matrix4_t	signature:(vector3_t v)
+matrix4_translate	./dep/blib/math3d.h	692;"	function	typeref:typename:matrix4_t	signature:(vector3_t v)
 maxcode	./dep/stb_image.h	1944;"	member	struct:__anon901ef9eb0708	typeref:typename:unsigned int[18]
 maxcode	./dep/stb_image.h	4100;"	member	struct:__anon901ef9eb0b08	typeref:typename:int[17]
-MAX_ENTITIES	./src/main.c	144;"	enumerator	enum:__anond54bd50f0103	file:
-max_extents	./src/physics.h	62;"	member	struct:__anonfcfd40520308	typeref:typename:vector3_t
+MAX_ENTITIES	./src/main.c	192;"	enumerator	enum:__anond54bd50f0103	file:
 max_loaded_major	./dep/glad.c	783;"	variable	typeref:typename:int	file:
 max_loaded_minor	./dep/glad.c	784;"	variable	typeref:typename:int	file:
 max_x	./dep/stb_image.h	6571;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 max_y	./dep/stb_image.h	6571;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 mb	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
-mesh	./src/gl.h	71;"	member	struct:__anona5e9e4220608	typeref:typename:mesh_t
-mesh	./src/main.c	163;"	member	struct:__anond54bd50f0308	typeref:typename:mesh_t *	file:
-mesh_alloc	./src/gl.h	133;"	prototype	typeref:typename:mesh_t	signature:(vertex_t * vertices,GLuint * indices,GLuint numVertices,GLuint numIndices)
-mesh_alloc_cube	./src/gl.c	207;"	function	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_cube	./src/gl.h	135;"	prototype	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_cube_sphere	./src/main.c	557;"	function	typeref:typename:mesh_t	signature:(const int subdivisions,const float radius)
-mesh_alloc_planet	./src/main.c	509;"	function	typeref:typename:mesh_t	signature:(const int subdivisions,const float radius)
-mesh_alloc_quad	./src/gl.c	203;"	function	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_quad	./src/gl.h	136;"	prototype	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_sphere	./src/main.c	647;"	function	typeref:typename:mesh_t	signature:(const int latCount,const int lonCount,const float radius)
-mesh_cube_indices	./src/gl.h	128;"	variable	typeref:typename:GLuint[]
-MESH_CUBE_NUM_INDICES	./src/gl.h	85;"	macro
-MESH_CUBE_NUM_VERTICES	./src/gl.h	84;"	macro
-mesh_cube_vertices	./src/gl.h	100;"	variable	typeref:typename:vertex_t[]
-mesh_quad_indices	./src/gl.h	95;"	variable	typeref:typename:unsigned int[]
-MESH_QUAD_NUM_INDICES	./src/gl.h	83;"	macro
-MESH_QUAD_NUM_VERTICES	./src/gl.h	82;"	macro
-mesh_quad_vertices	./src/gl.h	87;"	variable	typeref:typename:vertex_t[]
-mesh_t	./src/gl.h	42;"	typedef	typeref:struct:__anona5e9e4220308
+mesh	./src/gl.h	72;"	member	struct:__anona5e9e4220608	typeref:typename:mesh_t
+mesh	./src/main.c	219;"	member	struct:__anond54bd50f0408	typeref:typename:mesh_t *	file:
+mesh_alloc	./src/gl.h	134;"	prototype	typeref:typename:mesh_t	signature:(vertex_t * vertices,GLuint * indices,GLuint numVertices,GLuint numIndices)
+mesh_alloc_cube	./src/gl.c	208;"	function	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_cube	./src/gl.h	136;"	prototype	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_cube_sphere	./src/main.c	621;"	function	typeref:typename:mesh_t	signature:(const int subdivisions,const float radius)
+mesh_alloc_planet	./src/main.c	507;"	function	typeref:typename:mesh_t	signature:(const int resolution,const float radius)
+mesh_alloc_quad	./src/gl.c	204;"	function	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_quad	./src/gl.h	137;"	prototype	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_sphere	./src/main.c	716;"	function	typeref:typename:mesh_t	signature:(const int latCount,const int lonCount,const float radius)
+mesh_cube_indices	./src/gl.h	129;"	variable	typeref:typename:GLuint[]
+MESH_CUBE_NUM_INDICES	./src/gl.h	86;"	macro
+MESH_CUBE_NUM_VERTICES	./src/gl.h	85;"	macro
+mesh_cube_vertices	./src/gl.h	101;"	variable	typeref:typename:vertex_t[]
+mesh_draw	./src/main.c	349;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
+mesh_quad_indices	./src/gl.h	96;"	variable	typeref:typename:unsigned int[]
+MESH_QUAD_NUM_INDICES	./src/gl.h	84;"	macro
+MESH_QUAD_NUM_VERTICES	./src/gl.h	83;"	macro
+mesh_quad_vertices	./src/gl.h	88;"	variable	typeref:typename:vertex_t[]
+mesh_t	./src/gl.h	43;"	typedef	typeref:struct:__anona5e9e4220308
 mg	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
 minor	./dep/glad/glad.h	670;"	member	struct:gladGLversionStruct	typeref:typename:int
-min_extents	./src/physics.h	61;"	member	struct:__anonfcfd40520308	typeref:typename:vector3_t
 mr	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
 MultiByteToWideChar	./dep/stb_image.h	1325;"	prototype	typeref:typename:STBI_EXTERN (dllimport)int __stdcall	signature:(unsigned int cp,unsigned long flags,const char * str,int cbmb,wchar_t * widestr,int cchwide)
 noise1	./dep/blib/bmath.h	111;"	function	typeref:typename:float	signature:(int x)
@@ -16734,6 +16740,8 @@ noise3_interpolated	./dep/blib/bmath.h	129;"	function	typeref:typename:float	sig
 nomore	./dep/stb_image.h	1981;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 norm	./dep/blib/bmath.h	71;"	function	typeref:typename:float	signature:(float n,float min,float max)
 normal	./src/gl.h	32;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
+northEast	./src/main.c	147;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
+northWest	./src/main.c	148;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
 num_bits	./dep/stb_image.h	4179;"	member	struct:__anon901ef9eb0c08	typeref:typename:int
 num_channels	./dep/stb_image.h	903;"	member	struct:__anon901ef9eb0508	typeref:typename:int
 num_exts_i	./dep/glad.c	787;"	variable	typeref:typename:int	file:
@@ -19761,33 +19769,40 @@ PFNGLXGETPROCADDRESSPROC_PRIVATE	./dep/glad.c	701;"	typedef	typeref:typename:voi
 PFNWGLGETPROCADDRESSPROC_PRIVATE	./dep/glad.c	654;"	typedef	typeref:typename:void * (APIENTRYP)(const char *)	file:
 PI	./dep/blib/bmath.h	37;"	macro
 pingpong	./dep/blib/bmath.h	93;"	function	typeref:typename:float	signature:(float n,const float length)
-planet_draw	./src/main.c	305;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
-pointlight	./src/main.c	167;"	member	struct:__anond54bd50f0308	typeref:typename:pointLight_t *	file:
-pointLight_t	./src/main.c	158;"	typedef	typeref:struct:__anond54bd50f0208	file:
+pointlight	./src/main.c	223;"	member	struct:__anond54bd50f0408	typeref:typename:pointLight_t *	file:
+pointLight_t	./src/main.c	206;"	typedef	typeref:struct:__anond54bd50f0208	file:
+points	./src/main.c	145;"	member	struct:quad_tree	typeref:typename:list_vector3_t	file:
 position	./src/gl.h	30;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
-position	./src/gl.h	53;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
+position	./src/gl.h	54;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
+position	./src/main.c	142;"	member	struct:quad_tree	typeref:typename:vector3_t	file:
+position	./src/main.c	213;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
 prefix	./dep/stb_image.h	6552;"	member	struct:__anon901ef9eb1208	typeref:typename:stbi__int16
 progressive	./dep/stb_image.h	1983;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-projection	./src/gl.h	76;"	member	struct:__anona5e9e4220708	typeref:typename:matrix4_t
-quadratic	./src/main.c	155;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
-quad_draw	./src/main.c	278;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
-quad_t	./src/gl.h	72;"	typedef	typeref:struct:__anona5e9e4220608
-quaternion_add	./dep/blib/math3d.h	778;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q1,quaternion_t q2)
-quaternion_conjugate	./dep/blib/math3d.h	756;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
-quaternion_Equal	./dep/blib/math3d.h	722;"	function	typeref:typename:int	signature:(quaternion_t a,quaternion_t b)
-quaternion_FromAngleAxis	./dep/blib/math3d.h	730;"	function	typeref:typename:quaternion_t	signature:(float angle,vector3_t axis)
-quaternion_from_euler	./dep/blib/math3d.h	816;"	function	typeref:typename:quaternion_t	signature:(vector3_t eulerAngles)
-quaternion_identity	./dep/blib/math3d.h	718;"	function	typeref:typename:quaternion_t	signature:(void)
-quaternion_inverse	./dep/blib/math3d.h	765;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
-quaternion_magnitude	./dep/blib/math3d.h	740;"	function	typeref:typename:float	signature:(quaternion_t q)
-quaternion_multiply	./dep/blib/math3d.h	787;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q1,quaternion_t q2)
-quaternion_normalize	./dep/blib/math3d.h	744;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
-quaternion_print	./dep/blib/math3d.h	774;"	function	typeref:typename:void	signature:(quaternion_t q,const char * label)
-quaternion_Set	./dep/blib/math3d.h	709;"	function	typeref:typename:quaternion_t	signature:(float x,float y,float z,float w)
+projection	./src/gl.h	77;"	member	struct:__anona5e9e4220708	typeref:typename:matrix4_t
+quadratic	./src/main.c	203;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
+quadSize	./src/main.c	143;"	member	struct:quad_tree	typeref:typename:float	file:
+quad_t	./src/gl.h	73;"	typedef	typeref:struct:__anona5e9e4220608
+quad_tree	./src/main.c	141;"	struct	file:
+quad_tree_alloc	./src/main.c	153;"	function	typeref:typename:quad_tree_t *	signature:(float positionX,float positionY,float positionZ,float quadSize)
+quad_tree_free	./src/main.c	165;"	function	typeref:typename:void	signature:(quad_tree_t * tree)
+quad_tree_insert	./src/main.c	182;"	function	typeref:typename:void	signature:(quad_tree_t * tree,vector3_t point)
+quad_tree_subdivide	./src/main.c	175;"	function	typeref:typename:void	signature:(quad_tree_t * tree)
+quad_tree_t	./src/main.c	151;"	typedef	typeref:struct:quad_tree	file:
+quaternion_add	./dep/blib/math3d.h	796;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q1,quaternion_t q2)
+quaternion_conjugate	./dep/blib/math3d.h	774;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
+quaternion_Equal	./dep/blib/math3d.h	740;"	function	typeref:typename:int	signature:(quaternion_t a,quaternion_t b)
+quaternion_FromAngleAxis	./dep/blib/math3d.h	748;"	function	typeref:typename:quaternion_t	signature:(float angle,vector3_t axis)
+quaternion_from_euler	./dep/blib/math3d.h	834;"	function	typeref:typename:quaternion_t	signature:(vector3_t eulerAngles)
+quaternion_identity	./dep/blib/math3d.h	736;"	function	typeref:typename:quaternion_t	signature:(void)
+quaternion_inverse	./dep/blib/math3d.h	783;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
+quaternion_magnitude	./dep/blib/math3d.h	758;"	function	typeref:typename:float	signature:(quaternion_t q)
+quaternion_multiply	./dep/blib/math3d.h	805;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q1,quaternion_t q2)
+quaternion_normalize	./dep/blib/math3d.h	762;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
+quaternion_print	./dep/blib/math3d.h	792;"	function	typeref:typename:void	signature:(quaternion_t q,const char * label)
+quaternion_Set	./dep/blib/math3d.h	727;"	function	typeref:typename:quaternion_t	signature:(float x,float y,float z,float w)
 quaternion_t	./dep/blib/math3d.h	66;"	typedef	typeref:struct:__anonb2ddaee90508
-quaternion_to_matrix4	./dep/blib/math3d.h	833;"	function	typeref:typename:matrix4_t	signature:(quaternion_t q)
+quaternion_to_matrix4	./dep/blib/math3d.h	851;"	function	typeref:typename:matrix4_t	signature:(quaternion_t q)
 rad2deg	./dep/blib/bmath.h	43;"	function	typeref:typename:float	signature:(const float n)
-radius	./src/physics.h	56;"	member	struct:__anonfcfd40520208	typeref:typename:float
 ratio	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 raw_coeff	./dep/stb_image.h	1972;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:void *
 raw_data	./dep/stb_image.h	1972;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:void *
@@ -19799,13 +19814,13 @@ resample_row_func	./dep/stb_image.h	3450;"	typedef	typeref:typename:stbi_uc * (*
 resample_row_hv_2_kernel	./dep/stb_image.h	1999;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi_uc * (*)(stbi_uc * out,stbi_uc * in_near,stbi_uc * in_far,int w,int hs)
 restart_interval	./dep/stb_image.h	1994;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 rgb	./dep/stb_image.h	1991;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-rotation	./src/gl.h	54;"	member	struct:__anona5e9e4220508	typeref:typename:quaternion_t
+rotation	./src/gl.h	55;"	member	struct:__anona5e9e4220508	typeref:typename:quaternion_t
 s	./dep/stb_image.h	1950;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__context *
 s	./dep/stb_image.h	4631;"	member	struct:__anon901ef9eb0e08	typeref:typename:stbi__context *
-scale	./src/gl.h	55;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
+scale	./src/gl.h	56;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
 scan_n	./dep/stb_image.h	1993;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-shader	./src/gl.h	46;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
-shader	./src/main.c	164;"	member	struct:__anond54bd50f0308	typeref:typename:GLuint *	file:
+shader	./src/gl.h	47;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+shader	./src/main.c	220;"	member	struct:__anond54bd50f0408	typeref:typename:GLuint *	file:
 shader_create	./src/gl.c	45;"	function	typeref:typename:GLuint	signature:(const char * vertexShaderSourcePath,const char * fragmentShaderSourcePath)
 shader_create	./src/gl.h	17;"	prototype	typeref:typename:GLuint	signature:(const char * vertexShaderSourcePath,const char * fragmentShaderSourcePath)
 shader_setUniformFloat	./src/gl.c	96;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLfloat f)
@@ -19821,8 +19836,10 @@ size	./dep/stb_image.h	1943;"	member	struct:__anon901ef9eb0708	typeref:typename:
 size	./dep/stb_image.h	4102;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi_uc[]
 size	./dep/stb_image.h	6361;"	member	struct:__anon901ef9eb1108	typeref:typename:stbi_uc
 skip	./dep/stb_image.h	413;"	member	struct:__anon901ef9eb0208	typeref:typename:void (*)(void * user,int n)
-specular	./src/main.c	157;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
-specularMap	./src/gl.h	48;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+southEast	./src/main.c	149;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
+southWest	./src/main.c	150;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
+specular	./src/main.c	205;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
+specularMap	./src/gl.h	49;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
 spec_end	./dep/stb_image.h	1985;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 spec_start	./dep/stb_image.h	1984;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 SRCFILES	./makefile	1;"	macro
@@ -20278,112 +20295,115 @@ succ_low	./dep/stb_image.h	1987;"	member	struct:__anon901ef9eb0808	typeref:typen
 suffix	./dep/stb_image.h	6554;"	member	struct:__anon901ef9eb1208	typeref:typename:stbi_uc
 texCoord	./src/gl.h	31;"	member	struct:__anona5e9e4220208	typeref:typename:vector2_t
 text	./dep/blib/file.h	42;"	member	struct:__anon085c9f080108	typeref:typename:char *
-texture_create	./src/gl.c	214;"	function	typeref:typename:GLuint	signature:(const char * imageFile)
+texture_create	./src/gl.c	215;"	function	typeref:typename:GLuint	signature:(const char * imageFile)
 todo	./dep/stb_image.h	1994;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 tq	./dep/stb_image.h	1966;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
-transform	./src/gl.h	69;"	member	struct:__anona5e9e4220608	typeref:typename:transform_t
-transform	./src/gl.h	75;"	member	struct:__anona5e9e4220708	typeref:typename:transform_t
-transform	./src/main.c	165;"	member	struct:__anond54bd50f0308	typeref:typename:transform_t *	file:
+transform	./src/gl.h	70;"	member	struct:__anona5e9e4220608	typeref:typename:transform_t
+transform	./src/gl.h	76;"	member	struct:__anona5e9e4220708	typeref:typename:transform_t
+transform	./src/main.c	221;"	member	struct:__anond54bd50f0408	typeref:typename:transform_t *	file:
 transform_basis_back	./src/gl.c	142;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_back	./src/gl.h	64;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_back	./src/gl.h	65;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_basis_down	./src/gl.c	146;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_down	./src/gl.h	65;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_down	./src/gl.h	66;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_basis_forward	./src/gl.c	129;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_forward	./src/gl.h	61;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_forward	./src/gl.h	62;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_basis_left	./src/gl.c	150;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_left	./src/gl.h	66;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_left	./src/gl.h	67;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_basis_right	./src/gl.c	138;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_right	./src/gl.h	63;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_right	./src/gl.h	64;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_basis_up	./src/gl.c	134;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_up	./src/gl.h	62;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_up	./src/gl.h	63;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
 transform_calculate_view_matrix	./src/gl.c	121;"	function	typeref:typename:void	signature:(transform_t * t)
-transform_calculate_view_matrix	./src/gl.h	60;"	prototype	typeref:typename:void	signature:(transform_t * t)
-transform_t	./src/gl.h	56;"	typedef	typeref:struct:__anona5e9e4220508
+transform_calculate_view_matrix	./src/gl.h	61;"	prototype	typeref:typename:void	signature:(transform_t * t)
+transform_t	./src/gl.h	57;"	typedef	typeref:struct:__anona5e9e4220508
 transparent	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 true	./dep/blib/blib.h	38;"	macro
 type	./dep/stb_image.h	4609;"	member	struct:__anon901ef9eb0d08	typeref:typename:stbi__uint32
 type	./dep/stb_image.h	6361;"	member	struct:__anon901ef9eb1108	typeref:typename:stbi_uc
 uint8_t	./dep/blib/blib.h	37;"	typedef	typeref:typename:bool
-USE_DEPRECATED_TIME	./src/main.c	18;"	macro	file:
 v	./dep/stb_image.h	1965;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 validate_uint32	./dep/stb_image.h	654;"	typedef	typeref:typename:unsigned char[sizeof (stbi__uint32)==4?1:-1]
 value	./dep/stb_image.h	4103;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi__uint16[]
 values	./dep/stb_image.h	1942;"	member	struct:__anon901ef9eb0708	typeref:typename:stbi_uc[256]
-VAO	./src/gl.h	37;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
-VBO	./src/gl.h	38;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+VAO	./src/gl.h	38;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+VBO	./src/gl.h	39;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
 vector2_add	./dep/blib/math3d.h	136;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b)
 vector2_distance	./dep/blib/math3d.h	170;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
-vector2_dot	./dep/blib/math3d.h	186;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
+vector2_dot	./dep/blib/math3d.h	192;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
 vector2_down	./dep/blib/math3d.h	72;"	function	typeref:typename:vector2_t	signature:(float s)
 vector2_left	./dep/blib/math3d.h	74;"	function	typeref:typename:vector2_t	signature:(float s)
-vector2_lerp	./dep/blib/math3d.h	194;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b,float t)
-vector2_lerp_clamped	./dep/blib/math3d.h	203;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b,float t)
+vector2_lerp	./dep/blib/math3d.h	200;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b,float t)
+vector2_lerp_clamped	./dep/blib/math3d.h	209;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b,float t)
 vector2_magnitude	./dep/blib/math3d.h	153;"	function	typeref:typename:float	signature:(vector2_t v)
 vector2_negate	./dep/blib/math3d.h	125;"	function	typeref:typename:vector2_t	signature:(vector2_t v)
 vector2_normalize	./dep/blib/math3d.h	161;"	function	typeref:typename:vector2_t	signature:(vector2_t v)
 vector2_one	./dep/blib/math3d.h	70;"	function	typeref:typename:vector2_t	signature:(float s)
 vector2_print	./dep/blib/math3d.h	119;"	function	typeref:typename:void	signature:(const vector2_t v,const char * label)
 vector2_right	./dep/blib/math3d.h	73;"	function	typeref:typename:vector2_t	signature:(float s)
-vector2_scale	./dep/blib/math3d.h	179;"	function	typeref:typename:vector2_t	signature:(vector2_t v,float scalar)
+vector2_scale	./dep/blib/math3d.h	185;"	function	typeref:typename:vector2_t	signature:(vector2_t v,float scalar)
+vector2_square_distance	./dep/blib/math3d.h	176;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
 vector2_square_magnitude	./dep/blib/math3d.h	145;"	function	typeref:typename:float	signature:(vector2_t v)
 vector2_subtract	./dep/blib/math3d.h	130;"	function	typeref:typename:vector2_t	signature:(vector2_t minuend,vector2_t subtrahend)
 vector2_t	./dep/blib/math3d.h	38;"	typedef	typeref:struct:__anonb2ddaee90108
-vector2_to_vector3	./dep/blib/math3d.h	215;"	function	typeref:typename:vector3_t	signature:(vector2_t v)
-vector2_to_vector4	./dep/blib/math3d.h	220;"	function	typeref:typename:vector4_t	signature:(vector2_t v)
+vector2_to_vector3	./dep/blib/math3d.h	221;"	function	typeref:typename:vector3_t	signature:(vector2_t v)
+vector2_to_vector4	./dep/blib/math3d.h	226;"	function	typeref:typename:vector4_t	signature:(vector2_t v)
 vector2_up	./dep/blib/math3d.h	71;"	function	typeref:typename:vector2_t	signature:(float s)
-vector3_add	./dep/blib/math3d.h	236;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
+vector3_add	./dep/blib/math3d.h	242;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
 vector3_back	./dep/blib/math3d.h	91;"	function	typeref:typename:vector3_t	signature:(float s)
-vector3_cross	./dep/blib/math3d.h	291;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
-vector3_distance	./dep/blib/math3d.h	277;"	function	typeref:typename:float	signature:(vector3_t a,vector3_t b)
-vector3_dot	./dep/blib/math3d.h	300;"	function	typeref:typename:float	signature:(vector3_t a,vector3_t b)
+vector3_cross	./dep/blib/math3d.h	303;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
+vector3_distance	./dep/blib/math3d.h	283;"	function	typeref:typename:float	signature:(vector3_t a,vector3_t b)
+vector3_dot	./dep/blib/math3d.h	312;"	function	typeref:typename:float	signature:(vector3_t a,vector3_t b)
 vector3_down	./dep/blib/math3d.h	79;"	function	typeref:typename:vector3_t	signature:(float s)
 vector3_forward	./dep/blib/math3d.h	88;"	function	typeref:typename:vector3_t	signature:(float s)
 vector3_left	./dep/blib/math3d.h	85;"	function	typeref:typename:vector3_t	signature:(float s)
-vector3_lerp	./dep/blib/math3d.h	308;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b,float t)
-vector3_lerp_clamped	./dep/blib/math3d.h	318;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b,float n)
-vector3_magnitude	./dep/blib/math3d.h	260;"	function	typeref:typename:float	signature:(vector3_t v)
-vector3_max	./dep/blib/math3d.h	332;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
-vector3_min	./dep/blib/math3d.h	342;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
-vector3_negate	./dep/blib/math3d.h	231;"	function	typeref:typename:vector3_t	signature:(vector3_t v)
-vector3_normalize	./dep/blib/math3d.h	268;"	function	typeref:typename:vector3_t	signature:(vector3_t v)
+vector3_lerp	./dep/blib/math3d.h	320;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b,float t)
+vector3_lerp_clamped	./dep/blib/math3d.h	330;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b,float n)
+vector3_magnitude	./dep/blib/math3d.h	266;"	function	typeref:typename:float	signature:(vector3_t v)
+vector3_max	./dep/blib/math3d.h	344;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
+vector3_min	./dep/blib/math3d.h	354;"	function	typeref:typename:vector3_t	signature:(vector3_t a,vector3_t b)
+vector3_negate	./dep/blib/math3d.h	237;"	function	typeref:typename:vector3_t	signature:(vector3_t v)
+vector3_normalize	./dep/blib/math3d.h	274;"	function	typeref:typename:vector3_t	signature:(vector3_t v)
 vector3_one	./dep/blib/math3d.h	77;"	function	typeref:typename:vector3_t	signature:(float s)
-vector3_print	./dep/blib/math3d.h	225;"	function	typeref:typename:void	signature:(const vector3_t v,const char * label)
+vector3_print	./dep/blib/math3d.h	231;"	function	typeref:typename:void	signature:(const vector3_t v,const char * label)
 vector3_right	./dep/blib/math3d.h	82;"	function	typeref:typename:vector3_t	signature:(float s)
-vector3_rotate	./dep/blib/math3d.h	799;"	function	typeref:typename:vector3_t	signature:(vector3_t v,quaternion_t rotation)
-vector3_scale	./dep/blib/math3d.h	286;"	function	typeref:typename:vector3_t	signature:(vector3_t v,float scalar)
-vector3_square_magnitude	./dep/blib/math3d.h	252;"	function	typeref:typename:float	signature:(vector3_t v)
-vector3_subtract	./dep/blib/math3d.h	241;"	function	typeref:typename:vector3_t	signature:(vector3_t minuend,vector3_t subtrahend)
+vector3_rotate	./dep/blib/math3d.h	817;"	function	typeref:typename:vector3_t	signature:(vector3_t v,quaternion_t rotation)
+vector3_scale	./dep/blib/math3d.h	298;"	function	typeref:typename:vector3_t	signature:(vector3_t v,float scalar)
+vector3_square_distance	./dep/blib/math3d.h	289;"	function	typeref:typename:float	signature:(vector3_t a,vector3_t b)
+vector3_square_magnitude	./dep/blib/math3d.h	258;"	function	typeref:typename:float	signature:(vector3_t v)
+vector3_subtract	./dep/blib/math3d.h	247;"	function	typeref:typename:vector3_t	signature:(vector3_t minuend,vector3_t subtrahend)
 vector3_t	./dep/blib/math3d.h	45;"	typedef	typeref:struct:__anonb2ddaee90208
-vector3_to_vector2	./dep/blib/math3d.h	351;"	function	typeref:typename:vector2_t	signature:(vector3_t v)
-vector3_to_vector4	./dep/blib/math3d.h	356;"	function	typeref:typename:vector4_t	signature:(vector3_t v)
+vector3_to_vector2	./dep/blib/math3d.h	363;"	function	typeref:typename:vector2_t	signature:(vector3_t v)
+vector3_to_vector4	./dep/blib/math3d.h	368;"	function	typeref:typename:vector4_t	signature:(vector3_t v)
 vector3_up	./dep/blib/math3d.h	78;"	function	typeref:typename:vector3_t	signature:(float s)
 vector3_zero	./dep/blib/math3d.h	76;"	function	typeref:typename:vector3_t	signature:(void)
-vector4_add	./dep/blib/math3d.h	400;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
+vector4_add	./dep/blib/math3d.h	412;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
 vector4_back	./dep/blib/math3d.h	114;"	function	typeref:typename:vector4_t	signature:(float s)
-vector4_distance	./dep/blib/math3d.h	421;"	function	typeref:typename:float	signature:(vector4_t a,vector4_t b)
-vector4_dot	./dep/blib/math3d.h	442;"	function	typeref:typename:float	signature:(vector4_t a,vector4_t b)
+vector4_distance	./dep/blib/math3d.h	433;"	function	typeref:typename:float	signature:(vector4_t a,vector4_t b)
+vector4_dot	./dep/blib/math3d.h	460;"	function	typeref:typename:float	signature:(vector4_t a,vector4_t b)
 vector4_down	./dep/blib/math3d.h	102;"	function	typeref:typename:vector4_t	signature:(float s)
 vector4_forward	./dep/blib/math3d.h	111;"	function	typeref:typename:vector4_t	signature:(float s)
 vector4_left	./dep/blib/math3d.h	108;"	function	typeref:typename:vector4_t	signature:(float s)
-vector4_lerp	./dep/blib/math3d.h	450;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b,float t)
-vector4_Lerpclamped	./dep/blib/math3d.h	461;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b,float n)
-vector4_magnitude	./dep/blib/math3d.h	384;"	function	typeref:typename:float	signature:(vector4_t v)
-vector4_Max	./dep/blib/math3d.h	476;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
-vector4_Min	./dep/blib/math3d.h	487;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
-vector4_negate	./dep/blib/math3d.h	367;"	function	typeref:typename:vector4_t	signature:(vector4_t v)
-vector4_normalize	./dep/blib/math3d.h	392;"	function	typeref:typename:vector4_t	signature:(vector4_t v)
+vector4_lerp	./dep/blib/math3d.h	468;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b,float t)
+vector4_Lerpclamped	./dep/blib/math3d.h	479;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b,float n)
+vector4_magnitude	./dep/blib/math3d.h	396;"	function	typeref:typename:float	signature:(vector4_t v)
+vector4_Max	./dep/blib/math3d.h	494;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
+vector4_Min	./dep/blib/math3d.h	505;"	function	typeref:typename:vector4_t	signature:(vector4_t a,vector4_t b)
+vector4_negate	./dep/blib/math3d.h	379;"	function	typeref:typename:vector4_t	signature:(vector4_t v)
+vector4_normalize	./dep/blib/math3d.h	404;"	function	typeref:typename:vector4_t	signature:(vector4_t v)
 vector4_one	./dep/blib/math3d.h	98;"	function	typeref:typename:vector4_t	signature:(float s)
-vector4_print	./dep/blib/math3d.h	361;"	function	typeref:typename:void	signature:(const vector4_t v,const char * label)
+vector4_print	./dep/blib/math3d.h	373;"	function	typeref:typename:void	signature:(const vector4_t v,const char * label)
 vector4_right	./dep/blib/math3d.h	105;"	function	typeref:typename:vector4_t	signature:(float s)
-vector4_scale	./dep/blib/math3d.h	430;"	function	typeref:typename:vector4_t	signature:(vector4_t v,float scalar)
-vector4_square_magnitude	./dep/blib/math3d.h	376;"	function	typeref:typename:float	signature:(vector4_t v)
-vector4_subtract	./dep/blib/math3d.h	410;"	function	typeref:typename:vector4_t	signature:(vector4_t minuend,vector4_t subtrahend)
+vector4_scale	./dep/blib/math3d.h	448;"	function	typeref:typename:vector4_t	signature:(vector4_t v,float scalar)
+vector4_square_distance	./dep/blib/math3d.h	439;"	function	typeref:typename:float	signature:(vector4_t a,vector4_t b)
+vector4_square_magnitude	./dep/blib/math3d.h	388;"	function	typeref:typename:float	signature:(vector4_t v)
+vector4_subtract	./dep/blib/math3d.h	422;"	function	typeref:typename:vector4_t	signature:(vector4_t minuend,vector4_t subtrahend)
 vector4_t	./dep/blib/math3d.h	53;"	typedef	typeref:struct:__anonb2ddaee90308
-vector4_ToVec2	./dep/blib/math3d.h	497;"	function	typeref:typename:vector2_t	signature:(vector4_t v)
-vector4_ToVec3	./dep/blib/math3d.h	502;"	function	typeref:typename:vector3_t	signature:(vector4_t v)
+vector4_ToVec2	./dep/blib/math3d.h	515;"	function	typeref:typename:vector2_t	signature:(vector4_t v)
+vector4_ToVec3	./dep/blib/math3d.h	520;"	function	typeref:typename:vector3_t	signature:(vector4_t v)
 vector4_up	./dep/blib/math3d.h	99;"	function	typeref:typename:vector4_t	signature:(float s)
 vector4_zero	./dep/blib/math3d.h	95;"	function	typeref:typename:vector4_t	signature:(void)
-vertexCount	./src/gl.h	40;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+velocity	./src/main.c	215;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
+vertexCount	./src/gl.h	41;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
 vertex_t	./src/gl.h	33;"	typedef	typeref:struct:__anona5e9e4220208
 void_ptr	./dep/blib/blib.h	41;"	typedef	typeref:typename:void *
 vs	./dep/stb_image.h	3851;"	member	struct:__anon901ef9eb0a08	typeref:typename:int
@@ -20442,23 +20462,22 @@ __anon901ef9eb1308	./dep/stb_image.h	6558;"	struct
 __anona5e9e4220103	./src/gl.h	24;"	enum
 __anona5e9e4220208	./src/gl.h	29;"	struct
 __anona5e9e4220308	./src/gl.h	36;"	struct
-__anona5e9e4220408	./src/gl.h	45;"	struct
-__anona5e9e4220508	./src/gl.h	51;"	struct
-__anona5e9e4220608	./src/gl.h	68;"	struct
-__anona5e9e4220708	./src/gl.h	74;"	struct
+__anona5e9e4220408	./src/gl.h	46;"	struct
+__anona5e9e4220508	./src/gl.h	52;"	struct
+__anona5e9e4220608	./src/gl.h	69;"	struct
+__anona5e9e4220708	./src/gl.h	75;"	struct
 __anonb2ddaee90108	./dep/blib/math3d.h	35;"	struct
 __anonb2ddaee90208	./dep/blib/math3d.h	41;"	struct
 __anonb2ddaee90308	./dep/blib/math3d.h	48;"	struct
 __anonb2ddaee90408	./dep/blib/math3d.h	56;"	struct
 __anonb2ddaee90508	./dep/blib/math3d.h	61;"	struct
-__anond54bd50f0103	./src/main.c	144;"	enum	file:
-__anond54bd50f0208	./src/main.c	152;"	struct	file:
-__anond54bd50f0308	./src/main.c	162;"	struct	file:
-__anond54bd50f0403	./src/main.c	584;"	enum	function:mesh_alloc_cube_sphere	file:
+__anond54bd50f0103	./src/main.c	192;"	enum	file:
+__anond54bd50f0208	./src/main.c	200;"	struct	file:
+__anond54bd50f0308	./src/main.c	210;"	struct	file:
+__anond54bd50f0408	./src/main.c	218;"	struct	file:
+__anond54bd50f0503	./src/main.c	511;"	enum	function:mesh_alloc_planet	file:
+__anond54bd50f0603	./src/main.c	650;"	enum	function:mesh_alloc_cube_sphere	file:
 __anondd86e6de0103	./dep/KHR/khrplatform.h	305;"	enum
-__anonfcfd40520108	./src/physics.h	49;"	struct
-__anonfcfd40520208	./src/physics.h	54;"	struct
-__anonfcfd40520308	./src/physics.h	60;"	struct
 __glad_h_	./dep/glad/glad.h	642;"	macro
 __gl_h_	./dep/glad/glad.h	647;"	macro
 __khrplatform_h_	./dep/KHR/khrplatform.h	2;"	macro
