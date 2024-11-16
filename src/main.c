@@ -204,13 +204,15 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	vector3_t force = vector3_left(1.0);
-	k->acceleration = vector3_add(k->acceleration, vector3_scale(force, engine_time_delta));
-	float newPosX = kinematic_equation(k->acceleration.x * k->mass, k->velocity.x,
+	//~ vector3_t force = vector3_left(1.0);
+	//~ k->acceleration = vector3_add(k->acceleration, vector3_scale(force, engine_time_delta));
+	//~ vector3_t relativeForce = transform_basis_forward(r->transform[e], 1.0);
+	//~ k->acceleration = vector3_add(k->acceleration, vector3_scale(relativeForce, engine_time_delta));
+	float newPosX = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
 		k->position.x,engine_time_current);
-	float newPosY = kinematic_equation(k->acceleration.y * k->mass, k->velocity.y, 
+	float newPosY = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y, 
 		k->position.y, engine_time_current);
-	float newPosZ = kinematic_equation(k->acceleration.z * k->mass, k->velocity.z,
+	float newPosZ = kinematic_equation(k->acceleration.z / k->mass, k->velocity.z,
 		k->position.z, engine_time_current);
 	r->transform[e].position = (vector3_t){newPosX, newPosY, newPosZ};
 }
@@ -349,7 +351,7 @@ void mesh_draw(component_registry *r, EntityId e) {
 	glDrawElements(GL_TRIANGLES, r->mesh[e].indexCount, GL_UNSIGNED_INT, 0);
 }
 
-#if 1
+#if 0
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -464,7 +466,7 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 		for(int quad = 0; quad < 4; quad++) {
 			for (int k = 0; k < resolution; k++) {
 				for (int j = 0; j < resolution; j++) {
-					const int offset = resolution*resolution*quad*face;
+					const int indexOffset = resolution*resolution*quad*face;
 				
 					vector3_t point = {0};
 					
@@ -521,7 +523,7 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 						}
 					}
 					if (k < resolution - 1 && j < resolution - 1) {
-						const int first = offset + (k * (resolution)) + j;
+						const int first = indexOffset + (k * (resolution)) + j;
 						const int second = first + resolution;
 						for (int i = 0; i < 6; i++) {
 							list_uint32_t_add(&indices, 0);
@@ -752,20 +754,20 @@ int main(void) {
 
 	// cube creation
 	EntityId cube = entity_register();
+	registry->transform[cube] = (transform_t){
+		.position = {-10, 0, 0},
+			.rotation = quaternion_from_euler(vector3_up(PI/4)),
+			.scale = vector3_one(1.0),
+	};
 	registry->kinematic_body[cube].angle = PI/4.0;
 	registry->kinematic_body[cube].power = 20.0;
-	registry->kinematic_body[cube].acceleration = (vector3_t){ 0.0, 0.0, 0.0 };
+	registry->kinematic_body[cube].acceleration = transform_basis_forward(registry->transform[cube], 1.0);
 	registry->kinematic_body[cube].mass = 1.0;
 	registry->mesh[cube] = mesh_alloc_cube();
 	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
 		.diffuseMap = testDiffuseMap,
 			.specularMap = testSpecularMap,
-	};
-	registry->transform[cube] = (transform_t){
-		.position = {-10, 0, 0},
-			.rotation = quaternion_identity(),
-			.scale = vector3_one(1.0),
 	};
 	
 	// create planet
