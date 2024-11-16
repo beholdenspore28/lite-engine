@@ -159,6 +159,7 @@ typedef struct {
 EntityId light;
 
 typedef struct {
+	bool enabled;
 	float mass;
 	vector3_t position;
 	vector3_t acceleration;
@@ -202,7 +203,8 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	
+	if (k->enabled == false)
+		return;
 	float newPosX = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
 		k->position.x,engine_time_current);
 	float newPosY = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y, 
@@ -754,7 +756,9 @@ int main(void) {
 			.rotation = quaternion_from_euler(vector3_up(PI/4)),
 			.scale = vector3_one(1.0),
 	};
-	registry->kinematic_body[cube1].acceleration = transform_basis_left(registry->transform[cube1], 1.0);
+	registry->kinematic_body[cube1].enabled = true;
+	registry->kinematic_body[cube1].acceleration = transform_basis_left(
+			registry->transform[cube1], 1.0);
 	registry->kinematic_body[cube1].mass = 1.0;
 	registry->mesh[cube1] = mesh_alloc_cube();
 	registry->shader[cube1] = diffuseShader;
@@ -770,7 +774,9 @@ int main(void) {
 			.rotation = quaternion_from_euler(vector3_up(PI/4)),
 			.scale = vector3_one(1.0),
 	};
-	registry->kinematic_body[cube2].acceleration = transform_basis_forward(registry->transform[cube2], 1.0);
+	registry->kinematic_body[cube2].enabled = true;
+	registry->kinematic_body[cube2].acceleration = transform_basis_forward(
+			registry->transform[cube2], 1.0);
 	registry->kinematic_body[cube2].mass = 1.0;
 	registry->mesh[cube2] = mesh_alloc_cube();
 	registry->shader[cube2] = diffuseShader;
@@ -896,8 +902,6 @@ int main(void) {
 		{ // Physics simulation
 #if 1
 			for(EntityId e = 1; e < MAX_ENTITIES; e++) {
-				if (e == skybox)
-					continue;
 				kinematic_body_update(registry, e);
 			}
 #else
