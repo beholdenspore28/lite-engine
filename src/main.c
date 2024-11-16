@@ -161,6 +161,7 @@ EntityId light;
 typedef struct {
 	float angle;
 	float power;
+	float mass;
 	vector3_t position;
 	vector3_t acceleration;
 	vector3_t velocity;
@@ -196,15 +197,6 @@ void component_registry_free(component_registry *r) {
 	free(r);
 }
 
-void kinematic_body_launch(component_registry* r, EntityId e) {
-	kinematic_body_t* k = &r->kinematic_body[e];
-	k->velocity = (vector3_t){
-		cosf(k->angle) * k->power,
-		sinf(k->angle) * k->power,
-		0};
-	k->position = r->transform[e].position;
-}
-
 static inline float kinematic_equation(float acceleration, float velocity,
 		float position, float time) {
 	return 0.5f * acceleration * time * time + velocity * time + position;
@@ -212,11 +204,13 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
+	vector3_t force = vector3_left(1.0);
+	k->acceleration = vector3_add(k->acceleration, vector3_scale(force, engine_time_delta));
+	float newPosX = kinematic_equation(k->acceleration.x * k->mass, k->velocity.x,
 		k->position.x,engine_time_current);
-	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y, 
+	float newPosY = kinematic_equation(k->acceleration.y * k->mass, k->velocity.y, 
 		k->position.y, engine_time_current);
-	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
+	float newPosZ = kinematic_equation(k->acceleration.z * k->mass, k->velocity.z,
 		k->position.z, engine_time_current);
 	r->transform[e].position = (vector3_t){newPosX, newPosY, newPosZ};
 }
@@ -760,7 +754,8 @@ int main(void) {
 	EntityId cube = entity_register();
 	registry->kinematic_body[cube].angle = PI/4.0;
 	registry->kinematic_body[cube].power = 20.0;
-	registry->kinematic_body[cube].acceleration = (vector3_t){ 0.0, -9.81, 0.0 };
+	registry->kinematic_body[cube].acceleration = (vector3_t){ 0.0, 0.0, 0.0 };
+	registry->kinematic_body[cube].mass = 1.0;
 	registry->mesh[cube] = mesh_alloc_cube();
 	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
@@ -772,8 +767,7 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(1.0),
 	};
-	kinematic_body_launch(registry, cube);
-
+	
 	// create planet
 	EntityId planet = entity_register();
 	registry->mesh[planet] = mesh_alloc_planet(4, 1);
