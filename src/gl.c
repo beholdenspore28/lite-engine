@@ -159,6 +159,7 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices,
 		GLuint numVertices, GLuint numIndices) {
 
 	mesh_t m = {0};
+	m.enabled = true;
 	m.vertexCount = numVertices;
 	m.indexCount = numIndices;
 

@@ -138,13 +138,38 @@ static float       engine_renderer_FPS         = 0.0f;
 static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
 static camera_t    engine_active_camera        = { 0 };
 
+typedef struct {
+	vector3_t position;
+	float quadSize;
+	uint32_t capacity;
+	list_vector3_t points;
+} quad_tree_t;
+
+quad_tree_t* quad_tree_alloc(void) {
+	quad_tree_t* tree = malloc(sizeof(quad_tree_t));
+	tree->position = (vector3_t){0};
+	tree->quadSize = 1.0;
+	tree->capacity = 4;
+	tree->points = list_vector3_t_alloc();
+	return tree;
+}
+
+void quad_tree_free(quad_tree_t* tree) {
+	list_vector3_t_free(&tree->points);
+	free(tree);
+}
+
+void quad_tree_insert(quad_tree_t* tree, vector3_t point) {
+	
+}
+
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 8 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 128 };
 
 EntityId entity_register(void) {
-	assert(entity_count < MAX_ENTITIES);
 	entity_count++;
+	assert(entity_count < MAX_ENTITIES);
 	return entity_count;
 }
 
@@ -298,6 +323,9 @@ void engine_set_clear_color(const float r, const float g, const float b, const f
 }
 
 void mesh_draw(component_registry *r, EntityId e) {
+	if (r->mesh[e].enabled == false) {
+		return;
+	}
 	// TODO dereference these pointers to avoid following them so many times.
 	glUseProgram(r->shader[e]);
 	
@@ -749,41 +777,25 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	// create cube1
-	EntityId cube1 = entity_register();
-	registry->transform[cube1] = (transform_t){
-		.position = {-10, 0, 0},
-			.rotation = quaternion_from_euler(vector3_up(PI/4)),
-			.scale = vector3_one(1.0),
-	};
-	registry->kinematic_body[cube1].enabled = true;
-	registry->kinematic_body[cube1].acceleration = transform_basis_left(
-			registry->transform[cube1], 1.0);
-	registry->kinematic_body[cube1].mass = 1.0;
-	registry->mesh[cube1] = mesh_alloc_cube();
-	registry->shader[cube1] = diffuseShader;
-	registry->material[cube1] = (material_t){
-		.diffuseMap = testDiffuseMap,
-			.specularMap = testSpecularMap,
-	};
-
-	// create cube2
-	EntityId cube2 = entity_register();
-	registry->transform[cube2] = (transform_t){
-		.position = {-10, 0, 0},
-			.rotation = quaternion_from_euler(vector3_up(PI/4)),
-			.scale = vector3_one(1.0),
-	};
-	registry->kinematic_body[cube2].enabled = true;
-	registry->kinematic_body[cube2].acceleration = transform_basis_forward(
-			registry->transform[cube2], 1.0);
-	registry->kinematic_body[cube2].mass = 1.0;
-	registry->mesh[cube2] = mesh_alloc_cube();
-	registry->shader[cube2] = diffuseShader;
-	registry->material[cube2] = (material_t){
-		.diffuseMap = testDiffuseMap,
-			.specularMap = testSpecularMap,
-	};
+	for (int i = 1; i <= 100; i++) {
+		// create cube1
+		EntityId cube = entity_register();
+		registry->transform[cube] = (transform_t){
+			.position = {-10, 0, 0},
+				.rotation = quaternion_from_euler(vector3_up(PI/i)),
+				.scale = vector3_one(1.0),
+		};
+		registry->kinematic_body[cube].enabled = true;
+		registry->kinematic_body[cube].acceleration = transform_basis_left(
+				registry->transform[cube], 1.0);
+		registry->kinematic_body[cube].mass = 1.0;
+		registry->mesh[cube] = mesh_alloc_cube();
+		registry->shader[cube] = diffuseShader;
+		registry->material[cube] = (material_t){
+			.diffuseMap = testDiffuseMap,
+				.specularMap = testSpecularMap,
+		};
+	}
 	
 	// create planet
 	EntityId planet = entity_register();
@@ -930,9 +942,9 @@ int main(void) {
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			mesh_draw(registry, planet);
-			mesh_draw(registry, cube1);
-			mesh_draw(registry, cube2);
+			for(EntityId e = 1; e < MAX_ENTITIES; e++) {
+				mesh_draw(registry, e);
+			}
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();

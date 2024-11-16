@@ -34,6 +34,7 @@ typedef struct {
 DECLARE_LIST(vertex_t)
 
 typedef struct {
+	bool enabled;
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
