@@ -162,6 +162,7 @@ typedef struct {
 	float angle;
 	float power;
 	float mass;
+	bool enabled;
 	vector3_t position;
 	vector3_t acceleration;
 	vector3_t velocity;
@@ -204,10 +205,6 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	//~ vector3_t force = vector3_left(1.0);
-	//~ k->acceleration = vector3_add(k->acceleration, vector3_scale(force, engine_time_delta));
-	//~ vector3_t relativeForce = transform_basis_forward(r->transform[e], 1.0);
-	//~ k->acceleration = vector3_add(k->acceleration, vector3_scale(relativeForce, engine_time_delta));
 	float newPosX = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
 		k->position.x,engine_time_current);
 	float newPosY = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y, 
@@ -751,21 +748,38 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(10.0),
 	};
-
-	// cube creation
-	EntityId cube = entity_register();
-	registry->transform[cube] = (transform_t){
+	
+	EntityId cube2 = entity_register();
+	registry->transform[cube2] = (transform_t){
 		.position = {-10, 0, 0},
 			.rotation = quaternion_from_euler(vector3_up(PI/4)),
 			.scale = vector3_one(1.0),
 	};
-	registry->kinematic_body[cube].angle = PI/4.0;
-	registry->kinematic_body[cube].power = 20.0;
-	registry->kinematic_body[cube].acceleration = transform_basis_forward(registry->transform[cube], 1.0);
-	registry->kinematic_body[cube].mass = 1.0;
-	registry->mesh[cube] = mesh_alloc_cube();
-	registry->shader[cube] = diffuseShader;
-	registry->material[cube] = (material_t){
+	registry->kinematic_body[cube2].angle = PI/4.0;
+	registry->kinematic_body[cube2].power = 20.0;
+	registry->kinematic_body[cube2].acceleration = transform_basis_forward(registry->transform[cube2], 1.0);
+	registry->kinematic_body[cube2].mass = 1.0;
+	registry->mesh[cube2] = mesh_alloc_cube();
+	registry->shader[cube2] = diffuseShader;
+	registry->material[cube2] = (material_t){
+		.diffuseMap = testDiffuseMap,
+			.specularMap = testSpecularMap,
+	};
+
+	// cube1 creation
+	EntityId cube1 = entity_register();
+	registry->transform[cube1] = (transform_t){
+		.position = {-10, 0, 0},
+			.rotation = quaternion_from_euler(vector3_up(PI/4)),
+			.scale = vector3_one(1.0),
+	};
+	registry->kinematic_body[cube1].angle = PI/4.0;
+	registry->kinematic_body[cube1].power = 20.0;
+	registry->kinematic_body[cube1].acceleration = transform_basis_left(registry->transform[cube1], 1.0);
+	registry->kinematic_body[cube1].mass = 1.0;
+	registry->mesh[cube1] = mesh_alloc_cube();
+	registry->shader[cube1] = diffuseShader;
+	registry->material[cube1] = (material_t){
 		.diffuseMap = testDiffuseMap,
 			.specularMap = testSpecularMap,
 	};
@@ -885,7 +899,8 @@ int main(void) {
 		} // END INPUT
 
 		{ // Physics simulation
-			kinematic_body_update(registry, cube);
+			kinematic_body_update(registry, cube1);
+			kinematic_body_update(registry, cube2);
 		}
 		
 		// projection
@@ -909,7 +924,8 @@ int main(void) {
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
 			mesh_draw(registry, planet);
-			mesh_draw(registry, cube);
+			mesh_draw(registry, cube1);
+			mesh_draw(registry, cube2);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
