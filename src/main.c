@@ -161,9 +161,8 @@ EntityId light;
 typedef struct {
 	float angle;
 	float power;
-	bool isLaunched;
-	vector3_t initialPosition;
-	vector3_t initialVelocity;
+	vector3_t position;
+	vector3_t velocity;
 }kinematic_body_t;
 
 typedef struct {
@@ -198,12 +197,11 @@ void component_registry_free(component_registry *r) {
 
 void kinematic_body_launch(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	k->initialVelocity = (vector3_t){
-		cosf(k->angle * PI/180.0f) * k->power,
-		sinf(k->angle * PI/180.0f) * k->power,
+	k->velocity = (vector3_t){
+		cosf(k->angle) * k->power,
+		sinf(k->angle) * k->power,
 		0};
-	k->initialPosition = r->transform[e].position;
-	k->isLaunched = true;
+	k->position = r->transform[e].position;
 }
 
 static inline float kinematic_equation(float acceleration, float velocity,
@@ -213,12 +211,10 @@ static inline float kinematic_equation(float acceleration, float velocity,
 
 void kinematic_body_update(component_registry* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
-	if (!k->isLaunched)
-		return;
-	float newPosX = kinematic_equation(0.0f,k->initialVelocity.x,
-		k->initialPosition.x,engine_time_current/100.0f);
-	float newPosY = kinematic_equation(-9.81f,	k->initialVelocity.y, 
-		k->initialPosition.y, engine_time_current/100.0f);
+	float newPosX = kinematic_equation(0.0f,k->velocity.x,
+		k->position.x,engine_time_current);
+	float newPosY = kinematic_equation(-9.81f,	k->velocity.y, 
+		k->position.y, engine_time_current);
 	r->transform[e].position = (vector3_t){newPosX, newPosY, r->transform[e].position.z};
 }
 
@@ -356,7 +352,7 @@ void mesh_draw(component_registry *r, EntityId e) {
 	glDrawElements(GL_TRIANGLES, r->mesh[e].indexCount, GL_UNSIGNED_INT, 0);
 }
 
-#if 0
+#if 1
 mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -759,8 +755,8 @@ int main(void) {
 
 	// cube creation
 	EntityId cube = entity_register();
-	registry->kinematic_body[cube].angle = 30.0f;
-	registry->kinematic_body[cube].power = 0.5f;
+	registry->kinematic_body[cube].angle = PI/4.0;
+	registry->kinematic_body[cube].power = 20.0;
 	registry->mesh[cube] = mesh_alloc_cube();
 	registry->shader[cube] = diffuseShader;
 	registry->material[cube] = (material_t){
@@ -772,6 +768,7 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(1.0),
 	};
+	kinematic_body_launch(registry, cube);
 
 	// create planet
 	EntityId planet = entity_register();
@@ -883,9 +880,6 @@ int main(void) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-				if (glfwGetKey(engine_window, GLFW_KEY_L)) {
-					kinematic_body_launch(registry, cube);
 				}
 			}
 		} // END INPUT
