@@ -144,6 +144,7 @@ typedef struct quad_tree {
 	uint32_t capacity;
 	list_vector3_t points;
 	bool isSubdivided;
+	int depth;
 	struct quad_tree* frontNorthEast;
 	struct quad_tree* frontNorthWest;
 	struct quad_tree* frontSouthEast;
@@ -154,13 +155,15 @@ typedef struct quad_tree {
 	struct quad_tree* backSouthWest;
 } quad_tree_t;
 
-quad_tree_t* quad_tree_alloc(float positionX, float positionY, float positionZ, float quadSize) {
+quad_tree_t* quad_tree_alloc(float positionX, float positionY, 
+		float positionZ, float quadSize, int depth) {
 	quad_tree_t* tree = malloc(sizeof(quad_tree_t));
 	tree->position.x = positionX;
 	tree->position.y = positionY;
 	tree->position.z = positionZ;
 	tree->quadSize = quadSize;
 	tree->capacity = 4;
+	tree->depth = depth;
 	tree->points = list_vector3_t_alloc();
 	tree->isSubdivided = false;
 	return tree;
@@ -181,30 +184,24 @@ void quad_tree_free(quad_tree_t* tree) {
 	free(tree);
 }
 
-void quad_tree_print(quad_tree_t* tree, const char* label) {
-	// vector3_t position;
-	// float quadSize;
-	// uint32_t capacity;
-	// list_vector3_t points;
-	// bool isSubdivided;
-	// struct quad_tree* frontNorthEast;
-	// struct quad_tree* frontNorthWest;
-	// struct quad_tree* frontSouthEast;
-	// struct quad_tree* frontSouthWest;
-	// struct quad_tree* backNorthEast;
-	// struct quad_tree* backNorthWest;
-	// struct quad_tree* backSouthEast;
-	// struct quad_tree* backSouthWest;
+// TODO remove this
+static inline void indent(int numtabs) {
+	for(int i = 0; i < numtabs; i++)
+		printf("    ");
+}
+
+static inline void quad_tree_print(quad_tree_t* tree, const char* label) {
+	indent(tree->depth); puts("===================================================================================");
+	indent(tree->depth); printf("%s->depth = %d\n", label, tree->depth);
+	indent(tree->depth); printf("%s->position", label); vector3_print(tree->position, "");
+	indent(tree->depth); printf("%s->quadSize = %f\n", label, tree->quadSize);
+	indent(tree->depth); printf("%s->capacity = %d\n", label, tree->capacity);
+	indent(tree->depth); printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
+	indent(tree->depth); printf("%s->points.length = %lu\n", label, tree->points.length);
+	for(size_t i = 0; i < tree->points.length; i++) {
+		indent(tree->depth); printf("%s->points", label); vector3_print(tree->points.data[i], "");
+	}
 	if (tree->isSubdivided) {
-		puts("================================================================");
-		printf("%s->position", label); vector3_print(tree->position, "");
-		printf("%s->quadSize = %f\n", label, tree->quadSize);
-		printf("%s->capacity = %d\n", label, tree->capacity);
-		printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
-		printf("%s->points.length = %lu\n", label, tree->points.length);
-		for(size_t i = 0; i < tree->points.length; i++) {
-			printf("%s->points", label); vector3_print(tree->points.data[i], "");
-		}
 		quad_tree_print(tree->frontNorthEast, "frontNorthEast");
 		quad_tree_print(tree->frontNorthEast, "frontNorthWest");
 		quad_tree_print(tree->frontSouthEast, "frontSouthEast");
@@ -215,10 +212,10 @@ void quad_tree_print(quad_tree_t* tree, const char* label) {
 		quad_tree_print(tree->backSouthEast, "backNorthEast");
 		quad_tree_print(tree->backSouthWest, "backNorthWest");
 	}
+	indent(tree->depth); puts("===================================================================================");
 }
 
 void quad_tree_subdivide(quad_tree_t* tree) {
-	puts("subdivide");
 	tree->isSubdivided = true;
 	vector3_t tPos = tree->position;
 	float quarterQuadSize = tree->quadSize * 0.25;
@@ -226,42 +223,50 @@ void quad_tree_subdivide(quad_tree_t* tree) {
 		tPos.x + quarterQuadSize,
 		tPos.y + quarterQuadSize,
 		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->frontNorthWest = quad_tree_alloc(
 		tPos.x - quarterQuadSize,
 		tPos.y + quarterQuadSize,
 		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->frontSouthEast = quad_tree_alloc(
 		tPos.x + quarterQuadSize,
 		tPos.y - quarterQuadSize,
 		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->frontSouthWest = quad_tree_alloc(
 		tPos.x - quarterQuadSize,
 		tPos.y - quarterQuadSize,
 		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->backNorthEast = quad_tree_alloc(
 		tPos.x + quarterQuadSize,
 		tPos.y + quarterQuadSize,
 		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->backNorthWest = quad_tree_alloc(
 		tPos.x - quarterQuadSize,
 		tPos.y + quarterQuadSize,
 		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->backSouthEast = quad_tree_alloc(
 		tPos.x + quarterQuadSize,
 		tPos.y - quarterQuadSize,
 		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 	tree->backSouthWest = quad_tree_alloc(
 		tPos.x - quarterQuadSize,
 		tPos.y - quarterQuadSize,
 		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5);
+		tree->quadSize * 0.5,
+		tree->depth+1);
 }
 
 bool quad_tree_contains(quad_tree_t* tree, vector3_t point) {
@@ -875,7 +880,8 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 int main(void) {
 	printf("Rev up those fryers!\n");
 
-	quad_tree_t* qt = quad_tree_alloc(0.0, 0.0, 0.0, 100.0);
+#if 1
+	quad_tree_t* qt = quad_tree_alloc(0.0, 0.0, 0.0, 100.0, 0);
 	for(int i = 0; i < 100; i++) {
 		srand(i);
 		quad_tree_insert(qt, (vector3_t) {(float)noise1(i), (float)noise1(i+1), (float)noise1(i+2)});
@@ -883,6 +889,7 @@ int main(void) {
 	quad_tree_print(qt, "qt");
 	quad_tree_free(qt);
 	return 0;
+#endif
 
 	engine_window_title = "Game Window";
 	engine_window_size_x = 1280;
