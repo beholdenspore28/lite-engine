@@ -191,6 +191,8 @@ static inline void indent(int numtabs) {
 }
 
 static inline void quad_tree_print(quad_tree_t* tree, const char* label) {
+	// if (tree->points.length == 0)
+	// 	return;
 	indent(tree->depth); puts("===================================================================================");
 	indent(tree->depth); printf("%s->depth = %d\n", label, tree->depth);
 	indent(tree->depth); printf("%s->position", label); vector3_print(tree->position, "");
@@ -199,13 +201,13 @@ static inline void quad_tree_print(quad_tree_t* tree, const char* label) {
 	indent(tree->depth); printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
 	indent(tree->depth); printf("%s->points.length = %lu\n", label, tree->points.length);
 	for(size_t i = 0; i < tree->points.length; i++) {
-		indent(tree->depth); printf("%s->points", label); vector3_print(tree->points.data[i], "");
+		indent(tree->depth); printf("%s->points[%zu] = ", label, i); vector3_print(tree->points.data[i], "");
 	}
 	if (tree->isSubdivided) {
 		quad_tree_print(tree->frontNorthEast, "frontNorthEast");
-		quad_tree_print(tree->frontNorthEast, "frontNorthWest");
+		quad_tree_print(tree->frontNorthWest, "frontNorthWest");
 		quad_tree_print(tree->frontSouthEast, "frontSouthEast");
-		quad_tree_print(tree->frontSouthEast, "frontSouthWest");
+		quad_tree_print(tree->frontSouthWest, "frontSouthWest");
 
 		quad_tree_print(tree->backNorthEast, "backNorthEast");
 		quad_tree_print(tree->backNorthWest, "backNorthWest");
@@ -883,8 +885,12 @@ int main(void) {
 #if 1
 	quad_tree_t* qt = quad_tree_alloc(0.0, 0.0, 0.0, 100.0, 0);
 	for(int i = 0; i < 100; i++) {
-		srand(i);
-		quad_tree_insert(qt, (vector3_t) {(float)noise1(i), (float)noise1(i+1), (float)noise1(i+2)});
+		vector3_t point = (vector3_t) {
+			(float)noise1(i),
+			(float)noise1(i+1),
+			(float)noise1(i+2)
+		};
+		quad_tree_insert(qt, point);
 	}
 	quad_tree_print(qt, "qt");
 	quad_tree_free(qt);
