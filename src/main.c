@@ -225,7 +225,7 @@ oct_tree_t* oct_tree_alloc(void) {
 	tree->position.y = 0;
 	tree->position.z = 0;
 	tree->octSize = 1000;
-	tree->capacity = 4;
+	tree->capacity = 100;
 	tree->depth = 0;
 	tree->points = list_vector3_t_alloc();
 	tree->isSubdivided = false;
@@ -256,17 +256,28 @@ static inline void indent(int numtabs) {
 static inline void oct_tree_print(oct_tree_t* tree, const char* label) {
 	if (tree->points.length == 0)
 		return;
-	indent(tree->depth); puts("===================================================================================");
-	indent(tree->depth); printf("tree = %p\n", (void*)tree);
-	indent(tree->depth); printf("tree->parent = %p\n", (void*)tree->parent);
-	indent(tree->depth); printf("%s->depth = %d\n", label, tree->depth);
-	indent(tree->depth); printf("%s->position", label); vector3_print(tree->position, "");
-	indent(tree->depth); printf("%s->octSize = %f\n", label, tree->octSize);
-	indent(tree->depth); printf("%s->capacity = %d\n", label, tree->capacity);
-	indent(tree->depth); printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
-	indent(tree->depth); printf("%s->points.length = %lu\n", label, tree->points.length);
+	indent(tree->depth); 
+	puts("==============================================");
+	indent(tree->depth); 
+	printf("tree = %p\n", (void*)tree);
+	indent(tree->depth); 
+	printf("tree->parent = %p\n", (void*)tree->parent);
+	indent(tree->depth); 
+	printf("%s->depth = %d\n", label, tree->depth);
+	indent(tree->depth); 
+	printf("%s->position", label); vector3_print(tree->position, "");
+	indent(tree->depth); 
+	printf("%s->octSize = %f\n", label, tree->octSize);
+	indent(tree->depth); 
+	printf("%s->capacity = %d\n", label, tree->capacity);
+	indent(tree->depth); 
+	printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
+	indent(tree->depth); 
+	printf("%s->points.length = %lu\n", label, tree->points.length);
 	for(size_t i = 0; i < tree->points.length; i++) {
-		indent(tree->depth); printf("%s->points[%zu] = ", label, i); vector3_print(tree->points.data[i], "");
+		indent(tree->depth); 
+		printf("%s->points[%zu] = ", label, i); 
+		vector3_print(tree->points.data[i], "");
 	}
 	if (tree->isSubdivided) {
 		oct_tree_print(tree->frontNorthEast, "frontNorthEast");
@@ -279,7 +290,7 @@ static inline void oct_tree_print(oct_tree_t* tree, const char* label) {
 		oct_tree_print(tree->backSouthEast, "backNorthEast");
 		oct_tree_print(tree->backSouthWest, "backNorthWest");
 	}
-	indent(tree->depth); puts("===================================================================================");
+	indent(tree->depth); puts("==============================================");
 }
 
 void oct_tree_subdivide(oct_tree_t* tree) {
@@ -442,6 +453,7 @@ static inline float kinematic_equation(float acceleration, float velocity,
 }
 
 void kinematic_body_update(component_registry_t* r, EntityId e) {
+	return;
 	kinematic_body_t* k = &r->kinematic_body[e];
 	if (k->enabled == false)
 		return;
@@ -997,11 +1009,15 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	for (int i = 1; i <= 5000; i++) {
+	for (int i = 1; i <= 1000; i++) {
 		// create cube1
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
-			.position = (vector3_t){(float)noise1(i)*1000-500, (float)noise1(i+1)*1000-500, (float)noise1(i+2)*1000-500},
+			.position = (vector3_t){
+				(float)noise1(i)*100-50, 
+				(float)noise1(i+1)*100-50, 
+				(float)noise1(i+2)*100-50
+			},
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
 		};
@@ -1011,7 +1027,7 @@ int main(void) {
 				registry->transform[cube], 1.0);
 		registry->kinematic_body[cube].mass = 1.0;
 		registry->mesh[cube] = mesh_alloc_cube();
-		registry->shader[cube] = diffuseShader;
+		registry->shader[cube] = unlitShader;
 		registry->material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap,
 				.specularMap = testSpecularMap,
@@ -1047,6 +1063,7 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	oct_tree_t* octTree = oct_tree_alloc();
+	octTree->octSize = 100;
 	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
 #if 0 // TODO figure out why this fixes a bug
 		if (registry->transform[e].position.x == 0 &&
@@ -1059,6 +1076,7 @@ int main(void) {
 			continue;
 		oct_tree_insert(octTree, registry->transform[e].position);
 	}
+	//oct_tree_print(octTree, "octTree");
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // update time
