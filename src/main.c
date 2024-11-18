@@ -196,7 +196,7 @@ void component_registry_free(component_registry_t *r) {
 	free(r);
 }
 
-enum { OCT_TREE_MINIMUM_OCTSIZE };
+#define OCT_TREE_MINIMUM_OCTSIZE 1.0
 
 typedef struct oct_tree {
 	vector3_t position;
@@ -224,7 +224,7 @@ oct_tree_t* oct_tree_alloc(void) {
 	tree->position.x = 0;
 	tree->position.y = 0;
 	tree->position.z = 0;
-	tree->octSize = 10;
+	tree->octSize = 1000;
 	tree->capacity = 4;
 	tree->depth = 0;
 	tree->points = list_vector3_t_alloc();
@@ -963,20 +963,6 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 int main(void) {
 	printf("Rev up those fryers!\n");
 
-#if 1 // experiment
-	oct_tree_t* octTree = oct_tree_alloc();
-	for(int i = 0; i < 10; i++) {
-		vector3_t point = (vector3_t) {
-			(float)noise1(i),
-			(float)noise1(i+1),
-			(float)noise1(i+2)
-		};
-		vector3_print(point, "point");
-		oct_tree_insert(octTree, point);
-	}
-	oct_tree_print(octTree, "octTree");
-	// return 0;
-#endif
 
 	engine_window_title = "Game Window";
 	engine_window_size_x = 1280;
@@ -1012,15 +998,15 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	for (int i = 1; i <= 10; i++) {
+	for (int i = 1; i <= 1000; i++) {
 		// create cube1
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
-			.position = (vector3_t){i, 0, 0},
+			.position = (vector3_t){(float)noise1(i)*1000-500, (float)noise1(i+1)*1000-500, (float)noise1(i+2)*1000-500},
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
 		};
-		registry->kinematic_body[cube].enabled = true;
+		registry->kinematic_body[cube].enabled = false;
 		registry->kinematic_body[cube].acceleration = transform_basis_left(
 				registry->transform[cube], 1.0);
 		registry->kinematic_body[cube].mass = 1.0;
@@ -1058,6 +1044,11 @@ int main(void) {
 	};
 	registry->transform[light].position = (vector3_t){5, 5, 5};
 	vector3_t mouseLookVector = vector3_zero();
+
+	oct_tree_t* octTree = oct_tree_alloc();
+	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
+		oct_tree_insert(octTree, registry->transform[e].position);
+	}
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // update time
