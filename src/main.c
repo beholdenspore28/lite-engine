@@ -138,170 +138,6 @@ static float       engine_renderer_FPS         = 0.0f;
 static vector3_t   engine_ambient_light        = { 0.1, 0.1, 0.1 };
 static camera_t    engine_active_camera        = { 0 };
 
-typedef struct quad_tree {
-	vector3_t position;
-	float quadSize;
-	uint32_t capacity;
-	list_vector3_t points;
-	bool isSubdivided;
-	int depth;
-	struct quad_tree* frontNorthEast;
-	struct quad_tree* frontNorthWest;
-	struct quad_tree* frontSouthEast;
-	struct quad_tree* frontSouthWest;
-	struct quad_tree* backNorthEast;
-	struct quad_tree* backNorthWest;
-	struct quad_tree* backSouthEast;
-	struct quad_tree* backSouthWest;
-} quad_tree_t;
-
-quad_tree_t* quad_tree_alloc(float positionX, float positionY, 
-		float positionZ, float quadSize, int depth) {
-	quad_tree_t* tree = malloc(sizeof(quad_tree_t));
-	tree->position.x = positionX;
-	tree->position.y = positionY;
-	tree->position.z = positionZ;
-	tree->quadSize = quadSize;
-	tree->capacity = 4;
-	tree->depth = depth;
-	tree->points = list_vector3_t_alloc();
-	tree->isSubdivided = false;
-	return tree;
-}
-
-void quad_tree_free(quad_tree_t* tree) {
-	if (tree->isSubdivided == true) {
-		quad_tree_free(tree->frontNorthEast);
-		quad_tree_free(tree->frontNorthWest);
-		quad_tree_free(tree->frontSouthEast);
-		quad_tree_free(tree->frontSouthWest);
-		quad_tree_free(tree->backNorthEast);
-		quad_tree_free(tree->backNorthWest);
-		quad_tree_free(tree->backSouthEast);
-		quad_tree_free(tree->backSouthWest);
-	}
-	list_vector3_t_free(&tree->points);
-	free(tree);
-}
-
-// TODO remove this
-static inline void indent(int numtabs) {
-	for(int i = 0; i < numtabs; i++)
-		printf("    ");
-}
-
-static inline void quad_tree_print(quad_tree_t* tree, const char* label) {
-	// if (tree->points.length == 0)
-	// 	return;
-	indent(tree->depth); puts("===================================================================================");
-	indent(tree->depth); printf("%s->depth = %d\n", label, tree->depth);
-	indent(tree->depth); printf("%s->position", label); vector3_print(tree->position, "");
-	indent(tree->depth); printf("%s->quadSize = %f\n", label, tree->quadSize);
-	indent(tree->depth); printf("%s->capacity = %d\n", label, tree->capacity);
-	indent(tree->depth); printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
-	indent(tree->depth); printf("%s->points.length = %lu\n", label, tree->points.length);
-	for(size_t i = 0; i < tree->points.length; i++) {
-		indent(tree->depth); printf("%s->points[%zu] = ", label, i); vector3_print(tree->points.data[i], "");
-	}
-	if (tree->isSubdivided) {
-		quad_tree_print(tree->frontNorthEast, "frontNorthEast");
-		quad_tree_print(tree->frontNorthWest, "frontNorthWest");
-		quad_tree_print(tree->frontSouthEast, "frontSouthEast");
-		quad_tree_print(tree->frontSouthWest, "frontSouthWest");
-
-		quad_tree_print(tree->backNorthEast, "backNorthEast");
-		quad_tree_print(tree->backNorthWest, "backNorthWest");
-		quad_tree_print(tree->backSouthEast, "backNorthEast");
-		quad_tree_print(tree->backSouthWest, "backNorthWest");
-	}
-	indent(tree->depth); puts("===================================================================================");
-}
-
-void quad_tree_subdivide(quad_tree_t* tree) {
-	tree->isSubdivided = true;
-	vector3_t tPos = tree->position;
-	float quarterQuadSize = tree->quadSize * 0.25;
-	tree->frontNorthEast = quad_tree_alloc(
-		tPos.x + quarterQuadSize,
-		tPos.y + quarterQuadSize,
-		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->frontNorthWest = quad_tree_alloc(
-		tPos.x - quarterQuadSize,
-		tPos.y + quarterQuadSize,
-		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->frontSouthEast = quad_tree_alloc(
-		tPos.x + quarterQuadSize,
-		tPos.y - quarterQuadSize,
-		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->frontSouthWest = quad_tree_alloc(
-		tPos.x - quarterQuadSize,
-		tPos.y - quarterQuadSize,
-		tPos.z + quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->backNorthEast = quad_tree_alloc(
-		tPos.x + quarterQuadSize,
-		tPos.y + quarterQuadSize,
-		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->backNorthWest = quad_tree_alloc(
-		tPos.x - quarterQuadSize,
-		tPos.y + quarterQuadSize,
-		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->backSouthEast = quad_tree_alloc(
-		tPos.x + quarterQuadSize,
-		tPos.y - quarterQuadSize,
-		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-	tree->backSouthWest = quad_tree_alloc(
-		tPos.x - quarterQuadSize,
-		tPos.y - quarterQuadSize,
-		tPos.z - quarterQuadSize,
-		tree->quadSize * 0.5,
-		tree->depth+1);
-}
-
-bool quad_tree_contains(quad_tree_t* tree, vector3_t point) {
-	float halfQuadSize = tree->quadSize * 0.5;
-	return
-		point.x <= tree->position.x + halfQuadSize &&
-		point.x >= tree->position.x - halfQuadSize &&
-		point.y <= tree->position.y + halfQuadSize &&
-		point.y >= tree->position.y - halfQuadSize &&
-		point.z <= tree->position.z + halfQuadSize &&
-		point.z >= tree->position.z - halfQuadSize;
-}
-
-bool quad_tree_insert(quad_tree_t* tree, vector3_t point) {
-	if (quad_tree_contains(tree, point) == false)
-		return false;
-	if (tree->points.length < tree->capacity) {
-		list_vector3_t_add(&tree->points, point);
-		return true;
-	} else {
-		if (tree->isSubdivided == false) quad_tree_subdivide(tree);
-		if (quad_tree_insert(tree->frontNorthEast, point)) return true;
-		if (quad_tree_insert(tree->frontNorthWest, point)) return true;
-		if (quad_tree_insert(tree->frontSouthEast, point)) return true;
-		if (quad_tree_insert(tree->frontSouthWest, point)) return true;
-		if (quad_tree_insert(tree->backNorthEast,  point)) return true;
-		if (quad_tree_insert(tree->backNorthWest,  point)) return true;
-		if (quad_tree_insert(tree->backSouthEast,  point)) return true;
-		if (quad_tree_insert(tree->backSouthWest,  point)) return true;
-	}
-	return false;
-}
-
 typedef uint32_t EntityId;
 static EntityId entity_count;
 enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
@@ -337,10 +173,10 @@ typedef struct {
 	material_t *material;
 	pointLight_t *pointlight;
 	kinematic_body_t *kinematic_body;
-} component_registry;
+} component_registry_t;
 
-component_registry *component_registry_alloc(void) {
-	component_registry *r = malloc(sizeof(component_registry));
+component_registry_t *component_registry_alloc(void) {
+	component_registry_t *r = malloc(sizeof(component_registry_t));
 	r->mesh = calloc(sizeof(mesh_t), MAX_ENTITIES);
 	r->shader = calloc(sizeof(GLuint), MAX_ENTITIES);
 	r->transform = calloc(sizeof(transform_t), MAX_ENTITIES);
@@ -350,7 +186,7 @@ component_registry *component_registry_alloc(void) {
 	return r;
 }
 
-void component_registry_free(component_registry *r) {
+void component_registry_free(component_registry_t *r) {
 	free(r->mesh);
 	free(r->shader);
 	free(r->transform);
@@ -360,12 +196,199 @@ void component_registry_free(component_registry *r) {
 	free(r);
 }
 
+enum { OCT_TREE_MINIMUM_OCTSIZE };
+
+typedef struct oct_tree {
+	vector3_t position;
+	float octSize;
+	uint32_t capacity;
+	list_vector3_t points;
+	bool isSubdivided;
+	int depth;
+	struct oct_tree* parent;
+	struct oct_tree* frontNorthEast;
+	struct oct_tree* frontNorthWest;
+	struct oct_tree* frontSouthEast;
+	struct oct_tree* frontSouthWest;
+	struct oct_tree* backNorthEast;
+	struct oct_tree* backNorthWest;
+	struct oct_tree* backSouthEast;
+	struct oct_tree* backSouthWest;
+} oct_tree_t;
+
+// experiment
+
+oct_tree_t* oct_tree_alloc(void) {
+	oct_tree_t* tree = malloc(sizeof(oct_tree_t));
+	tree->parent = NULL;
+	tree->position.x = 0;
+	tree->position.y = 0;
+	tree->position.z = 0;
+	tree->octSize = 1000;
+	tree->capacity = 4;
+	tree->depth = 0;
+	tree->points = list_vector3_t_alloc();
+	tree->isSubdivided = false;
+	return tree;
+}
+
+void oct_tree_free(oct_tree_t* tree) {
+	if (tree->isSubdivided == true) {
+		oct_tree_free(tree->frontNorthEast);
+		oct_tree_free(tree->frontNorthWest);
+		oct_tree_free(tree->frontSouthEast);
+		oct_tree_free(tree->frontSouthWest);
+		oct_tree_free(tree->backNorthEast);
+		oct_tree_free(tree->backNorthWest);
+		oct_tree_free(tree->backSouthEast);
+		oct_tree_free(tree->backSouthWest);
+	}
+	list_vector3_t_free(&tree->points);
+	free(tree);
+}
+
+// TODO remove this
+static inline void indent(int numtabs) {
+	for(int i = 0; i < numtabs; i++)
+		printf("    ");
+}
+
+static inline void oct_tree_print(oct_tree_t* tree, const char* label) {
+	if (tree->points.length == 0)
+		return;
+	indent(tree->depth); puts("===================================================================================");
+	indent(tree->depth); printf("tree = %p\n", (void*)tree);
+	indent(tree->depth); printf("tree->parent = %p\n", (void*)tree->parent);
+	indent(tree->depth); printf("%s->depth = %d\n", label, tree->depth);
+	indent(tree->depth); printf("%s->position", label); vector3_print(tree->position, "");
+	indent(tree->depth); printf("%s->octSize = %f\n", label, tree->octSize);
+	indent(tree->depth); printf("%s->capacity = %d\n", label, tree->capacity);
+	indent(tree->depth); printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
+	indent(tree->depth); printf("%s->points.length = %lu\n", label, tree->points.length);
+	for(size_t i = 0; i < tree->points.length; i++) {
+		indent(tree->depth); printf("%s->points[%zu] = ", label, i); vector3_print(tree->points.data[i], "");
+	}
+	if (tree->isSubdivided) {
+		oct_tree_print(tree->frontNorthEast, "frontNorthEast");
+		oct_tree_print(tree->frontNorthWest, "frontNorthWest");
+		oct_tree_print(tree->frontSouthEast, "frontSouthEast");
+		oct_tree_print(tree->frontSouthWest, "frontSouthWest");
+
+		oct_tree_print(tree->backNorthEast, "backNorthEast");
+		oct_tree_print(tree->backNorthWest, "backNorthWest");
+		oct_tree_print(tree->backSouthEast, "backNorthEast");
+		oct_tree_print(tree->backSouthWest, "backNorthWest");
+	}
+	indent(tree->depth); puts("===================================================================================");
+}
+
+void oct_tree_subdivide(oct_tree_t* tree) {
+	tree->isSubdivided = true;
+	vector3_t tPos = tree->position;
+	float quarterOctSize = tree->octSize * 0.25;
+
+	tree->frontNorthEast = oct_tree_alloc();
+	tree->frontNorthEast->parent = tree;
+	tree->frontNorthEast->position.x = tPos.x + quarterOctSize;
+	tree->frontNorthEast->position.y = tPos.y + quarterOctSize;
+	tree->frontNorthEast->position.z = tPos.z + quarterOctSize;
+	tree->frontNorthEast->octSize = tree->octSize * 0.5;
+	tree->frontNorthEast->depth = tree->depth+1;
+
+	tree->frontNorthWest = oct_tree_alloc();
+	tree->frontNorthWest->parent = tree;
+	tree->frontNorthWest->position.x = tPos.x - quarterOctSize;
+	tree->frontNorthWest->position.y = tPos.y + quarterOctSize;
+	tree->frontNorthWest->position.z = tPos.z + quarterOctSize;
+	tree->frontNorthWest->octSize = tree->octSize * 0.5;
+	tree->frontNorthWest->depth = tree->depth+1;
+
+	tree->frontSouthEast = oct_tree_alloc();
+	tree->frontSouthEast->parent = tree;
+	tree->frontSouthEast->position.x = tPos.x + quarterOctSize;
+	tree->frontSouthEast->position.y = tPos.y - quarterOctSize;
+	tree->frontSouthEast->position.z = tPos.z + quarterOctSize;
+	tree->frontSouthEast->octSize = tree->octSize * 0.5;
+	tree->frontSouthEast->depth = tree->depth+1;
+
+	tree->frontSouthWest = oct_tree_alloc();
+	tree->frontSouthWest->parent = tree;
+	tree->frontSouthWest->position.x = tPos.x - quarterOctSize;
+	tree->frontSouthWest->position.y = tPos.y - quarterOctSize;
+	tree->frontSouthWest->position.z = tPos.z + quarterOctSize;
+	tree->frontSouthWest->octSize = tree->octSize * 0.5;
+	tree->frontSouthWest->depth = tree->depth+1;
+
+	tree->backNorthEast = oct_tree_alloc();
+	tree->backNorthEast->parent = tree;
+	tree->backNorthEast->position.x = tPos.x + quarterOctSize;
+	tree->backNorthEast->position.y = tPos.y + quarterOctSize;
+	tree->backNorthEast->position.z = tPos.z - quarterOctSize;
+	tree->backNorthEast->octSize = tree->octSize * 0.5;
+	tree->backNorthEast->depth = tree->depth+1;
+
+	tree->backNorthWest = oct_tree_alloc();
+	tree->backNorthWest->parent = tree;
+	tree->backNorthWest->position.x = tPos.x - quarterOctSize;
+	tree->backNorthWest->position.y = tPos.y + quarterOctSize;
+	tree->backNorthWest->position.z = tPos.z - quarterOctSize;
+	tree->backNorthWest->octSize = tree->octSize * 0.5;
+	tree->backNorthWest->depth = tree->depth+1;
+
+	tree->backSouthEast = oct_tree_alloc();
+	tree->backSouthEast->parent = tree;
+	tree->backSouthEast->position.x = tPos.x + quarterOctSize;
+	tree->backSouthEast->position.y = tPos.y - quarterOctSize;
+	tree->backSouthEast->position.z = tPos.z - quarterOctSize;
+	tree->backSouthEast->octSize = tree->octSize * 0.5;
+	tree->backSouthEast->depth = tree->depth+1;
+
+	tree->backSouthWest = oct_tree_alloc();
+	tree->backSouthWest->parent = tree;
+	tree->backSouthWest->position.x = tPos.x - quarterOctSize;
+	tree->backSouthWest->position.y = tPos.y - quarterOctSize;
+	tree->backSouthWest->position.z = tPos.z - quarterOctSize;
+	tree->backSouthWest->octSize = tree->octSize * 0.5;
+	tree->backSouthWest->depth = tree->depth+1;
+}
+
+bool oct_tree_contains(oct_tree_t* tree, vector3_t point) {
+	float halfOctSize = tree->octSize * 0.5;
+	return
+		point.x <= tree->position.x + halfOctSize &&
+		point.x >= tree->position.x - halfOctSize &&
+		point.y <= tree->position.y + halfOctSize &&
+		point.y >= tree->position.y - halfOctSize &&
+		point.z <= tree->position.z + halfOctSize &&
+		point.z >= tree->position.z - halfOctSize;
+}
+
+bool oct_tree_insert(oct_tree_t* tree, vector3_t point) {
+	if (oct_tree_contains(tree, point) == false)
+		return false;
+	if (tree->points.length < tree->capacity || tree->octSize < OCT_TREE_MINIMUM_OCTSIZE) {
+		list_vector3_t_add(&tree->points, point);
+		return true;
+	} else {
+		if (tree->isSubdivided == false) oct_tree_subdivide(tree); 
+		if (oct_tree_insert(tree->frontNorthEast, point)) return true;
+		if (oct_tree_insert(tree->frontNorthWest, point)) return true;
+		if (oct_tree_insert(tree->frontSouthEast, point)) return true;
+		if (oct_tree_insert(tree->frontSouthWest, point)) return true;
+		if (oct_tree_insert(tree->backNorthEast,  point)) return true;
+		if (oct_tree_insert(tree->backNorthWest,  point)) return true;
+		if (oct_tree_insert(tree->backSouthEast,  point)) return true;
+		if (oct_tree_insert(tree->backSouthWest,  point)) return true;
+	}
+	return false;
+}
+
 static inline float kinematic_equation(float acceleration, float velocity,
 		float position, float time) {
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-void kinematic_body_update(component_registry* r, EntityId e) {
+void kinematic_body_update(component_registry_t* r, EntityId e) {
 	kinematic_body_t* k = &r->kinematic_body[e];
 	if (k->enabled == false)
 		return;
@@ -461,7 +484,7 @@ void engine_set_clear_color(const float r, const float g, const float b, const f
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-void mesh_draw(component_registry *r, EntityId e) {
+void mesh_draw(component_registry_t *r, EntityId e) {
 	if (r->mesh[e].enabled == false) {
 		return;
 	}
@@ -882,18 +905,18 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 int main(void) {
 	printf("Rev up those fryers!\n");
 
-#if 1
-	quad_tree_t* qt = quad_tree_alloc(0.0, 0.0, 0.0, 100.0, 0);
-	for(int i = 0; i < 100; i++) {
+#if 1 // experiment
+	oct_tree_t* qt = oct_tree_alloc();
+	for(int i = 0; i < 25; i++) {
 		vector3_t point = (vector3_t) {
 			(float)noise1(i),
 			(float)noise1(i+1),
 			(float)noise1(i+2)
 		};
-		quad_tree_insert(qt, point);
+		vector3_print(point, "point");
+		oct_tree_insert(qt, point);
 	}
-	quad_tree_print(qt, "qt");
-	quad_tree_free(qt);
+	oct_tree_print(qt, "qt");
 	return 0;
 #endif
 
@@ -905,7 +928,7 @@ int main(void) {
 	engine_start();
 	engine_set_clear_color(0.5, 0.6, 0.7, 1.0);
 
-	component_registry *registry = component_registry_alloc();
+	component_registry_t *registry = component_registry_alloc();
 
 	// shader creation.
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -1065,15 +1088,9 @@ int main(void) {
 			}
 		} // END INPUT
 
-		{ // Physics simulation
-#if 1
-			for(EntityId e = 1; e < MAX_ENTITIES; e++) {
-				kinematic_body_update(registry, e);
-			}
-#else
-			kinematic_body_update(registry, cube1);
-			kinematic_body_update(registry, cube2);
-#endif
+		// Physics simulation
+		for(EntityId e = 1; e < MAX_ENTITIES; e++) {
+			kinematic_body_update(registry, e);
 		}
 		
 		// projection
@@ -1107,6 +1124,7 @@ int main(void) {
 		}
 	}
 	
+	oct_tree_free(qt);
 	component_registry_free(registry);
 	glfwTerminate();
 	return 0;
