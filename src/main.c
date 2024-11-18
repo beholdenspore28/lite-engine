@@ -14,7 +14,7 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define DEBUG_LOG_TIME 1
+#define DEBUG_LOG_TIME 0
 
 static void error_callback(const int error, const char *description) {
 	(void)error;
@@ -224,7 +224,7 @@ oct_tree_t* oct_tree_alloc(void) {
 	tree->position.x = 0;
 	tree->position.y = 0;
 	tree->position.z = 0;
-	tree->octSize = 1000;
+	tree->octSize = 10;
 	tree->capacity = 4;
 	tree->depth = 0;
 	tree->points = list_vector3_t_alloc();
@@ -383,6 +383,61 @@ bool oct_tree_insert(oct_tree_t* tree, vector3_t point) {
 	return false;
 }
 
+GLuint gizmoShader;
+
+void gizmo_draw_cube(transform_t transform, bool wireframe) {
+	// alloc
+	mesh_t mesh = mesh_alloc_cube();
+
+	{ // draw
+		if (wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		glUseProgram(gizmoShader);
+
+		// model matrix
+		transform_calculate_matrix(&transform);
+
+		shader_setUniformM4(gizmoShader, "u_modelMatrix", &transform.matrix);
+
+		// view matrix
+		shader_setUniformM4(gizmoShader, "u_viewMatrix",
+				&engine_active_camera.transform.matrix);
+
+		// projection matrix
+		shader_setUniformM4(gizmoShader, "u_projectionMatrix",
+				&engine_active_camera.projection);
+
+		// camera position
+		shader_setUniformV3(gizmoShader, "u_cameraPos",
+				engine_active_camera.transform.position);
+
+		glBindVertexArray(mesh.VAO);
+		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, 0);
+	}
+}
+
+void oct_tree_draw_gizmos(oct_tree_t* tree) {
+	transform_t t = (transform_t) {
+		.position = tree->position,
+		.rotation = quaternion_identity(),
+		.scale = vector3_one(tree->octSize),
+	};
+	gizmo_draw_cube(t, true);
+	if (tree->isSubdivided) {
+		oct_tree_draw_gizmos(tree->frontNorthEast);
+		oct_tree_draw_gizmos(tree->frontNorthWest);
+		oct_tree_draw_gizmos(tree->frontSouthEast);
+		oct_tree_draw_gizmos(tree->frontSouthWest);
+		oct_tree_draw_gizmos(tree->backNorthEast);
+		oct_tree_draw_gizmos(tree->backNorthWest);
+		oct_tree_draw_gizmos(tree->backSouthEast);
+		oct_tree_draw_gizmos(tree->backSouthWest);
+	}
+}
+
 static inline float kinematic_equation(float acceleration, float velocity,
 		float position, float time) {
 	return 0.5f * acceleration * time * time + velocity * time + position;
@@ -410,7 +465,6 @@ void engine_window_set_resolution(const int x, const int y) {
 void engine_window_set_position(const int x, const int y) {
 	glfwSetWindowPos(engine_window, x, y);
 }
-
 
 void engine_start(void) {
 	if (!glfwInit()) {
@@ -478,6 +532,10 @@ void engine_start(void) {
 			.projection = matrix4_identity(),
 			.lookSensitivity = 0.002f,
 	};
+
+	// shader creation.
+	gizmoShader = shader_create("res/shaders/unlit.vs.glsl",
+			"res/shaders/unlit.fs.glsl");
 }
 
 void engine_set_clear_color(const float r, const float g, const float b, const float a) {
@@ -906,18 +964,18 @@ int main(void) {
 	printf("Rev up those fryers!\n");
 
 #if 1 // experiment
-	oct_tree_t* qt = oct_tree_alloc();
-	for(int i = 0; i < 25; i++) {
+	oct_tree_t* octTree = oct_tree_alloc();
+	for(int i = 0; i < 10; i++) {
 		vector3_t point = (vector3_t) {
 			(float)noise1(i),
 			(float)noise1(i+1),
 			(float)noise1(i+2)
 		};
 		vector3_print(point, "point");
-		oct_tree_insert(qt, point);
+		oct_tree_insert(octTree, point);
 	}
-	oct_tree_print(qt, "qt");
-	return 0;
+	oct_tree_print(octTree, "octTree");
+	// return 0;
 #endif
 
 	engine_window_title = "Game Window";
@@ -926,7 +984,7 @@ int main(void) {
 	engine_window_position_x = 1280 / 2;
 	engine_window_position_y = 0;
 	engine_start();
-	engine_set_clear_color(0.5, 0.6, 0.7, 1.0);
+	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
 	component_registry_t *registry = component_registry_alloc();
 
@@ -977,6 +1035,7 @@ int main(void) {
 	// create planet
 	EntityId planet = entity_register();
 	registry->mesh[planet] = mesh_alloc_planet(200, 1);
+	registry->mesh[planet].enabled = false;
 	registry->shader[planet] = unlitShader;
 	registry->material[planet] = (material_t){
 		.diffuseMap = testDiffuseMap,
@@ -1119,12 +1178,14 @@ int main(void) {
 				mesh_draw(registry, e);
 			}
 
+			oct_tree_draw_gizmos(octTree);
+
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
 		}
 	}
 	
-	oct_tree_free(qt);
+	oct_tree_free(octTree);
 	component_registry_free(registry);
 	glfwTerminate();
 	return 0;
