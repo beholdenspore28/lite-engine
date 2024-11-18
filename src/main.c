@@ -140,7 +140,7 @@ static camera_t    engine_active_camera        = { 0 };
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 10000 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -997,7 +997,7 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	for (int i = 1; i <= 1000; i++) {
+	for (int i = 1; i <= 5000; i++) {
 		// create cube1
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
@@ -1005,7 +1005,8 @@ int main(void) {
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
 		};
-		registry->kinematic_body[cube].enabled = false;
+		registry->kinematic_body[cube].position = registry->transform[cube].position;
+		registry->kinematic_body[cube].enabled = true;
 		registry->kinematic_body[cube].acceleration = transform_basis_left(
 				registry->transform[cube], 1.0);
 		registry->kinematic_body[cube].mass = 1.0;
@@ -1016,11 +1017,11 @@ int main(void) {
 				.specularMap = testSpecularMap,
 		};
 	}
-	
+#if 0
 	// create planet
 	EntityId planet = entity_register();
 	registry->mesh[planet] = mesh_alloc_planet(200, 1);
-	registry->mesh[planet].enabled = false;
+	registry->mesh[planet].enabled = true;
 	registry->shader[planet] = unlitShader;
 	registry->material[planet] = (material_t){
 		.diffuseMap = testDiffuseMap,
@@ -1031,6 +1032,7 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(100.0),
 	};
+#endif
 
 	// create light
 	light = entity_register();
@@ -1046,6 +1048,15 @@ int main(void) {
 
 	oct_tree_t* octTree = oct_tree_alloc();
 	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
+#if 0 // TODO figure out why this fixes a bug
+		if (registry->transform[e].position.x == 0 &&
+			registry->transform[e].position.y == 0 &&
+			registry->transform[e].position.z == 0) {
+			continue;
+		}
+#endif
+		if (!registry->kinematic_body[e].enabled)
+			continue;
 		oct_tree_insert(octTree, registry->transform[e].position);
 	}
 
