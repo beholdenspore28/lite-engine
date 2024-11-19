@@ -14,7 +14,7 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define DEBUG_LOG_TIME 0
+#define DEBUG_LOG_TIME 1
 
 static void error_callback(const int error, const char *description) {
 	(void)error;
@@ -140,7 +140,7 @@ static camera_t    engine_active_camera        = { 0 };
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 10000 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -225,7 +225,7 @@ oct_tree_t* oct_tree_alloc(void) {
 	tree->position.y = 0;
 	tree->position.z = 0;
 	tree->octSize = 1000;
-	tree->capacity = 100;
+	tree->capacity = 10;
 	tree->depth = 0;
 	tree->points = list_vector3_t_alloc();
 	tree->isSubdivided = false;
@@ -972,9 +972,10 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 }
 
 int main(void) {
+	// libc test
 	printf("Rev up those fryers!\n");
 
-
+	// init engine
 	engine_window_title = "Game Window";
 	engine_window_size_x = 1280;
 	engine_window_size_y = 720;
@@ -985,17 +986,18 @@ int main(void) {
 
 	component_registry_t *registry = component_registry_alloc();
 
-	// shader creation.
+	// create shaders
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
 
 	GLuint unlitShader =
 		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 
+	// create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 	GLuint testSpecularMap = texture_create("res/textures/test.png");
 
-	// skybox creation
+	// create skybox
 	EntityId skybox = entity_register();
 	registry->mesh[skybox] = mesh_alloc_cube();
 	registry->shader[skybox] = unlitShader;
@@ -1014,9 +1016,9 @@ int main(void) {
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
 			.position = (vector3_t){
-				(float)noise1(i)*100-50, 
-				(float)noise1(i+1)*100-50, 
-				(float)noise1(i+2)*100-50
+				(float)noise1(i)*1000-500, 
+				(float)noise1(i+1)*1000-500, 
+				(float)noise1(i+2)*1000-500
 			},
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
@@ -1063,7 +1065,6 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	oct_tree_t* octTree = oct_tree_alloc();
-	octTree->octSize = 100;
 	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
 #if 0 // TODO figure out why this fixes a bug
 		if (registry->transform[e].position.x == 0 &&
