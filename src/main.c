@@ -1011,14 +1011,14 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
-	for (int i = 1; i <= 1000; i++) {
+	for (int i = 1; i <= 100; i++) {
 		// create cube1
 		EntityId cube = entity_register();
 		registry->transform[cube] = (transform_t){
 			.position = (vector3_t){
-				(float)noise1(i)*1000-500, 
-				(float)noise1(i+1)*1000-500, 
-				(float)noise1(i+2)*1000-500
+				(float)noise1(i)*100-50, 
+				(float)noise1(i+1)*100-50, 
+				(float)noise1(i+2)*100-50
 			},
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
@@ -1065,6 +1065,7 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	oct_tree_t* octTree = oct_tree_alloc();
+	octTree->octSize = 100;
 	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
 #if 0 // TODO figure out why this fixes a bug
 		if (registry->transform[e].position.x == 0 &&
