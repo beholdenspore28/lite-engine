@@ -1068,7 +1068,7 @@ int main(void) {
     registry->kinematic_body[planet].position =
         registry->transform[planet].position;
     registry->kinematic_body[planet].enabled = true;
-    registry->kinematic_body[planet].velocity = vector3_left(0.5);
+    registry->kinematic_body[planet].velocity = vector3_left(5.0);
     registry->kinematic_body[planet].mass = 1.0;
   }
 #endif
@@ -1085,13 +1085,6 @@ int main(void) {
   registry->transform[light].position = (vector3_t){5, 5, 5};
   vector3_t mouseLookVector = vector3_zero();
 
-  oct_tree_t *octTree = oct_tree_alloc();
-  for (EntityId e = 1; e < MAX_ENTITIES; e++) {
-    if (!registry->kinematic_body[e].enabled)
-      continue;
-    oct_tree_insert(octTree, registry->transform[e].position);
-  }
-  // oct_tree_print(octTree, "octTree");
 
   while (!glfwWindowShouldClose(engine_window)) {
     { // update time
@@ -1179,6 +1172,13 @@ int main(void) {
     } // END INPUT
 
     // Physics simulation
+	oct_tree_t *octTree = oct_tree_alloc();
+	for (EntityId e = 1; e < MAX_ENTITIES; e++) {
+		if (!registry->kinematic_body[e].enabled)
+			continue;
+		oct_tree_insert(octTree, registry->transform[e].position);
+	}
+	// oct_tree_print(octTree, "octTree");
     for (EntityId e = 1; e < MAX_ENTITIES; e++) {
       kinematic_body_update(registry, e);
     }
@@ -1209,14 +1209,14 @@ int main(void) {
         mesh_draw(registry, e);
       }
 
-      oct_tree_draw_gizmos(octTree);
+	  oct_tree_draw_gizmos(octTree);
 
       glfwSwapBuffers(engine_window);
       glfwPollEvents();
     }
+	oct_tree_free(octTree);
   }
 
-  oct_tree_free(octTree);
   component_registry_free(registry);
   glfwTerminate();
   return 0;
