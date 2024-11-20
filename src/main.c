@@ -808,7 +808,6 @@ mesh_t mesh_alloc_planet(const int resolution, const float radius) {
 						ty = map(j, 0, resolution - 1, 0, 1);
 	
 					const vertex_t vertex = {
-						//~ .position = vector3_scale(pointOnSphere, radius*0.5),
 						.position = vector3_scale(point, radius*0.5),
 						.normal = pointOnSphere,
 						.texCoord = {tx, ty},
@@ -914,8 +913,8 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 			}
 		}
 	}
-	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
-			indices.length);
+	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], 
+			vertices.length, indices.length);
 	list_vertex_t_free(&vertices);
 	list_uint32_t_free(&indices);
 	return m;
@@ -967,8 +966,9 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 		}
 	}
 
-	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
-			indices.length);
+	mesh_t m = mesh_alloc(
+			&vertices.data[0], &indices.data[0], 
+			vertices.length, indices.length);
 	list_vertex_t_free(&vertices);
 	list_uint32_t_free(&indices);
 	return m;
@@ -1166,11 +1166,13 @@ int main(void) {
 
 				movement = vector3_normalize(movement);
 				movement = vector3_scale(movement, cameraSpeedCurrent);
-				movement =
-					vector3_rotate(movement, engine_active_camera.transform.rotation);
+				movement = vector3_rotate(
+						movement, 
+						engine_active_camera.transform.rotation);
 
-				engine_active_camera.transform.position =
-					vector3_add(engine_active_camera.transform.position, movement);
+				engine_active_camera.transform.position = vector3_add(
+						engine_active_camera.transform.position, 
+						movement);
 
 				if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
 					engine_active_camera.transform.position = vector3_zero();
@@ -1191,7 +1193,8 @@ int main(void) {
 		// projection
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
 				&engine_window_size_y);
-		float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
+		float aspect = (float)engine_window_size_x / 
+			(float)engine_window_size_y;
 		engine_active_camera.projection =
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 
