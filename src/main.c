@@ -429,6 +429,7 @@ void gizmo_draw_cube(transform_t transform, bool wireframe) {
 }
 
 void oct_tree_draw_gizmos(oct_tree_t* tree) {
+	glDisable(GL_CULL_FACE);
 	transform_t t = (transform_t) {
 		.position = tree->position,
 		.rotation = quaternion_identity(),
@@ -445,6 +446,7 @@ void oct_tree_draw_gizmos(oct_tree_t* tree) {
 		oct_tree_draw_gizmos(tree->backSouthEast);
 		oct_tree_draw_gizmos(tree->backSouthWest);
 	}
+	glEnable(GL_CULL_FACE);
 }
 
 static inline float kinematic_equation(float acceleration, float velocity,
@@ -453,7 +455,6 @@ static inline float kinematic_equation(float acceleration, float velocity,
 }
 
 void kinematic_body_update(component_registry_t* r, EntityId e) {
-	return;
 	kinematic_body_t* k = &r->kinematic_body[e];
 	if (k->enabled == false)
 		return;
@@ -683,7 +684,7 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 
 				// noise
 				float freq = 1, 
-					  amp = 0.4, 
+					  amp = 1.0, 
 					  offset = 10,
 					  wave = noise3_fbm(
 							  pointOnSphere.x * freq + offset,
@@ -929,9 +930,11 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 		for (int lon = 0; lon <= lonCount; lon++) {
 			float phi = 2 * PI * lon / lonCount;
 
-			float x = halfRadius * sin(theta) * cos(phi), y = halfRadius * cos(theta),
+			float x = halfRadius * sin(theta) * cos(phi), 
+				  y = halfRadius * cos(theta),
 				  z = halfRadius * sin(theta) * sin(phi),
-				  u = map(lon, 0, lonCount, 0, 1), v = -map(lat, 0, latCount, 0, 1);
+				  u = map(lon, 0, lonCount, 0, 1), 
+				  v = -map(lat, 0, latCount, 0, 1);
 
 			vector3_t point = {x, y, z};
 			vector2_t texCoord = {u, v};
@@ -987,14 +990,17 @@ int main(void) {
 	component_registry_t *registry = component_registry_alloc();
 
 	// create shaders
-	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
+	GLuint diffuseShader = shader_create(
+			"res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
 
-	GLuint unlitShader =
-		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+	GLuint unlitShader = shader_create(
+			"res/shaders/unlit.vs.glsl", 
+			"res/shaders/unlit.fs.glsl");
 
 	// create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
+	GLuint planetDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 	GLuint testSpecularMap = texture_create("res/textures/test.png");
 
 	// create skybox
@@ -1011,6 +1017,7 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 	
+#if 0
 	for (int i = 1; i <= 100; i++) {
 		// create cube1
 		EntityId cube = entity_register();
@@ -1023,7 +1030,8 @@ int main(void) {
 			.rotation = quaternion_from_euler(vector3_up(PI/i)),
 			.scale = vector3_one(1.0),
 		};
-		registry->kinematic_body[cube].position = registry->transform[cube].position;
+		registry->kinematic_body[cube].position = 
+			registry->transform[cube].position;
 		registry->kinematic_body[cube].enabled = true;
 		registry->kinematic_body[cube].acceleration = transform_basis_left(
 				registry->transform[cube], 1.0);
@@ -1035,21 +1043,33 @@ int main(void) {
 				.specularMap = testSpecularMap,
 		};
 	}
-#if 0
-	// create planet
-	EntityId planet = entity_register();
-	registry->mesh[planet] = mesh_alloc_planet(200, 1);
-	registry->mesh[planet].enabled = true;
-	registry->shader[planet] = unlitShader;
-	registry->material[planet] = (material_t){
-		.diffuseMap = testDiffuseMap,
-		.specularMap = testSpecularMap,
-	};
-	registry->transform[planet] = (transform_t){
-		.position = {1, 0, 150},
+#endif
+
+#if 1
+	for (int i = 1; i <= 1000; i++) {
+		// create planet
+		EntityId planet = entity_register();
+		registry->mesh[planet] = mesh_alloc_planet(5, 1);
+		registry->mesh[planet].enabled = true;
+		registry->shader[planet] = diffuseShader;
+		registry->material[planet] = (material_t){
+			.diffuseMap = planetDiffuseMap,
+		};
+		registry->transform[planet] = (transform_t){
+			.position = (vector3_t){
+				(float)noise1(i)*1000-500, 
+				(float)noise1(i+1)*1000-500, 
+				(float)noise1(i+2)*1000-500
+			},
 			.rotation = quaternion_identity(),
-			.scale = vector3_one(100.0),
-	};
+			.scale = vector3_one(1.0),
+		};
+		registry->kinematic_body[planet].position = 
+			registry->transform[planet].position;
+		registry->kinematic_body[planet].enabled = true;
+		registry->kinematic_body[planet].velocity = vector3_left(0.5);
+		registry->kinematic_body[planet].mass = 1.0;
+	}
 #endif
 
 	// create light
@@ -1065,15 +1085,7 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	oct_tree_t* octTree = oct_tree_alloc();
-	octTree->octSize = 100;
 	for(EntityId e = 1; e < MAX_ENTITIES; e++) {
-#if 0 // TODO figure out why this fixes a bug
-		if (registry->transform[e].position.x == 0 &&
-			registry->transform[e].position.y == 0 &&
-			registry->transform[e].position.z == 0) {
-			continue;
-		}
-#endif
 		if (!registry->kinematic_body[e].enabled)
 			continue;
 		oct_tree_insert(octTree, registry->transform[e].position);
@@ -1120,11 +1132,14 @@ int main(void) {
 				engine_active_camera.lastX = mouseX;
 				engine_active_camera.lastY = mouseY;
 
-				mouseLookVector.x += yoffset * engine_active_camera.lookSensitivity;
-				mouseLookVector.y += xoffset * engine_active_camera.lookSensitivity;
+				mouseLookVector.x += yoffset * 
+					engine_active_camera.lookSensitivity;
+				mouseLookVector.y += xoffset * 
+					engine_active_camera.lookSensitivity;
 
 				mouseLookVector.y = loop(mouseLookVector.y, 2 * PI);
-				mouseLookVector.x = clamp(mouseLookVector.x, -PI * 0.5, PI * 0.5);
+				mouseLookVector.x = 
+					clamp( mouseLookVector.x, -PI * 0.5, PI * 0.5);
 
 				vector3_scale(mouseLookVector, engine_time_delta);
 
