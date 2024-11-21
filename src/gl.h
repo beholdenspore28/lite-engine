@@ -18,6 +18,7 @@ GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath);
 void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m);
 void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v);
+void shader_setUniformV4(GLuint shader, const char* uniformName, const vector4_t color);
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 

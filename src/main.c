@@ -359,7 +359,7 @@ bool oct_tree_insert(oct_tree_t *tree, vector3_t point) {
 GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
-void gizmo_draw_cube(transform_t transform, bool wireframe) {
+void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	{ // draw
 		if (wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -385,29 +385,30 @@ void gizmo_draw_cube(transform_t transform, bool wireframe) {
 		shader_setUniformV3(gizmo_shader, "u_cameraPos",
 				engine_active_camera.transform.position);
 
+		shader_setUniformV4(gizmo_shader, "u_color", color);
+
 		glBindVertexArray(gizmo_mesh_cube.VAO);
-		glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT,
-				0);
+		glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
 	}
 }
 
-void oct_tree_draw_gizmos(oct_tree_t *tree) {
+void oct_tree_draw_gizmos(oct_tree_t *tree, vector4_t color) {
 	glDisable(GL_CULL_FACE);
 	transform_t t = (transform_t){
 		.position = tree->position,
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(tree->octSize),
 	};
-	gizmo_draw_cube(t, true);
+	gizmo_draw_cube(t, true, color);
 	if (tree->isSubdivided) {
-		oct_tree_draw_gizmos(tree->frontNorthEast);
-		oct_tree_draw_gizmos(tree->frontNorthWest);
-		oct_tree_draw_gizmos(tree->frontSouthEast);
-		oct_tree_draw_gizmos(tree->frontSouthWest);
-		oct_tree_draw_gizmos(tree->backNorthEast);
-		oct_tree_draw_gizmos(tree->backNorthWest);
-		oct_tree_draw_gizmos(tree->backSouthEast);
-		oct_tree_draw_gizmos(tree->backSouthWest);
+		oct_tree_draw_gizmos(tree->frontNorthEast, color);
+		oct_tree_draw_gizmos(tree->frontNorthWest, color);
+		oct_tree_draw_gizmos(tree->frontSouthEast, color);
+		oct_tree_draw_gizmos(tree->frontSouthWest, color);
+		oct_tree_draw_gizmos(tree->backNorthEast, color);
+		oct_tree_draw_gizmos(tree->backNorthWest, color);
+		oct_tree_draw_gizmos(tree->backSouthEast, color);
+		oct_tree_draw_gizmos(tree->backSouthWest, color);
 	}
 	glEnable(GL_CULL_FACE);
 }
@@ -532,8 +533,9 @@ void engine_start(void) {
 	};
 
 	// shader creation.
-	gizmo_shader =
-		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+	gizmo_shader = shader_create(
+			"res/shaders/gizmos.vs.glsl",
+			"res/shaders/gizmos.fs.glsl");
 	gizmo_mesh_cube = mesh_alloc_cube();
 }
 
@@ -1183,7 +1185,7 @@ int main(void) {
 				mesh_draw(registry, e);
 			}
 
-			// oct_tree_draw_gizmos(octTree);
+			oct_tree_draw_gizmos(octTree, (vector4_t) {0.0, 0.5, 0.5, 1.0});
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();

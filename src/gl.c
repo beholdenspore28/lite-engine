@@ -103,6 +103,11 @@ void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
   glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
+void shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {
+  GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
+  glUniform4f(UniformLocation, v.x, v.y, v.z, v.w);
+}
+
 void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
