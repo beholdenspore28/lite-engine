@@ -9,17 +9,17 @@
 #include "blib/bmath.h"
 #include "physics.h"
 
-	B_LIST_IMPLEMENTATION
-	DEFINE_LIST(vector3_t)
-	DEFINE_LIST(matrix4_t)
+B_LIST_IMPLEMENTATION
+DEFINE_LIST(vector3_t)
+DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
 #define DEBUG_LOG_TIME 1
 
-	static void error_callback(const int error, const char *description) {
-		(void)error;
-		fprintf(stderr, "Error: %s\n", description);
-	}
+static void error_callback(const int error, const char *description) {
+	(void)error;
+	fprintf(stderr, "Error: %s\n", description);
+}
 
 static void key_callback(GLFWwindow *window, const int key, const int scancode,
 		const int action, const int mods) {
@@ -141,7 +141,7 @@ static camera_t engine_active_camera = {0};
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 2048 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -217,8 +217,6 @@ typedef struct oct_tree {
 	struct oct_tree *backSouthWest;
 } oct_tree_t;
 
-// experiment
-
 oct_tree_t *oct_tree_alloc(void) {
 	oct_tree_t *tree = malloc(sizeof(oct_tree_t));
 	tree->parent = NULL;
@@ -246,54 +244,6 @@ void oct_tree_free(oct_tree_t *tree) {
 	}
 	list_vector3_t_free(&tree->points);
 	free(tree);
-}
-
-// TODO remove this
-static inline void indent(int numtabs) {
-	for (int i = 0; i < numtabs; i++)
-		printf("    ");
-}
-
-static inline void oct_tree_print(oct_tree_t *tree, const char *label) {
-	if (tree->points.length == 0)
-		return;
-	indent(tree->depth);
-	puts("==============================================");
-	indent(tree->depth);
-	printf("tree = %p\n", (void *)tree);
-	indent(tree->depth);
-	printf("tree->parent = %p\n", (void *)tree->parent);
-	indent(tree->depth);
-	printf("%s->depth = %d\n", label, tree->depth);
-	indent(tree->depth);
-	printf("%s->position", label);
-	vector3_print(tree->position, "");
-	indent(tree->depth);
-	printf("%s->octSize = %f\n", label, tree->octSize);
-	indent(tree->depth);
-	printf("%s->capacity = %d\n", label, tree->capacity);
-	indent(tree->depth);
-	printf("%s->isSubdivided = %d\n", label, tree->isSubdivided);
-	indent(tree->depth);
-	printf("%s->points.length = %lu\n", label, tree->points.length);
-	for (size_t i = 0; i < tree->points.length; i++) {
-		indent(tree->depth);
-		printf("%s->points[%zu] = ", label, i);
-		vector3_print(tree->points.data[i], "");
-	}
-	if (tree->isSubdivided) {
-		oct_tree_print(tree->frontNorthEast, "frontNorthEast");
-		oct_tree_print(tree->frontNorthWest, "frontNorthWest");
-		oct_tree_print(tree->frontSouthEast, "frontSouthEast");
-		oct_tree_print(tree->frontSouthWest, "frontSouthWest");
-
-		oct_tree_print(tree->backNorthEast, "backNorthEast");
-		oct_tree_print(tree->backNorthWest, "backNorthWest");
-		oct_tree_print(tree->backSouthEast, "backNorthEast");
-		oct_tree_print(tree->backSouthWest, "backNorthWest");
-	}
-	indent(tree->depth);
-	puts("==============================================");
 }
 
 void oct_tree_subdivide(oct_tree_t *tree) {
@@ -1022,7 +972,7 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 
-#if 0
+#if 1
 	for (int i = 1; i <= 100; i++) {
 		// create cube1
 		EntityId cube = entity_register();
@@ -1032,7 +982,7 @@ int main(void) {
 					(float)noise1(i+1)*100-50, 
 					(float)noise1(i+2)*100-50
 			},
-				.rotation = quaternion_from_euler(vector3_up(PI/i)),
+				.rotation = quaternion_identity(),
 				.scale = vector3_one(1.0),
 		};
 		registry->kinematic_body[cube].position = 
@@ -1180,7 +1130,6 @@ int main(void) {
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 		}
-		// oct_tree_print(octTree, "octTree");
 		for (EntityId e = 1; e < MAX_ENTITIES; e++) {
 			kinematic_body_update(registry, e);
 		}
