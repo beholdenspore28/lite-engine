@@ -141,7 +141,7 @@ static camera_t engine_active_camera = {0};
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 2048 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 20000 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -422,14 +422,49 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	if (k->enabled == false)
 		return;
 
-	float newPosX = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
+#if 0
+	r->transform[e].position.x = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
 			k->position.x, engine_time_current);
-	float newPosY = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y,
+	r->transform[e].position.y = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y,
 			k->position.y, engine_time_current);
-	float newPosZ = kinematic_equation(k->acceleration.z / k->mass, k->velocity.z,
+	r->transform[e].position.z = kinematic_equation(k->acceleration.z / k->mass, k->velocity.z,
 			k->position.z, engine_time_current);
+#else
+	vector3_t planetPosition = vector3_zero();
+	float planetMass = 1000000;
+	float distanceSquared = vector3_square_distance(planetPosition, k->position);
+#if 1
+	if (distanceSquared < 100.0)
+		return;
+#else
+	if (distanceSquared < 100.0)
+		k->position = vector3_negate(k->position);
+#endif
 
-	r->transform[e].position = (vector3_t){newPosX, newPosY, newPosZ};
+	vector3_t direction = vector3_normalize(vector3_subtract(planetPosition, k->position));
+	vector3_t force = vector3_scale(direction, 0.01 * k->mass * planetMass / distanceSquared);
+	assert(k->mass > 0);
+	k->acceleration = vector3_scale(force, 1/k->mass);
+	
+	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
+			k->position.x, engine_time_delta);
+	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y,
+			k->position.y, engine_time_delta);
+	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
+			k->position.z, engine_time_delta);
+
+	k->velocity = vector3_add(k->velocity, k->acceleration);
+	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
+
+	if (e == 500) {
+		vector3_print(force, "force");
+		vector3_print(k->velocity, "k->velocity");
+		vector3_print(k->acceleration, "k->acceleration");
+		vector3_print(k->position, "k->position");
+	}
+
+	r->transform[e].position = k->position;
+#endif
 }
 
 // set window resolution
@@ -500,7 +535,7 @@ void engine_start(void) {
 	glEnable(GL_DEPTH_TEST);
 
 	engine_active_camera = (camera_t){
-		.transform.position = (vector3_t){0.0, 0.0, -20.0},
+		.transform.position = (vector3_t){0.0, 0.0, -200.0},
 			.transform.rotation = quaternion_identity(),
 			.transform.scale = vector3_one(1.0),
 			.projection = matrix4_identity(),
@@ -964,7 +999,7 @@ int main(void) {
 	registry->shader[skybox] = unlitShader;
 	registry->material[skybox] = (material_t){
 		.diffuseMap = texture_create("res/textures/space.png"),
-			.specularMap = testSpecularMap,
+		.specularMap = testSpecularMap,
 	};
 	registry->transform[skybox] = (transform_t){
 		.position = {0},
@@ -972,7 +1007,7 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 
-#if 1
+#if 0
 	for (int i = 1; i <= 100; i++) {
 		// create cube1
 		EntityId cube = entity_register();
@@ -982,8 +1017,8 @@ int main(void) {
 					(float)noise1(i+1)*100-50, 
 					(float)noise1(i+2)*100-50
 			},
-				.rotation = quaternion_identity(),
-				.scale = vector3_one(1.0),
+			.rotation = quaternion_identity(),
+			.scale = vector3_one(1.0),
 		};
 		registry->kinematic_body[cube].position = 
 			registry->transform[cube].position;
@@ -995,7 +1030,7 @@ int main(void) {
 		registry->shader[cube] = unlitShader;
 		registry->material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap,
-				.specularMap = testSpecularMap,
+			.specularMap = testSpecularMap,
 		};
 	}
 #endif
@@ -1020,7 +1055,7 @@ int main(void) {
 		registry->kinematic_body[planet].position =
 			registry->transform[planet].position;
 		registry->kinematic_body[planet].enabled = true;
-		registry->kinematic_body[planet].velocity = vector3_left(5.0);
+		registry->kinematic_body[planet].velocity = vector3_zero();
 		registry->kinematic_body[planet].mass = 1.0;
 	}
 #endif
@@ -1125,13 +1160,16 @@ int main(void) {
 
 		// Physics simulation
 		oct_tree_t *octTree = oct_tree_alloc();
+		octTree->octSize = 5000;
 		for (EntityId e = 1; e < MAX_ENTITIES; e++) {
 			if (!registry->kinematic_body[e].enabled)
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
-		}
-		for (EntityId e = 1; e < MAX_ENTITIES; e++) {
 			kinematic_body_update(registry, e);
+			if (e == 500) {
+				vector3_print(registry->kinematic_body[e].acceleration, "acceleration");
+				vector3_print(registry->kinematic_body[e].velocity, "velocity");
+			}
 		}
 
 		// projection
@@ -1160,7 +1198,7 @@ int main(void) {
 				mesh_draw(registry, e);
 			}
 
-			oct_tree_draw_gizmos(octTree);
+			// oct_tree_draw_gizmos(octTree);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
