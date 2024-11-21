@@ -433,13 +433,9 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	vector3_t planetPosition = vector3_zero();
 	float planetMass = 1000000;
 	float distanceSquared = vector3_square_distance(planetPosition, k->position);
-#if 1
+
 	if (distanceSquared < 100.0)
 		return;
-#else
-	if (distanceSquared < 100.0)
-		k->position = vector3_negate(k->position);
-#endif
 
 	vector3_t direction = vector3_normalize(vector3_subtract(planetPosition, k->position));
 	vector3_t force = vector3_scale(direction, 0.01 * k->mass * planetMass / distanceSquared);
@@ -455,13 +451,6 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 
 	k->velocity = vector3_add(k->velocity, k->acceleration);
 	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
-
-	if (e == 500) {
-		vector3_print(force, "force");
-		vector3_print(k->velocity, "k->velocity");
-		vector3_print(k->acceleration, "k->acceleration");
-		vector3_print(k->position, "k->position");
-	}
 
 	r->transform[e].position = k->position;
 #endif
@@ -1166,10 +1155,6 @@ int main(void) {
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 			kinematic_body_update(registry, e);
-			if (e == 500) {
-				vector3_print(registry->kinematic_body[e].acceleration, "acceleration");
-				vector3_print(registry->kinematic_body[e].velocity, "velocity");
-			}
 		}
 
 		// projection
