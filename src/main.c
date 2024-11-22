@@ -6,10 +6,11 @@
 #include <stb_image.h>
 
 #include "blib/blib.h"
+B_LIST_IMPLEMENTATION
 #include "blib/bmath.h"
 #include "physics.h"
+#include "oct_tree.h"
 
-B_LIST_IMPLEMENTATION
 DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
@@ -197,165 +198,6 @@ void component_registry_free(component_registry_t *r) {
 	free(r);
 }
 
-#define OCT_TREE_MINIMUM_OCTSIZE 1.0
-
-typedef struct oct_tree {
-	vector3_t position;
-	float octSize;
-	uint32_t capacity;
-	list_vector3_t points;
-	bool isSubdivided;
-	int depth;
-	struct oct_tree *parent;
-	struct oct_tree *frontNorthEast;
-	struct oct_tree *frontNorthWest;
-	struct oct_tree *frontSouthEast;
-	struct oct_tree *frontSouthWest;
-	struct oct_tree *backNorthEast;
-	struct oct_tree *backNorthWest;
-	struct oct_tree *backSouthEast;
-	struct oct_tree *backSouthWest;
-} oct_tree_t;
-
-oct_tree_t *oct_tree_alloc(void) {
-	oct_tree_t *tree = malloc(sizeof(oct_tree_t));
-	tree->parent = NULL;
-	tree->position.x = 0;
-	tree->position.y = 0;
-	tree->position.z = 0;
-	tree->octSize = 1000;
-	tree->capacity = 10;
-	tree->depth = 0;
-	tree->points = list_vector3_t_alloc();
-	tree->isSubdivided = false;
-	return tree;
-}
-
-void oct_tree_free(oct_tree_t *tree) {
-	if (tree->isSubdivided == true) {
-		oct_tree_free(tree->frontNorthEast);
-		oct_tree_free(tree->frontNorthWest);
-		oct_tree_free(tree->frontSouthEast);
-		oct_tree_free(tree->frontSouthWest);
-		oct_tree_free(tree->backNorthEast);
-		oct_tree_free(tree->backNorthWest);
-		oct_tree_free(tree->backSouthEast);
-		oct_tree_free(tree->backSouthWest);
-	}
-	list_vector3_t_free(&tree->points);
-	free(tree);
-}
-
-void oct_tree_subdivide(oct_tree_t *tree) {
-	tree->isSubdivided = true;
-	vector3_t tPos = tree->position;
-	float quarterOctSize = tree->octSize * 0.25;
-
-	tree->frontNorthEast = oct_tree_alloc();
-	tree->frontNorthEast->parent = tree;
-	tree->frontNorthEast->position.x = tPos.x + quarterOctSize;
-	tree->frontNorthEast->position.y = tPos.y + quarterOctSize;
-	tree->frontNorthEast->position.z = tPos.z + quarterOctSize;
-	tree->frontNorthEast->octSize = tree->octSize * 0.5;
-	tree->frontNorthEast->depth = tree->depth + 1;
-
-	tree->frontNorthWest = oct_tree_alloc();
-	tree->frontNorthWest->parent = tree;
-	tree->frontNorthWest->position.x = tPos.x - quarterOctSize;
-	tree->frontNorthWest->position.y = tPos.y + quarterOctSize;
-	tree->frontNorthWest->position.z = tPos.z + quarterOctSize;
-	tree->frontNorthWest->octSize = tree->octSize * 0.5;
-	tree->frontNorthWest->depth = tree->depth + 1;
-
-	tree->frontSouthEast = oct_tree_alloc();
-	tree->frontSouthEast->parent = tree;
-	tree->frontSouthEast->position.x = tPos.x + quarterOctSize;
-	tree->frontSouthEast->position.y = tPos.y - quarterOctSize;
-	tree->frontSouthEast->position.z = tPos.z + quarterOctSize;
-	tree->frontSouthEast->octSize = tree->octSize * 0.5;
-	tree->frontSouthEast->depth = tree->depth + 1;
-
-	tree->frontSouthWest = oct_tree_alloc();
-	tree->frontSouthWest->parent = tree;
-	tree->frontSouthWest->position.x = tPos.x - quarterOctSize;
-	tree->frontSouthWest->position.y = tPos.y - quarterOctSize;
-	tree->frontSouthWest->position.z = tPos.z + quarterOctSize;
-	tree->frontSouthWest->octSize = tree->octSize * 0.5;
-	tree->frontSouthWest->depth = tree->depth + 1;
-
-	tree->backNorthEast = oct_tree_alloc();
-	tree->backNorthEast->parent = tree;
-	tree->backNorthEast->position.x = tPos.x + quarterOctSize;
-	tree->backNorthEast->position.y = tPos.y + quarterOctSize;
-	tree->backNorthEast->position.z = tPos.z - quarterOctSize;
-	tree->backNorthEast->octSize = tree->octSize * 0.5;
-	tree->backNorthEast->depth = tree->depth + 1;
-
-	tree->backNorthWest = oct_tree_alloc();
-	tree->backNorthWest->parent = tree;
-	tree->backNorthWest->position.x = tPos.x - quarterOctSize;
-	tree->backNorthWest->position.y = tPos.y + quarterOctSize;
-	tree->backNorthWest->position.z = tPos.z - quarterOctSize;
-	tree->backNorthWest->octSize = tree->octSize * 0.5;
-	tree->backNorthWest->depth = tree->depth + 1;
-
-	tree->backSouthEast = oct_tree_alloc();
-	tree->backSouthEast->parent = tree;
-	tree->backSouthEast->position.x = tPos.x + quarterOctSize;
-	tree->backSouthEast->position.y = tPos.y - quarterOctSize;
-	tree->backSouthEast->position.z = tPos.z - quarterOctSize;
-	tree->backSouthEast->octSize = tree->octSize * 0.5;
-	tree->backSouthEast->depth = tree->depth + 1;
-
-	tree->backSouthWest = oct_tree_alloc();
-	tree->backSouthWest->parent = tree;
-	tree->backSouthWest->position.x = tPos.x - quarterOctSize;
-	tree->backSouthWest->position.y = tPos.y - quarterOctSize;
-	tree->backSouthWest->position.z = tPos.z - quarterOctSize;
-	tree->backSouthWest->octSize = tree->octSize * 0.5;
-	tree->backSouthWest->depth = tree->depth + 1;
-}
-
-bool oct_tree_contains(oct_tree_t *tree, vector3_t point) {
-	float halfOctSize = tree->octSize * 0.5;
-	return point.x <= tree->position.x + halfOctSize &&
-		point.x >= tree->position.x - halfOctSize &&
-		point.y <= tree->position.y + halfOctSize &&
-		point.y >= tree->position.y - halfOctSize &&
-		point.z <= tree->position.z + halfOctSize &&
-		point.z >= tree->position.z - halfOctSize;
-}
-
-bool oct_tree_insert(oct_tree_t *tree, vector3_t point) {
-	if (oct_tree_contains(tree, point) == false)
-		return false;
-	if (tree->points.length < tree->capacity ||
-			tree->octSize < OCT_TREE_MINIMUM_OCTSIZE) {
-		list_vector3_t_add(&tree->points, point);
-		return true;
-	} else {
-		if (tree->isSubdivided == false)
-			oct_tree_subdivide(tree);
-		if (oct_tree_insert(tree->frontNorthEast, point))
-			return true;
-		if (oct_tree_insert(tree->frontNorthWest, point))
-			return true;
-		if (oct_tree_insert(tree->frontSouthEast, point))
-			return true;
-		if (oct_tree_insert(tree->frontSouthWest, point))
-			return true;
-		if (oct_tree_insert(tree->backNorthEast, point))
-			return true;
-		if (oct_tree_insert(tree->backNorthWest, point))
-			return true;
-		if (oct_tree_insert(tree->backSouthEast, point))
-			return true;
-		if (oct_tree_insert(tree->backSouthWest, point))
-			return true;
-	}
-	return false;
-}
-
 GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
@@ -392,7 +234,7 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	}
 }
 
-void oct_tree_draw_gizmos(oct_tree_t *tree, vector4_t color) {
+void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	glDisable(GL_CULL_FACE);
 	transform_t t = (transform_t){
 		.position = tree->position,
@@ -401,14 +243,14 @@ void oct_tree_draw_gizmos(oct_tree_t *tree, vector4_t color) {
 	};
 	gizmo_draw_cube(t, true, color);
 	if (tree->isSubdivided) {
-		oct_tree_draw_gizmos(tree->frontNorthEast, color);
-		oct_tree_draw_gizmos(tree->frontNorthWest, color);
-		oct_tree_draw_gizmos(tree->frontSouthEast, color);
-		oct_tree_draw_gizmos(tree->frontSouthWest, color);
-		oct_tree_draw_gizmos(tree->backNorthEast, color);
-		oct_tree_draw_gizmos(tree->backNorthWest, color);
-		oct_tree_draw_gizmos(tree->backSouthEast, color);
-		oct_tree_draw_gizmos(tree->backSouthWest, color);
+		gizmo_draw_oct_tree(tree->frontNorthEast, color);
+		gizmo_draw_oct_tree(tree->frontNorthWest, color);
+		gizmo_draw_oct_tree(tree->frontSouthEast, color);
+		gizmo_draw_oct_tree(tree->frontSouthWest, color);
+		gizmo_draw_oct_tree(tree->backNorthEast, color);
+		gizmo_draw_oct_tree(tree->backNorthWest, color);
+		gizmo_draw_oct_tree(tree->backSouthEast, color);
+		gizmo_draw_oct_tree(tree->backSouthWest, color);
 	}
 	glEnable(GL_CULL_FACE);
 }
@@ -1185,7 +1027,7 @@ int main(void) {
 				mesh_draw(registry, e);
 			}
 
-			oct_tree_draw_gizmos(octTree, (vector4_t) {0.0, 0.5, 0.5, 1.0});
+			gizmo_draw_oct_tree(octTree, (vector4_t) {0.0, 0.5, 0.5, 1.0});
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
