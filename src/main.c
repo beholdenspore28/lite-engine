@@ -288,7 +288,6 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
 
 	r->transform[e].position = k->position;
-#endif
 }
 
 // set window resolution
