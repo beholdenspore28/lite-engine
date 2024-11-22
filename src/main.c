@@ -169,12 +169,17 @@ typedef struct {
 } kinematic_body_t;
 
 typedef struct {
+	float radius;
+} collider_sphere_t;
+
+typedef struct {
 	mesh_t *mesh;
 	GLuint *shader;
 	transform_t *transform;
 	material_t *material;
 	pointLight_t *pointlight;
 	kinematic_body_t *kinematic_body;
+	collider_sphere_t *collider_sphere;
 } component_registry_t;
 
 component_registry_t *component_registry_alloc(void) {
@@ -185,6 +190,7 @@ component_registry_t *component_registry_alloc(void) {
 	r->material = calloc(sizeof(material_t), MAX_ENTITIES);
 	r->pointlight = calloc(sizeof(pointLight_t), MAX_ENTITIES);
 	r->kinematic_body = calloc(sizeof(kinematic_body_t), MAX_ENTITIES);
+	r->collider_sphere = calloc(sizeof(collider_sphere_t), MAX_ENTITIES);
 	return r;
 }
 
@@ -195,7 +201,16 @@ void component_registry_free(component_registry_t *r) {
 	free(r->material);
 	free(r->pointlight);
 	free(r->kinematic_body);
+	free(r->collider_sphere);
 	free(r);
+}
+
+bool collider_sphere_is_intersecting(
+		const component_registry_t* r, 
+		const EntityId a, const EntityId b) {
+	float distanceSquared = vector3_square_distance(r->transform[b].position, r->transform[a].position);
+	float radiusSum = r->collider_sphere[a].radius + r->collider_sphere[b].radius;
+	return distanceSquared < radiusSum*radiusSum;
 }
 
 GLuint gizmo_shader;
@@ -265,15 +280,15 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	if (k->enabled == false)
 		return;
 
-	vector3_t planetPosition = vector3_zero();
-	float planetMass = 1000000;
-	float distanceSquared = vector3_square_distance(planetPosition, k->position);
+	vector3_t rockPosition = vector3_zero();
+	float rockMass = 1000000;
+	float distanceSquared = vector3_square_distance(rockPosition, k->position);
 
 	if (distanceSquared < 100.0)
 		return;
 
-	vector3_t direction = vector3_normalize(vector3_subtract(planetPosition, k->position));
-	vector3_t force = vector3_scale(direction, 0.01 * k->mass * planetMass / distanceSquared);
+	vector3_t direction = vector3_normalize(vector3_subtract(rockPosition, k->position));
+	vector3_t force = vector3_scale(direction, 0.01 * k->mass * rockMass / distanceSquared);
 	assert(k->mass > 0);
 	k->acceleration = vector3_scale(force, 1/k->mass);
 	
@@ -432,7 +447,7 @@ void mesh_draw(component_registry_t *r, EntityId e) {
 }
 
 #if 1
-mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
+mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
 	int index = 0;
@@ -533,7 +548,7 @@ mesh_t mesh_alloc_planet(const int subdivisions, const float radius) {
 	return m;
 }
 #else
-mesh_t mesh_alloc_planet(const int resolution, const float radius) {
+mesh_t mesh_alloc_rock(const int resolution, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
 
@@ -814,7 +829,7 @@ int main(void) {
 
 	// create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	GLuint planetDiffuseMap = texture_create("res/textures/lunarrock_d.png");
+	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 	GLuint testSpecularMap = texture_create("res/textures/test.png");
 
 	// create skybox
@@ -861,26 +876,26 @@ int main(void) {
 
 #if 1
 	for (int i = 1; i <= 1000; i++) {
-		// create planet
-		EntityId planet = entity_register();
-		registry->mesh[planet] = mesh_alloc_planet(5, 1);
-		registry->mesh[planet].enabled = true;
-		registry->shader[planet] = diffuseShader;
-		registry->material[planet] = (material_t){
-			.diffuseMap = planetDiffuseMap,
+		// create rock
+		EntityId rock = entity_register();
+		registry->mesh[rock] = mesh_alloc_rock(5, 1);
+		registry->mesh[rock].enabled = true;
+		registry->shader[rock] = unlitShader;
+		registry->material[rock] = (material_t){
+			.diffuseMap = rockDiffuseMap,
 		};
-		registry->transform[planet] = (transform_t){
+		registry->transform[rock] = (transform_t){
 			.position = (vector3_t){(float)noise1(i) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
 				.rotation = quaternion_identity(),
 				.scale = vector3_one(1.0),
 		};
-		registry->kinematic_body[planet].position =
-			registry->transform[planet].position;
-		registry->kinematic_body[planet].enabled = true;
-		registry->kinematic_body[planet].velocity = vector3_zero();
-		registry->kinematic_body[planet].mass = 1.0;
+		registry->kinematic_body[rock].position =
+			registry->transform[rock].position;
+		registry->kinematic_body[rock].enabled = true;
+		registry->kinematic_body[rock].velocity = vector3_zero();
+		registry->kinematic_body[rock].mass = 1.0;
 	}
 #endif
 
@@ -973,6 +988,7 @@ int main(void) {
 
 				if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
 					engine_active_camera.transform.position = vector3_zero();
+					engine_active_camera.transform.rotation = quaternion_identity();
 				}
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
