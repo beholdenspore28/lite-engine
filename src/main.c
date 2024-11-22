@@ -169,6 +169,7 @@ typedef struct {
 } kinematic_body_t;
 
 typedef struct {
+	bool enabled;
 	float radius;
 } collider_sphere_t;
 
@@ -203,14 +204,6 @@ void component_registry_free(component_registry_t *r) {
 	free(r->kinematic_body);
 	free(r->collider_sphere);
 	free(r);
-}
-
-bool collider_sphere_is_intersecting(
-		const component_registry_t* r, 
-		const EntityId a, const EntityId b) {
-	float distanceSquared = vector3_square_distance(r->transform[b].position, r->transform[a].position);
-	float radiusSum = r->collider_sphere[a].radius + r->collider_sphere[b].radius;
-	return distanceSquared < radiusSum*radiusSum;
 }
 
 GLuint gizmo_shader;
@@ -275,16 +268,41 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
+bool collider_sphere_is_intersecting(
+		const component_registry_t* r, 
+		const EntityId a, const EntityId b) {
+	float distance = vector3_distance(r->transform[a].position, r->transform[b].position);
+	return distance <= r->collider_sphere[a].radius + r->collider_sphere[b].radius;
+}
+
+void collider_sphere_update(component_registry_t* r, EntityId e) {
+	if (!r->collider_sphere[e].enabled)
+		return;
+	for (EntityId e1 = 1; e1 < MAX_ENTITIES; e1++) {
+		if (!r->collider_sphere[e1].enabled || 
+				!r->collider_sphere[e].enabled ||
+				e == e1) {
+			continue;
+		}
+		if (collider_sphere_is_intersecting(r, e, e1)) {
+			r->kinematic_body[e].enabled = false;
+			r->kinematic_body[e].velocity = vector3_zero();
+			r->kinematic_body[e1].enabled = false;
+			r->kinematic_body[e1].velocity = vector3_zero();
+		}
+	}
+}
+
 void kinematic_body_update(component_registry_t *r, EntityId e) {
 	kinematic_body_t *k = &r->kinematic_body[e];
 	if (k->enabled == false)
 		return;
 
 	vector3_t rockPosition = vector3_zero();
-	float rockMass = 1000000;
+	float rockMass = 100000;
 	float distanceSquared = vector3_square_distance(rockPosition, k->position);
 
-	if (distanceSquared < 100.0)
+	if (distanceSquared <= 10.0)
 		return;
 
 	vector3_t direction = vector3_normalize(vector3_subtract(rockPosition, k->position));
@@ -293,11 +311,11 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	k->acceleration = vector3_scale(force, 1/k->mass);
 	
 	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
-			k->position.x, engine_time_delta);
+			k->position.x, 0.01);
 	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y,
-			k->position.y, engine_time_delta);
+			k->position.y, 0.01);
 	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
-			k->position.z, engine_time_delta);
+			k->position.z, 0.01);
 
 	k->velocity = vector3_add(k->velocity, k->acceleration);
 	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
@@ -846,36 +864,8 @@ int main(void) {
 			.scale = vector3_one(10.0),
 	};
 
-#if 0
-	for (int i = 1; i <= 100; i++) {
-		// create cube1
-		EntityId cube = entity_register();
-		registry->transform[cube] = (transform_t){
-			.position = (vector3_t){
-				(float)noise1(i)*100-50, 
-					(float)noise1(i+1)*100-50, 
-					(float)noise1(i+2)*100-50
-			},
-			.rotation = quaternion_identity(),
-			.scale = vector3_one(1.0),
-		};
-		registry->kinematic_body[cube].position = 
-			registry->transform[cube].position;
-		registry->kinematic_body[cube].enabled = true;
-		registry->kinematic_body[cube].acceleration = transform_basis_left(
-				registry->transform[cube], 1.0);
-		registry->kinematic_body[cube].mass = 1.0;
-		registry->mesh[cube] = mesh_alloc_cube();
-		registry->shader[cube] = unlitShader;
-		registry->material[cube] = (material_t){
-			.diffuseMap = testDiffuseMap,
-			.specularMap = testSpecularMap,
-		};
-	}
-#endif
-
 #if 1
-	for (int i = 1; i <= 1000; i++) {
+	for (int i = 1; i <= 100; i++) {
 		// create rock
 		EntityId rock = entity_register();
 		registry->mesh[rock] = mesh_alloc_rock(5, 1);
@@ -891,6 +881,8 @@ int main(void) {
 				.rotation = quaternion_identity(),
 				.scale = vector3_one(1.0),
 		};
+		registry->collider_sphere[rock].enabled = true;
+ 		registry->collider_sphere[rock].radius = 1.7;
 		registry->kinematic_body[rock].position =
 			registry->transform[rock].position;
 		registry->kinematic_body[rock].enabled = true;
@@ -1006,6 +998,7 @@ int main(void) {
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 			kinematic_body_update(registry, e);
+			collider_sphere_update(registry, e);
 		}
 
 		// projection
