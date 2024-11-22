@@ -265,14 +265,6 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	if (k->enabled == false)
 		return;
 
-#if 0
-	r->transform[e].position.x = kinematic_equation(k->acceleration.x / k->mass, k->velocity.x,
-			k->position.x, engine_time_current);
-	r->transform[e].position.y = kinematic_equation(k->acceleration.y / k->mass, k->velocity.y,
-			k->position.y, engine_time_current);
-	r->transform[e].position.z = kinematic_equation(k->acceleration.z / k->mass, k->velocity.z,
-			k->position.z, engine_time_current);
-#else
 	vector3_t planetPosition = vector3_zero();
 	float planetMass = 1000000;
 	float distanceSquared = vector3_square_distance(planetPosition, k->position);
@@ -1027,7 +1019,8 @@ int main(void) {
 				mesh_draw(registry, e);
 			}
 
-			gizmo_draw_oct_tree(octTree, (vector4_t) {0.0, 0.5, 0.5, 1.0});
+			const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
+			gizmo_draw_oct_tree(octTree, gizmo_color);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
