@@ -142,7 +142,7 @@ static camera_t engine_active_camera = {0};
 
 typedef uint32_t EntityId;
 static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 20000 };
+enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
 
 EntityId entity_register(void) {
 	entity_count++;
@@ -171,6 +171,7 @@ typedef struct {
 typedef struct {
 	bool enabled;
 	float radius;
+	vector3_t position;
 } collider_sphere_t;
 
 typedef struct {
@@ -210,36 +211,34 @@ GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
 void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
-	{ // draw
-		if (wireframe)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUseProgram(gizmo_shader);
+	glUseProgram(gizmo_shader);
 
-		// model matrix
-		transform_calculate_matrix(&transform);
+	// model matrix
+	transform_calculate_matrix(&transform);
 
-		shader_setUniformM4(gizmo_shader, "u_modelMatrix", &transform.matrix);
+	shader_setUniformM4(gizmo_shader, "u_modelMatrix", &transform.matrix);
 
-		// view matrix
-		shader_setUniformM4(gizmo_shader, "u_viewMatrix",
-				&engine_active_camera.transform.matrix);
+	// view matrix
+	shader_setUniformM4(gizmo_shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
 
-		// projection matrix
-		shader_setUniformM4(gizmo_shader, "u_projectionMatrix",
-				&engine_active_camera.projection);
+	// projection matrix
+	shader_setUniformM4(gizmo_shader, "u_projectionMatrix",
+			&engine_active_camera.projection);
 
-		// camera position
-		shader_setUniformV3(gizmo_shader, "u_cameraPos",
-				engine_active_camera.transform.position);
+	// camera position
+	shader_setUniformV3(gizmo_shader, "u_cameraPos",
+			engine_active_camera.transform.position);
 
-		shader_setUniformV4(gizmo_shader, "u_color", color);
+	shader_setUniformV4(gizmo_shader, "u_color", color);
 
-		glBindVertexArray(gizmo_mesh_cube.VAO);
-		glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
-	}
+	glBindVertexArray(gizmo_mesh_cube.VAO);
+	glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
 }
 
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
@@ -268,13 +267,13 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-bool collider_sphere_is_intersecting(
-		const component_registry_t* r, 
-		const EntityId a, const EntityId b) {
-	float distance = vector3_distance(r->transform[a].position, r->transform[b].position);
-	return distance <= r->collider_sphere[a].radius + r->collider_sphere[b].radius;
+bool collider_sphere_is_intersecting(const collider_sphere_t* a, const collider_sphere_t* b) {
+	float distance = vector3_square_distance(a->position, b->position);
+	float radiusSum = a->radius + b->radius;
+	return distance <= radiusSum*radiusSum;
 }
 
+#if 0
 void collider_sphere_update(component_registry_t* r, EntityId e) {
 	if (!r->collider_sphere[e].enabled)
 		return;
@@ -286,12 +285,40 @@ void collider_sphere_update(component_registry_t* r, EntityId e) {
 		}
 		if (collider_sphere_is_intersecting(r, e, e1)) {
 			r->kinematic_body[e].enabled = false;
-			r->kinematic_body[e].velocity = vector3_zero();
 			r->kinematic_body[e1].enabled = false;
-			r->kinematic_body[e1].velocity = vector3_zero();
 		}
 	}
 }
+#endif
+
+#if 1
+void collider_tree_update(component_registry_t* r, EntityId e, oct_tree_t* tree) {
+	if (!r->collider_sphere[e].enabled)
+		return;
+	r->collider_sphere[e].position = r->transform[e].position;
+	for(EntityId e1 = 1; e1 < tree->points.length; e1++) {
+		if (!r->collider_sphere[e1].enabled || 
+				!r->collider_sphere[e].enabled ||
+				e == e1) {
+			continue;
+		}
+		if (collider_sphere_is_intersecting(&r->collider_sphere[e], &r->collider_sphere[e1])) {
+			r->kinematic_body[e].enabled = false;
+			r->kinematic_body[e1].enabled = false;
+		}
+	}
+	if (tree->isSubdivided) {
+		collider_tree_update(r, e, tree->frontNorthEast);
+		collider_tree_update(r, e, tree->frontNorthWest);
+		collider_tree_update(r, e, tree->frontSouthEast);
+		collider_tree_update(r, e, tree->frontSouthWest);
+		collider_tree_update(r, e, tree->backNorthEast);
+		collider_tree_update(r, e, tree->backNorthWest);
+		collider_tree_update(r, e, tree->backSouthEast);
+		collider_tree_update(r, e, tree->backSouthWest);
+	}
+}
+#endif
 
 void kinematic_body_update(component_registry_t *r, EntityId e) {
 	kinematic_body_t *k = &r->kinematic_body[e];
@@ -311,11 +338,11 @@ void kinematic_body_update(component_registry_t *r, EntityId e) {
 	k->acceleration = vector3_scale(force, 1/k->mass);
 	
 	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
-			k->position.x, 0.01);
+			k->position.x, engine_time_delta);
 	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y,
-			k->position.y, 0.01);
+			k->position.y, engine_time_delta);
 	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
-			k->position.z, 0.01);
+			k->position.z, engine_time_delta);
 
 	k->velocity = vector3_add(k->velocity, k->acceleration);
 	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
@@ -865,12 +892,12 @@ int main(void) {
 	};
 
 #if 1
-	for (int i = 1; i <= 100; i++) {
+	for (int i = 1; i <= 1000; i++) {
 		// create rock
 		EntityId rock = entity_register();
 		registry->mesh[rock] = mesh_alloc_rock(5, 1);
 		registry->mesh[rock].enabled = true;
-		registry->shader[rock] = unlitShader;
+		registry->shader[rock] = diffuseShader;
 		registry->material[rock] = (material_t){
 			.diffuseMap = rockDiffuseMap,
 		};
@@ -882,7 +909,7 @@ int main(void) {
 				.scale = vector3_one(1.0),
 		};
 		registry->collider_sphere[rock].enabled = true;
- 		registry->collider_sphere[rock].radius = 1.7;
+ 		registry->collider_sphere[rock].radius = 2.0;
 		registry->kinematic_body[rock].position =
 			registry->transform[rock].position;
 		registry->kinematic_body[rock].enabled = true;
@@ -902,7 +929,6 @@ int main(void) {
 	};
 	registry->transform[light].position = (vector3_t){5, 5, 5};
 	vector3_t mouseLookVector = vector3_zero();
-
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		{ // update time
@@ -998,7 +1024,8 @@ int main(void) {
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 			kinematic_body_update(registry, e);
-			collider_sphere_update(registry, e);
+			collider_tree_update(registry, e, octTree);
+			//collider_sphere_update(registry, e);
 		}
 
 		// projection
