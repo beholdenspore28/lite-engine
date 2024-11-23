@@ -169,7 +169,6 @@ typedef struct {
 } kinematic_body_t;
 
 typedef struct {
-	bool enabled;
 	float radius;
 	vector3_t position;
 } collider_sphere_t;
@@ -205,6 +204,14 @@ void component_registry_free(component_registry_t *r) {
 	free(r->kinematic_body);
 	free(r->collider_sphere);
 	free(r);
+}
+
+bool collider_sphere_is_intersecting(
+		const component_registry_t* r, 
+		const EntityId a, const EntityId b) {
+	float distanceSquared = vector3_square_distance(r->transform[b].position, r->transform[a].position);
+	float radiusSum = r->collider_sphere[a].radius + r->collider_sphere[b].radius;
+	return distanceSquared < radiusSum*radiusSum;
 }
 
 GLuint gizmo_shader;
@@ -267,69 +274,16 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-bool collider_sphere_is_intersecting(const collider_sphere_t* a, const collider_sphere_t* b) {
-	float distance = vector3_square_distance(a->position, b->position);
-	float radiusSum = a->radius + b->radius;
-	return distance <= radiusSum*radiusSum;
-}
-
-#if 0
-void collider_sphere_update(component_registry_t* r, EntityId e) {
-	if (!r->collider_sphere[e].enabled)
-		return;
-	for (EntityId e1 = 1; e1 < MAX_ENTITIES; e1++) {
-		if (!r->collider_sphere[e1].enabled || 
-				!r->collider_sphere[e].enabled ||
-				e == e1) {
-			continue;
-		}
-		if (collider_sphere_is_intersecting(r, e, e1)) {
-			r->kinematic_body[e].enabled = false;
-			r->kinematic_body[e1].enabled = false;
-		}
-	}
-}
-#endif
-
-#if 1
-void collider_tree_update(component_registry_t* r, EntityId e, oct_tree_t* tree) {
-	if (!r->collider_sphere[e].enabled)
-		return;
-	r->collider_sphere[e].position = r->transform[e].position;
-	for(EntityId e1 = 1; e1 < tree->points.length; e1++) {
-		if (!r->collider_sphere[e1].enabled || 
-				!r->collider_sphere[e].enabled ||
-				e == e1) {
-			continue;
-		}
-		if (collider_sphere_is_intersecting(&r->collider_sphere[e], &r->collider_sphere[e1])) {
-			r->kinematic_body[e].enabled = false;
-			r->kinematic_body[e1].enabled = false;
-		}
-	}
-	if (tree->isSubdivided) {
-		collider_tree_update(r, e, tree->frontNorthEast);
-		collider_tree_update(r, e, tree->frontNorthWest);
-		collider_tree_update(r, e, tree->frontSouthEast);
-		collider_tree_update(r, e, tree->frontSouthWest);
-		collider_tree_update(r, e, tree->backNorthEast);
-		collider_tree_update(r, e, tree->backNorthWest);
-		collider_tree_update(r, e, tree->backSouthEast);
-		collider_tree_update(r, e, tree->backSouthWest);
-	}
-}
-#endif
-
 void kinematic_body_update(component_registry_t *r, EntityId e) {
 	kinematic_body_t *k = &r->kinematic_body[e];
 	if (k->enabled == false)
 		return;
 
 	vector3_t rockPosition = vector3_zero();
-	float rockMass = 100000;
+	float rockMass = 1000000;
 	float distanceSquared = vector3_square_distance(rockPosition, k->position);
 
-	if (distanceSquared <= 10.0)
+	if (distanceSquared < 100.0)
 		return;
 
 	vector3_t direction = vector3_normalize(vector3_subtract(rockPosition, k->position));
@@ -908,8 +862,6 @@ int main(void) {
 				.rotation = quaternion_identity(),
 				.scale = vector3_one(1.0),
 		};
-		registry->collider_sphere[rock].enabled = true;
- 		registry->collider_sphere[rock].radius = 2.0;
 		registry->kinematic_body[rock].position =
 			registry->transform[rock].position;
 		registry->kinematic_body[rock].enabled = true;
@@ -1024,8 +976,6 @@ int main(void) {
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 			kinematic_body_update(registry, e);
-			collider_tree_update(registry, e, octTree);
-			//collider_sphere_update(registry, e);
 		}
 
 		// projection
