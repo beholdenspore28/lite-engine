@@ -169,18 +169,12 @@ typedef struct {
 } kinematic_body_t;
 
 typedef struct {
-	float radius;
-	vector3_t position;
-} collider_sphere_t;
-
-typedef struct {
 	mesh_t *mesh;
 	GLuint *shader;
 	transform_t *transform;
 	material_t *material;
 	pointLight_t *pointlight;
 	kinematic_body_t *kinematic_body;
-	collider_sphere_t *collider_sphere;
 } component_registry_t;
 
 component_registry_t *component_registry_alloc(void) {
@@ -191,7 +185,6 @@ component_registry_t *component_registry_alloc(void) {
 	r->material = calloc(sizeof(material_t), MAX_ENTITIES);
 	r->pointlight = calloc(sizeof(pointLight_t), MAX_ENTITIES);
 	r->kinematic_body = calloc(sizeof(kinematic_body_t), MAX_ENTITIES);
-	r->collider_sphere = calloc(sizeof(collider_sphere_t), MAX_ENTITIES);
 	return r;
 }
 
@@ -202,16 +195,7 @@ void component_registry_free(component_registry_t *r) {
 	free(r->material);
 	free(r->pointlight);
 	free(r->kinematic_body);
-	free(r->collider_sphere);
 	free(r);
-}
-
-bool collider_sphere_is_intersecting(
-		const component_registry_t* r, 
-		const EntityId a, const EntityId b) {
-	float distanceSquared = vector3_square_distance(r->transform[b].position, r->transform[a].position);
-	float radiusSum = r->collider_sphere[a].radius + r->collider_sphere[b].radius;
-	return distanceSquared < radiusSum*radiusSum;
 }
 
 GLuint gizmo_shader;
