@@ -726,14 +726,14 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 			continue;
 		}
 
+		oct_tree_insert(octTree, t[e].position);
+
 		vector3_t singularityPosition = vector3_zero();
 		float singularityMass = 10000;
 		float distanceSquared = vector3_square_distance(singularityPosition, k[e].position);
 
 		if (distanceSquared < 100.0)
 			continue;
-
-		oct_tree_insert(octTree, t[e].position);
 
 		vector3_t direction = vector3_normalize(vector3_subtract(singularityPosition, k[e].position));
 		vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * singularityMass / distanceSquared);
@@ -1067,13 +1067,6 @@ int main(void) {
 					engine_active_camera.transform.position = vector3_zero();
 					engine_active_camera.transform.rotation = quaternion_identity();
 				}
-#if 0
-				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				} else {
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-#endif
 			}
 		} // END INPUT
 
