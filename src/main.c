@@ -15,8 +15,6 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-#define DEBUG_LOG_TIME 1
-
 static void error_callback(const int error, const char *description) {
 	(void)error;
 	fprintf(stderr, "Error: %s\n", description);
@@ -846,13 +844,13 @@ int main(void) {
 	engine_start();
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-	mesh_t* mesh =                     calloc( sizeof(mesh_t), ENTITY_COUNT_MAX);
-	GLuint* shader =                   calloc( sizeof(GLuint), ENTITY_COUNT_MAX);
-	material_t* material =             calloc( sizeof(material_t), ENTITY_COUNT_MAX);
-	transform_t* transform =           calloc( sizeof(transform_t), ENTITY_COUNT_MAX);
-	kinematic_body_t* kinematic_body = calloc( sizeof(kinematic_body_t), ENTITY_COUNT_MAX);
-	collider_sphere_t* collider =      calloc( sizeof(collider_sphere_t), ENTITY_COUNT_MAX);
-	
+	// allocate component data
+	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
+	GLuint* shader = calloc(sizeof(GLuint),ENTITY_COUNT_MAX);
+	material_t* material = calloc(sizeof(material_t),ENTITY_COUNT_MAX);
+	transform_t* transform = calloc(sizeof(transform_t),ENTITY_COUNT_MAX);
+	kinematic_body_t* kinematic_body = calloc(sizeof(kinematic_body_t),ENTITY_COUNT_MAX);
+	collider_sphere_t* collider = calloc(sizeof(collider_sphere_t),ENTITY_COUNT_MAX);
 
 #if 1 // create shaders
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -870,16 +868,6 @@ int main(void) {
 
 	{ // ECS TEST
 		ECS_alloc(); 
-
-#if 0
-		int entity = entity_create();
-		entity_component_add(entity, COMPONENT_KINEMATIC_BODY);
-		entity_component_add(entity, COMPONENT_TRANSFORM);
-		kinematic_body[entity].position = vector3_one(200.0);
-		kinematic_body[entity].velocity = vector3_one(1.0);
-		kinematic_body[entity].mass = 1.0;
-		collider[entity].radius = 10.0;
-#endif
 
 		for (int i = 1; i <= 1000; i++) {
 			// create rock
@@ -908,9 +896,6 @@ int main(void) {
 		}
 	}
 
-	// component_registry_t *registry = component_registry_alloc();
-
-
 #if 0 // create skybox
 	int skybox = entity_register();
 	registry->mesh[skybox] = mesh_alloc_cube();
@@ -924,31 +909,6 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(10.0),
 	};
-#endif
-
-#if 0 // create rocks
-	for (int i = 1; i <= 1000; i++) {
-		// create rock
-		int rock = entity_register();
-		registry->mesh[rock] = mesh_alloc_rock(5, 1);
-		registry->mesh[rock].enabled = true;
-		registry->shader[rock] = diffuseShader;
-		registry->material[rock] = (material_t){
-			.diffuseMap = rockDiffuseMap,
-		};
-		registry->transform[rock] = (transform_t){
-			.position = (vector3_t){(float)noise1(i) * 1000 - 500,
-				(float)noise1(i + 1) * 1000 - 500,
-				(float)noise1(i + 2) * 1000 - 500},
-				.rotation = quaternion_identity(),
-				.scale = vector3_one(1.0),
-		};
-		registry->kinematic_body[rock].position =
-			registry->transform[rock].position;
-		registry->kinematic_body[rock].enabled = true;
-		registry->kinematic_body[rock].velocity = vector3_zero();
-		registry->kinematic_body[rock].mass = 1.0;
-	}
 #endif
 
 #if 0 // create light
@@ -976,7 +936,7 @@ int main(void) {
 			engine_renderer_FPS = 1 / engine_time_delta;
 			engine_frame_current++;
 
-#if DEBUG_LOG_TIME // log time
+#if 0 // log time
 			printf("time_current  %f\n"
 					"time_last     %f\n"
 					"time_delta    %f\n"
@@ -1053,20 +1013,7 @@ int main(void) {
 			}
 		} // END INPUT
 
-#if 0 // Physics simulation
-		oct_tree_t *octTree = oct_tree_alloc();
-		octTree->octSize = 5000;
-		for (int e = 1; e < MAX_ENTITIES; e++) {
-			if (!registry->kinematic_body[e].enabled)
-				continue;
-			oct_tree_insert(octTree, registry->transform[e].position);
-			kinematic_body_update(registry, e);
-		}
-#else
 		kinematic_body_update(kinematic_body, transform);
-		// collider_update(collider, kinematic_body);
-#endif
-		
 
 		// projection
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
@@ -1076,7 +1023,6 @@ int main(void) {
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 
 		{ // draw
-
 			engine_active_camera.transform.matrix = matrix4_identity();
 
 #if 0 // draw meshes
@@ -1105,6 +1051,10 @@ int main(void) {
 		// if (engine_frame_current >= 10) exit(0);
 	}
 
+	free(mesh);
+	free(shader);
+	free(material);
+	free(transform);
 	free(kinematic_body);
 	free(collider);
 	// component_registry_free(registry);
