@@ -140,16 +140,6 @@ static float engine_renderer_FPS = 0.0f;
 static vector3_t engine_ambient_light = {0.1, 0.1, 0.1};
 static camera_t engine_active_camera = {0};
 
-typedef uint32_t EntityId;
-static EntityId entity_count;
-enum { ENTITY_NULL = 0, MAX_ENTITIES = 1024 };
-
-EntityId entity_register(void) {
-	entity_count++;
-	assert(entity_count < MAX_ENTITIES);
-	return entity_count;
-}
-
 typedef struct {
 	float constant;
 	float linear;
@@ -158,10 +148,7 @@ typedef struct {
 	vector3_t specular;
 } pointLight_t;
 
-EntityId light;
-
 typedef struct {
-	bool enabled;
 	float mass;
 	vector3_t position;
 	vector3_t acceleration;
@@ -169,35 +156,12 @@ typedef struct {
 } kinematic_body_t;
 
 typedef struct {
-	mesh_t *mesh;
-	GLuint *shader;
-	transform_t *transform;
-	material_t *material;
-	pointLight_t *pointlight;
-	kinematic_body_t *kinematic_body;
-} component_registry_t;
+	float radius;
+} collider_sphere_t;
 
-component_registry_t *component_registry_alloc(void) {
-	component_registry_t *r = malloc(sizeof(component_registry_t));
-	r->mesh = calloc(sizeof(mesh_t), MAX_ENTITIES);
-	r->shader = calloc(sizeof(GLuint), MAX_ENTITIES);
-	r->transform = calloc(sizeof(transform_t), MAX_ENTITIES);
-	r->material = calloc(sizeof(material_t), MAX_ENTITIES);
-	r->pointlight = calloc(sizeof(pointLight_t), MAX_ENTITIES);
-	r->kinematic_body = calloc(sizeof(kinematic_body_t), MAX_ENTITIES);
-	return r;
-}
+int light;
 
-void component_registry_free(component_registry_t *r) {
-	free(r->mesh);
-	free(r->shader);
-	free(r->transform);
-	free(r->material);
-	free(r->pointlight);
-	free(r->kinematic_body);
-	free(r);
-}
-
+#if 0 // gizmo functions
 GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
@@ -252,41 +216,8 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	}
 	glEnable(GL_CULL_FACE);
 }
+#endif
 
-static inline float kinematic_equation(float acceleration, float velocity,
-		float position, float time) {
-	return 0.5f * acceleration * time * time + velocity * time + position;
-}
-
-void kinematic_body_update(component_registry_t *r, EntityId e) {
-	kinematic_body_t *k = &r->kinematic_body[e];
-	if (k->enabled == false)
-		return;
-
-	vector3_t rockPosition = vector3_zero();
-	float rockMass = 1000000;
-	float distanceSquared = vector3_square_distance(rockPosition, k->position);
-
-	if (distanceSquared < 100.0)
-		return;
-
-	vector3_t direction = vector3_normalize(vector3_subtract(rockPosition, k->position));
-	vector3_t force = vector3_scale(direction, 0.01 * k->mass * rockMass / distanceSquared);
-	assert(k->mass > 0);
-	k->acceleration = vector3_scale(force, 1/k->mass);
-	
-	float newPosX = kinematic_equation(k->acceleration.x, k->velocity.x,
-			k->position.x, engine_time_delta);
-	float newPosY = kinematic_equation(k->acceleration.y, k->velocity.y,
-			k->position.y, engine_time_delta);
-	float newPosZ = kinematic_equation(k->acceleration.z, k->velocity.z,
-			k->position.z, engine_time_delta);
-
-	k->velocity = vector3_add(k->velocity, k->acceleration);
-	k->position = (vector3_t) {newPosX, newPosY, newPosZ};
-
-	r->transform[e].position = k->position;
-}
 
 // set window resolution
 void engine_window_set_resolution(const int x, const int y) {
@@ -363,11 +294,12 @@ void engine_start(void) {
 			.lookSensitivity = 0.002f,
 	};
 
-	// shader creation.
+#if 0 // shader creation.
 	gizmo_shader = shader_create(
 			"res/shaders/gizmos.vs.glsl",
 			"res/shaders/gizmos.fs.glsl");
 	gizmo_mesh_cube = mesh_alloc_cube();
+#endif
 }
 
 void engine_set_clear_color(const float r, const float g, const float b,
@@ -375,61 +307,8 @@ void engine_set_clear_color(const float r, const float g, const float b,
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-void mesh_draw(component_registry_t *r, EntityId e) {
-	if (r->mesh[e].enabled == false) {
-		return;
-	}
-	// TODO dereference these pointers to avoid following them so many times.
-	glUseProgram(r->shader[e]);
 
-	// model matrix
-	transform_calculate_matrix(&r->transform[e]);
-
-	shader_setUniformM4(r->shader[e], "u_modelMatrix", &r->transform[e].matrix);
-
-	// view matrix
-	shader_setUniformM4(r->shader[e], "u_viewMatrix",
-			&engine_active_camera.transform.matrix);
-
-	// projection matrix
-	shader_setUniformM4(r->shader[e], "u_projectionMatrix",
-			&engine_active_camera.projection);
-
-	// camera position
-	shader_setUniformV3(r->shader[e], "u_cameraPos",
-			engine_active_camera.transform.position);
-
-	// light uniforms
-	shader_setUniformV3(r->shader[e], "u_pointLight.position",
-			r->transform[light].position);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
-			r->pointlight[light].constant);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
-			r->pointlight[light].linear);
-	shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
-			r->pointlight[light].quadratic);
-	shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
-			r->pointlight[light].diffuse);
-	shader_setUniformV3(r->shader[e], "u_pointLight.specular",
-			r->pointlight[light].specular);
-
-	// material
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].diffuseMap);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, r->material[e].specularMap);
-
-	shader_setUniformInt(r->shader[e], "u_material.diffuse", 0);
-	shader_setUniformInt(r->shader[e], "u_material.specular", 1);
-	shader_setUniformFloat(r->shader[e], "u_material.shininess", 32.0f);
-	shader_setUniformV3(r->shader[e], "u_ambientLight", engine_ambient_light);
-
-	glBindVertexArray(r->mesh[e].VAO);
-	glDrawElements(GL_TRIANGLES, r->mesh[e].indexCount, GL_UNSIGNED_INT, 0);
-}
-
-#if 1
+#if 1 // mesh_alloc_rock
 mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -530,7 +409,9 @@ mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 	list_uint32_t_free(&indices);
 	return m;
 }
-#else
+#endif
+
+#if 0 // mesh_alloc_rock BROKEN
 mesh_t mesh_alloc_rock(const int resolution, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -642,6 +523,8 @@ mesh_t mesh_alloc_rock(const int resolution, const float radius) {
 	return m;
 }
 #endif
+
+#if 0 // mesh_alloc_cube_sphere
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -736,7 +619,9 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 	list_uint32_t_free(&indices);
 	return m;
 }
+#endif
 
+#if 0 // mesh_alloc_sphere
 mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 		const float radius) {
 	const float halfRadius = radius * 0.5;
@@ -787,6 +672,167 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 	list_uint32_t_free(&indices);
 	return m;
 }
+#endif
+
+//===========================================================================//
+// SECTION ECS
+//===========================================================================//
+
+static int* entities;
+static int entity_count = 0;
+enum { ENTITY_NULL, ENTITY_COUNT_MAX = 1024, };
+
+static int** components;
+enum { 
+	COMPONENT_NULL,
+	COMPONENT_KINEMATIC_BODY, 
+	COMPONENT_COLLIDER, 
+	COMPONENT_TRANSFORM,
+	COMPONENT_MESH,
+	COMPONENT_COUNT_MAX,
+	COMPONENT_MATERIAL,
+	COMPONENT_SHADER,
+};
+
+void ECS_alloc(void) {
+	entities = calloc(sizeof(entities), ENTITY_COUNT_MAX);
+	components = calloc(sizeof(components), ENTITY_COUNT_MAX);
+	for(int i = 0; i < ENTITY_COUNT_MAX; i++) {
+		components[i] = calloc(sizeof(components[i]), COMPONENT_COUNT_MAX);
+	}
+}
+
+int entity_create(void) {
+	++entity_count;
+	assert(entity_count != ENTITY_NULL);
+	assert(entity_count <= ENTITY_COUNT_MAX);
+	return entity_count;
+}
+
+int entity_component_add(int entity, int component) {
+	components[entity][component] = 1;
+	return component;
+}
+
+//===========================================================================//
+// SECTION KINEMATIC BODY
+//===========================================================================//
+
+static inline float kinematic_equation(float acceleration, float velocity,
+		float position, float time) {
+	return 0.5f * acceleration * time * time + velocity * time + position;
+}
+
+void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
+	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
+		if (!components[e][COMPONENT_KINEMATIC_BODY]) {
+			continue;
+		} 
+		if (!components[e][COMPONENT_TRANSFORM]) {
+			continue;
+		}
+
+		vector3_t singularityPosition = vector3_zero();
+		float singularityMass = 1000000;
+		float distanceSquared = vector3_square_distance(singularityPosition, k[e].position);
+
+		if (distanceSquared < 100.0)
+			continue;
+
+		vector3_t direction = vector3_normalize(vector3_subtract(singularityPosition, k[e].position));
+		vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * singularityMass / distanceSquared);
+		assert(k[e].mass > 0);
+		k[e].acceleration = vector3_scale(force, 1/k[e].mass);
+
+		float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
+				k[e].position.x, engine_time_delta);
+		float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
+				k[e].position.y, engine_time_delta);
+		float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
+				k[e].position.z, engine_time_delta);
+
+		k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
+		k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
+
+		t[e].position = k[e].position;
+		// printf("EID[%d] ", e);
+		// vector3_print(k[e].position, "position");
+	}
+}
+
+//===========================================================================//
+// SECTION MESH
+//===========================================================================//
+
+#if 1 // mesh_draw 
+void mesh_update(
+		mesh_t* meshes, 
+		transform_t* transforms, 
+		GLuint* shaders,
+		material_t* material) {
+	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
+		if (!components[e][COMPONENT_MESH] ||
+			!components[e][COMPONENT_TRANSFORM] ||
+			!components[e][COMPONENT_SHADER] ||
+			!components[e][COMPONENT_MATERIAL]) {
+			continue;
+		}
+		// TODO dereference these pointers to avoid following them so many times.
+		glUseProgram(shaders[e]);
+
+		// model matrix
+		transform_calculate_matrix(&transforms[e]);
+
+		shader_setUniformM4(shaders[e], "u_modelMatrix", &transforms[e].matrix);
+
+		// view matrix
+		shader_setUniformM4(shaders[e], "u_viewMatrix",
+				&engine_active_camera.transform.matrix);
+
+		// projection matrix
+		shader_setUniformM4(shaders[e], "u_projectionMatrix",
+				&engine_active_camera.projection);
+
+		// camera position
+		shader_setUniformV3(shaders[e], "u_cameraPos",
+				engine_active_camera.transform.position);
+
+#if 0
+		// light uniforms
+		shader_setUniformV3(r->shader[e], "u_pointLight.position",
+				r->transform[light].position);
+		shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
+				r->pointlight[light].constant);
+		shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
+				r->pointlight[light].linear);
+		shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
+				r->pointlight[light].quadratic);
+		shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
+				r->pointlight[light].diffuse);
+		shader_setUniformV3(r->shader[e], "u_pointLight.specular",
+				r->pointlight[light].specular);
+#endif
+
+		// material
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, material[e].diffuseMap);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, material[e].specularMap);
+
+		shader_setUniformInt(shaders[e], "u_material.diffuse", 0);
+		shader_setUniformInt(shaders[e], "u_material.specular", 1);
+		shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
+		shader_setUniformV3(shaders[e], "u_ambientLight", engine_ambient_light);
+
+		glBindVertexArray(meshes[e].VAO);
+		glDrawElements(GL_TRIANGLES, meshes[e].indexCount, GL_UNSIGNED_INT, 0);
+	}
+}
+#endif
+//===========================================================================//
+// TEST
+//===========================================================================//
 
 int main(void) {
 	// libc test
@@ -801,22 +847,73 @@ int main(void) {
 	engine_start();
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-	component_registry_t *registry = component_registry_alloc();
+	mesh_t* mesh =                     calloc( sizeof(mesh_t), ENTITY_COUNT_MAX);
+	GLuint* shader =                   calloc( sizeof(GLuint), ENTITY_COUNT_MAX);
+	material_t* material =             calloc( sizeof(material_t), ENTITY_COUNT_MAX);
+	transform_t* transform =           calloc( sizeof(transform_t), ENTITY_COUNT_MAX);
+	kinematic_body_t* kinematic_body = calloc( sizeof(kinematic_body_t), ENTITY_COUNT_MAX);
+	collider_sphere_t* collider =      calloc( sizeof(collider_sphere_t), ENTITY_COUNT_MAX);
+	
 
-	// create shaders
+#if 1 // create shaders
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
 
 	GLuint unlitShader =
 		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+#endif
 
-	// create textures
+#if 1 // create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 	GLuint testSpecularMap = texture_create("res/textures/test.png");
+#endif
 
-	// create skybox
-	EntityId skybox = entity_register();
+	{ // ECS TEST
+		ECS_alloc(); 
+
+#if 0
+		int entity = entity_create();
+		entity_component_add(entity, COMPONENT_KINEMATIC_BODY);
+		entity_component_add(entity, COMPONENT_TRANSFORM);
+		kinematic_body[entity].position = vector3_one(200.0);
+		kinematic_body[entity].velocity = vector3_one(1.0);
+		kinematic_body[entity].mass = 1.0;
+		collider[entity].radius = 10.0;
+#endif
+
+		for (int i = 1; i <= 1000; i++) {
+			// create rock
+			int rock = entity_create();
+
+			entity_component_add(rock, COMPONENT_KINEMATIC_BODY);
+			entity_component_add(rock, COMPONENT_TRANSFORM);
+			entity_component_add(rock, COMPONENT_MESH);
+			entity_component_add(rock, COMPONENT_MATERIAL);
+			entity_component_add(rock, COMPONENT_SHADER);
+
+			mesh[rock] = mesh_alloc_rock(5, 1);
+			shader[rock] = unlitShader;
+			material[rock] = (material_t){
+				.diffuseMap = rockDiffuseMap, };
+			transform[rock] = (transform_t){
+				.position = (vector3_t){(float)noise1(i) * 1000 - 500,
+					(float)noise1(i + 1) * 1000 - 500,
+					(float)noise1(i + 2) * 1000 - 500},
+					.rotation = quaternion_identity(),
+					.scale = vector3_one(1.0), };
+			kinematic_body[rock].position =
+				transform[rock].position;
+			kinematic_body[rock].velocity = vector3_zero();
+			kinematic_body[rock].mass = 1.0;
+		}
+	}
+
+	// component_registry_t *registry = component_registry_alloc();
+
+
+#if 0 // create skybox
+	int skybox = entity_register();
 	registry->mesh[skybox] = mesh_alloc_cube();
 	registry->shader[skybox] = unlitShader;
 	registry->material[skybox] = (material_t){
@@ -828,11 +925,12 @@ int main(void) {
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(10.0),
 	};
+#endif
 
-#if 1
+#if 0 // create rocks
 	for (int i = 1; i <= 1000; i++) {
 		// create rock
-		EntityId rock = entity_register();
+		int rock = entity_register();
 		registry->mesh[rock] = mesh_alloc_rock(5, 1);
 		registry->mesh[rock].enabled = true;
 		registry->shader[rock] = diffuseShader;
@@ -854,7 +952,7 @@ int main(void) {
 	}
 #endif
 
-	// create light
+#if 0 // create light
 	light = entity_register();
 	registry->pointlight[light] = (pointLight_t){
 		.diffuse = vector3_one(0.8f),
@@ -864,6 +962,8 @@ int main(void) {
 			.quadratic = 0.032f,
 	};
 	registry->transform[light].position = (vector3_t){5, 5, 5};
+#endif
+
 	vector3_t mouseLookVector = vector3_zero();
 
 	while (!glfwWindowShouldClose(engine_window)) {
@@ -952,15 +1052,22 @@ int main(void) {
 			}
 		} // END INPUT
 
-		// Physics simulation
+#if 0 // Physics simulation
 		oct_tree_t *octTree = oct_tree_alloc();
 		octTree->octSize = 5000;
-		for (EntityId e = 1; e < MAX_ENTITIES; e++) {
+		for (int e = 1; e < MAX_ENTITIES; e++) {
 			if (!registry->kinematic_body[e].enabled)
 				continue;
 			oct_tree_insert(octTree, registry->transform[e].position);
 			kinematic_body_update(registry, e);
 		}
+#else
+		{
+			kinematic_body_update(kinematic_body, transform);
+			// collider_update(collider, kinematic_body);
+		}
+#endif
+		
 
 		// projection
 		glfwGetWindowSize(engine_window, &engine_window_size_x,
@@ -974,6 +1081,7 @@ int main(void) {
 
 			engine_active_camera.transform.matrix = matrix4_identity();
 
+#if 0 // draw meshes
 			glDisable(GL_DEPTH_TEST);
 			registry->mesh[skybox].enabled = true;
 			registry->transform[skybox].rotation =
@@ -984,20 +1092,27 @@ int main(void) {
 
 			transform_calculate_view_matrix(&engine_active_camera.transform);
 
-			for (EntityId e = 1; e < MAX_ENTITIES; e++) {
+			for (int e = 1; e < MAX_ENTITIES; e++) {
 				mesh_draw(registry, e);
 			}
+#endif
+			transform_calculate_view_matrix(&engine_active_camera.transform);
+			mesh_update(mesh, transform, shader, material);
+					
 
-			const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
-			gizmo_draw_oct_tree(octTree, gizmo_color);
+			// const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
+			// gizmo_draw_oct_tree(octTree, gizmo_color);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
 		}
-		oct_tree_free(octTree);
+		// oct_tree_free(octTree);
+		// if (engine_frame_current >= 10) exit(0);
 	}
 
-	component_registry_free(registry);
+	free(kinematic_body);
+	free(collider);
+	// component_registry_free(registry);
 	glfwTerminate();
 	return 0;
 }
