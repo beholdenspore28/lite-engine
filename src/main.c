@@ -139,6 +139,13 @@ static vector3_t engine_ambient_light = {0.1, 0.1, 0.1};
 static camera_t engine_active_camera = {0};
 
 typedef struct {
+	mesh_t mesh;
+	GLuint shader;
+	material_t material;
+	transform_t transform;
+} skybox_t;
+
+typedef struct {
 	float constant;
 	float linear;
 	float quadratic;
@@ -163,6 +170,7 @@ GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
 void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
+	glDisable(GL_CULL_FACE);
 	if (wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
@@ -183,18 +191,15 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	shader_setUniformM4(gizmo_shader, "u_projectionMatrix",
 			&engine_active_camera.projection);
 
-	// camera position
-	shader_setUniformV3(gizmo_shader, "u_cameraPos",
-			engine_active_camera.transform.position);
-
 	shader_setUniformV4(gizmo_shader, "u_color", color);
 
 	glBindVertexArray(gizmo_mesh_cube.VAO);
 	glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
+	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
-	glDisable(GL_CULL_FACE);
 	transform_t t = (transform_t){
 		.position = tree->position,
 			.rotation = quaternion_identity(),
@@ -211,7 +216,6 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 		gizmo_draw_oct_tree(tree->backSouthEast, color);
 		gizmo_draw_oct_tree(tree->backSouthWest, color);
 	}
-	glEnable(GL_CULL_FACE);
 }
 
 
@@ -725,7 +729,7 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		}
 
 		vector3_t singularityPosition = vector3_zero();
-		float singularityMass = 1000000;
+		float singularityMass = 10000;
 		float distanceSquared = vector3_square_distance(singularityPosition, k[e].position);
 
 		if (distanceSquared < 100.0)
@@ -752,7 +756,7 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		// printf("EID[%d] ", e);
 		// vector3_print(k[e].position, "position");
 	}
-	const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
+	const vector4_t gizmo_color = { 1.0, 1.0, 1.0, 1.0 };
 	gizmo_draw_oct_tree(octTree, gizmo_color);
 	oct_tree_free(octTree);
 }
@@ -767,6 +771,16 @@ void mesh_update(
 		transform_t* transforms, 
 		GLuint* shaders,
 		material_t* material) {
+
+	// projection
+	glfwGetWindowSize(engine_window, &engine_window_size_x,
+			&engine_window_size_y);
+	float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
+	engine_active_camera.projection =
+		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+	engine_active_camera.transform.matrix = matrix4_identity();
+	transform_calculate_view_matrix(&engine_active_camera.transform);
+
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (!components[e][COMPONENT_MESH] ||
 			!components[e][COMPONENT_TRANSFORM] ||
@@ -774,7 +788,7 @@ void mesh_update(
 			!components[e][COMPONENT_MATERIAL]) {
 			continue;
 		}
-		// TODO dereference these pointers to avoid following them so many times.
+
 		glUseProgram(shaders[e]);
 
 		// model matrix
@@ -831,6 +845,54 @@ void mesh_update(
 // TEST
 //===========================================================================//
 
+void skybox_update(skybox_t* skybox) {
+	glCullFace(GL_FRONT);
+	glDisable(GL_DEPTH_TEST);
+
+	engine_active_camera.transform.matrix = matrix4_identity();
+	skybox->transform.rotation =
+		quaternion_conjugate(engine_active_camera.transform.rotation);
+
+
+	// TODO dereference these pointers to avoid following them so many times.
+	glUseProgram(skybox->shader);
+
+	// model matrix
+	transform_calculate_matrix(&skybox->transform);
+
+	shader_setUniformM4(skybox->shader, "u_modelMatrix", &skybox->transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(skybox->shader, "u_viewMatrix",
+			&engine_active_camera.transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(skybox->shader, "u_projectionMatrix",
+			&engine_active_camera.projection);
+
+	// camera position
+	shader_setUniformV3(skybox->shader, "u_cameraPos",
+			engine_active_camera.transform.position);
+
+	// material
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, skybox->material.diffuseMap);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, skybox->material.specularMap);
+
+	shader_setUniformInt(skybox->shader, "u_material.diffuse", 0);
+	shader_setUniformInt(skybox->shader, "u_material.specular", 1);
+	shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
+	shader_setUniformV3(skybox->shader, "u_ambientLight", engine_ambient_light);
+
+	glBindVertexArray(skybox->mesh.VAO);
+	glDrawElements(GL_TRIANGLES, skybox->mesh.indexCount, GL_UNSIGNED_INT, 0);
+
+	glEnable(GL_DEPTH_TEST);
+	glCullFace(GL_BACK);
+}
+
 int main(void) {
 	// libc test
 	printf("Rev up those fryers!\n");
@@ -842,7 +904,7 @@ int main(void) {
 	engine_window_position_x = 1280 / 2;
 	engine_window_position_y = 0;
 	engine_start();
-	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
+	engine_set_clear_color(0.3, 0.4, 0.5, 1.0);
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -896,31 +958,31 @@ int main(void) {
 		}
 	}
 
-#if 0 // create skybox
-	int skybox = entity_register();
-	registry->mesh[skybox] = mesh_alloc_cube();
-	registry->shader[skybox] = unlitShader;
-	registry->material[skybox] = (material_t){
-		.diffuseMap = texture_create("res/textures/space.png"),
-		.specularMap = testSpecularMap,
-	};
-	registry->transform[skybox] = (transform_t){
-		.position = {0},
+#if 1 // create skybox
+	skybox_t skybox = (skybox_t) {
+		.mesh =   mesh_alloc_cube(),
+		.shader = unlitShader,
+		.material = (material_t){
+			.diffuseMap = texture_create("res/textures/space.png"),
+		},
+		.transform = (transform_t){
+			.position = { 0.0, 0.0, 0.0 },
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(10.0),
+		},
 	};
 #endif
 
 #if 0 // create light
 	light = entity_register();
-	registry->pointlight[light] = (pointLight_t){
+	pointlight[light] = (pointLight_t){
 		.diffuse = vector3_one(0.8f),
 			.specular = vector3_one(1.0f),
 			.constant = 1.0f,
 			.linear = 0.09f,
 			.quadratic = 0.032f,
 	};
-	registry->transform[light].position = (vector3_t){5, 5, 5};
+	transform[light].position = (vector3_t){5, 5, 5};
 #endif
 
 	vector3_t mouseLookVector = vector3_zero();
@@ -1014,41 +1076,11 @@ int main(void) {
 		} // END INPUT
 
 		kinematic_body_update(kinematic_body, transform);
+		//skybox_update(&skybox);
+		mesh_update(mesh, transform, shader, material);
 
-		// projection
-		glfwGetWindowSize(engine_window, &engine_window_size_x,
-				&engine_window_size_y);
-		float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-		engine_active_camera.projection =
-			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-
-		{ // draw
-			engine_active_camera.transform.matrix = matrix4_identity();
-
-#if 0 // draw meshes
-			glDisable(GL_DEPTH_TEST);
-			registry->mesh[skybox].enabled = true;
-			registry->transform[skybox].rotation =
-				quaternion_conjugate(engine_active_camera.transform.rotation);
-			mesh_draw(registry, skybox);
-			registry->mesh[skybox].enabled = false;
-			glEnable(GL_DEPTH_TEST);
-
-			transform_calculate_view_matrix(&engine_active_camera.transform);
-
-			for (int e = 1; e < MAX_ENTITIES; e++) {
-				mesh_draw(registry, e);
-			}
-#endif
-			transform_calculate_view_matrix(&engine_active_camera.transform);
-			mesh_update(mesh, transform, shader, material);
-					
-
-
-			glfwSwapBuffers(engine_window);
-			glfwPollEvents();
-		}
-		// if (engine_frame_current >= 10) exit(0);
+		glfwSwapBuffers(engine_window);
+		glfwPollEvents();
 	}
 
 	free(mesh);
@@ -1057,7 +1089,7 @@ int main(void) {
 	free(transform);
 	free(kinematic_body);
 	free(collider);
-	// component_registry_free(registry);
+
 	glfwTerminate();
 	return 0;
 }
