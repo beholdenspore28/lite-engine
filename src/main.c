@@ -161,7 +161,6 @@ typedef struct {
 
 int light;
 
-#if 0 // gizmo functions
 GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
@@ -216,7 +215,6 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	}
 	glEnable(GL_CULL_FACE);
 }
-#endif
 
 
 // set window resolution
@@ -294,12 +292,10 @@ void engine_start(void) {
 			.lookSensitivity = 0.002f,
 	};
 
-#if 0 // shader creation.
 	gizmo_shader = shader_create(
 			"res/shaders/gizmos.vs.glsl",
 			"res/shaders/gizmos.fs.glsl");
 	gizmo_mesh_cube = mesh_alloc_cube();
-#endif
 }
 
 void engine_set_clear_color(const float r, const float g, const float b,
@@ -524,7 +520,6 @@ mesh_t mesh_alloc_rock(const int resolution, const float radius) {
 }
 #endif
 
-#if 0 // mesh_alloc_cube_sphere
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -619,9 +614,7 @@ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 	list_uint32_t_free(&indices);
 	return m;
 }
-#endif
 
-#if 0 // mesh_alloc_sphere
 mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 		const float radius) {
 	const float halfRadius = radius * 0.5;
@@ -672,7 +665,6 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 	list_uint32_t_free(&indices);
 	return m;
 }
-#endif
 
 //===========================================================================//
 // SECTION ECS
@@ -724,6 +716,8 @@ static inline float kinematic_equation(float acceleration, float velocity,
 }
 
 void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
+	oct_tree_t *octTree = oct_tree_alloc();
+	octTree->octSize = 5000;
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (!components[e][COMPONENT_KINEMATIC_BODY]) {
 			continue;
@@ -738,6 +732,8 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 
 		if (distanceSquared < 100.0)
 			continue;
+
+		oct_tree_insert(octTree, t[e].position);
 
 		vector3_t direction = vector3_normalize(vector3_subtract(singularityPosition, k[e].position));
 		vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * singularityMass / distanceSquared);
@@ -758,6 +754,9 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		// printf("EID[%d] ", e);
 		// vector3_print(k[e].position, "position");
 	}
+	const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
+	gizmo_draw_oct_tree(octTree, gizmo_color);
+	oct_tree_free(octTree);
 }
 
 //===========================================================================//
@@ -967,6 +966,8 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	while (!glfwWindowShouldClose(engine_window)) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		{ // update time
 			engine_time_current = glfwGetTime();
 			engine_time_delta = engine_time_current - engine_time_last;
@@ -1062,10 +1063,8 @@ int main(void) {
 			kinematic_body_update(registry, e);
 		}
 #else
-		{
-			kinematic_body_update(kinematic_body, transform);
-			// collider_update(collider, kinematic_body);
-		}
+		kinematic_body_update(kinematic_body, transform);
+		// collider_update(collider, kinematic_body);
 #endif
 		
 
@@ -1077,7 +1076,6 @@ int main(void) {
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 
 		{ // draw
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			engine_active_camera.transform.matrix = matrix4_identity();
 
@@ -1100,13 +1098,10 @@ int main(void) {
 			mesh_update(mesh, transform, shader, material);
 					
 
-			// const vector4_t gizmo_color = { 0.0, 0.3, 0.5, 1.0 };
-			// gizmo_draw_oct_tree(octTree, gizmo_color);
 
 			glfwSwapBuffers(engine_window);
 			glfwPollEvents();
 		}
-		// oct_tree_free(octTree);
 		// if (engine_frame_current >= 10) exit(0);
 	}
 
