@@ -195,15 +195,13 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 
 	glBindVertexArray(gizmo_mesh_cube.VAO);
 	glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
-	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
-			.rotation = quaternion_identity(),
-			.scale = vector3_one(tree->octSize),
+		.rotation = quaternion_identity(),
+		.scale = vector3_one(tree->octSize),
 	};
 	gizmo_draw_cube(t, true, color);
 	if (tree->isSubdivided) {
@@ -703,7 +701,7 @@ int entity_create(void) {
 	return entity_count;
 }
 
-int entity_component_add(int entity, int component) {
+int component_add(int entity, int component) {
 	components[entity][component] = 1;
 	return component;
 }
@@ -756,7 +754,7 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		// printf("EID[%d] ", e);
 		// vector3_print(k[e].position, "position");
 	}
-	const vector4_t gizmo_color = { 1.0, 1.0, 1.0, 1.0 };
+	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
 	gizmo_draw_oct_tree(octTree, gizmo_color);
 	oct_tree_free(octTree);
 }
@@ -771,6 +769,8 @@ void mesh_update(
 		transform_t* transforms, 
 		GLuint* shaders,
 		material_t* material) {
+	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// projection
 	glfwGetWindowSize(engine_window, &engine_window_size_x,
@@ -839,6 +839,7 @@ void mesh_update(
 		glBindVertexArray(meshes[e].VAO);
 		glDrawElements(GL_TRIANGLES, meshes[e].indexCount, GL_UNSIGNED_INT, 0);
 	}
+	glUseProgram(0);
 }
 #endif
 //===========================================================================//
@@ -846,8 +847,9 @@ void mesh_update(
 //===========================================================================//
 
 void skybox_update(skybox_t* skybox) {
+	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glCullFace(GL_FRONT);
-	glDisable(GL_DEPTH_TEST);
 
 	engine_active_camera.transform.matrix = matrix4_identity();
 	skybox->transform.rotation =
@@ -889,12 +891,10 @@ void skybox_update(skybox_t* skybox) {
 	glBindVertexArray(skybox->mesh.VAO);
 	glDrawElements(GL_TRIANGLES, skybox->mesh.indexCount, GL_UNSIGNED_INT, 0);
 
-	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
 }
 
 int main(void) {
-	// libc test
 	printf("Rev up those fryers!\n");
 
 	// init engine
@@ -935,11 +935,11 @@ int main(void) {
 			// create rock
 			int rock = entity_create();
 
-			entity_component_add(rock, COMPONENT_KINEMATIC_BODY);
-			entity_component_add(rock, COMPONENT_TRANSFORM);
-			entity_component_add(rock, COMPONENT_MESH);
-			entity_component_add(rock, COMPONENT_MATERIAL);
-			entity_component_add(rock, COMPONENT_SHADER);
+			component_add(rock, COMPONENT_KINEMATIC_BODY);
+			component_add(rock, COMPONENT_TRANSFORM);
+			component_add(rock, COMPONENT_MESH);
+			component_add(rock, COMPONENT_MATERIAL);
+			component_add(rock, COMPONENT_SHADER);
 
 			mesh[rock] = mesh_alloc_rock(5, 1);
 			shader[rock] = unlitShader;
@@ -968,7 +968,7 @@ int main(void) {
 		.transform = (transform_t){
 			.position = { 0.0, 0.0, 0.0 },
 			.rotation = quaternion_identity(),
-			.scale = vector3_one(10.0),
+			.scale = vector3_one(10000.0),
 		},
 	};
 #endif
@@ -1067,16 +1067,18 @@ int main(void) {
 					engine_active_camera.transform.position = vector3_zero();
 					engine_active_camera.transform.rotation = quaternion_identity();
 				}
+#if 0
 				if (glfwGetKey(engine_window, GLFW_KEY_X)) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				} else {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
+#endif
 			}
 		} // END INPUT
 
 		kinematic_body_update(kinematic_body, transform);
-		//skybox_update(&skybox);
+		skybox_update(&skybox);
 		mesh_update(mesh, transform, shader, material);
 
 		glfwSwapBuffers(engine_window);
