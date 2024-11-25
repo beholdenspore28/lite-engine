@@ -680,6 +680,7 @@ enum {
 	COMPONENT_KINEMATIC_BODY, 
 	COMPONENT_COLLIDER, 
 	COMPONENT_TRANSFORM,
+	COMPONENT_POINT_LIGHT,
 	COMPONENT_MESH,
 	COMPONENT_COUNT_MAX,
 	COMPONENT_MATERIAL,
@@ -719,12 +720,9 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	oct_tree_t *octTree = oct_tree_alloc();
 	octTree->octSize = 5000;
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!components[e][COMPONENT_KINEMATIC_BODY]) {
+		if (!components[e][COMPONENT_KINEMATIC_BODY]) // fail gracefully
 			continue;
-		} 
-		if (!components[e][COMPONENT_TRANSFORM]) {
-			continue;
-		}
+		assert(components[e][COMPONENT_TRANSFORM]); // fail fatally.
 
 		oct_tree_insert(octTree, t[e].position);
 
@@ -768,7 +766,8 @@ void mesh_update(
 		mesh_t* meshes, 
 		transform_t* transforms, 
 		GLuint* shaders,
-		material_t* material) {
+		material_t* material,
+		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -782,62 +781,67 @@ void mesh_update(
 	transform_calculate_view_matrix(&engine_active_camera.transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!components[e][COMPONENT_MESH] ||
-			!components[e][COMPONENT_TRANSFORM] ||
-			!components[e][COMPONENT_SHADER] ||
-			!components[e][COMPONENT_MATERIAL]) {
-			continue;
+		{// ensure the entity has the required components.
+			if (!components[e][COMPONENT_MESH])
+				continue;
+			assert(components[e][COMPONENT_TRANSFORM]);
+			assert(components[e][COMPONENT_SHADER]);
+			assert(components[e][COMPONENT_MATERIAL]); 
 		}
 
-		glUseProgram(shaders[e]);
+		{ // draw
+			glUseProgram(shaders[e]);
 
-		// model matrix
-		transform_calculate_matrix(&transforms[e]);
+			// model matrix uniform
+			transform_calculate_matrix(&transforms[e]);
 
-		shader_setUniformM4(shaders[e], "u_modelMatrix", &transforms[e].matrix);
+			shader_setUniformM4(shaders[e], "u_modelMatrix", &transforms[e].matrix);
 
-		// view matrix
-		shader_setUniformM4(shaders[e], "u_viewMatrix",
-				&engine_active_camera.transform.matrix);
+			// view matrix uniform
+			shader_setUniformM4(shaders[e], "u_viewMatrix",
+					&engine_active_camera.transform.matrix);
 
-		// projection matrix
-		shader_setUniformM4(shaders[e], "u_projectionMatrix",
-				&engine_active_camera.projection);
+			// projection matrix uniform
+			shader_setUniformM4(shaders[e], "u_projectionMatrix",
+					&engine_active_camera.projection);
 
-		// camera position
-		shader_setUniformV3(shaders[e], "u_cameraPos",
-				engine_active_camera.transform.position);
+			// camera position uniform
+			shader_setUniformV3(shaders[e], "u_cameraPos",
+					engine_active_camera.transform.position);
 
-#if 0
-		// light uniforms
-		shader_setUniformV3(r->shader[e], "u_pointLight.position",
-				r->transform[light].position);
-		shader_setUniformFloat(r->shader[e], "u_pointLight.constant",
-				r->pointlight[light].constant);
-		shader_setUniformFloat(r->shader[e], "u_pointLight.linear",
-				r->pointlight[light].linear);
-		shader_setUniformFloat(r->shader[e], "u_pointLight.quadratic",
-				r->pointlight[light].quadratic);
-		shader_setUniformV3(r->shader[e], "u_pointLight.diffuse",
-				r->pointlight[light].diffuse);
-		shader_setUniformV3(r->shader[e], "u_pointLight.specular",
-				r->pointlight[light].specular);
+#if 1
+			// light uniforms
+			shader_setUniformV3(shaders[e], "u_light.position",
+					transforms[light].position);
+			shader_setUniformFloat(shaders[e], "u_light.constant",
+					point_lights[light].constant);
+			shader_setUniformFloat(shaders[e], "u_light.linear",
+					point_lights[light].linear);
+			shader_setUniformFloat(shaders[e], "u_light.quadratic",
+					point_lights[light].quadratic);
+			shader_setUniformV3(shaders[e], "u_light.diffuse",
+					point_lights[light].diffuse);
+			shader_setUniformV3(shaders[e], "u_light.specular",
+					point_lights[light].specular);
 #endif
 
-		// material
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material[e].diffuseMap);
+			// textures
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, material[e].diffuseMap);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material[e].specularMap);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, material[e].specularMap);
 
-		shader_setUniformInt(shaders[e], "u_material.diffuse", 0);
-		shader_setUniformInt(shaders[e], "u_material.specular", 1);
-		shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
-		shader_setUniformV3(shaders[e], "u_ambientLight", engine_ambient_light);
+			// other material properties
+			shader_setUniformInt(shaders[e], "u_material.diffuse", 0);
+			shader_setUniformInt(shaders[e], "u_material.specular", 1);
+			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
+			shader_setUniformV3(shaders[e], "u_ambientLight", engine_ambient_light);
 
-		glBindVertexArray(meshes[e].VAO);
-		glDrawElements(GL_TRIANGLES, meshes[e].indexCount, GL_UNSIGNED_INT, 0);
+			// draw
+			glBindVertexArray(meshes[e].VAO);
+			glDrawElements(GL_TRIANGLES, meshes[e].indexCount, GL_UNSIGNED_INT, 0);
+		}
 	}
 	glUseProgram(0);
 }
@@ -847,51 +851,135 @@ void mesh_update(
 //===========================================================================//
 
 void skybox_update(skybox_t* skybox) {
+	// setup
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glCullFace(GL_FRONT);
 
+	// skybox should always appear static and never move
 	engine_active_camera.transform.matrix = matrix4_identity();
 	skybox->transform.rotation =
 		quaternion_conjugate(engine_active_camera.transform.rotation);
 
+	{ // draw
+		glUseProgram(skybox->shader);
 
-	// TODO dereference these pointers to avoid following them so many times.
-	glUseProgram(skybox->shader);
+		// model matrix
+		transform_calculate_matrix(&skybox->transform);
+		shader_setUniformM4(skybox->shader, "u_modelMatrix", &skybox->transform.matrix);
 
-	// model matrix
-	transform_calculate_matrix(&skybox->transform);
+		// view matrix
+		shader_setUniformM4(skybox->shader, "u_viewMatrix",
+				&engine_active_camera.transform.matrix);
 
-	shader_setUniformM4(skybox->shader, "u_modelMatrix", &skybox->transform.matrix);
+		// projection matrix
+		shader_setUniformM4(skybox->shader, "u_projectionMatrix",
+				&engine_active_camera.projection);
 
-	// view matrix
-	shader_setUniformM4(skybox->shader, "u_viewMatrix",
-			&engine_active_camera.transform.matrix);
+		// camera position
+		shader_setUniformV3(skybox->shader, "u_cameraPos",
+				engine_active_camera.transform.position);
 
-	// projection matrix
-	shader_setUniformM4(skybox->shader, "u_projectionMatrix",
-			&engine_active_camera.projection);
+		// textures
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, skybox->material.diffuseMap);
 
-	// camera position
-	shader_setUniformV3(skybox->shader, "u_cameraPos",
-			engine_active_camera.transform.position);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, skybox->material.specularMap);
 
-	// material
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, skybox->material.diffuseMap);
+		// other material properties
+		shader_setUniformInt(skybox->shader, "u_material.diffuse", 0);
+		shader_setUniformInt(skybox->shader, "u_material.specular", 1);
+		shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
+		shader_setUniformV3(skybox->shader, "u_ambientLight", engine_ambient_light);
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, skybox->material.specularMap);
+		// draw
+		glBindVertexArray(skybox->mesh.VAO);
+		glDrawElements(GL_TRIANGLES, skybox->mesh.indexCount, GL_UNSIGNED_INT, 0);
+	}
 
-	shader_setUniformInt(skybox->shader, "u_material.diffuse", 0);
-	shader_setUniformInt(skybox->shader, "u_material.specular", 1);
-	shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
-	shader_setUniformV3(skybox->shader, "u_ambientLight", engine_ambient_light);
-
-	glBindVertexArray(skybox->mesh.VAO);
-	glDrawElements(GL_TRIANGLES, skybox->mesh.indexCount, GL_UNSIGNED_INT, 0);
-
+	// cleanup
 	glCullFace(GL_BACK);
+}
+
+void input_update(vector3_t* mouseLookVector) {   // INPUT
+	{ // mouse look
+		static bool firstMouse = true;
+		double mouseX, mouseY;
+		glfwGetCursorPos(engine_window, &mouseX, &mouseY);
+
+		if (firstMouse) {
+			engine_active_camera.lastX = mouseX;
+			engine_active_camera.lastY = mouseY;
+			firstMouse = false;
+		}
+
+		float xoffset = mouseX - engine_active_camera.lastX;
+		float yoffset = mouseY - engine_active_camera.lastY;
+		engine_active_camera.lastX = mouseX;
+		engine_active_camera.lastY = mouseY;
+
+		mouseLookVector->x += yoffset * engine_active_camera.lookSensitivity;
+		mouseLookVector->y += xoffset * engine_active_camera.lookSensitivity;
+
+		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
+		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
+
+		vector3_scale(*mouseLookVector, engine_time_delta);
+
+		engine_active_camera.transform.rotation =
+			quaternion_from_euler(*mouseLookVector);
+	}
+
+	{ // movement
+		float cameraSpeed = 32 * engine_time_delta;
+		float cameraSpeedCurrent;
+		if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
+			cameraSpeedCurrent = 4 * cameraSpeed;
+		} else {
+			cameraSpeedCurrent = cameraSpeed;
+		}
+		vector3_t movement = vector3_zero();
+
+		movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
+			glfwGetKey(engine_window, GLFW_KEY_A);
+		movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
+			glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
+			glfwGetKey(engine_window, GLFW_KEY_S);
+
+		movement = vector3_normalize(movement);
+		movement = vector3_scale(movement, cameraSpeedCurrent);
+		movement =
+			vector3_rotate(movement, engine_active_camera.transform.rotation);
+
+		engine_active_camera.transform.position =
+			vector3_add(engine_active_camera.transform.position, movement);
+
+		if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
+			engine_active_camera.transform.position = vector3_zero();
+			engine_active_camera.transform.rotation = quaternion_identity();
+		}
+	}
+}
+
+void engine_time_update(void) { // update time
+	engine_time_current = glfwGetTime();
+	engine_time_delta = engine_time_current - engine_time_last;
+	engine_time_last = engine_time_current;
+
+	engine_renderer_FPS = 1 / engine_time_delta;
+	engine_frame_current++;
+
+#if 0 // log time
+	printf("time_current  %f\n"
+			"time_last     %f\n"
+			"time_delta    %f\n"
+			"FPS           %f\n"
+			"frame_current %lu\n",
+			engine_time_current, engine_time_last, engine_time_delta,
+			engine_renderer_FPS, engine_frame_current);
+#endif // log time
 }
 
 int main(void) {
@@ -913,6 +1001,7 @@ int main(void) {
 	transform_t* transform = calloc(sizeof(transform_t),ENTITY_COUNT_MAX);
 	kinematic_body_t* kinematic_body = calloc(sizeof(kinematic_body_t),ENTITY_COUNT_MAX);
 	collider_sphere_t* collider = calloc(sizeof(collider_sphere_t),ENTITY_COUNT_MAX);
+	pointLight_t* point_light = calloc(sizeof(pointLight_t), ENTITY_COUNT_MAX);
 
 #if 1 // create shaders
 	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
@@ -942,7 +1031,7 @@ int main(void) {
 			component_add(rock, COMPONENT_SHADER);
 
 			mesh[rock] = mesh_alloc_rock(5, 1);
-			shader[rock] = unlitShader;
+			shader[rock] = diffuseShader;
 			material[rock] = (material_t){
 				.diffuseMap = rockDiffuseMap, };
 			transform[rock] = (transform_t){
@@ -973,14 +1062,16 @@ int main(void) {
 	};
 #endif
 
-#if 0 // create light
-	light = entity_register();
-	pointlight[light] = (pointLight_t){
+#if 1 // create light
+	light = entity_create();
+	component_add(light, COMPONENT_POINT_LIGHT);
+	component_add(light, COMPONENT_TRANSFORM);
+	point_light[light] = (pointLight_t){
 		.diffuse = vector3_one(0.8f),
-			.specular = vector3_one(1.0f),
-			.constant = 1.0f,
-			.linear = 0.09f,
-			.quadratic = 0.032f,
+		.specular = vector3_one(1.0f),
+		.constant = 1.0f,
+		.linear = 0.09f,
+		.quadratic = 0.032f,
 	};
 	transform[light].position = (vector3_t){5, 5, 5};
 #endif
@@ -989,91 +1080,11 @@ int main(void) {
 
 	while (!glfwWindowShouldClose(engine_window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		{ // update time
-			engine_time_current = glfwGetTime();
-			engine_time_delta = engine_time_current - engine_time_last;
-			engine_time_last = engine_time_current;
-
-			engine_renderer_FPS = 1 / engine_time_delta;
-			engine_frame_current++;
-
-#if 0 // log time
-			printf("time_current  %f\n"
-					"time_last     %f\n"
-					"time_delta    %f\n"
-					"FPS           %f\n"
-					"frame_current %lu\n",
-					engine_time_current, engine_time_last, engine_time_delta,
-					engine_renderer_FPS, engine_frame_current);
-#endif // log time
-		}
-
-		{   // INPUT
-			{ // mouse look
-				static bool firstMouse = true;
-				double mouseX, mouseY;
-				glfwGetCursorPos(engine_window, &mouseX, &mouseY);
-
-				if (firstMouse) {
-					engine_active_camera.lastX = mouseX;
-					engine_active_camera.lastY = mouseY;
-					firstMouse = false;
-				}
-
-				float xoffset = mouseX - engine_active_camera.lastX;
-				float yoffset = mouseY - engine_active_camera.lastY;
-				engine_active_camera.lastX = mouseX;
-				engine_active_camera.lastY = mouseY;
-
-				mouseLookVector.x += yoffset * engine_active_camera.lookSensitivity;
-				mouseLookVector.y += xoffset * engine_active_camera.lookSensitivity;
-
-				mouseLookVector.y = loop(mouseLookVector.y, 2 * PI);
-				mouseLookVector.x = clamp(mouseLookVector.x, -PI * 0.5, PI * 0.5);
-
-				vector3_scale(mouseLookVector, engine_time_delta);
-
-				engine_active_camera.transform.rotation =
-					quaternion_from_euler(mouseLookVector);
-			}
-
-			{ // movement
-				float cameraSpeed = 32 * engine_time_delta;
-				float cameraSpeedCurrent;
-				if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
-					cameraSpeedCurrent = 4 * cameraSpeed;
-				} else {
-					cameraSpeedCurrent = cameraSpeed;
-				}
-				vector3_t movement = vector3_zero();
-
-				movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
-					glfwGetKey(engine_window, GLFW_KEY_A);
-				movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
-					glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
-				movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
-					glfwGetKey(engine_window, GLFW_KEY_S);
-
-				movement = vector3_normalize(movement);
-				movement = vector3_scale(movement, cameraSpeedCurrent);
-				movement =
-					vector3_rotate(movement, engine_active_camera.transform.rotation);
-
-				engine_active_camera.transform.position =
-					vector3_add(engine_active_camera.transform.position, movement);
-
-				if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
-					engine_active_camera.transform.position = vector3_zero();
-					engine_active_camera.transform.rotation = quaternion_identity();
-				}
-			}
-		} // END INPUT
-
+		engine_time_update();
+		input_update(&mouseLookVector);
 		kinematic_body_update(kinematic_body, transform);
 		skybox_update(&skybox);
-		mesh_update(mesh, transform, shader, material);
-
+		mesh_update( mesh, transform, shader, material, point_light);
 		glfwSwapBuffers(engine_window);
 		glfwPollEvents();
 	}
@@ -1084,6 +1095,7 @@ int main(void) {
 	free(transform);
 	free(kinematic_body);
 	free(collider);
+	free(point_light);
 
 	glfwTerminate();
 	return 0;

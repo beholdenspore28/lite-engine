@@ -1,21 +1,11 @@
 #version 460 core
 
-struct directional_light_t {
-    vec3 direction;
-    vec3 diffuse;
-    vec3 specular;
-};
+int LIGHT_POINT = 0;
+int LIGHT_SPOT = 1;
+int LIGHT_DIRECTIONAL = 2;
 
-struct PointLight {
-    vec3 position;
-    float constant;
-    float linear;
-    float quadratic;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct spotlight_t {
+struct light_t {
+	int type;
     vec3 position;
     vec3 direction;
     float cutOff;
@@ -24,7 +14,7 @@ struct spotlight_t {
     float linear;
     float quadratic;
     vec3 diffuse;
-    vec3 specular;       
+    vec3 specular;
 };
 
 struct Material {
@@ -42,10 +32,9 @@ out vec4 fragColor;
 uniform vec3 u_cameraPos;
 uniform Material u_material;
 uniform vec3 u_ambientLight;
-uniform PointLight u_pointLight;
-uniform directional_light_t u_directionalLight;
+uniform light_t u_light;
 
-vec3 lightDirectional(directional_light_t light, vec3 normal, vec3 viewDir) {
+vec3 lightDirectional(light_t light, vec3 normal, vec3 viewDir) {
     vec3 lightDir = normalize(-light.direction);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -59,7 +48,7 @@ vec3 lightDirectional(directional_light_t light, vec3 normal, vec3 viewDir) {
     return (ambient + diffuse + specular);
 }
 
-vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+vec3 lightPoint(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -78,7 +67,7 @@ vec3 lightPoint(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     return (ambient + diffuse + specular);
 }
 
-vec3 lightPointInfiniteRange(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+vec3 lightPointInfiniteRange(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -92,20 +81,25 @@ vec3 lightPointInfiniteRange(PointLight light, vec3 normal, vec3 fragPos, vec3 v
     return (ambient + diffuse + specular);
 }
 
-vec3 lightSpot(spotlight_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+vec3 lightSpot(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
+
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
+
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
+
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    // spotlight_t intensity
+
+    // intensity
     float theta = dot(lightDir, normalize(light.direction)); 
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
     // combine results
     vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, texCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, texCoord));
@@ -120,7 +114,7 @@ void main() {
 	vec3 norm = normalize(normal);
 	vec3 viewDir = normalize(u_cameraPos - fragPos);
 
-	vec3 light = lightPointInfiniteRange(u_pointLight, norm, fragPos, viewDir);
+	vec3 light = lightPointInfiniteRange(u_light, norm, fragPos, viewDir);
 	
 	fragColor = vec4(light, 1.0);
 //	fragColor = vec4(1.0);
