@@ -6,6 +6,7 @@
 typedef struct oct_tree {
 	vector3_t position;
 	float octSize;
+	float minimumSize;
 	uint32_t capacity;
 	list_vector3_t points;
 	bool isSubdivided;

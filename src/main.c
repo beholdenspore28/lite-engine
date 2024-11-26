@@ -122,21 +122,25 @@ static void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 }
 
 // TODO move all of this global state to an engine object
-static GLFWwindow *engine_window;
-static int engine_window_size_x = 640;
-static int engine_window_size_y = 480;
-static int engine_window_position_x = 0;
-static int engine_window_position_y = 0;
-static bool engine_window_fullscreen = false;
-static char *engine_window_title = "Game Window";
-static bool engine_window_always_on_top = false;
-static float engine_time_current = 0.0f;
-static float engine_time_last = 0.0f;
-static float engine_time_delta = 0.0f;
-static uint64_t engine_frame_current = 0;
-static float engine_renderer_FPS = 0.0f;
-static vector3_t engine_ambient_light = {0.1, 0.1, 0.1};
-static camera_t engine_active_camera = {0};
+typedef struct {
+	GLFWwindow *window;
+	int         window_size_x;
+	int         window_size_y;
+	int         window_position_x;
+	int         window_position_y;
+	char       *window_title;
+	bool        window_fullscreen;
+	bool        window_always_on_top;
+	float       time_current;
+	float       time_last;
+	float       time_delta;
+	float       time_FPS;
+	uint64_t    frame_current;
+	vector3_t   ambient_light;
+	camera_t    active_camera;
+} lite_engine_context_t;
+
+static lite_engine_context_t* lite_engine_context_current = NULL;
 
 typedef struct {
 	mesh_t mesh;
@@ -185,11 +189,11 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 
 	// view matrix
 	shader_setUniformM4(gizmo_shader, "u_viewMatrix",
-			&engine_active_camera.transform.matrix);
+			&lite_engine_context_current->active_camera.transform.matrix);
 
 	// projection matrix
 	shader_setUniformM4(gizmo_shader, "u_projectionMatrix",
-			&engine_active_camera.projection);
+			&lite_engine_context_current->active_camera.projection);
 
 	shader_setUniformV4(gizmo_shader, "u_color", color);
 
@@ -219,15 +223,16 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 
 // set window resolution
 void engine_window_set_resolution(const int x, const int y) {
-	glfwSetWindowSize(engine_window, x, y);
+	glfwSetWindowSize(lite_engine_context_current->window, x, y);
 }
 
 // position window in the center of the screen
 void engine_window_set_position(const int x, const int y) {
-	glfwSetWindowPos(engine_window, x, y);
+	glfwSetWindowPos(lite_engine_context_current->window, x, y);
 }
 
 void engine_start(void) {
+	assert(lite_engine_context_current != NULL);
 	if (!glfwInit()) {
 		printf("[ERROR_GLFW] Failed to initialize GLFW");
 	}
@@ -240,28 +245,33 @@ void engine_start(void) {
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	if (engine_window_always_on_top) {
+	if (lite_engine_context_current->window_always_on_top) {
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 	}
-	assert(engine_window_title != NULL);
+	assert(lite_engine_context_current->window_title != NULL);
 
-	if (engine_window_fullscreen) {
-		engine_window =
-			glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-					engine_window_title, glfwGetPrimaryMonitor(), NULL);
+	if (lite_engine_context_current->window_fullscreen) {
+		lite_engine_context_current->window =
+			glfwCreateWindow(
+					lite_engine_context_current->window_size_x, 
+					lite_engine_context_current->window_size_y,
+					lite_engine_context_current->window_title, 
+					glfwGetPrimaryMonitor(), NULL);
 	} else {
-		engine_window = glfwCreateWindow(engine_window_size_x, engine_window_size_y,
-				engine_window_title, NULL, NULL);
+		lite_engine_context_current->window = glfwCreateWindow(
+				lite_engine_context_current->window_size_x, 
+				lite_engine_context_current->window_size_y,
+				lite_engine_context_current->window_title, NULL, NULL);
 	}
-	assert(engine_window != NULL);
+	assert(lite_engine_context_current->window != NULL);
 
-	glfwSetWindowPos(engine_window, engine_window_position_x,
-			engine_window_position_y);
-	glfwShowWindow(engine_window);
-	glfwMakeContextCurrent(engine_window);
-	glfwSetKeyCallback(engine_window, key_callback);
-	glfwSetFramebufferSizeCallback(engine_window, framebuffer_size_callback);
-	glfwSetInputMode(engine_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetWindowPos(lite_engine_context_current->window, lite_engine_context_current->window_position_x,
+			lite_engine_context_current->window_position_y);
+	glfwShowWindow(lite_engine_context_current->window);
+	glfwMakeContextCurrent(lite_engine_context_current->window);
+	glfwSetKeyCallback(lite_engine_context_current->window, key_callback);
+	glfwSetFramebufferSizeCallback(lite_engine_context_current->window, framebuffer_size_callback);
+	glfwSetInputMode(lite_engine_context_current->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
 
@@ -283,14 +293,6 @@ void engine_start(void) {
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-
-	engine_active_camera = (camera_t){
-		.transform.position = (vector3_t){0.0, 0.0, -200.0},
-			.transform.rotation = quaternion_identity(),
-			.transform.scale = vector3_one(1.0),
-			.projection = matrix4_identity(),
-			.lookSensitivity = 0.002f,
-	};
 
 	gizmo_shader = shader_create(
 			"res/shaders/gizmos.vs.glsl",
@@ -716,45 +718,108 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
-	oct_tree_t *octTree = oct_tree_alloc();
-	octTree->octSize = 5000;
-	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!components[e][COMPONENT_KINEMATIC_BODY]) // fail gracefully
+void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
+	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO 
+	for(int e = 0; e < tree->points.length; e++) {
+		if (!components[e][COMPONENT_KINEMATIC_BODY])
 			continue;
-		assert(components[e][COMPONENT_TRANSFORM]); // fail fatally.
+		assert(components[e][COMPONENT_TRANSFORM]);
+		for(int e1 = 0; e1 < tree->points.length; e1++) {
+			if (!components[e1][COMPONENT_KINEMATIC_BODY])
+				continue;
+			assert(components[e1][COMPONENT_TRANSFORM]);
+			if (e1 == e)
+				continue;
 
-		oct_tree_insert(octTree, t[e].position);
+			float distanceSquared = vector3_square_distance(k[e1].position, k[e].position);
+			if (distanceSquared <= 2) // radius collision
+				continue;
 
-		vector3_t singularityPosition = vector3_zero();
-		float singularityMass = 10000;
-		float distanceSquared = vector3_square_distance(singularityPosition, k[e].position);
+			assert(fabs(distanceSquared) > FLOAT_EPSILON);
+			vector3_t direction = vector3_normalize(vector3_subtract(k[e1].position, k[e].position));
+			vector3_t force = vector3_scale(direction, 0.001 * k[e].mass * k[e1].mass / distanceSquared);
+			k[e].acceleration = vector3_scale(force, 1/k[e].mass);
 
-		if (distanceSquared < 100.0)
-			continue;
+			float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
+					k[e].position.x, lite_engine_context_current->time_delta);
+			float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
+					k[e].position.y, lite_engine_context_current->time_delta);
+			float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
+					k[e].position.z, lite_engine_context_current->time_delta);
 
-		vector3_t direction = vector3_normalize(vector3_subtract(singularityPosition, k[e].position));
-		vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * singularityMass / distanceSquared);
-		assert(k[e].mass > 0);
-		k[e].acceleration = vector3_scale(force, 1/k[e].mass);
+			k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
+			k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
 
-		float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
-				k[e].position.x, engine_time_delta);
-		float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
-				k[e].position.y, engine_time_delta);
-		float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
-				k[e].position.z, engine_time_delta);
-
-		k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
-		k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
-
-		t[e].position = k[e].position;
-		// printf("EID[%d] ", e);
-		// vector3_print(k[e].position, "position");
+			t[e].position = k[e].position;
+		}
 	}
+	if (tree->isSubdivided) {
+		gravity_simulate(tree->frontNorthEast, k, t);
+		gravity_simulate(tree->frontNorthWest, k, t);
+		gravity_simulate(tree->frontSouthEast, k, t);
+		gravity_simulate(tree->frontSouthWest, k, t);
+		gravity_simulate(tree->backNorthEast, k, t);
+		gravity_simulate(tree->backNorthWest, k, t);
+		gravity_simulate(tree->backSouthEast, k, t);
+		gravity_simulate(tree->backSouthWest, k, t);
+	}
+}
+
+void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
+	oct_tree_t *tree = oct_tree_alloc();
+	tree->octSize = 5000;
+	tree->minimumSize = 10;
+
+	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
+		if (!components[e][COMPONENT_KINEMATIC_BODY])
+			continue;
+		assert(components[e][COMPONENT_TRANSFORM]);
+		assert(k[e].mass > 0);
+		oct_tree_insert(tree, t[e].position);
+	}
+#if 1
+	gravity_simulate(tree, k, t);
+#else
+	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
+		if (!components[e][COMPONENT_KINEMATIC_BODY])
+			continue;
+		assert(components[e][COMPONENT_TRANSFORM]);
+
+		for(int e1 = 1; e1 < ENTITY_COUNT_MAX; e1++) {
+			if (!components[e1][COMPONENT_KINEMATIC_BODY])
+				continue;
+			assert(components[e1][COMPONENT_TRANSFORM]);
+			if (e1 == e)
+				continue;
+
+			float distanceSquared = vector3_square_distance(k[e1].position, k[e].position);
+			if (distanceSquared <= 2) // radius collision
+				continue;
+
+			assert(fabs(distanceSquared) > FLOAT_EPSILON);
+			vector3_t direction = vector3_normalize(vector3_subtract(k[e1].position, k[e].position));
+			vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * k[e1].mass / distanceSquared);
+			k[e].acceleration = vector3_scale(force, 1/k[e].mass);
+
+			float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
+					k[e].position.x, lite_engine_context_current->time_delta);
+			float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
+					k[e].position.y, lite_engine_context_current->time_delta);
+			float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
+					k[e].position.z, lite_engine_context_current->time_delta);
+
+			k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
+			k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
+
+			t[e].position = k[e].position;
+
+		}
+	}
+#endif
+	
 	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
-	gizmo_draw_oct_tree(octTree, gizmo_color);
-	oct_tree_free(octTree);
+	gizmo_draw_oct_tree(tree, gizmo_color);
+	oct_tree_free(tree);
 }
 
 //===========================================================================//
@@ -772,13 +837,13 @@ void mesh_update(
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// projection
-	glfwGetWindowSize(engine_window, &engine_window_size_x,
-			&engine_window_size_y);
-	float aspect = (float)engine_window_size_x / (float)engine_window_size_y;
-	engine_active_camera.projection =
+	glfwGetWindowSize(lite_engine_context_current->window, &lite_engine_context_current->window_size_x,
+			&lite_engine_context_current->window_size_y);
+	float aspect = (float)lite_engine_context_current->window_size_x / (float)lite_engine_context_current->window_size_y;
+	lite_engine_context_current->active_camera.projection =
 		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	engine_active_camera.transform.matrix = matrix4_identity();
-	transform_calculate_view_matrix(&engine_active_camera.transform);
+	lite_engine_context_current->active_camera.transform.matrix = matrix4_identity();
+	transform_calculate_view_matrix(&lite_engine_context_current->active_camera.transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		{// ensure the entity has the required components.
@@ -799,15 +864,15 @@ void mesh_update(
 
 			// view matrix uniform
 			shader_setUniformM4(shaders[e], "u_viewMatrix",
-					&engine_active_camera.transform.matrix);
+					&lite_engine_context_current->active_camera.transform.matrix);
 
 			// projection matrix uniform
 			shader_setUniformM4(shaders[e], "u_projectionMatrix",
-					&engine_active_camera.projection);
+					&lite_engine_context_current->active_camera.projection);
 
 			// camera position uniform
 			shader_setUniformV3(shaders[e], "u_cameraPos",
-					engine_active_camera.transform.position);
+					lite_engine_context_current->active_camera.transform.position);
 
 #if 1
 			// light uniforms
@@ -836,7 +901,7 @@ void mesh_update(
 			shader_setUniformInt(shaders[e], "u_material.diffuse", 0);
 			shader_setUniformInt(shaders[e], "u_material.specular", 1);
 			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
-			shader_setUniformV3(shaders[e], "u_ambientLight", engine_ambient_light);
+			shader_setUniformV3(shaders[e], "u_ambientLight", lite_engine_context_current->ambient_light);
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
@@ -857,9 +922,9 @@ void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_FRONT);
 
 	// skybox should always appear static and never move
-	engine_active_camera.transform.matrix = matrix4_identity();
+	lite_engine_context_current->active_camera.transform.matrix = matrix4_identity();
 	skybox->transform.rotation =
-		quaternion_conjugate(engine_active_camera.transform.rotation);
+		quaternion_conjugate(lite_engine_context_current->active_camera.transform.rotation);
 
 	{ // draw
 		glUseProgram(skybox->shader);
@@ -870,15 +935,15 @@ void skybox_update(skybox_t* skybox) {
 
 		// view matrix
 		shader_setUniformM4(skybox->shader, "u_viewMatrix",
-				&engine_active_camera.transform.matrix);
+				&lite_engine_context_current->active_camera.transform.matrix);
 
 		// projection matrix
 		shader_setUniformM4(skybox->shader, "u_projectionMatrix",
-				&engine_active_camera.projection);
+				&lite_engine_context_current->active_camera.projection);
 
 		// camera position
 		shader_setUniformV3(skybox->shader, "u_cameraPos",
-				engine_active_camera.transform.position);
+				lite_engine_context_current->active_camera.transform.position);
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
@@ -891,7 +956,7 @@ void skybox_update(skybox_t* skybox) {
 		shader_setUniformInt(skybox->shader, "u_material.diffuse", 0);
 		shader_setUniformInt(skybox->shader, "u_material.specular", 1);
 		shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
-		shader_setUniformV3(skybox->shader, "u_ambientLight", engine_ambient_light);
+		shader_setUniformV3(skybox->shader, "u_ambientLight", lite_engine_context_current->ambient_light);
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
@@ -906,70 +971,70 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
-		glfwGetCursorPos(engine_window, &mouseX, &mouseY);
+		glfwGetCursorPos(lite_engine_context_current->window, &mouseX, &mouseY);
 
 		if (firstMouse) {
-			engine_active_camera.lastX = mouseX;
-			engine_active_camera.lastY = mouseY;
+			lite_engine_context_current->active_camera.lastX = mouseX;
+			lite_engine_context_current->active_camera.lastY = mouseY;
 			firstMouse = false;
 		}
 
-		float xoffset = mouseX - engine_active_camera.lastX;
-		float yoffset = mouseY - engine_active_camera.lastY;
-		engine_active_camera.lastX = mouseX;
-		engine_active_camera.lastY = mouseY;
+		float xoffset = mouseX - lite_engine_context_current->active_camera.lastX;
+		float yoffset = mouseY - lite_engine_context_current->active_camera.lastY;
+		lite_engine_context_current->active_camera.lastX = mouseX;
+		lite_engine_context_current->active_camera.lastY = mouseY;
 
-		mouseLookVector->x += yoffset * engine_active_camera.lookSensitivity;
-		mouseLookVector->y += xoffset * engine_active_camera.lookSensitivity;
+		mouseLookVector->x += yoffset * lite_engine_context_current->active_camera.lookSensitivity;
+		mouseLookVector->y += xoffset * lite_engine_context_current->active_camera.lookSensitivity;
 
 		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
 		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
 
-		vector3_scale(*mouseLookVector, engine_time_delta);
+		vector3_scale(*mouseLookVector, lite_engine_context_current->time_delta);
 
-		engine_active_camera.transform.rotation =
+		lite_engine_context_current->active_camera.transform.rotation =
 			quaternion_from_euler(*mouseLookVector);
 	}
 
 	{ // movement
-		float cameraSpeed = 32 * engine_time_delta;
+		float cameraSpeed = 32 * lite_engine_context_current->time_delta;
 		float cameraSpeedCurrent;
-		if (glfwGetKey(engine_window, GLFW_KEY_LEFT_CONTROL)) {
+		if (glfwGetKey(lite_engine_context_current->window, GLFW_KEY_LEFT_CONTROL)) {
 			cameraSpeedCurrent = 4 * cameraSpeed;
 		} else {
 			cameraSpeedCurrent = cameraSpeed;
 		}
 		vector3_t movement = vector3_zero();
 
-		movement.x = glfwGetKey(engine_window, GLFW_KEY_D) -
-			glfwGetKey(engine_window, GLFW_KEY_A);
-		movement.y = glfwGetKey(engine_window, GLFW_KEY_SPACE) -
-			glfwGetKey(engine_window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(engine_window, GLFW_KEY_W) -
-			glfwGetKey(engine_window, GLFW_KEY_S);
+		movement.x = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_D) -
+			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_A);
+		movement.y = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_SPACE) -
+			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_W) -
+			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_S);
 
 		movement = vector3_normalize(movement);
 		movement = vector3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vector3_rotate(movement, engine_active_camera.transform.rotation);
+			vector3_rotate(movement, lite_engine_context_current->active_camera.transform.rotation);
 
-		engine_active_camera.transform.position =
-			vector3_add(engine_active_camera.transform.position, movement);
+		lite_engine_context_current->active_camera.transform.position =
+			vector3_add(lite_engine_context_current->active_camera.transform.position, movement);
 
-		if (glfwGetKey(engine_window, GLFW_KEY_BACKSPACE)) {
-			engine_active_camera.transform.position = vector3_zero();
-			engine_active_camera.transform.rotation = quaternion_identity();
+		if (glfwGetKey(lite_engine_context_current->window, GLFW_KEY_BACKSPACE)) {
+			lite_engine_context_current->active_camera.transform.position = vector3_zero();
+			lite_engine_context_current->active_camera.transform.rotation = quaternion_identity();
 		}
 	}
 }
 
 void engine_time_update(void) { // update time
-	engine_time_current = glfwGetTime();
-	engine_time_delta = engine_time_current - engine_time_last;
-	engine_time_last = engine_time_current;
+	lite_engine_context_current->time_current = glfwGetTime();
+	lite_engine_context_current->time_delta = lite_engine_context_current->time_current - lite_engine_context_current->time_last;
+	lite_engine_context_current->time_last = lite_engine_context_current->time_current;
 
-	engine_renderer_FPS = 1 / engine_time_delta;
-	engine_frame_current++;
+	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
+	lite_engine_context_current->frame_current++;
 
 #if 0 // log time
 	printf("time_current  %f\n"
@@ -977,8 +1042,8 @@ void engine_time_update(void) { // update time
 			"time_delta    %f\n"
 			"FPS           %f\n"
 			"frame_current %lu\n",
-			engine_time_current, engine_time_last, engine_time_delta,
-			engine_renderer_FPS, engine_frame_current);
+			lite_engine_context_current->time_current, lite_engine_context_current->time_last, lite_engine_context_current->time_delta,
+			lite_engine_context_current->time_FPS, lite_engine_context_current->frame_current);
 #endif // log time
 }
 
@@ -986,13 +1051,33 @@ int main(void) {
 	printf("Rev up those fryers!\n");
 
 	// init engine
-	engine_window_title = "Game Window";
-	engine_window_size_x = 1280;
-	engine_window_size_y = 720;
-	engine_window_position_x = 1280 / 2;
-	engine_window_position_y = 0;
+	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
+	context->window               = NULL;
+	context->window_size_x        = 1280;
+	context->window_size_y        = 720;
+	context->window_position_x    = 0;
+	context->window_position_y    = 0;
+	context->window_title         = "Game Window";
+	context->window_fullscreen    = false;
+	context->window_always_on_top = false;
+	context->time_current         = 0.0f;
+	context->time_last            = 0.0f;
+	context->time_delta           = 0.0f;
+	context->time_FPS             = 0.0f;
+	context->frame_current        = 0;
+	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
+	context->active_camera        = (camera_t){
+		.transform.position = (vector3_t){0.0, 0.0, -200.0},
+		.transform.rotation = quaternion_identity(),
+		.transform.scale = vector3_one(1.0),
+		.projection = matrix4_identity(),
+		.lookSensitivity = 0.002f,
+	};
+
+	lite_engine_context_current = context;
 	engine_start();
-	engine_set_clear_color(0.3, 0.4, 0.5, 1.0);
+
+	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -1013,8 +1098,8 @@ int main(void) {
 
 #if 1 // create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 	GLuint testSpecularMap = texture_create("res/textures/test.png");
+	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 #endif
 
 	{ // ECS TEST
@@ -1031,19 +1116,20 @@ int main(void) {
 			component_add(rock, COMPONENT_SHADER);
 
 			mesh[rock] = mesh_alloc_rock(5, 1);
-			shader[rock] = diffuseShader;
+			shader[rock] = unlitShader;
 			material[rock] = (material_t){
 				.diffuseMap = rockDiffuseMap, };
 			transform[rock] = (transform_t){
-				.position = (vector3_t){(float)noise1(i) * 1000 - 500,
+				.position = (vector3_t){
+					(float)noise1(i    ) * 1000 - 500,
 					(float)noise1(i + 1) * 1000 - 500,
 					(float)noise1(i + 2) * 1000 - 500},
-					.rotation = quaternion_identity(),
-					.scale = vector3_one(1.0), };
+				.rotation = quaternion_identity(),
+				.scale = vector3_one(1.0), };
 			kinematic_body[rock].position =
 				transform[rock].position;
 			kinematic_body[rock].velocity = vector3_zero();
-			kinematic_body[rock].mass = 1.0;
+			kinematic_body[rock].mass = 1000.0;
 		}
 	}
 
@@ -1078,14 +1164,14 @@ int main(void) {
 
 	vector3_t mouseLookVector = vector3_zero();
 
-	while (!glfwWindowShouldClose(engine_window)) {
+	while (!glfwWindowShouldClose(lite_engine_context_current->window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		engine_time_update();
 		input_update(&mouseLookVector);
 		kinematic_body_update(kinematic_body, transform);
-		skybox_update(&skybox);
+		//skybox_update(&skybox);
 		mesh_update( mesh, transform, shader, material, point_light);
-		glfwSwapBuffers(engine_window);
+		glfwSwapBuffers(lite_engine_context_current->window);
 		glfwPollEvents();
 	}
 
