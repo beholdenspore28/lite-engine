@@ -198,7 +198,8 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	shader_setUniformV4(gizmo_shader, "u_color", color);
 
 	glBindVertexArray(gizmo_mesh_cube.VAO);
-	glDrawElements(GL_TRIANGLES, gizmo_mesh_cube.indexCount, GL_UNSIGNED_INT, 0);
+	glDrawElements( GL_TRIANGLES, gizmo_mesh_cube.
+			indexCount, GL_UNSIGNED_INT, 0);
 }
 
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
@@ -265,13 +266,17 @@ void lite_engine_start(void) {
 	}
 	assert(lite_engine_context_current->window != NULL);
 
-	glfwSetWindowPos(lite_engine_context_current->window, lite_engine_context_current->window_position_x,
+	glfwSetWindowPos(lite_engine_context_current->window, 
+			lite_engine_context_current->window_position_x,
 			lite_engine_context_current->window_position_y);
 	glfwShowWindow(lite_engine_context_current->window);
 	glfwMakeContextCurrent(lite_engine_context_current->window);
 	glfwSetKeyCallback(lite_engine_context_current->window, key_callback);
-	glfwSetFramebufferSizeCallback(lite_engine_context_current->window, framebuffer_size_callback);
-	glfwSetInputMode(lite_engine_context_current->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetFramebufferSizeCallback(
+			lite_engine_context_current->window, 
+			framebuffer_size_callback);
+	glfwSetInputMode(lite_engine_context_current->window, 
+			GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
 
@@ -295,8 +300,8 @@ void lite_engine_start(void) {
 	glEnable(GL_DEPTH_TEST);
 
 	gizmo_shader = shader_create(
-			"res/shaders/gizmos.vs.glsl",
-			"res/shaders/gizmos.fs.glsl");
+		"res/shaders/gizmos.vs.glsl",
+		"res/shaders/gizmos.fs.glsl");
 	gizmo_mesh_cube = mesh_alloc_cube();
 }
 
@@ -343,37 +348,37 @@ mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 					vector3_t original = point;
 					switch (faceDirection) {
 						case FACE_FRONT: {
-											 point.x = original.x;
-											 point.y = original.y;
-											 point.z = original.z;
-										 } break;
+							point.x = original.x;
+							point.y = original.y;
+							point.z = original.z;
+						} break;
 						case FACE_BACK: {
-											point.x = original.x;
-											point.y = -original.y;
-											point.z = -original.z;
-										} break;
+							point.x = original.x;
+							point.y = -original.y;
+							point.z = -original.z;
+						} break;
 						case FACE_RIGHT: {
-											 point.x = original.z;
-											 point.y = -original.y;
-											 point.z = original.x;
-										 } break;
+							point.x = original.z;
+							point.y = -original.y;
+							point.z = original.x;
+						} break;
 						case FACE_LEFT: {
-											point.x = -original.z;
-											point.y = original.y;
-											point.z = original.x;
-										} break;
+							point.x = -original.z;
+							point.y = original.y;
+							point.z = original.x;
+						} break;
 						case FACE_UP: {
-										  point.x = original.x;
-										  point.y = original.z;
-										  point.z = -original.y;
-									  } break;
+							point.x = original.x;
+							point.y = original.z;
+							point.z = -original.y;
+						} break;
 						case FACE_DOWN: {
-											point.x = -original.x;
-											point.y = -original.z;
-											point.z = -original.y;
-										} break;
+							point.x = -original.x;
+							point.y = -original.z;
+							point.z = -original.y;
+						} break;
 						default:
-										break;
+						break;
 					}
 				}
 
@@ -401,8 +406,9 @@ mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 			}
 		}
 	}
-	mesh_t m = mesh_alloc(&vertices.data[0], &indices.data[0], vertices.length,
-			indices.length);
+	mesh_t m = mesh_alloc(
+			&vertices.data[0], &indices.data[0], 
+			vertices.length, indices.length);
 	list_vertex_t_free(&vertices);
 	list_uint32_t_free(&indices);
 	return m;
@@ -513,9 +519,11 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 		for (int lon = 0; lon <= lonCount; lon++) {
 			float phi = 2 * PI * lon / lonCount;
 
-			float x = halfRadius * sin(theta) * cos(phi), y = halfRadius * cos(theta),
-				  z = halfRadius * sin(theta) * sin(phi),
-				  u = map(lon, 0, lonCount, 0, 1), v = -map(lat, 0, latCount, 0, 1);
+			float x = halfRadius * sin(theta) * cos(phi);
+			float y = halfRadius * cos(theta);
+			float z = halfRadius * sin(theta) * sin(phi);
+			float u = map(lon, 0, lonCount, 0, 1);
+			float v = -map(lat, 0, latCount, 0, 1);
 
 			vector3_t point = {x, y, z};
 			vector2_t texCoord = {u, v};
@@ -620,24 +628,44 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 				continue;
 
 			// vector3_print(tree->points.data[e1], "position");
-			float distanceSquared = vector3_square_distance(tree->points.data[e1], tree->points.data[e]);
+			float distanceSquared = vector3_square_distance(
+					tree->points.data[e1], tree->points.data[e]);
 			if (distanceSquared <= 1)
 				continue;
 
 			assert(fabs(distanceSquared) > FLOAT_EPSILON);
-			vector3_t direction = vector3_normalize(vector3_subtract(tree->points.data[e1], tree->points.data[e]));
-			vector3_t force = vector3_scale(direction, k[tree->data.data[e]].mass * k[tree->data.data[e1]].mass / distanceSquared);
-			k[tree->data.data[e]].acceleration = vector3_scale(force, 1/k[tree->data.data[e]].mass);
+			vector3_t direction = vector3_normalize(
+					vector3_subtract(
+						tree->points.data[e1], 
+						tree->points.data[e]));
+			vector3_t force = vector3_scale(direction, 
+					k[tree->data.data[e]].mass * 
+					k[tree->data.data[e1]].mass / 
+					distanceSquared);
+			k[tree->data.data[e]].acceleration = vector3_scale(
+					force, 1/k[tree->data.data[e]].mass);
 
-			float newPosX = kinematic_equation(k[tree->data.data[e]].acceleration.x, k[tree->data.data[e]].velocity.x,
-					k[tree->data.data[e]].position.x, lite_engine_context_current->time_delta);
-			float newPosY = kinematic_equation(k[tree->data.data[e]].acceleration.y, k[tree->data.data[e]].velocity.y,
-					k[tree->data.data[e]].position.y, lite_engine_context_current->time_delta);
-			float newPosZ = kinematic_equation(k[tree->data.data[e]].acceleration.z, k[tree->data.data[e]].velocity.z,
-					k[tree->data.data[e]].position.z, lite_engine_context_current->time_delta);
+			float newPosX = kinematic_equation(
+					k[tree->data.data[e]].acceleration.x, 
+					k[tree->data.data[e]].velocity.x,
+					k[tree->data.data[e]].position.x, 
+					lite_engine_context_current->time_delta);
+			float newPosY = kinematic_equation(
+					k[tree->data.data[e]].acceleration.y, 
+					k[tree->data.data[e]].velocity.y,
+					k[tree->data.data[e]].position.y, 
+					lite_engine_context_current->time_delta);
+			float newPosZ = kinematic_equation(
+					k[tree->data.data[e]].acceleration.z, 
+					k[tree->data.data[e]].velocity.z,
+					k[tree->data.data[e]].position.z, 
+					lite_engine_context_current->time_delta);
 
-			k[tree->data.data[e]].velocity = vector3_add(k[tree->data.data[e]].velocity, k[tree->data.data[e]].acceleration);
-			k[tree->data.data[e]].position = (vector3_t) {newPosX, newPosY, newPosZ};
+			k[tree->data.data[e]].velocity = vector3_add(
+					k[tree->data.data[e]].velocity, 
+					k[tree->data.data[e]].acceleration);
+			k[tree->data.data[e]].position = (vector3_t) {
+				newPosX, newPosY, newPosZ };
 
 			t[tree->data.data[e]].position = k[tree->data.data[e]].position;
 		}
@@ -690,13 +718,18 @@ void mesh_update(
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// projection
-	glfwGetWindowSize(lite_engine_context_current->window, &lite_engine_context_current->window_size_x,
+	glfwGetWindowSize(
+			lite_engine_context_current->window, 
+			&lite_engine_context_current->window_size_x,
 			&lite_engine_context_current->window_size_y);
-	float aspect = (float)lite_engine_context_current->window_size_x / (float)lite_engine_context_current->window_size_y;
+	float aspect = (float)lite_engine_context_current->window_size_x /
+		(float)lite_engine_context_current->window_size_y;
 	lite_engine_context_current->active_camera.projection =
 		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	lite_engine_context_current->active_camera.transform.matrix = matrix4_identity();
-	transform_calculate_view_matrix(&lite_engine_context_current->active_camera.transform);
+	lite_engine_context_current->active_camera.transform.matrix = 
+		matrix4_identity();
+	transform_calculate_view_matrix(
+			&lite_engine_context_current->active_camera.transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		{// ensure the entity has the required components.
@@ -713,19 +746,20 @@ void mesh_update(
 			// model matrix uniform
 			transform_calculate_matrix(&transforms[e]);
 
-			shader_setUniformM4(shaders[e], "u_modelMatrix", &transforms[e].matrix);
+			shader_setUniformM4(shaders[e], "u_modelMatrix", 
+					&transforms[e].matrix);
 
 			// view matrix uniform
 			shader_setUniformM4(shaders[e], "u_viewMatrix",
-					&lite_engine_context_current->active_camera.transform.matrix);
+				&lite_engine_context_current->active_camera.transform.matrix);
 
 			// projection matrix uniform
 			shader_setUniformM4(shaders[e], "u_projectionMatrix",
-					&lite_engine_context_current->active_camera.projection);
+				&lite_engine_context_current->active_camera.projection);
 
 			// camera position uniform
 			shader_setUniformV3(shaders[e], "u_cameraPos",
-					lite_engine_context_current->active_camera.transform.position);
+				lite_engine_context_current->active_camera.transform.position);
 
 #if 1
 			// light uniforms
@@ -754,11 +788,15 @@ void mesh_update(
 			shader_setUniformInt(shaders[e], "u_material.diffuse", 0);
 			shader_setUniformInt(shaders[e], "u_material.specular", 1);
 			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
-			shader_setUniformV3(shaders[e], "u_ambientLight", lite_engine_context_current->ambient_light);
+			shader_setUniformV3(shaders[e], "u_ambientLight",
+					lite_engine_context_current->ambient_light);
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
-			glDrawElements(GL_TRIANGLES, meshes[e].indexCount, GL_UNSIGNED_INT, 0);
+			glDrawElements(
+				GL_TRIANGLES, 
+				meshes[e].indexCount, 
+				GL_UNSIGNED_INT, 0);
 		}
 	}
 	glUseProgram(0);
@@ -776,28 +814,30 @@ void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_FRONT);
 
 	// skybox should always appear static and never move
-	lite_engine_context_current->active_camera.transform.matrix = matrix4_identity();
-	skybox->transform.rotation =
-		quaternion_conjugate(lite_engine_context_current->active_camera.transform.rotation);
+	lite_engine_context_current->active_camera.transform.matrix = 
+		matrix4_identity();
+	skybox->transform.rotation = quaternion_conjugate(
+			lite_engine_context_current->active_camera.transform.rotation);
 
 	{ // draw
 		glUseProgram(skybox->shader);
 
 		// model matrix
 		transform_calculate_matrix(&skybox->transform);
-		shader_setUniformM4(skybox->shader, "u_modelMatrix", &skybox->transform.matrix);
+		shader_setUniformM4(skybox->shader, "u_modelMatrix", 
+			&skybox->transform.matrix);
 
 		// view matrix
 		shader_setUniformM4(skybox->shader, "u_viewMatrix",
-				&lite_engine_context_current->active_camera.transform.matrix);
+			&lite_engine_context_current->active_camera.transform.matrix);
 
 		// projection matrix
 		shader_setUniformM4(skybox->shader, "u_projectionMatrix",
-				&lite_engine_context_current->active_camera.projection);
+			&lite_engine_context_current->active_camera.projection);
 
 		// camera position
 		shader_setUniformV3(skybox->shader, "u_cameraPos",
-				lite_engine_context_current->active_camera.transform.position);
+			lite_engine_context_current->active_camera.transform.position);
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
@@ -810,11 +850,15 @@ void skybox_update(skybox_t* skybox) {
 		shader_setUniformInt(skybox->shader, "u_material.diffuse", 0);
 		shader_setUniformInt(skybox->shader, "u_material.specular", 1);
 		shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
-		shader_setUniformV3(skybox->shader, "u_ambientLight", lite_engine_context_current->ambient_light);
+		shader_setUniformV3(skybox->shader, "u_ambientLight",
+			lite_engine_context_current->ambient_light);
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
-		glDrawElements(GL_TRIANGLES, skybox->mesh.indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(
+				GL_TRIANGLES, 
+				skybox->mesh.indexCount,
+				GL_UNSIGNED_INT, 0);
 	}
 
 	// cleanup
@@ -825,7 +869,8 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
-		glfwGetCursorPos(lite_engine_context_current->window, &mouseX, &mouseY);
+		glfwGetCursorPos(lite_engine_context_current->window, 
+				&mouseX, &mouseY);
 
 		if (firstMouse) {
 			lite_engine_context_current->active_camera.lastX = mouseX;
@@ -833,18 +878,24 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 			firstMouse = false;
 		}
 
-		float xoffset = mouseX - lite_engine_context_current->active_camera.lastX;
-		float yoffset = mouseY - lite_engine_context_current->active_camera.lastY;
+		float xoffset = 
+			mouseX - lite_engine_context_current->active_camera.lastX;
+		float yoffset = 
+			mouseY - lite_engine_context_current->active_camera.lastY;
+
 		lite_engine_context_current->active_camera.lastX = mouseX;
 		lite_engine_context_current->active_camera.lastY = mouseY;
 
-		mouseLookVector->x += yoffset * lite_engine_context_current->active_camera.lookSensitivity;
-		mouseLookVector->y += xoffset * lite_engine_context_current->active_camera.lookSensitivity;
+		mouseLookVector->x += yoffset * 
+			lite_engine_context_current->active_camera.lookSensitivity;
+		mouseLookVector->y += xoffset * 
+			lite_engine_context_current->active_camera.lookSensitivity;
 
 		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
 		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
 
-		vector3_scale(*mouseLookVector, lite_engine_context_current->time_delta);
+		vector3_scale(*mouseLookVector, 
+				lite_engine_context_current->time_delta);
 
 		lite_engine_context_current->active_camera.transform.rotation =
 			quaternion_from_euler(*mouseLookVector);
@@ -853,7 +904,8 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // movement
 		float cameraSpeed = 32 * lite_engine_context_current->time_delta;
 		float cameraSpeedCurrent;
-		if (glfwGetKey(lite_engine_context_current->window, GLFW_KEY_LEFT_CONTROL)) {
+		if (glfwGetKey( lite_engine_context_current->window, 
+					GLFW_KEY_LEFT_CONTROL)) {
 			cameraSpeedCurrent = 4 * cameraSpeed;
 		} else {
 			cameraSpeedCurrent = cameraSpeed;
