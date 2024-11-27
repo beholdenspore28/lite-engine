@@ -574,14 +574,13 @@ enum {
 	COMPONENT_COUNT_MAX,
 	COMPONENT_MATERIAL,
 	COMPONENT_SHADER,
-	COMPONENT_SCRIPT_LUA,
 };
 
 void ECS_alloc(void) {
 	entities = calloc(sizeof(entities), ENTITY_COUNT_MAX);
-	components = calloc(sizeof(components), ENTITY_COUNT_MAX);
+	components = calloc(sizeof(int**), ENTITY_COUNT_MAX);
 	for(int i = 0; i < ENTITY_COUNT_MAX; i++) {
-		components[i] = calloc(sizeof(components[i]), COMPONENT_COUNT_MAX);
+		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
 	}
 }
 
@@ -666,6 +665,8 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		assert(components[e][COMPONENT_TRANSFORM]);
 		assert(k[e].mass > 0);
 		oct_tree_insert(tree, e, t[e].position);
+	if (!oct_tree_contains(tree, k[e].position))
+		components[e][COMPONENT_MESH] = 0;
 	}
 	gravity_simulate(tree, k, t);
 
@@ -889,7 +890,7 @@ void engine_time_update(void) { // update time
 	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
 	lite_engine_context_current->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
 	printf("time_current  %f\n"
 			"time_last     %f\n"
 			"time_delta    %f\n"
@@ -931,6 +932,22 @@ int main(void) {
 
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
+#if 1 // create shaders
+	GLuint diffuseShader = shader_create(
+		"res/shaders/diffuse.vs.glsl",
+		"res/shaders/diffuse.fs.glsl");
+
+	GLuint unlitShader = shader_create(
+		"res/shaders/unlit.vs.glsl",
+		"res/shaders/unlit.fs.glsl");
+#endif
+
+#if 1 // create textures
+	GLuint testDiffuseMap = texture_create("res/textures/test.png");
+	GLuint testSpecularMap = texture_create("res/textures/test.png");
+	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
+#endif
+
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
 	GLuint* shader = calloc(sizeof(GLuint),ENTITY_COUNT_MAX);
@@ -940,53 +957,37 @@ int main(void) {
 	collider_sphere_t* collider = calloc(sizeof(collider_sphere_t),ENTITY_COUNT_MAX);
 	pointLight_t* point_light = calloc(sizeof(pointLight_t), ENTITY_COUNT_MAX);
 
-#if 1 // create shaders
-	GLuint diffuseShader = shader_create("res/shaders/diffuse.vs.glsl",
-			"res/shaders/diffuse.fs.glsl");
+	ECS_alloc(); 
 
-	GLuint unlitShader =
-		shader_create("res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
-#endif
+	// create rocks
+	for (int i = 1; i <= 1000; i++) {
+		int rock = entity_create();
 
-#if 1 // create textures
-	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	GLuint testSpecularMap = texture_create("res/textures/test.png");
-	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
-#endif
+		component_add(rock, COMPONENT_KINEMATIC_BODY);
+		component_add(rock, COMPONENT_TRANSFORM);
+		component_add(rock, COMPONENT_MESH);
+		component_add(rock, COMPONENT_MATERIAL);
+		component_add(rock, COMPONENT_SHADER);
 
-	{ // ECS TEST
-		ECS_alloc(); 
-
-		for (int i = 1; i <= 1000; i++) {
-			// create rock
-			int rock = entity_create();
-
-			component_add(rock, COMPONENT_KINEMATIC_BODY);
-			component_add(rock, COMPONENT_TRANSFORM);
-			component_add(rock, COMPONENT_MESH);
-			component_add(rock, COMPONENT_MATERIAL);
-			component_add(rock, COMPONENT_SHADER);
-
-			mesh[rock] = mesh_alloc_rock(5, 1);
-			shader[rock] = unlitShader;
-			material[rock] = (material_t){
-				.diffuseMap = rockDiffuseMap, };
-			transform[rock] = (transform_t){
-				.position = (vector3_t){
-					(float)noise1(i    ) * 1000 - 500,
+		mesh[rock] = mesh_alloc_rock(5, 1);
+		shader[rock] = unlitShader;
+		material[rock] = (material_t){
+			.diffuseMap = rockDiffuseMap, };
+		transform[rock] = (transform_t){
+			.position = (vector3_t){
+				(float)noise1(i    ) * 1000 - 500,
 					(float)noise1(i + 1) * 1000 - 500,
 					(float)noise1(i + 2) * 1000 - 500},
 				.rotation = quaternion_identity(),
 				.scale = vector3_one(1.0), };
-			kinematic_body[rock].position =
-				transform[rock].position;
-			kinematic_body[rock].velocity = vector3_zero();
+		kinematic_body[rock].position =
+			transform[rock].position;
+		kinematic_body[rock].velocity = vector3_zero();
 
-			if (rock == 1) 
-				kinematic_body[rock].mass = 100.0;
-			else
-				kinematic_body[rock].mass = 10.0;
-		}
+		if (rock == 1) 
+			kinematic_body[rock].mass = 100.0;
+		else
+			kinematic_body[rock].mass = 10.0;
 	}
 
 #if 1 // create skybox
