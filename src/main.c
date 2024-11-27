@@ -409,119 +409,6 @@ mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
 }
 #endif
 
-#if 0 // mesh_alloc_rock BROKEN
-mesh_t mesh_alloc_rock(const int resolution, const float radius) {
-	list_vertex_t vertices = list_vertex_t_alloc();
-	list_uint32_t indices = list_uint32_t_alloc();
-
-	enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
-
-	int index = 0;
-	for (int face = 0; face < 6; face++) {
-		for (int quad = 0; quad < 4; quad++) {
-			for (int k = 0; k < resolution; k++) {
-				for (int j = 0; j < resolution; j++) {
-					const int indexOffset = resolution * resolution * quad * face;
-
-					vector3_t point = {0};
-
-					if (quad == 0) {
-						point.x = map(j, 0, resolution - 1, -0.25, 0.25) - 0.25;
-						point.y = map(k, 0, resolution - 1, -0.25, 0.25) - 0.25;
-					} else if (quad == 1) {
-						point.x = map(j, 0, resolution - 1, -0.25, 0.25) - 0.25;
-						point.y = map(k, 0, resolution - 1, -0.25, 0.25) + 0.25;
-					} else if (quad == 2) {
-						point.x = map(j, 0, resolution - 1, -0.25, 0.25) + 0.25;
-						point.y = map(k, 0, resolution - 1, -0.25, 0.25) - 0.25;
-					} else if (quad == 3) {
-						point.x = map(j, 0, resolution - 1, -0.25, 0.25) + 0.25;
-						point.y = map(k, 0, resolution - 1, -0.25, 0.25) + 0.25;
-					}
-					point.z = 0.5;
-
-					{ // calculate face direction
-						const vector3_t original = point;
-						switch (face) {
-							case FACE_FRONT: {
-												 point.x = original.x;
-												 point.y = original.y;
-												 point.z = original.z;
-											 } break;
-							case FACE_BACK: {
-												point.x = original.x;
-												point.y = -original.y;
-												point.z = -original.z;
-											} break;
-							case FACE_RIGHT: {
-												 point.x = original.z;
-												 point.y = -original.y;
-												 point.z = original.x;
-											 } break;
-							case FACE_LEFT: {
-												point.x = -original.z;
-												point.y = original.y;
-												point.z = original.x;
-											} break;
-							case FACE_UP: {
-											  point.x = original.x;
-											  point.y = original.z;
-											  point.z = -original.y;
-										  } break;
-							case FACE_DOWN: {
-												point.x = -original.x;
-												point.y = -original.z;
-												point.z = -original.y;
-											} break;
-							default:
-											break;
-						}
-					}
-					if (k < resolution - 1 && j < resolution - 1) {
-						const int first = indexOffset + (k * (resolution)) + j;
-						const int second = first + resolution;
-						for (int i = 0; i < 6; i++) {
-							list_uint32_t_add(&indices, 0);
-						}
-						indices.data[index++] = first;
-						indices.data[index++] = second;
-						indices.data[index++] = first + 1;
-
-						indices.data[index++] = second;
-						indices.data[index++] = second + 1;
-						indices.data[index++] = first + 1;
-					}
-
-					const vector3_t pointOnSphere = vector3_normalize(point);
-
-					const float freq = 1, amp = 0.4, noiseOffset = 10,
-						  wave = noise3_fbm(pointOnSphere.x * freq + noiseOffset,
-								  pointOnSphere.y * freq + noiseOffset,
-								  pointOnSphere.z * freq + noiseOffset) *
-							  amp;
-
-					const float tx = map(k, 0, resolution - 1, 0, 1),
-						  ty = map(j, 0, resolution - 1, 0, 1);
-
-					const vertex_t vertex = {
-						.position = vector3_scale(point, radius * 0.5),
-						.normal = pointOnSphere,
-						.texCoord = {tx, ty},
-					};
-					list_vertex_t_add(&vertices, vertex);
-				}
-			}
-		}
-	}
-
-	mesh_t m =
-		mesh_alloc(vertices.data, indices.data, vertices.length, indices.length);
-	list_vertex_t_free(&vertices);
-	list_uint32_t_free(&indices);
-	return m;
-}
-#endif
-
 mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	list_uint32_t indices = list_uint32_t_alloc();
@@ -674,7 +561,7 @@ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
 
 static int* entities;
 static int entity_count = 0;
-enum { ENTITY_NULL, ENTITY_COUNT_MAX = 1024, };
+enum { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };
 
 static int** components;
 enum { 
@@ -687,6 +574,7 @@ enum {
 	COMPONENT_COUNT_MAX,
 	COMPONENT_MATERIAL,
 	COMPONENT_SHADER,
+	COMPONENT_SCRIPT_LUA,
 };
 
 void ECS_alloc(void) {
@@ -769,7 +657,7 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 
 void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	oct_tree_t *tree = oct_tree_alloc();
-	tree->octSize = 5000;
+	tree->octSize = 1000;
 	tree->minimumSize = 10;
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
@@ -779,45 +667,8 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 		assert(k[e].mass > 0);
 		oct_tree_insert(tree, e, t[e].position);
 	}
-#if 1
 	gravity_simulate(tree, k, t);
-#else
-	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!components[e][COMPONENT_KINEMATIC_BODY])
-			continue;
-		assert(components[e][COMPONENT_TRANSFORM]);
 
-		for(int e1 = 1; e1 < ENTITY_COUNT_MAX; e1++) {
-			if (!components[e1][COMPONENT_KINEMATIC_BODY])
-				continue;
-			assert(components[e1][COMPONENT_TRANSFORM]);
-			if (e1 == e)
-				continue;
-
-			float distanceSquared = vector3_square_distance(k[e1].position, k[e].position);
-			if (distanceSquared <= 2) // radius collision
-				continue;
-
-			assert(fabs(distanceSquared) > FLOAT_EPSILON);
-			vector3_t direction = vector3_normalize(vector3_subtract(k[e1].position, k[e].position));
-			vector3_t force = vector3_scale(direction, 0.01 * k[e].mass * k[e1].mass / distanceSquared);
-			k[e].acceleration = vector3_scale(force, 1/k[e].mass);
-
-			float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
-					k[e].position.x, lite_engine_context_current->time_delta);
-			float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
-					k[e].position.y, lite_engine_context_current->time_delta);
-			float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
-					k[e].position.z, lite_engine_context_current->time_delta);
-
-			k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
-			k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
-
-			t[e].position = k[e].position;
-		}
-	}
-#endif
-	
 	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
 	gizmo_draw_oct_tree(tree, gizmo_color);
 	oct_tree_free(tree);
@@ -912,6 +763,7 @@ void mesh_update(
 	glUseProgram(0);
 }
 #endif
+
 //===========================================================================//
 // TEST
 //===========================================================================//
@@ -1037,7 +889,7 @@ void engine_time_update(void) { // update time
 	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
 	lite_engine_context_current->frame_current++;
 
-#if 0 // log time
+#if 1 // log time
 	printf("time_current  %f\n"
 			"time_last     %f\n"
 			"time_delta    %f\n"
@@ -1053,10 +905,9 @@ int main(void) {
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
-	context->window               = NULL;
-	context->window_size_x        = 1280;
-	context->window_size_y        = 720;
-	context->window_position_x    = 0;
+	context->window_size_x        = 1020;
+	context->window_size_y        = 1080;
+	context->window_position_x    = 900;
 	context->window_position_y    = 0;
 	context->window_title         = "Game Window";
 	context->window_fullscreen    = false;
@@ -1068,7 +919,7 @@ int main(void) {
 	context->frame_current        = 0;
 	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
 	context->active_camera        = (camera_t){
-		.transform.position = (vector3_t){0.0, 0.0, -200.0},
+		.transform.position = (vector3_t){0.0, 0.0, -1600.0},
 		.transform.rotation = quaternion_identity(),
 		.transform.scale = vector3_one(1.0),
 		.projection = matrix4_identity(),
@@ -1130,7 +981,11 @@ int main(void) {
 			kinematic_body[rock].position =
 				transform[rock].position;
 			kinematic_body[rock].velocity = vector3_zero();
-			kinematic_body[rock].mass = 10.0;
+
+			if (rock == 1) 
+				kinematic_body[rock].mass = 100.0;
+			else
+				kinematic_body[rock].mass = 10.0;
 		}
 	}
 
@@ -1170,7 +1025,7 @@ int main(void) {
 		engine_time_update();
 		input_update(&mouseLookVector);
 		kinematic_body_update(kinematic_body, transform);
-		//skybox_update(&skybox);
+		// skybox_update(&skybox);
 		mesh_update( mesh, transform, shader, material, point_light);
 		glfwSwapBuffers(lite_engine_context_current->window);
 		glfwPollEvents();
