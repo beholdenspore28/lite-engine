@@ -75,48 +75,48 @@ static void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 
 	switch (type) {
 		case GL_DEBUG_TYPE_ERROR: {
-									  printf("Type: Error");
-								  } break;
+			printf("Type: Error");
+		} break;
 		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: {
-													printf("Type: Deprecated Behaviour");
-												} break;
+			printf("Type: Deprecated Behaviour");
+		} break;
 		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {
-												   printf("Type: Undefined Behaviour");
-											   } break;
+			printf("Type: Undefined Behaviour");
+		} break;
 		case GL_DEBUG_TYPE_PORTABILITY: {
-											printf("Type: Portability");
-										} break;
+			printf("Type: Portability");
+		} break;
 		case GL_DEBUG_TYPE_PERFORMANCE: {
-											printf("Type: Performance");
-										} break;
+			printf("Type: Performance");
+		} break;
 		case GL_DEBUG_TYPE_MARKER: {
-									   printf("Type: Marker");
-								   } break;
+			printf("Type: Marker");
+		} break;
 		case GL_DEBUG_TYPE_PUSH_GROUP: {
-										   printf("Type: Push Group");
-									   } break;
+			printf("Type: Push Group");
+		} break;
 		case GL_DEBUG_TYPE_POP_GROUP: {
-										  printf("Type: Pop Group");
-									  } break;
+			printf("Type: Pop Group");
+		} break;
 		case GL_DEBUG_TYPE_OTHER: {
-									  printf("Type: Other");
-								  } break;
+			printf("Type: Other");
+		} break;
 	}
 	printf("\n");
 
 	switch (severity) {
 		case GL_DEBUG_SEVERITY_HIGH: {
-										 printf("Severity: high");
-									 } break;
+			printf("Severity: high");
+		} break;
 		case GL_DEBUG_SEVERITY_MEDIUM: {
-										   printf("Severity: medium");
-									   } break;
+			printf("Severity: medium");
+		} break;
 		case GL_DEBUG_SEVERITY_LOW: {
-										printf("Severity: low");
-									} break;
+			printf("Severity: low");
+		} break;
 		case GL_DEBUG_SEVERITY_NOTIFICATION: {
-												 printf("Severity: notification");
-											 } break;
+			printf("Severity: notification");
+		} break;
 	}
 	printf("\n\n");
 }
@@ -222,16 +222,16 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 
 
 // set window resolution
-void engine_window_set_resolution(const int x, const int y) {
+void lite_engine_window_set_resolution(const int x, const int y) {
 	glfwSetWindowSize(lite_engine_context_current->window, x, y);
 }
 
 // position window in the center of the screen
-void engine_window_set_position(const int x, const int y) {
+void lite_engine_window_set_position(const int x, const int y) {
 	glfwSetWindowPos(lite_engine_context_current->window, x, y);
 }
 
-void engine_start(void) {
+void lite_engine_start(void) {
 	assert(lite_engine_context_current != NULL);
 	if (!glfwInit()) {
 		printf("[ERROR_GLFW] Failed to initialize GLFW");
@@ -890,7 +890,7 @@ void engine_time_update(void) { // update time
 	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
 	lite_engine_context_current->frame_current++;
 
-#if 0 // log time
+#if 1 // log time
 	printf("time_current  %f\n"
 			"time_last     %f\n"
 			"time_delta    %f\n"
@@ -928,7 +928,7 @@ int main(void) {
 	};
 
 	lite_engine_context_current = context;
-	engine_start();
+	lite_engine_start();
 
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
@@ -960,7 +960,7 @@ int main(void) {
 	ECS_alloc(); 
 
 	// create rocks
-	for (int i = 1; i <= 1000; i++) {
+	for (int i = 1; i <= 5000; i++) {
 		int rock = entity_create();
 
 		component_add(rock, COMPONENT_KINEMATIC_BODY);
@@ -976,10 +976,10 @@ int main(void) {
 		transform[rock] = (transform_t){
 			.position = (vector3_t){
 				(float)noise1(i    ) * 1000 - 500,
-					(float)noise1(i + 1) * 1000 - 500,
-					(float)noise1(i + 2) * 1000 - 500},
-				.rotation = quaternion_identity(),
-				.scale = vector3_one(1.0), };
+				(float)noise1(i + 1) * 1000 - 500,
+				(float)noise1(i + 2) * 1000 - 500},
+			.rotation = quaternion_identity(),
+			.scale = vector3_one(1.0), };
 		kinematic_body[rock].position =
 			transform[rock].position;
 		kinematic_body[rock].velocity = vector3_zero();
