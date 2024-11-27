@@ -19,6 +19,7 @@ oct_tree_t *oct_tree_alloc(void) {
 	tree->capacity       = 10;
 	tree->depth          = 0;
 	tree->points         = list_vector3_t_alloc();
+	tree->data         = list_uint32_t_alloc();
 	tree->isSubdivided   = false;
 	return tree;
 }
@@ -35,6 +36,7 @@ void oct_tree_free(oct_tree_t *tree) {
 		oct_tree_free(tree->backSouthWest);
 	}
 	list_vector3_t_free(&tree->points);
+	list_uint32_t_free(&tree->data);
 	free(tree);
 }
 
@@ -126,31 +128,32 @@ bool oct_tree_contains(oct_tree_t *tree, vector3_t point) {
 		point.z >= tree->position.z - halfOctSize;
 }
 
-bool oct_tree_insert(oct_tree_t *tree, vector3_t point) {
+bool oct_tree_insert(oct_tree_t *tree, uint32_t data, vector3_t point) {
 	if (oct_tree_contains(tree, point) == false)
 		return false;
 	if (tree->points.length < tree->capacity ||
 			tree->octSize < tree->minimumSize) {
 		list_vector3_t_add(&tree->points, point);
+		list_uint32_t_add(&tree->data, data);
 		return true;
 	} else {
 		if (tree->isSubdivided == false)
 			oct_tree_subdivide(tree);
-		if (oct_tree_insert(tree->frontNorthEast, point))
+		if (oct_tree_insert(tree->frontNorthEast, data, point))
 			return true;
-		if (oct_tree_insert(tree->frontNorthWest, point))
+		if (oct_tree_insert(tree->frontNorthWest, data, point))
 			return true;
-		if (oct_tree_insert(tree->frontSouthEast, point))
+		if (oct_tree_insert(tree->frontSouthEast, data, point))
 			return true;
-		if (oct_tree_insert(tree->frontSouthWest, point))
+		if (oct_tree_insert(tree->frontSouthWest, data, point))
 			return true;
-		if (oct_tree_insert(tree->backNorthEast, point))
+		if (oct_tree_insert(tree->backNorthEast, data, point))
 			return true;
-		if (oct_tree_insert(tree->backNorthWest, point))
+		if (oct_tree_insert(tree->backNorthWest, data, point))
 			return true;
-		if (oct_tree_insert(tree->backSouthEast, point))
+		if (oct_tree_insert(tree->backSouthEast, data, point))
 			return true;
-		if (oct_tree_insert(tree->backSouthWest, point))
+		if (oct_tree_insert(tree->backSouthWest, data, point))
 			return true;
 	}
 	return false;

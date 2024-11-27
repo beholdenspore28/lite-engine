@@ -719,38 +719,40 @@ static inline float kinematic_equation(float acceleration, float velocity,
 }
 
 void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
-	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO	// TODO TODO 
-	for(int e = 0; e < tree->points.length; e++) {
-		if (!components[e][COMPONENT_KINEMATIC_BODY])
+	for(size_t e = 0; e < tree->data.length; e++) {
+		if (!components[tree->data.data[e]][COMPONENT_KINEMATIC_BODY])
 			continue;
-		assert(components[e][COMPONENT_TRANSFORM]);
-		for(int e1 = 0; e1 < tree->points.length; e1++) {
-			if (!components[e1][COMPONENT_KINEMATIC_BODY])
+		assert(components[tree->data.data[e]][COMPONENT_TRANSFORM]);
+
+		for(size_t e1 = 0; e1 < tree->data.length; e1++) {
+			if (!components[tree->data.data[e1]][COMPONENT_KINEMATIC_BODY])
 				continue;
-			assert(components[e1][COMPONENT_TRANSFORM]);
-			if (e1 == e)
+			assert(components[tree->data.data[e1]][COMPONENT_TRANSFORM]);
+
+			if (tree->data.data[e1] == tree->data.data[e])
 				continue;
 
-			float distanceSquared = vector3_square_distance(k[e1].position, k[e].position);
-			if (distanceSquared <= 2) // radius collision
+			// vector3_print(tree->points.data[e1], "position");
+			float distanceSquared = vector3_square_distance(tree->points.data[e1], tree->points.data[e]);
+			if (distanceSquared <= 1)
 				continue;
 
 			assert(fabs(distanceSquared) > FLOAT_EPSILON);
-			vector3_t direction = vector3_normalize(vector3_subtract(k[e1].position, k[e].position));
-			vector3_t force = vector3_scale(direction, 0.001 * k[e].mass * k[e1].mass / distanceSquared);
-			k[e].acceleration = vector3_scale(force, 1/k[e].mass);
+			vector3_t direction = vector3_normalize(vector3_subtract(tree->points.data[e1], tree->points.data[e]));
+			vector3_t force = vector3_scale(direction, k[tree->data.data[e]].mass * k[tree->data.data[e1]].mass / distanceSquared);
+			k[tree->data.data[e]].acceleration = vector3_scale(force, 1/k[tree->data.data[e]].mass);
 
-			float newPosX = kinematic_equation(k[e].acceleration.x, k[e].velocity.x,
-					k[e].position.x, lite_engine_context_current->time_delta);
-			float newPosY = kinematic_equation(k[e].acceleration.y, k[e].velocity.y,
-					k[e].position.y, lite_engine_context_current->time_delta);
-			float newPosZ = kinematic_equation(k[e].acceleration.z, k[e].velocity.z,
-					k[e].position.z, lite_engine_context_current->time_delta);
+			float newPosX = kinematic_equation(k[tree->data.data[e]].acceleration.x, k[tree->data.data[e]].velocity.x,
+					k[tree->data.data[e]].position.x, lite_engine_context_current->time_delta);
+			float newPosY = kinematic_equation(k[tree->data.data[e]].acceleration.y, k[tree->data.data[e]].velocity.y,
+					k[tree->data.data[e]].position.y, lite_engine_context_current->time_delta);
+			float newPosZ = kinematic_equation(k[tree->data.data[e]].acceleration.z, k[tree->data.data[e]].velocity.z,
+					k[tree->data.data[e]].position.z, lite_engine_context_current->time_delta);
 
-			k[e].velocity = vector3_add(k[e].velocity, k[e].acceleration);
-			k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
+			k[tree->data.data[e]].velocity = vector3_add(k[tree->data.data[e]].velocity, k[tree->data.data[e]].acceleration);
+			k[tree->data.data[e]].position = (vector3_t) {newPosX, newPosY, newPosZ};
 
-			t[e].position = k[e].position;
+			t[tree->data.data[e]].position = k[tree->data.data[e]].position;
 		}
 	}
 	if (tree->isSubdivided) {
@@ -775,7 +777,7 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 			continue;
 		assert(components[e][COMPONENT_TRANSFORM]);
 		assert(k[e].mass > 0);
-		oct_tree_insert(tree, t[e].position);
+		oct_tree_insert(tree, e, t[e].position);
 	}
 #if 1
 	gravity_simulate(tree, k, t);
@@ -812,7 +814,6 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 			k[e].position = (vector3_t) {newPosX, newPosY, newPosZ};
 
 			t[e].position = k[e].position;
-
 		}
 	}
 #endif
@@ -1129,7 +1130,7 @@ int main(void) {
 			kinematic_body[rock].position =
 				transform[rock].position;
 			kinematic_body[rock].velocity = vector3_zero();
-			kinematic_body[rock].mass = 1000.0;
+			kinematic_body[rock].mass = 10.0;
 		}
 	}
 
