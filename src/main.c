@@ -202,6 +202,7 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 			indexCount, GL_UNSIGNED_INT, 0);
 }
 
+#if 0
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
@@ -221,6 +222,7 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 		gizmo_draw_cube(t, false, color);
 	}
 }
+#endif
 
 
 // set window resolution
@@ -617,6 +619,7 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
+#if 0
 void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 	for(size_t e = 0; e < tree->data.length; e++) {
 		if (!components[tree->data.array[e]][COMPONENT_KINEMATIC_BODY])
@@ -687,7 +690,9 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 		gravity_simulate(tree->backSouthWest, k, t);
 	}
 }
+#endif
 
+#if 0
 void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	oct_tree_t *tree = oct_tree_alloc();
 	tree->octSize = 1000;
@@ -708,6 +713,7 @@ void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	gizmo_draw_oct_tree(tree, gizmo_color);
 	oct_tree_free(tree);
 }
+#endif
 
 //===========================================================================//
 // SECTION MESH
@@ -1085,7 +1091,7 @@ int main(void) {
 		engine_time_update();
 		input_update(&mouseLookVector);
 		mesh_update( mesh, transform, shader, material, point_light);
-		kinematic_body_update(kinematic_body, transform);
+		// kinematic_body_update(kinematic_body, transform);
 		// skybox_update(&skybox);
 		glfwSwapBuffers(lite_engine_context_current->window);
 		glfwPollEvents();
