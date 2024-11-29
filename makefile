@@ -16,9 +16,15 @@ OPT_ := ${OPT_DEBUG}
 OPT := ${OPT_${MODE}}
 CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
 
-LIBS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
+LIBS := -lglfw -lGL -lm
+LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 
 default: build_lite_engine
+
+build_lite_engine_macos:	build_dir \
+										build_glad
+	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS_MACOS} ${CFLAGS} -o ${OUT}
+	time ./${OUT}
 
 build_lite_engine:	build_dir \
 										build_glad
