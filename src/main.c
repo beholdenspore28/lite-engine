@@ -202,7 +202,7 @@ void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 			indexCount, GL_UNSIGNED_INT, 0);
 }
 
-#if 0
+#if 1
 void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
@@ -219,7 +219,7 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 		gizmo_draw_oct_tree(tree->backSouthEast, color);
 		gizmo_draw_oct_tree(tree->backSouthWest, color);
 	}else {
-		gizmo_draw_cube(t, false, color);
+		gizmo_draw_cube(t, true, color);
 	}
 }
 #endif
@@ -619,64 +619,64 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-#if 0
+#if 1
 void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
-	for(size_t e = 0; e < tree->data.length; e++) {
-		if (!components[tree->data.array[e]][COMPONENT_KINEMATIC_BODY])
+	for(size_t entry = 0; entry < tree->entries.length; entry++) {
+		if (!components[tree->entries.array[entry].ID][COMPONENT_KINEMATIC_BODY])
 			continue;
-		assert(components[tree->data.array[e]][COMPONENT_TRANSFORM]);
+		assert(components[tree->entries.array[entry].ID][COMPONENT_TRANSFORM]);
 
-		k[tree->data.array[e]].acceleration = vector3_zero();
+		k[tree->entries.array[entry].ID].acceleration = vector3_zero();
 
-		for(size_t e1 = 0; e1 < tree->data.length; e1++) {
-			if (!components[tree->data.array[e1]][COMPONENT_KINEMATIC_BODY])
+		for(size_t other = 0; other < tree->entries.length; other++) {
+			if (!components[tree->entries.array[other].ID][COMPONENT_KINEMATIC_BODY])
 				continue;
-			assert(components[tree->data.array[e1]][COMPONENT_TRANSFORM]);
+			assert(components[tree->entries.array[other].ID][COMPONENT_TRANSFORM]);
 
-			if (tree->data.array[e1] == tree->data.array[e])
+			if (other == entry)
 				continue;
 
-			// vector3_print(tree->points.array[e1], "position");
 			float distanceSquared = vector3_square_distance(
-					tree->points.array[e1], tree->points.array[e]);
+					k[tree->entries.array[other].ID].position, 
+					k[tree->entries.array[entry].ID].position);
 			if (distanceSquared <= 1)
 				continue;
 
 			assert(fabs(distanceSquared) > FLOAT_EPSILON);
 			vector3_t direction = vector3_normalize(
 					vector3_subtract(
-						tree->points.array[e1], 
-						tree->points.array[e]));
+						k[tree->entries.array[other].ID].position, 
+						k[tree->entries.array[entry].ID].position));
 			vector3_t force = vector3_scale(direction, 
-					k[tree->data.array[e]].mass * 
-					k[tree->data.array[e1]].mass / 
+					k[tree->entries.array[entry].ID].mass * 
+					k[tree->entries.array[other].ID].mass / 
 					distanceSquared);
-			k[tree->data.array[e]].acceleration = vector3_add(k[tree->data.array[e]].acceleration, vector3_scale(
-					force, 1/k[tree->data.array[e]].mass));
+			k[tree->entries.array[entry].ID].acceleration = vector3_add(k[tree->entries.array[entry].ID].acceleration, vector3_scale(
+					force, 1/k[tree->entries.array[entry].ID].mass));
 
 			float newPosX = kinematic_equation(
-					k[tree->data.array[e]].acceleration.x, 
-					k[tree->data.array[e]].velocity.x,
-					k[tree->data.array[e]].position.x, 
+					k[tree->entries.array[entry].ID].acceleration.x, 
+					k[tree->entries.array[entry].ID].velocity.x,
+					k[tree->entries.array[entry].ID].position.x, 
 					lite_engine_context_current->time_delta);
 			float newPosY = kinematic_equation(
-					k[tree->data.array[e]].acceleration.y, 
-					k[tree->data.array[e]].velocity.y,
-					k[tree->data.array[e]].position.y, 
+					k[tree->entries.array[entry].ID].acceleration.y, 
+					k[tree->entries.array[entry].ID].velocity.y,
+					k[tree->entries.array[entry].ID].position.y, 
 					lite_engine_context_current->time_delta);
 			float newPosZ = kinematic_equation(
-					k[tree->data.array[e]].acceleration.z, 
-					k[tree->data.array[e]].velocity.z,
-					k[tree->data.array[e]].position.z, 
+					k[tree->entries.array[entry].ID].acceleration.z, 
+					k[tree->entries.array[entry].ID].velocity.z,
+					k[tree->entries.array[entry].ID].position.z, 
 					lite_engine_context_current->time_delta);
 
-			k[tree->data.array[e]].velocity = vector3_add(
-					k[tree->data.array[e]].velocity, 
-					k[tree->data.array[e]].acceleration);
-			k[tree->data.array[e]].position = (vector3_t) {
+			k[tree->entries.array[entry].ID].velocity = vector3_add(
+					k[tree->entries.array[entry].ID].velocity, 
+					k[tree->entries.array[entry].ID].acceleration);
+			k[tree->entries.array[entry].ID].position = (vector3_t) {
 				newPosX, newPosY, newPosZ };
 
-			t[tree->data.array[e]].position = k[tree->data.array[e]].position;
+			t[tree->entries.array[entry].ID].position = k[tree->entries.array[entry].ID].position;
 		}
 	}
 	if (tree->isSubdivided) {
@@ -692,24 +692,27 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 }
 #endif
 
-#if 0
+#if 1
 void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	oct_tree_t *tree = oct_tree_alloc();
 	tree->octSize = 1000;
 	tree->minimumSize = 10;
-
+ 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (!components[e][COMPONENT_KINEMATIC_BODY])
 			continue;
 		assert(components[e][COMPONENT_TRANSFORM]);
 		assert(k[e].mass > 0);
-		oct_tree_insert(tree, e, t[e].position);
-	if (!oct_tree_contains(tree, k[e].position))
-		components[e][COMPONENT_MESH] = 0;
+		oct_tree_entry_t entry = (oct_tree_entry_t) {
+			.position = k[e].position,
+			.ID = e, };
+		oct_tree_insert(tree, entry);
+		if (!oct_tree_contains(tree, k[e].position))
+			components[e][COMPONENT_MESH] = 0;
 	}
 	gravity_simulate(tree, k, t);
 
-	const vector4_t gizmo_color = { 0.5, 0.5, 0.5, 0.1 };
+	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
 	gizmo_draw_oct_tree(tree, gizmo_color);
 	oct_tree_free(tree);
 }
@@ -952,7 +955,7 @@ void engine_time_update(void) { // update time
 	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
 	lite_engine_context_current->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
 	printf("time_current   %f\n"
 			"time_last     %f\n"
 			"time_delta    %f\n"
@@ -971,9 +974,9 @@ int main(void) {
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
-	context->window_size_x        = 1020;
-	context->window_size_y        = 1080;
-	context->window_position_x    = 900;
+	context->window_size_x        = 854;
+	context->window_size_y        = 480;
+	context->window_position_x    = 0;
 	context->window_position_y    = 0;
 	context->window_title         = "Game Window";
 	context->window_fullscreen    = false;
@@ -1044,15 +1047,11 @@ int main(void) {
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
 			.rotation = quaternion_identity(),
-			.scale = vector3_one(1.0), };
+			.scale = vector3_one(2.0), };
 		kinematic_body[rock].position =
 			transform[rock].position;
 		kinematic_body[rock].velocity = vector3_zero();
-
-		if (rock == 1) 
-			kinematic_body[rock].mass = 100.0;
-		else
-			kinematic_body[rock].mass = 10.0;
+		kinematic_body[rock].mass = 10.0;
 	}
 
 #if 1 // create skybox
@@ -1091,7 +1090,7 @@ int main(void) {
 		engine_time_update();
 		input_update(&mouseLookVector);
 		mesh_update( mesh, transform, shader, material, point_light);
-		// kinematic_body_update(kinematic_body, transform);
+		kinematic_body_update(kinematic_body, transform);
 		// skybox_update(&skybox);
 		glfwSwapBuffers(lite_engine_context_current->window);
 		glfwPollEvents();

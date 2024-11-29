@@ -1,5 +1,7 @@
 #include "oct_tree.h"
 
+DEFINE_LIST(oct_tree_entry_t)
+
 oct_tree_t *oct_tree_alloc(void) {
 	oct_tree_t *tree = malloc(sizeof(oct_tree_t));
 	tree->parent         = NULL;
@@ -18,8 +20,7 @@ oct_tree_t *oct_tree_alloc(void) {
 	tree->minimumSize    = 1;
 	tree->capacity       = 10;
 	tree->depth          = 0;
-	tree->points         = list_vector3_t_alloc();
-	tree->data         = list_uint32_t_alloc();
+	tree->entries        = list_oct_tree_entry_t_alloc();
 	tree->isSubdivided   = false;
 	return tree;
 }
@@ -35,8 +36,7 @@ void oct_tree_free(oct_tree_t *tree) {
 		oct_tree_free(tree->backSouthEast);
 		oct_tree_free(tree->backSouthWest);
 	}
-	list_vector3_t_free(&tree->points);
-	list_uint32_t_free(&tree->data);
+	list_oct_tree_entry_t_free(&tree->entries);
 	free(tree);
 }
 
@@ -120,7 +120,8 @@ void oct_tree_subdivide(oct_tree_t *tree) {
 
 bool oct_tree_contains(oct_tree_t *tree, vector3_t point) {
 	float halfOctSize = tree->octSize * 0.5;
-	return point.x <= tree->position.x + halfOctSize &&
+	return 
+		point.x <= tree->position.x + halfOctSize &&
 		point.x >= tree->position.x - halfOctSize &&
 		point.y <= tree->position.y + halfOctSize &&
 		point.y >= tree->position.y - halfOctSize &&
@@ -128,32 +129,31 @@ bool oct_tree_contains(oct_tree_t *tree, vector3_t point) {
 		point.z >= tree->position.z - halfOctSize;
 }
 
-bool oct_tree_insert(oct_tree_t *tree, uint32_t data, vector3_t point) {
-	if (oct_tree_contains(tree, point) == false)
+bool oct_tree_insert(oct_tree_t *tree, oct_tree_entry_t entry) {
+	if (oct_tree_contains(tree, entry.position) == false)
 		return false;
-	if (tree->points.length < tree->capacity ||
+	if (tree->entries.length < tree->capacity ||
 			tree->octSize < tree->minimumSize) {
-		list_vector3_t_add(&tree->points, point);
-		list_uint32_t_add(&tree->data, data);
+		list_oct_tree_entry_t_add(&tree->entries, entry);
 		return true;
 	} else {
 		if (tree->isSubdivided == false)
 			oct_tree_subdivide(tree);
-		if (oct_tree_insert(tree->frontNorthEast, data, point))
+		if (oct_tree_insert(tree->frontNorthEast, entry))
 			return true;
-		if (oct_tree_insert(tree->frontNorthWest, data, point))
+		if (oct_tree_insert(tree->frontNorthWest, entry))
 			return true;
-		if (oct_tree_insert(tree->frontSouthEast, data, point))
+		if (oct_tree_insert(tree->frontSouthEast, entry))
 			return true;
-		if (oct_tree_insert(tree->frontSouthWest, data, point))
+		if (oct_tree_insert(tree->frontSouthWest, entry))
 			return true;
-		if (oct_tree_insert(tree->backNorthEast, data, point))
+		if (oct_tree_insert(tree->backNorthEast, entry))
 			return true;
-		if (oct_tree_insert(tree->backNorthWest, data, point))
+		if (oct_tree_insert(tree->backNorthWest, entry))
 			return true;
-		if (oct_tree_insert(tree->backSouthEast, data, point))
+		if (oct_tree_insert(tree->backSouthEast, entry))
 			return true;
-		if (oct_tree_insert(tree->backSouthWest, data, point))
+		if (oct_tree_insert(tree->backSouthWest, entry))
 			return true;
 	}
 	return false;
