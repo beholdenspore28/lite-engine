@@ -16,7 +16,7 @@ OPT_ := ${OPT_DEBUG}
 OPT := ${OPT_${MODE}}
 CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
 
-LIBS := -lglfw -lGL -lm 
+LIBS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 
 default: build_lite_engine
 
