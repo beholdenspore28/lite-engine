@@ -634,8 +634,6 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 			if (other == entry)
 				continue;
 
-			vector3_print(k[tree->entries.array[entry].ID].position, "pos");
-
 			float distanceSquared = vector3_square_distance(
 					k[tree->entries.array[other].ID].position, 
 					k[tree->entries.array[entry].ID].position);
