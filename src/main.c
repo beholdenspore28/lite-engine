@@ -625,9 +625,7 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 		if (!components[tree->entries.array[entry].ID][COMPONENT_KINEMATIC_BODY])
 			continue;
 		assert(components[tree->entries.array[entry].ID][COMPONENT_TRANSFORM]);
-
 		k[tree->entries.array[entry].ID].acceleration = vector3_zero();
-
 		for(size_t other = 0; other < tree->entries.length; other++) {
 			if (!components[tree->entries.array[other].ID][COMPONENT_KINEMATIC_BODY])
 				continue;
@@ -636,46 +634,50 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 			if (other == entry)
 				continue;
 
+			vector3_print(k[tree->entries.array[entry].ID].position, "pos");
+
 			float distanceSquared = vector3_square_distance(
 					k[tree->entries.array[other].ID].position, 
 					k[tree->entries.array[entry].ID].position);
-			if (distanceSquared <= 1)
-				continue;
 
-			assert(fabs(distanceSquared) > FLOAT_EPSILON);
 			vector3_t direction = vector3_normalize(
 					vector3_subtract(
 						k[tree->entries.array[other].ID].position, 
 						k[tree->entries.array[entry].ID].position));
+
 			vector3_t force = vector3_scale(direction, 
 					k[tree->entries.array[entry].ID].mass * 
 					k[tree->entries.array[other].ID].mass / 
 					distanceSquared);
-			k[tree->entries.array[entry].ID].acceleration = vector3_add(k[tree->entries.array[entry].ID].acceleration, vector3_scale(
+
+			k[tree->entries.array[entry].ID].acceleration = vector3_add(
+					k[tree->entries.array[entry].ID].acceleration, vector3_scale(
 					force, 1/k[tree->entries.array[entry].ID].mass));
+
+			k[tree->entries.array[entry].ID].velocity = vector3_add(
+					k[tree->entries.array[entry].ID].velocity, 
+					k[tree->entries.array[entry].ID].acceleration);
 
 			float newPosX = kinematic_equation(
 					k[tree->entries.array[entry].ID].acceleration.x, 
 					k[tree->entries.array[entry].ID].velocity.x,
 					k[tree->entries.array[entry].ID].position.x, 
 					lite_engine_context_current->time_delta);
+
 			float newPosY = kinematic_equation(
 					k[tree->entries.array[entry].ID].acceleration.y, 
 					k[tree->entries.array[entry].ID].velocity.y,
 					k[tree->entries.array[entry].ID].position.y, 
 					lite_engine_context_current->time_delta);
+
 			float newPosZ = kinematic_equation(
 					k[tree->entries.array[entry].ID].acceleration.z, 
 					k[tree->entries.array[entry].ID].velocity.z,
 					k[tree->entries.array[entry].ID].position.z, 
 					lite_engine_context_current->time_delta);
 
-			k[tree->entries.array[entry].ID].velocity = vector3_add(
-					k[tree->entries.array[entry].ID].velocity, 
-					k[tree->entries.array[entry].ID].acceleration);
 			k[tree->entries.array[entry].ID].position = (vector3_t) {
 				newPosX, newPosY, newPosZ };
-
 			t[tree->entries.array[entry].ID].position = k[tree->entries.array[entry].ID].position;
 		}
 	}
