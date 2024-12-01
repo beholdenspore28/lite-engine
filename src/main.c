@@ -131,6 +131,7 @@ typedef struct {
 	char       *window_title;
 	bool        window_fullscreen;
 	bool        window_always_on_top;
+	bool        cursor_pinned;
 	float       time_current;
 	float       time_last;
 	float       time_delta;
@@ -272,6 +273,13 @@ void lite_engine_start(void) {
 	glfwSetWindowPos(lite_engine_context_current->window, 
 			lite_engine_context_current->window_position_x,
 			lite_engine_context_current->window_position_y);
+
+	if (lite_engine_context_current->cursor_pinned) {
+		glfwSetCursorPos(lite_engine_context_current->window,
+			lite_engine_context_current->window_size_x / 2,
+			lite_engine_context_current->window_size_y / 2);
+	}
+
 	glfwShowWindow(lite_engine_context_current->window);
 	glfwMakeContextCurrent(lite_engine_context_current->window);
 	glfwSetKeyCallback(lite_engine_context_current->window, key_callback);
@@ -981,6 +989,7 @@ int main(void) {
 	context->window_title         = "Game Window";
 	context->window_fullscreen    = false;
 	context->window_always_on_top = false;
+	context->cursor_pinned        = true;
 	context->time_current         = 0.0f;
 	context->time_last            = 0.0f;
 	context->time_delta           = 0.0f;
