@@ -1,6 +1,7 @@
 #include "gl.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -14,6 +15,21 @@ B_LIST_IMPLEMENTATION
 DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
+
+int println(const char *format, ...) {
+	va_list arg;
+	int done;
+
+	size_t format_len = strlen(format);
+	char new_format[format_len + 2];
+
+	snprintf(new_format, sizeof(new_format), "%s\n", format);
+
+	va_start(arg, format);
+	done = vfprintf(stdout, new_format, arg);
+	va_end(arg);
+	return done;
+}
 
 static void error_callback(const int error, const char *description) {
 	(void)error;
@@ -48,8 +64,8 @@ static void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		return;
 	}
 
-	printf("---------------\n");
-	printf("Debug message (%d) %s\n", id, message);
+	println("---------------");
+	println("Debug message (%d) %s", id, message);
 
 	switch (source) {
 		case GL_DEBUG_SOURCE_API:
@@ -970,7 +986,7 @@ void engine_time_update(void) { // update time
 }
 
 int main(void) {
-	printf("Rev up those fryers!\n");
+	println("Rev up those fryers!");
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
