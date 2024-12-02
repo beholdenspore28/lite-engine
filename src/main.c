@@ -695,7 +695,7 @@ void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
 #if 1
 void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
 	oct_tree_t *tree = oct_tree_alloc();
-	tree->octSize = 1000;
+	tree->octSize = 5000;
 	tree->minimumSize = 10;
  
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
@@ -1028,7 +1028,7 @@ int main(void) {
 	ECS_alloc(); 
 
 	// create rocks
-	for (int i = 1; i <= 200; i++) {
+	for (int i = 1; i <= 2000; i++) {
 		int rock = entity_create();
 
 		component_add(rock, COMPONENT_KINEMATIC_BODY);
