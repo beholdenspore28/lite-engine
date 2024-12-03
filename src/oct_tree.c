@@ -18,7 +18,7 @@ oct_tree_t *oct_tree_alloc(void) {
 	tree->position.z     = 0;
 	tree->octSize        = 1000;
 	tree->minimumSize    = 1;
-	tree->capacity       = 10;
+	tree->capacity       = 100;
 	tree->depth          = 0;
 	tree->entries        = list_oct_tree_entry_t_alloc();
 	tree->isSubdivided   = false;

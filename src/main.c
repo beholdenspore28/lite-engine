@@ -611,6 +611,37 @@ int component_add(int entity, int component) {
 }
 
 //===========================================================================//
+// SECTION GRAVITY SECTOR
+//===========================================================================//
+
+typedef struct {
+	float mass;
+	vector3_t position;
+} gravity_sector_t;
+DECLARE_LIST(gravity_sector_t)
+DEFINE_LIST(gravity_sector_t)
+
+void gravity_sector_add_sectors(oct_tree_t* tree, list_gravity_sector_t* sectors, kinematic_body_t* kbodies) {
+	gravity_sector_t sector = (gravity_sector_t) {0};
+	for(size_t i = 0; i < tree->entries.length; i++) {
+		sector.mass += kbodies[tree->entries.array[i].ID].mass;
+		sector.position = tree->position;
+	}
+	list_gravity_sector_t_add(sectors, sector);
+
+	if (tree->isSubdivided) {
+		gravity_sector_add_sectors(tree->frontNorthEast, sectors, kbodies);
+		gravity_sector_add_sectors(tree->frontNorthWest, sectors, kbodies);
+		gravity_sector_add_sectors(tree->frontSouthEast, sectors, kbodies);
+		gravity_sector_add_sectors(tree->frontSouthWest, sectors, kbodies);
+		gravity_sector_add_sectors(tree->backNorthEast,  sectors, kbodies);
+		gravity_sector_add_sectors(tree->backNorthWest,  sectors, kbodies);
+		gravity_sector_add_sectors(tree->backSouthEast,  sectors, kbodies);
+		gravity_sector_add_sectors(tree->backSouthWest,  sectors, kbodies);
+	}
+}
+
+//===========================================================================//
 // SECTION KINEMATIC BODY
 //===========================================================================//
 
@@ -619,101 +650,100 @@ static inline float kinematic_equation(float acceleration, float velocity,
 	return 0.5f * acceleration * time * time + velocity * time + position;
 }
 
-#if 1
-void gravity_simulate(oct_tree_t* tree, kinematic_body_t* k, transform_t* t) {
-	for(size_t entry = 0; entry < tree->entries.length; entry++) {
-		if (!components[tree->entries.array[entry].ID][COMPONENT_KINEMATIC_BODY])
+void gravity_simulate(oct_tree_t* tree, list_gravity_sector_t* sectors, kinematic_body_t* kbodies, transform_t* transforms) {
+	for(size_t i = 0; i < tree->entries.length; i++) {
+		if (!components[tree->entries.array[i].ID][COMPONENT_KINEMATIC_BODY])
 			continue;
-		assert(components[tree->entries.array[entry].ID][COMPONENT_TRANSFORM]);
-		k[tree->entries.array[entry].ID].acceleration = vector3_zero();
-		for(size_t other = 0; other < tree->entries.length; other++) {
-			if (!components[tree->entries.array[other].ID][COMPONENT_KINEMATIC_BODY])
-				continue;
-			assert(components[tree->entries.array[other].ID][COMPONENT_TRANSFORM]);
-
-			if (other == entry)
-				continue;
-
+		assert(components[tree->entries.array[i].ID][COMPONENT_TRANSFORM]);
+		kbodies[tree->entries.array[i].ID].acceleration = vector3_zero();
+		for(size_t j = 0; j < sectors->length; j++) {
 			float distanceSquared = vector3_square_distance(
-					k[tree->entries.array[other].ID].position, 
-					k[tree->entries.array[entry].ID].position);
+				sectors->array[j].position, 
+				kbodies[tree->entries.array[i].ID].position);
+
+			if (distanceSquared < 1000.0)
+				continue;
 
 			vector3_t direction = vector3_normalize(
 					vector3_subtract(
-						k[tree->entries.array[other].ID].position, 
-						k[tree->entries.array[entry].ID].position));
+						sectors->array[j].position, 
+						kbodies[tree->entries.array[i].ID].position));
 
 			vector3_t force = vector3_scale(direction, 
-					k[tree->entries.array[entry].ID].mass * 
-					k[tree->entries.array[other].ID].mass / 
+					kbodies[tree->entries.array[i].ID].mass * 
+					sectors->array[j].mass / 
 					distanceSquared);
 
-			k[tree->entries.array[entry].ID].acceleration = vector3_add(
-					k[tree->entries.array[entry].ID].acceleration, vector3_scale(
-					force, 1/k[tree->entries.array[entry].ID].mass));
+			kbodies[tree->entries.array[i].ID].acceleration = vector3_add(
+					kbodies[tree->entries.array[i].ID].acceleration, vector3_scale(
+					force, 1/kbodies[tree->entries.array[i].ID].mass));
 
-			k[tree->entries.array[entry].ID].velocity = vector3_add(
-					k[tree->entries.array[entry].ID].velocity, 
-					k[tree->entries.array[entry].ID].acceleration);
+			kbodies[tree->entries.array[i].ID].velocity = vector3_add(
+					kbodies[tree->entries.array[i].ID].velocity, 
+					kbodies[tree->entries.array[i].ID].acceleration);
 
 			float newPosX = kinematic_equation(
-					k[tree->entries.array[entry].ID].acceleration.x, 
-					k[tree->entries.array[entry].ID].velocity.x,
-					k[tree->entries.array[entry].ID].position.x, 
+					kbodies[tree->entries.array[i].ID].acceleration.x, 
+					kbodies[tree->entries.array[i].ID].velocity.x,
+					kbodies[tree->entries.array[i].ID].position.x, 
 					lite_engine_context_current->time_delta);
 
 			float newPosY = kinematic_equation(
-					k[tree->entries.array[entry].ID].acceleration.y, 
-					k[tree->entries.array[entry].ID].velocity.y,
-					k[tree->entries.array[entry].ID].position.y, 
+					kbodies[tree->entries.array[i].ID].acceleration.y, 
+					kbodies[tree->entries.array[i].ID].velocity.y,
+					kbodies[tree->entries.array[i].ID].position.y, 
 					lite_engine_context_current->time_delta);
 
 			float newPosZ = kinematic_equation(
-					k[tree->entries.array[entry].ID].acceleration.z, 
-					k[tree->entries.array[entry].ID].velocity.z,
-					k[tree->entries.array[entry].ID].position.z, 
+					kbodies[tree->entries.array[i].ID].acceleration.z, 
+					kbodies[tree->entries.array[i].ID].velocity.z,
+					kbodies[tree->entries.array[i].ID].position.z, 
 					lite_engine_context_current->time_delta);
 
-			k[tree->entries.array[entry].ID].position = (vector3_t) {
+			kbodies[tree->entries.array[i].ID].position = (vector3_t) {
 				newPosX, newPosY, newPosZ };
-			t[tree->entries.array[entry].ID].position = k[tree->entries.array[entry].ID].position;
+			transforms[tree->entries.array[i].ID].position = kbodies[tree->entries.array[i].ID].position;
 		}
 	}
+
 	if (tree->isSubdivided) {
-		gravity_simulate(tree->frontNorthEast, k, t);
-		gravity_simulate(tree->frontNorthWest, k, t);
-		gravity_simulate(tree->frontSouthEast, k, t);
-		gravity_simulate(tree->frontSouthWest, k, t);
-		gravity_simulate(tree->backNorthEast, k, t);
-		gravity_simulate(tree->backNorthWest, k, t);
-		gravity_simulate(tree->backSouthEast, k, t);
-		gravity_simulate(tree->backSouthWest, k, t);
+		gravity_simulate(tree->frontNorthEast, sectors, kbodies, transforms);
+		gravity_simulate(tree->frontNorthWest, sectors, kbodies, transforms);
+		gravity_simulate(tree->frontSouthEast, sectors, kbodies, transforms);
+		gravity_simulate(tree->frontSouthWest, sectors, kbodies, transforms);
+		gravity_simulate(tree->backNorthEast,  sectors, kbodies, transforms);
+		gravity_simulate(tree->backNorthWest,  sectors, kbodies, transforms);
+		gravity_simulate(tree->backSouthEast,  sectors, kbodies, transforms);
+		gravity_simulate(tree->backSouthWest,  sectors, kbodies, transforms);
 	}
 }
-#endif
 
 #if 1
-void kinematic_body_update(kinematic_body_t* k, transform_t* t) {
+void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
 	oct_tree_t *tree = oct_tree_alloc();
-	tree->octSize = 5000;
+	tree->octSize = 10000;
 	tree->minimumSize = 10;
  
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (!components[e][COMPONENT_KINEMATIC_BODY])
 			continue;
 		assert(components[e][COMPONENT_TRANSFORM]);
-		assert(k[e].mass > 0);
+		assert(kbodies[e].mass > 0);
 		oct_tree_entry_t entry = (oct_tree_entry_t) {
-			.position = k[e].position,
+			.position = kbodies[e].position,
 			.ID = e, };
 		oct_tree_insert(tree, entry);
-		if (!oct_tree_contains(tree, k[e].position))
+		if (!oct_tree_contains(tree, kbodies[e].position))
 			components[e][COMPONENT_MESH] = 0;
 	}
-	gravity_simulate(tree, k, t);
 
+	list_gravity_sector_t sectors = list_gravity_sector_t_alloc();
+	gravity_sector_add_sectors(tree, &sectors, kbodies);
+	gravity_simulate(tree, &sectors, kbodies, transforms);
 	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
 	gizmo_draw_oct_tree(tree, gizmo_color);
+	// printf("sectors.length = %d\n", sectors.length);
+	list_gravity_sector_t_free(&sectors);
 	oct_tree_free(tree);
 }
 #endif
@@ -1028,7 +1058,7 @@ int main(void) {
 	ECS_alloc(); 
 
 	// create rocks
-	for (int i = 1; i <= 2000; i++) {
+	for (int i = 1; i <= 1000; i++) {
 		int rock = entity_create();
 
 		component_add(rock, COMPONENT_KINEMATIC_BODY);
@@ -1047,11 +1077,11 @@ int main(void) {
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
 			.rotation = quaternion_identity(),
-			.scale = vector3_one(2.0), };
+			.scale = vector3_one(5.0), };
 		kinematic_body[rock].position =
 			transform[rock].position;
 		kinematic_body[rock].velocity = vector3_zero();
-		kinematic_body[rock].mass = 10.0;
+		kinematic_body[rock].mass = 1.0;
 	}
 
 #if 1 // create skybox
