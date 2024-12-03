@@ -1045,9 +1045,9 @@ int main(void) {
 		"res/shaders/unlit.fs.glsl");
 
 	// create textures
-	//~ GLuint testDiffuseMap = texture_create("res/textures/test.png");
+	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 	//~ GLuint testSpecularMap = texture_create("res/textures/test.png");
-	GLuint rockDiffuseMap = texture_create("res/textures/test.png");
+	//~ GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -1061,29 +1061,29 @@ int main(void) {
 
 	// create rocks
 	for (int i = 1; i <= 1000; i++) {
-		int rock = entity_create();
+		int cube = entity_create();
 
-		component_add(rock, COMPONENT_KINEMATIC_BODY);
-		component_add(rock, COMPONENT_TRANSFORM);
-		component_add(rock, COMPONENT_MESH);
-		component_add(rock, COMPONENT_MATERIAL);
-		component_add(rock, COMPONENT_SHADER);
+		component_add(cube, COMPONENT_KINEMATIC_BODY);
+		component_add(cube, COMPONENT_TRANSFORM);
+		component_add(cube, COMPONENT_MESH);
+		component_add(cube, COMPONENT_MATERIAL);
+		component_add(cube, COMPONENT_SHADER);
 
-		mesh[rock] = mesh_alloc_cube();
-		shader[rock] = unlitShader;
-		material[rock] = (material_t){
-			.diffuseMap = rockDiffuseMap, };
-		transform[rock] = (transform_t){
+		mesh[cube] = mesh_alloc_cube();
+		shader[cube] = unlitShader;
+		material[cube] = (material_t){
+			.diffuseMap = testDiffuseMap, };
+		transform[cube] = (transform_t){
 			.position = (vector3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(5.0), };
-		kinematic_body[rock].position =
-			transform[rock].position;
-		kinematic_body[rock].velocity = vector3_zero();
-		kinematic_body[rock].mass = 1.0;
+		kinematic_body[cube].position =
+			transform[cube].position;
+		kinematic_body[cube].velocity = vector3_zero();
+		kinematic_body[cube].mass = 1.0;
 	}
 
 	skybox_t skybox = (skybox_t) {
