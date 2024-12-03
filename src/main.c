@@ -635,9 +635,16 @@ int component_add(int entity, int component) {
 // SECTION KINEMATIC BODY
 //===========================================================================//
 
-static inline float kinematic_equation(float acceleration, float velocity,
-		float position, float time) {
-	return 0.5f * acceleration * time * time + velocity * time + position;
+static inline vector3_t 
+kinematic_equation(
+		vector3_t acceleration, 
+		vector3_t velocity,
+		vector3_t position, 
+		float time) {
+	float x = 0.5f * acceleration.x * time * time + velocity.x * time + position.x;
+	float y = 0.5f * acceleration.y * time * time + velocity.y * time + position.y;
+	float z = 0.5f * acceleration.z * time * time + velocity.z * time + position.z;
+	return (vector3_t){x, y, z};
 }
 
 //~ void gravity_simulate(oct_tree_t* tree, list_gravity_sector_t* sectors, kinematic_body_t* kbodies, transform_t* transforms) {
@@ -720,34 +727,14 @@ void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			kbodies[e].acceleration = vector3_add(
-					kbodies[e].acceleration, vector3_scale(
-					vector3_left(0.01), 1/kbodies[e].mass));
+			kbodies[e].acceleration = vector3_scale(vector3_left(0.01), 1/kbodies[e].mass);
+			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
-			kbodies[e].velocity = vector3_add(
-					kbodies[e].velocity, 
-					kbodies[e].acceleration);
-	
-			float newPosX = kinematic_equation(
-					kbodies[e].acceleration.x, 
-					kbodies[e].velocity.x,
-					kbodies[e].position.x, 
-					lite_engine_context_current->time_delta);
-	
-			float newPosY = kinematic_equation(
-					kbodies[e].acceleration.y, 
-					kbodies[e].velocity.y,
-					kbodies[e].position.y, 
-					lite_engine_context_current->time_delta);
-	
-			float newPosZ = kinematic_equation(
-					kbodies[e].acceleration.z, 
-					kbodies[e].velocity.z,
-					kbodies[e].position.z, 
-					lite_engine_context_current->time_delta);
-	
-			kbodies[e].position = (vector3_t) {
-				newPosX, newPosY, newPosZ };
+			kbodies[e].position = kinematic_equation(
+				kbodies[e].acceleration,
+				kbodies[e].velocity,
+				kbodies[e].position,
+				lite_engine_context_current->time_delta);
 			transforms[e].position = kbodies[e].position;
 		}
 		
@@ -1060,7 +1047,7 @@ int main(void) {
 	// create textures
 	//~ GLuint testDiffuseMap = texture_create("res/textures/test.png");
 	//~ GLuint testSpecularMap = texture_create("res/textures/test.png");
-	GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
+	GLuint rockDiffuseMap = texture_create("res/textures/test.png");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
