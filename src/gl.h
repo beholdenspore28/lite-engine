@@ -68,12 +68,6 @@ vector3_t transform_basis_down(transform_t t, float magnitude);
 vector3_t transform_basis_left(transform_t t, float magnitude);
 
 typedef struct {
-	transform_t transform;
-	material_t material;
-	mesh_t mesh;
-} quad_t;
-
-typedef struct {
   transform_t transform;
 matrix4_t projection;
   float lookSensitivity;
