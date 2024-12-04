@@ -1,4 +1,4 @@
-#version 460 core
+#version 410 core
 
 int LIGHT_POINT = 0;
 int LIGHT_SPOT = 1;
