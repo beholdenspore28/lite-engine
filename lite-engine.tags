@@ -9,8 +9,10 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	//
-acceleration	./src/main.c	214;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
+acceleration	./src/main.c	163;"	member	struct:kinematic_body	typeref:typename:vector3_t	file:
+active_camera	./src/main.c	140;"	member	struct:lite_engine_context	typeref:typename:camera_t	file:
 all_a	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
+ambient_light	./src/main.c	139;"	member	struct:lite_engine_context	typeref:typename:vector3_t	file:
 angleDelta	./dep/blib/bmath.h	98;"	function	typeref:typename:float	signature:(const float a,const float b)
 APIENTRY	./dep/glad/glad.h	650;"	macro
 APIENTRY	./dep/glad/glad.h	654;"	macro
@@ -18,6 +20,10 @@ APIENTRYP	./dep/glad/glad.h	657;"	macro
 app14_color_transform	./dep/stb_image.h	1990;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 aproxequal	./dep/blib/bmath.h	78;"	function	typeref:typename:int	signature:(float a,float b,float tolerance)
 background	./dep/stb_image.h	6561;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc *
+backNorthEast	./src/oct_tree.h	25;"	member	struct:oct_tree	typeref:struct:oct_tree *
+backNorthWest	./src/oct_tree.h	26;"	member	struct:oct_tree	typeref:struct:oct_tree *
+backSouthEast	./src/oct_tree.h	27;"	member	struct:oct_tree	typeref:struct:oct_tree *
+backSouthWest	./src/oct_tree.h	28;"	member	struct:oct_tree	typeref:struct:oct_tree *
 bgindex	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 bits_per_channel	./dep/stb_image.h	902;"	member	struct:__anon901ef9eb0508	typeref:typename:int
 bpp	./dep/stb_image.h	5414;"	member	struct:__anon901ef9eb1008	typeref:typename:int
@@ -31,8 +37,8 @@ B_FILE_BUFFER_GROWTH	./dep/blib/file.h	34;"	macro
 B_LIST_IMPLEMENTATION	./dep/blib/blib.h	129;"	macro
 C	./makefile	9;"	macro
 callback_already_read	./dep/stb_image.h	815;"	member	struct:__anon901ef9eb0308	typeref:typename:int
-camera_t	./src/gl.h	81;"	typedef	typeref:struct:__anona5e9e4220708
-capacity	./src/main.c	144;"	member	struct:quad_tree	typeref:typename:uint32_t	file:
+camera_t	./src/gl.h	82;"	typedef	typeref:struct:__anona5e9e4220708
+capacity	./src/oct_tree.h	16;"	member	struct:oct_tree	typeref:typename:uint32_t
 channel	./dep/stb_image.h	6361;"	member	struct:__anon901ef9eb1108	typeref:typename:stbi_uc
 channel_order	./dep/stb_image.h	904;"	member	struct:__anon901ef9eb0508	typeref:typename:int
 clamp	./dep/blib/bmath.h	55;"	function	typeref:typename:float	signature:(float n,const float min,const float max)
@@ -48,10 +54,19 @@ coeff	./dep/stb_image.h	1974;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0
 coeff_h	./dep/stb_image.h	1975;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 coeff_w	./dep/stb_image.h	1975;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 color_table	./dep/stb_image.h	6567;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc *
-component_registry	./src/main.c	225;"	typedef	typeref:struct:__anond54bd50f0408	file:
-component_registry_alloc	./src/main.c	227;"	function	typeref:typename:component_registry *	signature:(void)
-component_registry_free	./src/main.c	238;"	function	typeref:typename:void	signature:(component_registry * r)
-constant	./src/main.c	201;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
+components	./src/main.c	570;"	variable	typeref:typename:int **	file:
+component_add	./src/main.c	598;"	function	typeref:typename:int	signature:(int entity,int component)
+COMPONENT_COLLIDER	./src/main.c	574;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_COUNT_MAX	./src/main.c	578;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_KINEMATIC_BODY	./src/main.c	573;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_MATERIAL	./src/main.c	579;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_MESH	./src/main.c	577;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_NULL	./src/main.c	572;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_POINT_LIGHT	./src/main.c	576;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_SHADER	./src/main.c	580;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_TRANSFORM	./src/main.c	575;"	enumerator	enum:COMPONENT_TYPE	file:
+COMPONENT_TYPE	./src/main.c	571;"	enum	file:
+constant	./src/main.c	153;"	member	struct:pointLight	typeref:typename:float	file:
 const_void_ptr	./dep/blib/blib.h	42;"	typedef	typeref:typename:const void *
 cosInterpolate	./dep/blib/bmath.h	82;"	function	typeref:typename:float	signature:(float a,float b,float t)
 cur_x	./dep/stb_image.h	6572;"	member	struct:__anon901ef9eb1308	typeref:typename:int
@@ -80,58 +95,45 @@ dct_widen	./dep/stb_image.h	2735;"	macro	signature:(out,inq)
 dct_wsub	./dep/stb_image.h	2559;"	macro	signature:(out,a,b)
 dct_wsub	./dep/stb_image.h	2745;"	macro	signature:(out,a,b)
 dc_pred	./dep/stb_image.h	1968;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
-DEBUG_LOG_TIME	./src/main.c	17;"	macro	file:
 DECLARE_LIST	./dep/blib/blib.h	45;"	macro	signature:(type)
 DECLARE_LIST	./dep/blib/math3d.h	67;"	function	signature:(quaternion_t)
 DECLARE_LIST	./src/gl.h	13;"	prototype	typeref:typename:GLint	signature:(GLuint)
-DECLARE_LIST	./src/gl.h	58;"	prototype	signature:(transform_t)
+DECLARE_LIST	./src/gl.h	59;"	prototype	signature:(transform_t)
 DECLARE_LIST_ALIAS	./dep/blib/blib.h	91;"	macro	signature:(baseType,targetType)
 default	./makefile	21;"	target
 DEFINE_LIST	./dep/blib/blib.h	56;"	macro	signature:(type)
-DEFINE_LIST	./src/gl.c	112;"	function	signature:(transform_t)
-DEFINE_LIST	./src/gl.c	156;"	function	signature:(mesh_t)
+DEFINE_LIST	./src/gl.c	117;"	function	signature:(transform_t)
+DEFINE_LIST	./src/gl.c	160;"	function	signature:(mesh_t)
 DEFINE_LIST	./src/gl.c	6;"	function	typeref:typename:GLint	file:	signature:(GLuint)
-DEFINE_LIST	./src/main.c	13;"	function	typeref:typename:B_LIST_IMPLEMENTATION	file:	signature:(vector3_t)
+DEFINE_LIST	./src/main.c	14;"	function	typeref:typename:B_LIST_IMPLEMENTATION	file:	signature:(vector3_t)
+DEFINE_LIST	./src/oct_tree.c	3;"	function	signature:(oct_tree_entry_t)
 DEFINE_LIST_ALIAS	./dep/blib/blib.h	98;"	macro	signature:(baseType,targetType)
 DEFINE_LIST_TYPES	./dep/blib/blib.h	88;"	macro
 deg2rad	./dep/blib/bmath.h	45;"	function	typeref:typename:float	signature:(const float n)
 delay	./dep/stb_image.h	6574;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 delta	./dep/stb_image.h	1945;"	member	struct:__anon901ef9eb0708	typeref:typename:int[17]
 depth	./dep/stb_image.h	4633;"	member	struct:__anon901ef9eb0e08	typeref:typename:int
+depth	./src/oct_tree.h	19;"	member	struct:oct_tree	typeref:typename:int
 dequant	./dep/stb_image.h	1953;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__uint16[4][64]
-diffuse	./src/main.c	204;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
-diffuseMap	./src/gl.h	48;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
-EBO	./src/gl.h	40;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+diffuse	./src/main.c	156;"	member	struct:pointLight	typeref:typename:vector3_t	file:
+diffuseMap	./src/gl.h	49;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+EBO	./src/gl.h	41;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+ECS_alloc	./src/main.c	583;"	function	typeref:typename:void	signature:(void)
 eflags	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 elements	./dep/blib/math3d.h	57;"	member	struct:__anonb2ddaee90408	typeref:typename:float[16]
-enabled	./src/gl.h	37;"	member	struct:__anona5e9e4220308	typeref:typename:bool
-enabled	./src/main.c	211;"	member	struct:__anond54bd50f0308	typeref:typename:bool	file:
-engine_active_camera	./src/main.c	139;"	variable	typeref:typename:camera_t	file:
-engine_ambient_light	./src/main.c	138;"	variable	typeref:typename:vector3_t	file:
-engine_frame_current	./src/main.c	136;"	variable	typeref:typename:uint64_t	file:
-ENGINE_RENDERER_API_GL	./src/gl.h	25;"	enumerator	enum:__anona5e9e4220103
-ENGINE_RENDERER_API_NONE	./src/gl.h	26;"	enumerator	enum:__anona5e9e4220103
-engine_renderer_API_t	./src/gl.h	27;"	typedef	typeref:enum:__anona5e9e4220103
-engine_renderer_FPS	./src/main.c	137;"	variable	typeref:typename:float	file:
-engine_set_clear_color	./src/main.c	345;"	function	typeref:typename:void	signature:(const float r,const float g,const float b,const float a)
-engine_start	./src/main.c	277;"	function	typeref:typename:void	signature:(void)
-engine_time_current	./src/main.c	133;"	variable	typeref:typename:float	file:
-engine_time_delta	./src/main.c	135;"	variable	typeref:typename:float	file:
-engine_time_last	./src/main.c	134;"	variable	typeref:typename:float	file:
-engine_window	./src/main.c	125;"	variable	typeref:typename:GLFWwindow *	file:
-engine_window_always_on_top	./src/main.c	132;"	variable	typeref:typename:bool	file:
-engine_window_fullscreen	./src/main.c	130;"	variable	typeref:typename:bool	file:
-engine_window_position_x	./src/main.c	128;"	variable	typeref:typename:int	file:
-engine_window_position_y	./src/main.c	129;"	variable	typeref:typename:int	file:
-engine_window_set_position	./src/main.c	272;"	function	typeref:typename:void	signature:(const int x,const int y)
-engine_window_set_resolution	./src/main.c	267;"	function	typeref:typename:void	signature:(const int x,const int y)
-engine_window_size_x	./src/main.c	126;"	variable	typeref:typename:int	file:
-engine_window_size_y	./src/main.c	127;"	variable	typeref:typename:int	file:
-engine_window_title	./src/main.c	131;"	variable	typeref:typename:char *	file:
-EntityId	./src/main.c	190;"	typedef	typeref:typename:uint32_t	file:
-entity_count	./src/main.c	191;"	variable	typeref:typename:EntityId	file:
-ENTITY_NULL	./src/main.c	192;"	enumerator	enum:__anond54bd50f0103	file:
-entity_register	./src/main.c	194;"	function	typeref:typename:EntityId	signature:(void)
+enabled	./src/gl.h	38;"	member	struct:__anona5e9e4220308	typeref:typename:bool
+ENGINE_RENDERER_API_GL	./src/gl.h	26;"	enumerator	enum:__anona5e9e4220103
+ENGINE_RENDERER_API_NONE	./src/gl.h	27;"	enumerator	enum:__anona5e9e4220103
+engine_renderer_API_t	./src/gl.h	28;"	typedef	typeref:enum:__anona5e9e4220103
+engine_set_clear_color	./src/main.c	307;"	function	typeref:typename:void	signature:(const float r,const float g,const float b,const float a)
+engine_time_update	./src/main.c	985;"	function	typeref:typename:void	signature:(void)
+entities	./src/main.c	566;"	variable	typeref:typename:int *	file:
+entity_count	./src/main.c	567;"	variable	typeref:typename:int	file:
+ENTITY_COUNT_MAX	./src/main.c	568;"	enumerator	enum:ENTITY_ENUM	file:
+entity_create	./src/main.c	591;"	function	typeref:typename:int	signature:(void)
+ENTITY_ENUM	./src/main.c	568;"	enum	file:
+ENTITY_NULL	./src/main.c	568;"	enumerator	enum:ENTITY_ENUM	file:
+entries	./src/oct_tree.h	17;"	member	struct:oct_tree	typeref:typename:list_oct_tree_entry_t
 eob_run	./dep/stb_image.h	1988;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 eof	./dep/stb_image.h	414;"	member	struct:__anon901ef9eb0208	typeref:typename:int (*)(void * user)
 error	./dep/blib/file.h	43;"	member	struct:__anon085c9f080108	typeref:typename:bool:1
@@ -139,18 +141,6 @@ expanded	./dep/stb_image.h	4632;"	member	struct:__anon901ef9eb0e08	typeref:typen
 extra_read	./dep/stb_image.h	5416;"	member	struct:__anon901ef9eb1008	typeref:typename:int
 exts	./dep/glad.c	786;"	variable	typeref:typename:const char *	file:
 exts_i	./dep/glad.c	788;"	variable	typeref:typename:char **	file:
-FACE_BACK	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_BACK	./src/main.c	652;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
-FACE_DOWN	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_DOWN	./src/main.c	656;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
-FACE_FRONT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_FRONT	./src/main.c	651;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
-FACE_LEFT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_LEFT	./src/main.c	654;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
-FACE_RIGHT	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_RIGHT	./src/main.c	653;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
-FACE_UP	./src/main.c	511;"	enumerator	enum:mesh_alloc_planet::__anond54bd50f0503	file:
-FACE_UP	./src/main.c	655;"	enumerator	enum:mesh_alloc_cube_sphere::__anond54bd50f0603	file:
 false	./dep/blib/blib.h	39;"	macro
 fast	./dep/stb_image.h	1939;"	member	struct:__anon901ef9eb0708	typeref:typename:stbi_uc[]
 fast	./dep/stb_image.h	4098;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi__uint16[]
@@ -168,11 +158,20 @@ first_row_filter	./dep/stb_image.h	4647;"	variable	typeref:typename:stbi_uc[5]
 flags	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 FLOAT_EPSILON	./dep/blib/bmath.h	36;"	macro
 fraction	./dep/blib/bmath.h	106;"	function	typeref:typename:float	signature:(float x)
-framebuffer_size_callback	./src/main.c	34;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int width,const int height)
+framebuffer_size_callback	./src/main.c	33;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int width,const int height)
+frame_current	./src/main.c	138;"	member	struct:lite_engine_context	typeref:typename:uint64_t	file:
 free_exts	./dep/glad.c	824;"	function	typeref:typename:void	file:	signature:(void)
+frontNorthEast	./src/oct_tree.h	21;"	member	struct:oct_tree	typeref:struct:oct_tree *
+frontNorthWest	./src/oct_tree.h	22;"	member	struct:oct_tree	typeref:struct:oct_tree *
+frontSouthEast	./src/oct_tree.h	23;"	member	struct:oct_tree	typeref:struct:oct_tree *
+frontSouthWest	./src/oct_tree.h	24;"	member	struct:oct_tree	typeref:struct:oct_tree *
 get_exts	./dep/glad.c	790;"	function	typeref:typename:int	file:	signature:(void)
 get_proc	./dep/glad.c	645;"	prototype	typeref:typename:void *	file:	signature:(const char * namez)
 get_proc	./dep/glad.c	746;"	function	typeref:typename:void *	file:	signature:(const char * namez)
+gizmo_draw_cube	./src/main.c	172;"	function	typeref:typename:void	signature:(transform_t transform,bool wireframe,vector4_t color)
+gizmo_draw_oct_tree	./src/main.c	201;"	function	typeref:typename:void	signature:(oct_tree_t * tree,vector4_t color)
+gizmo_mesh_cube	./src/main.c	170;"	variable	typeref:typename:mesh_t
+gizmo_shader	./src/main.c	169;"	variable	typeref:typename:GLuint
 glAccum	./dep/glad/glad.h	3287;"	macro
 glAccumxOES	./dep/glad/glad.h	16428;"	macro
 glAcquireKeyedMutexWin32EXT	./dep/glad/glad.h	13852;"	macro
@@ -7894,7 +7893,7 @@ glDebugMessageInsert	./dep/glad/glad.h	5339;"	macro
 glDebugMessageInsertAMD	./dep/glad/glad.h	9058;"	macro
 glDebugMessageInsertARB	./dep/glad/glad.h	9728;"	macro
 glDebugMessageInsertKHR	./dep/glad/glad.h	14096;"	macro
-glDebugOutput	./src/main.c	40;"	function	typeref:typename:void APIENTRY	file:	signature:(const GLenum source,const GLenum type,const unsigned int id,const GLenum severity,const GLsizei length,const char * message,const void * userParam)
+glDebugOutput	./src/main.c	39;"	function	typeref:typename:void APIENTRY	file:	signature:(const GLenum source,const GLenum type,const unsigned int id,const GLenum severity,const GLsizei length,const char * message,const void * userParam)
 GLDEBUGPROC	./dep/glad/glad.h	747;"	typedef	typeref:typename:void (APIENTRY *)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar * message,const void * userParam)
 GLDEBUGPROCAMD	./dep/glad/glad.h	750;"	typedef	typeref:typename:void (APIENTRY *)(GLuint id,GLenum category,GLenum severity,GLsizei length,const GLchar * message,void * userParam)
 GLDEBUGPROCARB	./dep/glad/glad.h	748;"	typedef	typeref:typename:void (APIENTRY *)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar * message,const void * userParam)
@@ -16231,6 +16230,7 @@ hsz	./dep/stb_image.h	5414;"	member	struct:__anon901ef9eb1008	typeref:typename:i
 huff_ac	./dep/stb_image.h	1952;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__huffman[4]
 huff_dc	./dep/stb_image.h	1951;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__huffman[4]
 id	./dep/stb_image.h	1964;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
+ID	./src/oct_tree.h	8;"	member	struct:__anoncc0801040108	typeref:typename:int
 idata	./dep/stb_image.h	4632;"	member	struct:__anon901ef9eb0e08	typeref:typename:stbi_uc *
 idct_block_kernel	./dep/stb_image.h	1997;"	member	struct:__anon901ef9eb0808	typeref:typename:void (*)(stbi_uc * out,int out_stride,short data[64])
 img_buffer	./dep/stb_image.h	817;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi_uc *
@@ -16249,13 +16249,14 @@ img_v_max	./dep/stb_image.h	1957;"	member	struct:__anon901ef9eb0808	typeref:type
 img_x	./dep/stb_image.h	806;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi__uint32
 img_y	./dep/stb_image.h	806;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi__uint32
 INCDIR	./makefile	7;"	macro
-indexCount	./src/gl.h	42;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+indexCount	./src/gl.h	43;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+input_update	./src/main.c	916;"	function	typeref:typename:void	signature:(vector3_t * mouseLookVector)
 io	./dep/stb_image.h	809;"	member	struct:__anon901ef9eb0308	typeref:typename:stbi_io_callbacks
 io_user_data	./dep/stb_image.h	810;"	member	struct:__anon901ef9eb0308	typeref:typename:void *
-isSubdivided	./src/main.c	146;"	member	struct:quad_tree	typeref:typename:bool	file:
+isSubdivided	./src/oct_tree.h	18;"	member	struct:oct_tree	typeref:typename:bool
 IS_UWP	./dep/glad.c	670;"	macro	file:
 jfif	./dep/stb_image.h	1989;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-key_callback	./src/main.c	24;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int key,const int scancode,const int action,const int mods)
+key_callback	./src/main.c	23;"	function	typeref:typename:void	file:	signature:(GLFWwindow * window,const int key,const int scancode,const int action,const int mods)
 KHRONOS_APIATTRIBUTES	./dep/KHR/khrplatform.h	135;"	macro
 KHRONOS_APIATTRIBUTES	./dep/KHR/khrplatform.h	137;"	macro
 KHRONOS_APICALL	./dep/KHR/khrplatform.h	105;"	macro
@@ -16325,12 +16326,12 @@ KHRONOS_USE_INTPTR_T	./dep/KHR/khrplatform.h	167;"	macro
 khronos_usize_t	./dep/KHR/khrplatform.h	265;"	typedef	typeref:typename:unsigned long long int
 khronos_usize_t	./dep/KHR/khrplatform.h	268;"	typedef	typeref:typename:unsigned long int
 khronos_utime_nanoseconds_t	./dep/KHR/khrplatform.h	288;"	typedef	typeref:typename:khronos_uint64_t
-kinematic_body	./src/main.c	224;"	member	struct:__anond54bd50f0408	typeref:typename:kinematic_body_t *	file:
-kinematic_body_t	./src/main.c	216;"	typedef	typeref:struct:__anond54bd50f0308	file:
-kinematic_body_update	./src/main.c	253;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
-kinematic_equation	./src/main.c	248;"	function	typeref:typename:float	file:	signature:(float acceleration,float velocity,float position,float time)
-lastX	./src/gl.h	79;"	member	struct:__anona5e9e4220708	typeref:typename:float
-lastY	./src/gl.h	80;"	member	struct:__anona5e9e4220708	typeref:typename:float
+kinematic_body	./src/main.c	160;"	struct	file:
+kinematic_body_t	./src/main.c	165;"	typedef	typeref:struct:kinematic_body	file:
+kinematic_body_update	./src/main.c	718;"	function	typeref:typename:void	signature:(kinematic_body_t * kbodies,transform_t * transforms)
+kinematic_equation	./src/main.c	639;"	function	typeref:typename:vector3_t	file:	signature:(vector3_t acceleration,vector3_t velocity,vector3_t position,float time)
+lastX	./src/gl.h	80;"	member	struct:__anona5e9e4220708	typeref:typename:float
+lastY	./src/gl.h	81;"	member	struct:__anona5e9e4220708	typeref:typename:float
 len	./dep/blib/file.h	41;"	member	struct:__anon085c9f080108	typeref:typename:size_t
 length	./dep/stb_image.h	4608;"	member	struct:__anon901ef9eb0d08	typeref:typename:stbi__uint32
 lerp	./dep/blib/bmath.h	65;"	function	typeref:typename:float	signature:(float a,float b,float t)
@@ -16339,13 +16340,19 @@ lflags	./dep/stb_image.h	6569;"	member	struct:__anon901ef9eb1308	typeref:typenam
 libGL	./dep/glad.c	652;"	variable	typeref:typename:HMODULE	file:
 libGL	./dep/glad.c	698;"	variable	typeref:typename:void *	file:
 LIBS	./makefile	19;"	macro
-light	./src/main.c	208;"	variable	typeref:typename:EntityId
+light	./src/main.c	167;"	variable	typeref:typename:int
 line0	./dep/stb_image.h	3850;"	member	struct:__anon901ef9eb0a08	typeref:typename:stbi_uc *
 line1	./dep/stb_image.h	3850;"	member	struct:__anon901ef9eb0a08	typeref:typename:stbi_uc *
-linear	./src/main.c	202;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
+linear	./src/main.c	154;"	member	struct:pointLight	typeref:typename:float	file:
 linebuf	./dep/stb_image.h	1973;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:stbi_uc *
 line_size	./dep/stb_image.h	6573;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 Lite-Engine is under development and should not be used for production projects yet.	./README.md	1;"	chapter
+lite_engine_context	./src/main.c	125;"	struct	file:
+lite_engine_context_current	./src/main.c	143;"	variable	typeref:typename:lite_engine_context_t *	file:
+lite_engine_context_t	./src/main.c	141;"	typedef	typeref:struct:lite_engine_context	file:
+lite_engine_start	./src/main.c	231;"	function	typeref:typename:void	signature:(void)
+lite_engine_window_set_position	./src/main.c	227;"	function	typeref:typename:void	signature:(const int x,const int y)
+lite_engine_window_set_resolution	./src/main.c	222;"	function	typeref:typename:void	signature:(const int x,const int y)
 load_GL_3DFX_tbuffer	./dep/glad.c	5629;"	function	typeref:typename:void	file:	signature:(GLADloadproc load)
 load_GL_AMD_debug_output	./dep/glad.c	5633;"	function	typeref:typename:void	file:	signature:(GLADloadproc load)
 load_GL_AMD_draw_buffers_blend	./dep/glad.c	5640;"	function	typeref:typename:void	file:	signature:(GLADloadproc load)
@@ -16675,19 +16682,19 @@ load_GL_VERSION_4_5	./dep/glad.c	5497;"	function	typeref:typename:void	file:	sig
 load_GL_VERSION_4_6	./dep/glad.c	5622;"	function	typeref:typename:void	file:	signature:(GLADloadproc load)
 load_jpeg_image	./dep/stb_image.h	3864;"	function	typeref:typename:stbi_uc *	signature:(stbi__jpeg * z,int * out_x,int * out_y,int * comp,int req_comp)
 long_double	./dep/blib/blib.h	43;"	typedef	typeref:typename:const void *
-lookSensitivity	./src/gl.h	78;"	member	struct:__anona5e9e4220708	typeref:typename:float
+lookSensitivity	./src/gl.h	79;"	member	struct:__anona5e9e4220708	typeref:typename:float
 loop	./dep/blib/bmath.h	89;"	function	typeref:typename:float	signature:(float n,const float length)
 lpal	./dep/stb_image.h	6565;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc[256][4]
 ma	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
-main	./src/main.c	767;"	function	typeref:typename:int	signature:(void)
+main	./src/main.c	1007;"	function	typeref:typename:int	signature:(void)
 major	./dep/glad/glad.h	669;"	member	struct:gladGLversionStruct	typeref:typename:int
 map	./dep/blib/bmath.h	73;"	function	typeref:typename:float	signature:(float n,float fromMin,float fromMax,float toMin,float toMax)
 marker	./dep/stb_image.h	1980;"	member	struct:__anon901ef9eb0808	typeref:typename:unsigned char
-mass	./src/main.c	212;"	member	struct:__anond54bd50f0308	typeref:typename:float	file:
-material	./src/gl.h	71;"	member	struct:__anona5e9e4220608	typeref:typename:material_t
-material	./src/main.c	222;"	member	struct:__anond54bd50f0408	typeref:typename:material_t *	file:
-material_t	./src/gl.h	50;"	typedef	typeref:struct:__anona5e9e4220408
-matrix	./src/gl.h	53;"	member	struct:__anona5e9e4220508	typeref:typename:matrix4_t
+mass	./src/main.c	161;"	member	struct:kinematic_body	typeref:typename:float	file:
+material	./src/gl.h	72;"	member	struct:__anona5e9e4220608	typeref:typename:material_t
+material	./src/main.c	148;"	member	struct:skybox	typeref:typename:material_t	file:
+material_t	./src/gl.h	51;"	typedef	typeref:struct:__anona5e9e4220408
+matrix	./src/gl.h	54;"	member	struct:__anona5e9e4220508	typeref:typename:matrix4_t
 matrix4_identity	./dep/blib/math3d.h	523;"	function	typeref:typename:matrix4_t	signature:(void)
 matrix4_lookAt	./dep/blib/math3d.h	536;"	function	typeref:typename:matrix4_t	signature:(vector3_t eye,vector3_t center,vector3_t up)
 matrix4_multiply	./dep/blib/math3d.h	635;"	function	typeref:typename:matrix4_t	signature:(const matrix4_t a,const matrix4_t b)
@@ -16701,33 +16708,30 @@ matrix4_t	./dep/blib/math3d.h	58;"	typedef	typeref:struct:__anonb2ddaee90408
 matrix4_translate	./dep/blib/math3d.h	692;"	function	typeref:typename:matrix4_t	signature:(vector3_t v)
 maxcode	./dep/stb_image.h	1944;"	member	struct:__anon901ef9eb0708	typeref:typename:unsigned int[18]
 maxcode	./dep/stb_image.h	4100;"	member	struct:__anon901ef9eb0b08	typeref:typename:int[17]
-MAX_ENTITIES	./src/main.c	192;"	enumerator	enum:__anond54bd50f0103	file:
 max_loaded_major	./dep/glad.c	783;"	variable	typeref:typename:int	file:
 max_loaded_minor	./dep/glad.c	784;"	variable	typeref:typename:int	file:
 max_x	./dep/stb_image.h	6571;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 max_y	./dep/stb_image.h	6571;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 mb	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
-mesh	./src/gl.h	72;"	member	struct:__anona5e9e4220608	typeref:typename:mesh_t
-mesh	./src/main.c	219;"	member	struct:__anond54bd50f0408	typeref:typename:mesh_t *	file:
-mesh_alloc	./src/gl.h	134;"	prototype	typeref:typename:mesh_t	signature:(vertex_t * vertices,GLuint * indices,GLuint numVertices,GLuint numIndices)
-mesh_alloc_cube	./src/gl.c	208;"	function	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_cube	./src/gl.h	136;"	prototype	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_cube_sphere	./src/main.c	621;"	function	typeref:typename:mesh_t	signature:(const int subdivisions,const float radius)
-mesh_alloc_planet	./src/main.c	507;"	function	typeref:typename:mesh_t	signature:(const int resolution,const float radius)
-mesh_alloc_quad	./src/gl.c	204;"	function	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_quad	./src/gl.h	137;"	prototype	typeref:typename:mesh_t	signature:(void)
-mesh_alloc_sphere	./src/main.c	716;"	function	typeref:typename:mesh_t	signature:(const int latCount,const int lonCount,const float radius)
-mesh_cube_indices	./src/gl.h	129;"	variable	typeref:typename:GLuint[]
-MESH_CUBE_NUM_INDICES	./src/gl.h	86;"	macro
-MESH_CUBE_NUM_VERTICES	./src/gl.h	85;"	macro
-mesh_cube_vertices	./src/gl.h	101;"	variable	typeref:typename:vertex_t[]
-mesh_draw	./src/main.c	349;"	function	typeref:typename:void	signature:(component_registry * r,EntityId e)
-mesh_quad_indices	./src/gl.h	96;"	variable	typeref:typename:unsigned int[]
-MESH_QUAD_NUM_INDICES	./src/gl.h	84;"	macro
-MESH_QUAD_NUM_VERTICES	./src/gl.h	83;"	macro
-mesh_quad_vertices	./src/gl.h	88;"	variable	typeref:typename:vertex_t[]
-mesh_t	./src/gl.h	43;"	typedef	typeref:struct:__anona5e9e4220308
+mesh	./src/gl.h	73;"	member	struct:__anona5e9e4220608	typeref:typename:mesh_t
+mesh	./src/main.c	146;"	member	struct:skybox	typeref:typename:mesh_t	file:
+mesh_alloc	./src/gl.h	135;"	prototype	typeref:typename:mesh_t	signature:(vertex_t * vertices,GLuint * indices,GLuint numVertices,GLuint numIndices)
+mesh_alloc_cube	./src/gl.c	212;"	function	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_cube	./src/gl.h	137;"	prototype	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_quad	./src/gl.c	208;"	function	typeref:typename:mesh_t	signature:(void)
+mesh_alloc_quad	./src/gl.h	138;"	prototype	typeref:typename:mesh_t	signature:(void)
+mesh_cube_indices	./src/gl.h	130;"	variable	typeref:typename:GLuint[]
+MESH_CUBE_NUM_INDICES	./src/gl.h	87;"	macro
+MESH_CUBE_NUM_VERTICES	./src/gl.h	86;"	macro
+mesh_cube_vertices	./src/gl.h	102;"	variable	typeref:typename:vertex_t[]
+mesh_quad_indices	./src/gl.h	97;"	variable	typeref:typename:unsigned int[]
+MESH_QUAD_NUM_INDICES	./src/gl.h	85;"	macro
+MESH_QUAD_NUM_VERTICES	./src/gl.h	84;"	macro
+mesh_quad_vertices	./src/gl.h	89;"	variable	typeref:typename:vertex_t[]
+mesh_t	./src/gl.h	44;"	typedef	typeref:struct:__anona5e9e4220308
+mesh_update	./src/main.c	766;"	function	typeref:typename:void	signature:(mesh_t * meshes,transform_t * transforms,GLuint * shaders,material_t * material,pointLight_t * point_lights)
 mg	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
+minimumSize	./src/oct_tree.h	15;"	member	struct:oct_tree	typeref:typename:float
 minor	./dep/glad/glad.h	670;"	member	struct:gladGLversionStruct	typeref:typename:int
 mr	./dep/stb_image.h	5415;"	member	struct:__anon901ef9eb1008	typeref:typename:unsigned int
 MultiByteToWideChar	./dep/stb_image.h	1325;"	prototype	typeref:typename:STBI_EXTERN (dllimport)int __stdcall	signature:(unsigned int cp,unsigned long flags,const char * str,int cbmb,wchar_t * widestr,int cchwide)
@@ -16739,13 +16743,24 @@ noise3_fbm_warped	./dep/blib/bmath.h	183;"	function	typeref:typename:float	signa
 noise3_interpolated	./dep/blib/bmath.h	129;"	function	typeref:typename:float	signature:(float x,float y,float z)
 nomore	./dep/stb_image.h	1981;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 norm	./dep/blib/bmath.h	71;"	function	typeref:typename:float	signature:(float n,float min,float max)
-normal	./src/gl.h	32;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
-northEast	./src/main.c	147;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
-northWest	./src/main.c	148;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
+normal	./src/gl.h	33;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
 num_bits	./dep/stb_image.h	4179;"	member	struct:__anon901ef9eb0c08	typeref:typename:int
 num_channels	./dep/stb_image.h	903;"	member	struct:__anon901ef9eb0508	typeref:typename:int
 num_exts_i	./dep/glad.c	787;"	variable	typeref:typename:int	file:
 OBJFILES	./makefile	4;"	macro
+octSize	./src/oct_tree.h	14;"	member	struct:oct_tree	typeref:typename:float
+oct_tree	./src/oct_tree.h	12;"	struct
+oct_tree_alloc	./src/oct_tree.h	31;"	prototype	typeref:typename:oct_tree_t *	signature:(void)
+oct_tree_contains	./src/oct_tree.c	121;"	function	typeref:typename:bool	signature:(oct_tree_t * tree,vector3_t point)
+oct_tree_contains	./src/oct_tree.h	34;"	prototype	typeref:typename:bool	signature:(oct_tree_t * tree,vector3_t point)
+oct_tree_entry_t	./src/oct_tree.h	9;"	typedef	typeref:struct:__anoncc0801040108
+oct_tree_free	./src/oct_tree.c	28;"	function	typeref:typename:void	signature:(oct_tree_t * tree)
+oct_tree_free	./src/oct_tree.h	32;"	prototype	typeref:typename:void	signature:(oct_tree_t * tree)
+oct_tree_insert	./src/oct_tree.c	132;"	function	typeref:typename:bool	signature:(oct_tree_t * tree,oct_tree_entry_t entry)
+oct_tree_insert	./src/oct_tree.h	35;"	prototype	typeref:typename:bool	signature:(oct_tree_t * tree,oct_tree_entry_t entry)
+oct_tree_subdivide	./src/oct_tree.c	43;"	function	typeref:typename:void	signature:(oct_tree_t * tree)
+oct_tree_subdivide	./src/oct_tree.h	33;"	prototype	typeref:typename:void	signature:(oct_tree_t * tree)
+oct_tree_t	./src/oct_tree.h	29;"	typedef	typeref:struct:oct_tree
 offset	./dep/stb_image.h	5414;"	member	struct:__anon901ef9eb1008	typeref:typename:int
 open_gl	./dep/glad.c	675;"	function	typeref:typename:int	file:	signature:(void)
 open_gl	./dep/glad.c	706;"	function	typeref:typename:int	file:	signature:(void)
@@ -16759,6 +16774,7 @@ out	./dep/stb_image.h	4632;"	member	struct:__anon901ef9eb0e08	typeref:typename:s
 out	./dep/stb_image.h	6560;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc *
 OUT	./makefile	10;"	macro
 pal	./dep/stb_image.h	6564;"	member	struct:__anon901ef9eb1308	typeref:typename:stbi_uc[256][4]
+parent	./src/oct_tree.h	20;"	member	struct:oct_tree	typeref:struct:oct_tree *
 parse	./dep/stb_image.h	6568;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 PFNGLACCUMPROC	./dep/glad/glad.h	3285;"	typedef	typeref:typename:void (APIENTRYP)(GLenum op,GLfloat value)
 PFNGLACCUMXOESPROC	./dep/glad/glad.h	16426;"	typedef	typeref:typename:void (APIENTRYP)(GLenum op,GLfixed value)
@@ -19769,28 +19785,21 @@ PFNGLXGETPROCADDRESSPROC_PRIVATE	./dep/glad.c	701;"	typedef	typeref:typename:voi
 PFNWGLGETPROCADDRESSPROC_PRIVATE	./dep/glad.c	654;"	typedef	typeref:typename:void * (APIENTRYP)(const char *)	file:
 PI	./dep/blib/bmath.h	37;"	macro
 pingpong	./dep/blib/bmath.h	93;"	function	typeref:typename:float	signature:(float n,const float length)
-pointlight	./src/main.c	223;"	member	struct:__anond54bd50f0408	typeref:typename:pointLight_t *	file:
-pointLight_t	./src/main.c	206;"	typedef	typeref:struct:__anond54bd50f0208	file:
-points	./src/main.c	145;"	member	struct:quad_tree	typeref:typename:list_vector3_t	file:
-position	./src/gl.h	30;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
-position	./src/gl.h	54;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
-position	./src/main.c	142;"	member	struct:quad_tree	typeref:typename:vector3_t	file:
-position	./src/main.c	213;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
+pointLight	./src/main.c	152;"	struct	file:
+pointLight_t	./src/main.c	158;"	typedef	typeref:struct:pointLight	file:
+position	./src/gl.h	31;"	member	struct:__anona5e9e4220208	typeref:typename:vector3_t
+position	./src/gl.h	55;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
+position	./src/main.c	162;"	member	struct:kinematic_body	typeref:typename:vector3_t	file:
+position	./src/oct_tree.h	13;"	member	struct:oct_tree	typeref:typename:vector3_t
+position	./src/oct_tree.h	7;"	member	struct:__anoncc0801040108	typeref:typename:vector3_t
 prefix	./dep/stb_image.h	6552;"	member	struct:__anon901ef9eb1208	typeref:typename:stbi__int16
 progressive	./dep/stb_image.h	1983;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-projection	./src/gl.h	77;"	member	struct:__anona5e9e4220708	typeref:typename:matrix4_t
-quadratic	./src/main.c	203;"	member	struct:__anond54bd50f0208	typeref:typename:float	file:
-quadSize	./src/main.c	143;"	member	struct:quad_tree	typeref:typename:float	file:
-quad_t	./src/gl.h	73;"	typedef	typeref:struct:__anona5e9e4220608
-quad_tree	./src/main.c	141;"	struct	file:
-quad_tree_alloc	./src/main.c	153;"	function	typeref:typename:quad_tree_t *	signature:(float positionX,float positionY,float positionZ,float quadSize)
-quad_tree_free	./src/main.c	165;"	function	typeref:typename:void	signature:(quad_tree_t * tree)
-quad_tree_insert	./src/main.c	182;"	function	typeref:typename:void	signature:(quad_tree_t * tree,vector3_t point)
-quad_tree_subdivide	./src/main.c	175;"	function	typeref:typename:void	signature:(quad_tree_t * tree)
-quad_tree_t	./src/main.c	151;"	typedef	typeref:struct:quad_tree	file:
+projection	./src/gl.h	78;"	member	struct:__anona5e9e4220708	typeref:typename:matrix4_t
+quadratic	./src/main.c	155;"	member	struct:pointLight	typeref:typename:float	file:
+quad_t	./src/gl.h	74;"	typedef	typeref:struct:__anona5e9e4220608
 quaternion_add	./dep/blib/math3d.h	796;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q1,quaternion_t q2)
 quaternion_conjugate	./dep/blib/math3d.h	774;"	function	typeref:typename:quaternion_t	signature:(quaternion_t q)
-quaternion_Equal	./dep/blib/math3d.h	740;"	function	typeref:typename:int	signature:(quaternion_t a,quaternion_t b)
+quaternion_equal	./dep/blib/math3d.h	740;"	function	typeref:typename:int	signature:(quaternion_t a,quaternion_t b)
 quaternion_FromAngleAxis	./dep/blib/math3d.h	748;"	function	typeref:typename:quaternion_t	signature:(float angle,vector3_t axis)
 quaternion_from_euler	./dep/blib/math3d.h	834;"	function	typeref:typename:quaternion_t	signature:(vector3_t eulerAngles)
 quaternion_identity	./dep/blib/math3d.h	736;"	function	typeref:typename:quaternion_t	signature:(void)
@@ -19814,32 +19823,35 @@ resample_row_func	./dep/stb_image.h	3450;"	typedef	typeref:typename:stbi_uc * (*
 resample_row_hv_2_kernel	./dep/stb_image.h	1999;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi_uc * (*)(stbi_uc * out,stbi_uc * in_near,stbi_uc * in_far,int w,int hs)
 restart_interval	./dep/stb_image.h	1994;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 rgb	./dep/stb_image.h	1991;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-rotation	./src/gl.h	55;"	member	struct:__anona5e9e4220508	typeref:typename:quaternion_t
+rotation	./src/gl.h	56;"	member	struct:__anona5e9e4220508	typeref:typename:quaternion_t
 s	./dep/stb_image.h	1950;"	member	struct:__anon901ef9eb0808	typeref:typename:stbi__context *
 s	./dep/stb_image.h	4631;"	member	struct:__anon901ef9eb0e08	typeref:typename:stbi__context *
-scale	./src/gl.h	56;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
+scale	./src/gl.h	57;"	member	struct:__anona5e9e4220508	typeref:typename:vector3_t
 scan_n	./dep/stb_image.h	1993;"	member	struct:__anon901ef9eb0808	typeref:typename:int
-shader	./src/gl.h	47;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
-shader	./src/main.c	220;"	member	struct:__anond54bd50f0408	typeref:typename:GLuint *	file:
+shader	./src/gl.h	48;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+shader	./src/main.c	147;"	member	struct:skybox	typeref:typename:GLuint	file:
 shader_create	./src/gl.c	45;"	function	typeref:typename:GLuint	signature:(const char * vertexShaderSourcePath,const char * fragmentShaderSourcePath)
 shader_create	./src/gl.h	17;"	prototype	typeref:typename:GLuint	signature:(const char * vertexShaderSourcePath,const char * fragmentShaderSourcePath)
 shader_setUniformFloat	./src/gl.c	96;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLfloat f)
-shader_setUniformFloat	./src/gl.h	21;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLfloat f)
+shader_setUniformFloat	./src/gl.h	22;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLfloat f)
 shader_setUniformInt	./src/gl.c	91;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLuint i)
-shader_setUniformInt	./src/gl.h	22;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLuint i)
-shader_setUniformM4	./src/gl.c	106;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,matrix4_t * m)
+shader_setUniformInt	./src/gl.h	23;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,GLuint i)
+shader_setUniformM4	./src/gl.c	111;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,matrix4_t * m)
 shader_setUniformM4	./src/gl.h	19;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,matrix4_t * m)
 shader_setUniformV3	./src/gl.c	101;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,vector3_t v)
 shader_setUniformV3	./src/gl.h	20;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,vector3_t v)
+shader_setUniformV4	./src/gl.c	106;"	function	typeref:typename:void	signature:(GLuint shader,const char * uniformName,vector4_t v)
+shader_setUniformV4	./src/gl.h	21;"	prototype	typeref:typename:void	signature:(GLuint shader,const char * uniformName,const vector4_t color)
 sigmoid	./dep/blib/bmath.h	87;"	function	typeref:typename:float	signature:(float n)
 size	./dep/stb_image.h	1943;"	member	struct:__anon901ef9eb0708	typeref:typename:stbi_uc[257]
 size	./dep/stb_image.h	4102;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi_uc[]
 size	./dep/stb_image.h	6361;"	member	struct:__anon901ef9eb1108	typeref:typename:stbi_uc
 skip	./dep/stb_image.h	413;"	member	struct:__anon901ef9eb0208	typeref:typename:void (*)(void * user,int n)
-southEast	./src/main.c	149;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
-southWest	./src/main.c	150;"	member	struct:quad_tree	typeref:struct:quad_tree *	file:
-specular	./src/main.c	205;"	member	struct:__anond54bd50f0208	typeref:typename:vector3_t	file:
-specularMap	./src/gl.h	49;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
+skybox	./src/main.c	145;"	struct	file:
+skybox_t	./src/main.c	150;"	typedef	typeref:struct:skybox	file:
+skybox_update	./src/main.c	858;"	function	typeref:typename:void	signature:(skybox_t * skybox)
+specular	./src/main.c	157;"	member	struct:pointLight	typeref:typename:vector3_t	file:
+specularMap	./src/gl.h	50;"	member	struct:__anona5e9e4220408	typeref:typename:GLuint
 spec_end	./dep/stb_image.h	1985;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 spec_start	./dep/stb_image.h	1984;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 SRCFILES	./makefile	1;"	macro
@@ -20293,29 +20305,33 @@ step	./dep/stb_image.h	6568;"	member	struct:__anon901ef9eb1308	typeref:typename:
 succ_high	./dep/stb_image.h	1986;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 succ_low	./dep/stb_image.h	1987;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 suffix	./dep/stb_image.h	6554;"	member	struct:__anon901ef9eb1208	typeref:typename:stbi_uc
-texCoord	./src/gl.h	31;"	member	struct:__anona5e9e4220208	typeref:typename:vector2_t
+texCoord	./src/gl.h	32;"	member	struct:__anona5e9e4220208	typeref:typename:vector2_t
 text	./dep/blib/file.h	42;"	member	struct:__anon085c9f080108	typeref:typename:char *
-texture_create	./src/gl.c	215;"	function	typeref:typename:GLuint	signature:(const char * imageFile)
+texture_create	./src/gl.c	219;"	function	typeref:typename:GLuint	signature:(const char * imageFile)
+time_current	./src/main.c	134;"	member	struct:lite_engine_context	typeref:typename:float	file:
+time_delta	./src/main.c	136;"	member	struct:lite_engine_context	typeref:typename:float	file:
+time_FPS	./src/main.c	137;"	member	struct:lite_engine_context	typeref:typename:float	file:
+time_last	./src/main.c	135;"	member	struct:lite_engine_context	typeref:typename:float	file:
 todo	./dep/stb_image.h	1994;"	member	struct:__anon901ef9eb0808	typeref:typename:int
 tq	./dep/stb_image.h	1966;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
-transform	./src/gl.h	70;"	member	struct:__anona5e9e4220608	typeref:typename:transform_t
-transform	./src/gl.h	76;"	member	struct:__anona5e9e4220708	typeref:typename:transform_t
-transform	./src/main.c	221;"	member	struct:__anond54bd50f0408	typeref:typename:transform_t *	file:
-transform_basis_back	./src/gl.c	142;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_back	./src/gl.h	65;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_down	./src/gl.c	146;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_down	./src/gl.h	66;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_forward	./src/gl.c	129;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_forward	./src/gl.h	62;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_left	./src/gl.c	150;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_left	./src/gl.h	67;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_right	./src/gl.c	138;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_right	./src/gl.h	64;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_up	./src/gl.c	134;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_basis_up	./src/gl.h	63;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
-transform_calculate_view_matrix	./src/gl.c	121;"	function	typeref:typename:void	signature:(transform_t * t)
-transform_calculate_view_matrix	./src/gl.h	61;"	prototype	typeref:typename:void	signature:(transform_t * t)
-transform_t	./src/gl.h	57;"	typedef	typeref:struct:__anona5e9e4220508
+transform	./src/gl.h	71;"	member	struct:__anona5e9e4220608	typeref:typename:transform_t
+transform	./src/gl.h	77;"	member	struct:__anona5e9e4220708	typeref:typename:transform_t
+transform	./src/main.c	149;"	member	struct:skybox	typeref:typename:transform_t	file:
+transform_basis_back	./src/gl.c	146;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_back	./src/gl.h	66;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_down	./src/gl.c	150;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_down	./src/gl.h	67;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_forward	./src/gl.c	134;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_forward	./src/gl.h	63;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_left	./src/gl.c	154;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_left	./src/gl.h	68;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_right	./src/gl.c	142;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_right	./src/gl.h	65;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_up	./src/gl.c	138;"	function	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_basis_up	./src/gl.h	64;"	prototype	typeref:typename:vector3_t	signature:(transform_t t,float magnitude)
+transform_calculate_view_matrix	./src/gl.c	126;"	function	typeref:typename:void	signature:(transform_t * t)
+transform_calculate_view_matrix	./src/gl.h	62;"	prototype	typeref:typename:void	signature:(transform_t * t)
+transform_t	./src/gl.h	58;"	typedef	typeref:struct:__anona5e9e4220508
 transparent	./dep/stb_image.h	6563;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 true	./dep/blib/blib.h	38;"	macro
 type	./dep/stb_image.h	4609;"	member	struct:__anon901ef9eb0d08	typeref:typename:stbi__uint32
@@ -20325,8 +20341,8 @@ v	./dep/stb_image.h	1965;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	
 validate_uint32	./dep/stb_image.h	654;"	typedef	typeref:typename:unsigned char[sizeof (stbi__uint32)==4?1:-1]
 value	./dep/stb_image.h	4103;"	member	struct:__anon901ef9eb0b08	typeref:typename:stbi__uint16[]
 values	./dep/stb_image.h	1942;"	member	struct:__anon901ef9eb0708	typeref:typename:stbi_uc[256]
-VAO	./src/gl.h	38;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
-VBO	./src/gl.h	39;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+VAO	./src/gl.h	39;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+VBO	./src/gl.h	40;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
 vector2_add	./dep/blib/math3d.h	136;"	function	typeref:typename:vector2_t	signature:(vector2_t a,vector2_t b)
 vector2_distance	./dep/blib/math3d.h	170;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
 vector2_dot	./dep/blib/math3d.h	192;"	function	typeref:typename:float	signature:(vector2_t a,vector2_t b)
@@ -20402,9 +20418,9 @@ vector4_ToVec2	./dep/blib/math3d.h	515;"	function	typeref:typename:vector2_t	sig
 vector4_ToVec3	./dep/blib/math3d.h	520;"	function	typeref:typename:vector3_t	signature:(vector4_t v)
 vector4_up	./dep/blib/math3d.h	99;"	function	typeref:typename:vector4_t	signature:(float s)
 vector4_zero	./dep/blib/math3d.h	95;"	function	typeref:typename:vector4_t	signature:(void)
-velocity	./src/main.c	215;"	member	struct:__anond54bd50f0308	typeref:typename:vector3_t	file:
-vertexCount	./src/gl.h	41;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
-vertex_t	./src/gl.h	33;"	typedef	typeref:struct:__anona5e9e4220208
+velocity	./src/main.c	164;"	member	struct:kinematic_body	typeref:typename:vector3_t	file:
+vertexCount	./src/gl.h	42;"	member	struct:__anona5e9e4220308	typeref:typename:GLuint
+vertex_t	./src/gl.h	34;"	typedef	typeref:struct:__anona5e9e4220208
 void_ptr	./dep/blib/blib.h	41;"	typedef	typeref:typename:void *
 vs	./dep/stb_image.h	3851;"	member	struct:__anon901ef9eb0a08	typeref:typename:int
 w	./dep/blib/math3d.h	52;"	member	struct:__anonb2ddaee90308	typeref:typename:float
@@ -20412,6 +20428,14 @@ w	./dep/blib/math3d.h	62;"	member	struct:__anonb2ddaee90508	typeref:typename:flo
 w	./dep/stb_image.h	6559;"	member	struct:__anon901ef9eb1308	typeref:typename:int
 w2	./dep/stb_image.h	1970;"	member	struct:__anon901ef9eb0808::__anon901ef9eb0908	typeref:typename:int
 WideCharToMultiByte	./dep/stb_image.h	1326;"	prototype	typeref:typename:STBI_EXTERN (dllimport)int __stdcall	signature:(unsigned int cp,unsigned long flags,const wchar_t * widestr,int cchwide,char * str,int cbmb,const char * defchar,int * used_default)
+window	./src/main.c	126;"	member	struct:lite_engine_context	typeref:typename:GLFWwindow *	file:
+window_always_on_top	./src/main.c	133;"	member	struct:lite_engine_context	typeref:typename:bool	file:
+window_fullscreen	./src/main.c	132;"	member	struct:lite_engine_context	typeref:typename:bool	file:
+window_position_x	./src/main.c	129;"	member	struct:lite_engine_context	typeref:typename:int	file:
+window_position_y	./src/main.c	130;"	member	struct:lite_engine_context	typeref:typename:int	file:
+window_size_x	./src/main.c	127;"	member	struct:lite_engine_context	typeref:typename:int	file:
+window_size_y	./src/main.c	128;"	member	struct:lite_engine_context	typeref:typename:int	file:
+window_title	./src/main.c	131;"	member	struct:lite_engine_context	typeref:typename:char *	file:
 wrapAngle	./dep/blib/bmath.h	47;"	function	typeref:typename:float	signature:(float a)
 w_lores	./dep/stb_image.h	3852;"	member	struct:__anon901ef9eb0a08	typeref:typename:int
 x	./dep/blib/math3d.h	36;"	member	struct:__anonb2ddaee90108	typeref:typename:float
@@ -20459,24 +20483,19 @@ __anon901ef9eb1008	./dep/stb_image.h	5413;"	struct
 __anon901ef9eb1108	./dep/stb_image.h	6360;"	struct
 __anon901ef9eb1208	./dep/stb_image.h	6551;"	struct
 __anon901ef9eb1308	./dep/stb_image.h	6558;"	struct
-__anona5e9e4220103	./src/gl.h	24;"	enum
-__anona5e9e4220208	./src/gl.h	29;"	struct
-__anona5e9e4220308	./src/gl.h	36;"	struct
-__anona5e9e4220408	./src/gl.h	46;"	struct
-__anona5e9e4220508	./src/gl.h	52;"	struct
-__anona5e9e4220608	./src/gl.h	69;"	struct
-__anona5e9e4220708	./src/gl.h	75;"	struct
+__anona5e9e4220103	./src/gl.h	25;"	enum
+__anona5e9e4220208	./src/gl.h	30;"	struct
+__anona5e9e4220308	./src/gl.h	37;"	struct
+__anona5e9e4220408	./src/gl.h	47;"	struct
+__anona5e9e4220508	./src/gl.h	53;"	struct
+__anona5e9e4220608	./src/gl.h	70;"	struct
+__anona5e9e4220708	./src/gl.h	76;"	struct
 __anonb2ddaee90108	./dep/blib/math3d.h	35;"	struct
 __anonb2ddaee90208	./dep/blib/math3d.h	41;"	struct
 __anonb2ddaee90308	./dep/blib/math3d.h	48;"	struct
 __anonb2ddaee90408	./dep/blib/math3d.h	56;"	struct
 __anonb2ddaee90508	./dep/blib/math3d.h	61;"	struct
-__anond54bd50f0103	./src/main.c	192;"	enum	file:
-__anond54bd50f0208	./src/main.c	200;"	struct	file:
-__anond54bd50f0308	./src/main.c	210;"	struct	file:
-__anond54bd50f0408	./src/main.c	218;"	struct	file:
-__anond54bd50f0503	./src/main.c	511;"	enum	function:mesh_alloc_planet	file:
-__anond54bd50f0603	./src/main.c	650;"	enum	function:mesh_alloc_cube_sphere	file:
+__anoncc0801040108	./src/oct_tree.h	6;"	struct
 __anondd86e6de0103	./dep/KHR/khrplatform.h	305;"	enum
 __glad_h_	./dep/glad/glad.h	642;"	macro
 __gl_h_	./dep/glad/glad.h	647;"	macro
