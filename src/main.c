@@ -12,10 +12,6 @@
 #include "oct_tree.h"
 #include "ecs.h"
 
-DEFINE_LIST(vector3_t)
-DEFINE_LIST(matrix4_t)
-DEFINE_LIST(quaternion_t)
-
 typedef struct skybox {
 	mesh_t mesh;
 	GLuint shader;
