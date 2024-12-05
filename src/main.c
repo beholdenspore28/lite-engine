@@ -5,8 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define B_LIST_IMPLEMENTATION
 #include "blib/blib.h"
-B_LIST_IMPLEMENTATION
 #include "blib/bmath.h"
 #include "physics.h"
 #include "oct_tree.h"
@@ -216,9 +216,9 @@ enum COMPONENT_TYPE {
 	COMPONENT_TRANSFORM,
 	COMPONENT_POINT_LIGHT,
 	COMPONENT_MESH,
-	COMPONENT_COUNT_MAX,
 	COMPONENT_MATERIAL,
 	COMPONENT_SHADER,
+	COMPONENT_COUNT_MAX,
 };
 
 void ecs_alloc(void) {
@@ -241,8 +241,7 @@ int ecs_component_add(int entity, int component) {
 	return component;
 }
 
-static inline vector3_t 
-kinematic_equation(
+static inline vector3_t kinematic_equation(
 		vector3_t acceleration, 
 		vector3_t velocity,
 		vector3_t position, 
@@ -253,7 +252,9 @@ kinematic_equation(
 	return (vector3_t){x, y, z};
 }
 
-void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
+void kinematic_body_update(
+		kinematic_body_t* kbodies, 
+		transform_t* transforms) {
 	oct_tree_t *tree = oct_tree_alloc();
 	tree->octSize = 10000;
 	tree->minimumSize = 10;
