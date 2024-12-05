@@ -1,7 +1,7 @@
 #pragma once
 
 #include "blib/blib.h"
-#include "blib/math3d.h"
+#include "blib/blib_math3d.h"
 
 typedef struct {
 	vector3_t position; 

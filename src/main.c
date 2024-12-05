@@ -7,8 +7,7 @@
 
 #define B_LIST_IMPLEMENTATION
 #include "blib/blib.h"
-#include "blib/bmath.h"
-#include "physics.h"
+#include "blib/blib_math.h"
 #include "oct_tree.h"
 
 DEFINE_LIST(vector3_t)

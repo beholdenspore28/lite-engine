@@ -5,9 +5,9 @@
 #include <glad/glad.h>
 
 #include "blib/blib.h"
-#include "blib/math3d.h"
-#include "blib/file.h"
-#include "blib/bmath.h"
+#include "blib/blib_math.h"
+#include "blib/blib_math3d.h"
+#include "blib/blib_file.h"
 
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)
