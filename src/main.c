@@ -339,6 +339,7 @@ int main(void) {
 	camera->transform.scale       = vector3_one(1.0);
 	camera->projection            = matrix4_identity();
 	camera->lookSensitivity       = 0.002f;
+
 	context->active_camera        = camera;
 
 	lite_engine_set_context(context);
