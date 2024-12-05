@@ -50,60 +50,62 @@ typedef struct kinematic_body {
 
 int light;
 
-#if 1
-GLuint gizmo_shader;
-mesh_t gizmo_mesh_cube;
 
-void gizmo_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
+// primitives====================================================================//
+
+#if 1
+GLuint primitive_shader;
+mesh_t primitive_mesh_cube;
+
+void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	glDisable(GL_CULL_FACE);
 	if (wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	glUseProgram(gizmo_shader);
+	glUseProgram(primitive_shader);
 
 	// model matrix
 	transform_calculate_matrix(&transform);
 
-	shader_setUniformM4(gizmo_shader, "u_modelMatrix", &transform.matrix);
+	shader_setUniformM4(primitive_shader, "u_modelMatrix", &transform.matrix);
 
 	// view matrix
-	shader_setUniformM4(gizmo_shader, "u_viewMatrix",
+	shader_setUniformM4(primitive_shader, "u_viewMatrix",
 			&lite_engine_context_current->active_camera.transform.matrix);
 
 	// projection matrix
-	shader_setUniformM4(gizmo_shader, "u_projectionMatrix",
+	shader_setUniformM4(primitive_shader, "u_projectionMatrix",
 			&lite_engine_context_current->active_camera.projection);
 
-	shader_setUniformV4(gizmo_shader, "u_color", color);
+	shader_setUniformV4(primitive_shader, "u_color", color);
 
-	glBindVertexArray(gizmo_mesh_cube.VAO);
-	glDrawElements( GL_TRIANGLES, gizmo_mesh_cube.
+	glBindVertexArray(primitive_mesh_cube.VAO);
+	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.
 			indexCount, GL_UNSIGNED_INT, 0);
 }
 
-void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
+void primitive_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
 		.rotation = quaternion_identity(),
 		.scale = vector3_one(tree->octSize),
 	};
 	if (tree->isSubdivided) {
-		gizmo_draw_oct_tree(tree->frontNorthEast, color);
-		gizmo_draw_oct_tree(tree->frontNorthWest, color);
-		gizmo_draw_oct_tree(tree->frontSouthEast, color);
-		gizmo_draw_oct_tree(tree->frontSouthWest, color);
-		gizmo_draw_oct_tree(tree->backNorthEast, color);
-		gizmo_draw_oct_tree(tree->backNorthWest, color);
-		gizmo_draw_oct_tree(tree->backSouthEast, color);
-		gizmo_draw_oct_tree(tree->backSouthWest, color);
+		primitive_draw_oct_tree(tree->frontNorthEast, color);
+		primitive_draw_oct_tree(tree->frontNorthWest, color);
+		primitive_draw_oct_tree(tree->frontSouthEast, color);
+		primitive_draw_oct_tree(tree->frontSouthWest, color);
+		primitive_draw_oct_tree(tree->backNorthEast, color);
+		primitive_draw_oct_tree(tree->backNorthWest, color);
+		primitive_draw_oct_tree(tree->backSouthEast, color);
+		primitive_draw_oct_tree(tree->backSouthWest, color);
 	}else {
-		gizmo_draw_cube(t, true, color);
+		primitive_draw_cube(t, true, color);
 	}
 }
 #endif
-
 #if 1
 void lite_engine_window_set_resolution(const int x, const int y) {
 	glfwSetWindowSize(lite_engine_context_current->window, x, y);
@@ -188,10 +190,10 @@ void lite_engine_start(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	gizmo_shader = shader_create(
-		"res/shaders/gizmos.vs.glsl",
-		"res/shaders/gizmos.fs.glsl");
-	gizmo_mesh_cube = mesh_alloc_cube();
+	primitive_shader = shader_create(
+		"res/shaders/primitive.vs.glsl",
+		"res/shaders/primitive.fs.glsl");
+	primitive_mesh_cube = mesh_alloc_cube();
 }
 #endif
 
@@ -230,8 +232,8 @@ void kinematic_body_update(
 		}
 	}
 
-	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
-	gizmo_draw_oct_tree(tree, gizmo_color);
+	const vector4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
+	primitive_draw_oct_tree(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
