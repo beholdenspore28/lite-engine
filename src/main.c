@@ -413,14 +413,11 @@ int main(void) {
 	vector3_t mouseLookVector = vector3_zero();
 
 	while (lite_engine_is_running()) {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		mesh_update( mesh, transform, shader, material, point_light);
+		mesh_update(mesh, transform, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transform);
 		skybox_update(&skybox);
-		glfwSwapBuffers(lite_engine_get_context().window);
-		glfwPollEvents();
 	}
 
 	free(mesh);

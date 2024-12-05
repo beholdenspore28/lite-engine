@@ -121,7 +121,10 @@ void lite_engine_time_update(void) { // update time
 }
 
 void lite_engine_update(void) {
+	glfwSwapBuffers(lite_engine_get_context().window);
+	glfwPollEvents();
 	lite_engine_time_update();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
