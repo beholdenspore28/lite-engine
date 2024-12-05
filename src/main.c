@@ -15,7 +15,6 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-// TODO move all of this global state to an engine object
 typedef struct lite_engine_context {
 	GLFWwindow *window;
 	int         window_size_x;
@@ -53,7 +52,6 @@ typedef struct pointLight {
 
 typedef struct kinematic_body {
 	float mass;
-	vector3_t position;
 	vector3_t acceleration;
 	vector3_t velocity;
 } kinematic_body_t;
@@ -231,20 +229,19 @@ void kinematic_body_update(
 			kbodies[e].acceleration = vector3_scale(vector3_left(0.01), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
-			kbodies[e].position = kinematic_equation(
+			transforms[e].position = kinematic_equation(
 				kbodies[e].acceleration,
 				kbodies[e].velocity,
-				kbodies[e].position,
+				transforms[e].position,
 				lite_engine_context_current->time_delta);
-			transforms[e].position = kbodies[e].position;
 		}
 		
 		{ // oct tree insertion
 			oct_tree_entry_t entry = (oct_tree_entry_t) {
-				.position = kbodies[e].position,
+				.position = transforms[e].position,
 				.ID = e, };
 			oct_tree_insert(tree, entry);
-			if (!oct_tree_contains(tree, kbodies[e].position))
+			if (!oct_tree_contains(tree, transforms[e].position))
 				ecs_component_remove(e, COMPONENT_MESH);			
 		}
 
@@ -561,8 +558,6 @@ int main(void) {
 				(float)noise1(i + 2) * 1000 - 500},
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(5.0), };
-		kinematic_body[cube].position =
-			transform[cube].position;
 		kinematic_body[cube].velocity = vector3_zero();
 		kinematic_body[cube].mass = 1.0;
 	}
