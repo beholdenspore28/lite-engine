@@ -20,11 +20,15 @@ typedef struct {
 	camera_t    active_camera;
 } lite_engine_context_t;
 
-lite_engine_context_t* lite_engine_get_context(void);
+void lite_engine_start(void);
 void lite_engine_update(void);
+
 void lite_engine_set_context(lite_engine_context_t* context);
-void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color);
+lite_engine_context_t* lite_engine_get_context(void);
+
 void lite_engine_window_set_resolution(const int x, const int y);
 void lite_engine_window_set_position(const int x, const int y);
+
 void lite_engine_set_clear_color(const float r, const float g, const float b, const float a);
-void lite_engine_start(void);
+
+void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color);

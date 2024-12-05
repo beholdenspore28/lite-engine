@@ -80,7 +80,12 @@ void lite_engine_set_clear_color(const float r, const float g, const float b,
 }
 
 void lite_engine_start(void) {
+	if (lite_engine_context == NULL) {
+		printf("[ERROR_LITE_ENGINE] Lite-Engine context was null before calling lite_engine_start()."
+				" Set it using lite_engine_set_context(context)\n");
+	}
 	assert(lite_engine_context != NULL);
+
 	if (!glfwInit()) {
 		printf("[ERROR_GLFW] Failed to initialize GLFW");
 	}
@@ -99,17 +104,16 @@ void lite_engine_start(void) {
 	assert(lite_engine_context->window_title != NULL);
 
 	if (lite_engine_context->window_fullscreen) {
-		lite_engine_context->window =
-			glfwCreateWindow(
-					lite_engine_context->window_size_x, 
-					lite_engine_context->window_size_y,
-					lite_engine_context->window_title, 
-					glfwGetPrimaryMonitor(), NULL);
+		lite_engine_context->window = glfwCreateWindow(
+			lite_engine_context->window_size_x, 
+			lite_engine_context->window_size_y,
+			lite_engine_context->window_title, 
+			glfwGetPrimaryMonitor(), NULL);
 	} else {
 		lite_engine_context->window = glfwCreateWindow(
-				lite_engine_context->window_size_x, 
-				lite_engine_context->window_size_y,
-				lite_engine_context->window_title, NULL, NULL);
+			lite_engine_context->window_size_x, 
+			lite_engine_context->window_size_y,
+			lite_engine_context->window_title, NULL, NULL);
 	}
 	assert(lite_engine_context->window != NULL);
 
