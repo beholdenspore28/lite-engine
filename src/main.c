@@ -9,6 +9,7 @@
 #include "blib/blib.h"
 #include "blib/blib_math.h"
 #include "oct_tree.h"
+#include "ecs.h"
 
 DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
@@ -202,44 +203,6 @@ void engine_set_clear_color(const float r, const float g, const float b,
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-static int* entities;
-static int entity_count = 0;
-enum ENTITY_ENUM { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };
-
-static int** components;
-
-enum COMPONENT_TYPE { 
-	COMPONENT_NULL,
-	COMPONENT_KINEMATIC_BODY, 
-	COMPONENT_COLLIDER, 
-	COMPONENT_TRANSFORM,
-	COMPONENT_POINT_LIGHT,
-	COMPONENT_MESH,
-	COMPONENT_MATERIAL,
-	COMPONENT_SHADER,
-	COMPONENT_COUNT_MAX,
-};
-
-void ecs_alloc(void) {
-	entities = calloc(sizeof(entities), ENTITY_COUNT_MAX);
-	components = calloc(sizeof(int**), ENTITY_COUNT_MAX);
-	for(int i = 0; i < ENTITY_COUNT_MAX; i++) {
-		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
-	}
-}
-
-int ecs_entity_create(void) {
-	++entity_count;
-	assert(entity_count != ENTITY_NULL);
-	assert(entity_count <= ENTITY_COUNT_MAX);
-	return entity_count;
-}
-
-int ecs_component_add(int entity, int component) {
-	components[entity][component] = 1;
-	return component;
-}
-
 static inline vector3_t kinematic_equation(
 		vector3_t acceleration, 
 		vector3_t velocity,
@@ -259,9 +222,9 @@ void kinematic_body_update(
 	tree->minimumSize = 10;
  
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!components[e][COMPONENT_KINEMATIC_BODY])
+		if (!ecs_component_exists(e, COMPONENT_KINEMATIC_BODY))
 			continue;
-		assert(components[e][COMPONENT_TRANSFORM]);
+		assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
@@ -282,7 +245,7 @@ void kinematic_body_update(
 				.ID = e, };
 			oct_tree_insert(tree, entry);
 			if (!oct_tree_contains(tree, kbodies[e].position))
-				components[e][COMPONENT_MESH] = 0;			
+				ecs_component_remove(e, COMPONENT_MESH);			
 		}
 
 	}
@@ -317,11 +280,11 @@ void mesh_update(
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		{// ensure the entity has the required components.
-			if (!components[e][COMPONENT_MESH])
+			if (!ecs_component_exists(e, COMPONENT_MESH))
 				continue;
-			assert(components[e][COMPONENT_TRANSFORM]);
-			assert(components[e][COMPONENT_SHADER]);
-			assert(components[e][COMPONENT_MATERIAL]); 
+			assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
+			assert(ecs_component_exists(e, COMPONENT_SHADER));
+			assert(ecs_component_exists(e, COMPONENT_MATERIAL)); 
 		}
 
 		{ // draw
