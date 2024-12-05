@@ -5,6 +5,9 @@
 DEFINE_LIST(GLint)
 DEFINE_LIST(GLuint)
 DEFINE_LIST(vertex_t)
+DEFINE_LIST(pointLight_t)
+DEFINE_LIST(transform_t)
+DEFINE_LIST(mesh_t)
 
 void error_callback(const int error, const char *description) {
 	(void)error;
@@ -220,7 +223,6 @@ void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 }
 // TRANSFORM==================================================================//
 
-DEFINE_LIST(transform_t)
 void transform_calculate_matrix(transform_t *t) {
   matrix4_t translation = matrix4_translate(t->position);
   matrix4_t rotation = quaternion_to_matrix4(t->rotation);
@@ -262,8 +264,6 @@ vector3_t transform_basis_left(transform_t t, float magnitude) {
 }
 
 // MESH=======================================================================//
-
-DEFINE_LIST(mesh_t)
 
 mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices, GLuint numVertices,
                   GLuint numIndices) {

@@ -41,6 +41,15 @@ void shader_setUniformV4(GLuint shader, const char* uniformName, const vector4_t
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
 
+typedef struct pointLight {
+	float constant;
+	float linear;
+	float quadratic;
+	vector3_t diffuse;
+	vector3_t specular;
+} pointLight_t;
+DECLARE_LIST(pointLight_t)
+
 typedef struct {
 	vector3_t position;
 	vector2_t texCoord;

@@ -42,14 +42,6 @@ typedef struct skybox {
 	transform_t transform;
 } skybox_t;
 
-typedef struct pointLight {
-	float constant;
-	float linear;
-	float quadratic;
-	vector3_t diffuse;
-	vector3_t specular;
-} pointLight_t;
-
 typedef struct kinematic_body {
 	float mass;
 	vector3_t acceleration;
