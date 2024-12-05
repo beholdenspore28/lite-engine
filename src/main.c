@@ -309,256 +309,6 @@ void engine_set_clear_color(const float r, const float g, const float b,
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-//~ mesh_t mesh_alloc_rock(const int subdivisions, const float radius) {
-	//~ list_vertex_t vertices = list_vertex_t_alloc();
-	//~ list_uint32_t indices = list_uint32_t_alloc();
-	//~ int index = 0;
-	//~ enum { FACE_FRONT, FACE_BACK, FACE_RIGHT, FACE_LEFT, FACE_UP, FACE_DOWN };
-	//~ for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-		//~ int offset = subdivisions * subdivisions * faceDirection;
-		//~ for (int k = 0; k < subdivisions; k++) {
-			//~ for (int j = 0; j < subdivisions; j++) {
-
-				//~ // calculate vertex position on unit cube's surface
-				//~ vector3_t point = {0};
-				//~ point.y = map(k, 0, subdivisions - 1, -0.5, 0.5);
-				//~ point.x = map(j, 0, subdivisions - 1, -0.5, 0.5);
-				//~ point.z = 0.5;
-
-				//~ // calculate indices
-				//~ if (k < subdivisions - 1 && j < subdivisions - 1) {
-					//~ int first = offset + (k * (subdivisions)) + j;
-					//~ int second = first + subdivisions;
-					//~ for (int i = 0; i < 6; i++) {
-						//~ list_uint32_t_add(&indices, 0);
-					//~ }
-					//~ // one quad face
-					//~ indices.array[index++] = first; // triangle 1
-					//~ indices.array[index++] = second;
-					//~ indices.array[index++] = first + 1;
-					//~ indices.array[index++] = second; // triangle 2
-					//~ indices.array[index++] = second + 1;
-					//~ indices.array[index++] = first + 1;
-				//~ }
-
-				//~ { // calculate face direction
-					//~ vector3_t original = point;
-					//~ switch (faceDirection) {
-						//~ case FACE_FRONT: {
-							//~ point.x = original.x;
-							//~ point.y = original.y;
-							//~ point.z = original.z;
-						//~ } break;
-						//~ case FACE_BACK: {
-							//~ point.x = original.x;
-							//~ point.y = -original.y;
-							//~ point.z = -original.z;
-						//~ } break;
-						//~ case FACE_RIGHT: {
-							//~ point.x = original.z;
-							//~ point.y = -original.y;
-							//~ point.z = original.x;
-						//~ } break;
-						//~ case FACE_LEFT: {
-							//~ point.x = -original.z;
-							//~ point.y = original.y;
-							//~ point.z = original.x;
-						//~ } break;
-						//~ case FACE_UP: {
-							//~ point.x = original.x;
-							//~ point.y = original.z;
-							//~ point.z = -original.y;
-						//~ } break;
-						//~ case FACE_DOWN: {
-							//~ point.x = -original.x;
-							//~ point.y = -original.z;
-							//~ point.z = -original.y;
-						//~ } break;
-						//~ default:
-						//~ break;
-					//~ }
-				//~ }
-
-				//~ // sphere-ify
-				//~ vector3_t pointOnSphere = vector3_normalize(point);
-
-				//~ // noise
-				//~ float freq = 1, amp = 1.0, offset = 10,
-					  //~ wave = noise3_fbm(pointOnSphere.x * freq + offset,
-							  //~ pointOnSphere.y * freq + offset,
-							  //~ pointOnSphere.z * freq + offset) *
-						  //~ amp;
-
-				//~ // texture coordinates
-				//~ float tu = map(k, 0, subdivisions - 1, 0, 1),
-					  //~ tv = map(j, 0, subdivisions - 1, 0, 1);
-
-				//~ // add vertex
-				//~ vertex_t vertex = {
-					//~ .position = vector3_scale(pointOnSphere, wave + radius),
-					//~ .normal = pointOnSphere,
-					//~ .texCoord = {tu, tv},
-				//~ };
-				//~ list_vertex_t_add(&vertices, vertex);
-			//~ }
-		//~ }
-	//~ }
-	//~ mesh_t m = mesh_alloc(
-			//~ &vertices.array[0], &indices.array[0], 
-			//~ vertices.length, indices.length);
-	//~ list_vertex_t_free(&vertices);
-	//~ list_uint32_t_free(&indices);
-	//~ return m;
-//~ }
-
-//~ mesh_t mesh_alloc_cube_sphere(const int subdivisions, const float radius) {
-	//~ list_vertex_t vertices = list_vertex_t_alloc();
-	//~ list_uint32_t indices = list_uint32_t_alloc();
-	//~ int index = 0;
-	//~ for (int faceDirection = 0; faceDirection < 6; faceDirection++) {
-		//~ int offset = subdivisions * subdivisions * faceDirection;
-		//~ for (int k = 0; k < subdivisions; k++) {
-			//~ for (int j = 0; j < subdivisions; j++) {
-
-				//~ vector3_t point = {
-					//~ map(k, 0, subdivisions - 1, -1, 1),
-					//~ map(j, 0, subdivisions - 1, -1, 1),
-					//~ 1,
-				//~ };
-
-				//~ if (k < subdivisions - 1 && j < subdivisions - 1) {
-					//~ int first = offset + (k * (subdivisions)) + j;
-					//~ int second = first + subdivisions;
-					//~ for (int i = 0; i < 6; i++) {
-						//~ list_uint32_t_add(&indices, 0);
-					//~ }
-					//~ indices.array[index++] = first + 1;
-					//~ indices.array[index++] = second;
-					//~ indices.array[index++] = first;
-					//~ indices.array[index++] = first + 1;
-					//~ indices.array[index++] = second + 1;
-					//~ indices.array[index++] = second;
-				//~ }
-
-				//~ enum {
-					//~ FACE_FRONT,
-					//~ FACE_BACK,
-					//~ FACE_RIGHT,
-					//~ FACE_LEFT,
-					//~ FACE_UP,
-					//~ FACE_DOWN,
-				//~ };
-
-				//~ vector3_t original = point;
-				//~ switch (faceDirection) {
-					//~ case FACE_FRONT: {
-										 //~ point.x = original.x;
-										 //~ point.y = original.y;
-										 //~ point.z = original.z;
-									 //~ } break;
-					//~ case FACE_BACK: {
-										//~ point.x = original.x;
-										//~ point.y = -original.y;
-										//~ point.z = -original.z;
-									//~ } break;
-					//~ case FACE_RIGHT: {
-										 //~ point.x = original.z;
-										 //~ point.y = -original.y;
-										 //~ point.z = original.x;
-									 //~ } break;
-					//~ case FACE_LEFT: {
-										//~ point.x = -original.z;
-										//~ point.y = original.y;
-										//~ point.z = original.x;
-									//~ } break;
-					//~ case FACE_UP: {
-									  //~ point.x = original.x;
-									  //~ point.y = original.z;
-									  //~ point.z = -original.y;
-								  //~ } break;
-					//~ case FACE_DOWN: {
-										//~ point.x = -original.x;
-										//~ point.y = -original.z;
-										//~ point.z = -original.y;
-									//~ } break;
-					//~ default:
-									//~ break;
-				//~ }
-
-				//~ float u = map(k, 0, subdivisions - 1, 0, 1),
-					  //~ v = map(j, 0, subdivisions - 1, 0, 1);
-
-				//~ vector3_t normal = vector3_normalize(point);
-
-				//~ vertex_t vertex = {
-					//~ .position = vector3_scale(normal, radius * 0.5),
-					//~ .normal = normal,
-					//~ .texCoord = {u, v},
-				//~ };
-				//~ list_vertex_t_add(&vertices, vertex);
-			//~ }
-		//~ }
-	//~ }
-	//~ mesh_t m = mesh_alloc(&vertices.array[0], &indices.array[0], vertices.length,
-			//~ indices.length);
-	//~ list_vertex_t_free(&vertices);
-	//~ list_uint32_t_free(&indices);
-	//~ return m;
-//~ }
-
-//~ mesh_t mesh_alloc_sphere(const int latCount, const int lonCount,
-		//~ const float radius) {
-	//~ const float halfRadius = radius * 0.5;
-	//~ list_vertex_t vertices = list_vertex_t_alloc();
-	//~ for (int lat = 0; lat <= latCount; lat++) {
-		//~ float theta = PI * lat / latCount;
-		//~ for (int lon = 0; lon <= lonCount; lon++) {
-			//~ float phi = 2 * PI * lon / lonCount;
-
-			//~ float x = halfRadius * sin(theta) * cos(phi);
-			//~ float y = halfRadius * cos(theta);
-			//~ float z = halfRadius * sin(theta) * sin(phi);
-			//~ float u = map(lon, 0, lonCount, 0, 1);
-			//~ float v = -map(lat, 0, latCount, 0, 1);
-
-			//~ vector3_t point = {x, y, z};
-			//~ vector2_t texCoord = {u, v};
-			//~ vector3_t normal = vector3_normalize(point);
-
-			//~ vertex_t newVert = {
-				//~ .position = point,
-				//~ .texCoord = texCoord,
-				//~ .normal = normal,
-			//~ };
-			//~ list_vertex_t_add(&vertices, newVert);
-		//~ }
-	//~ }
-
-	//~ list_uint32_t indices = list_uint32_t_alloc();
-	//~ int index = 0;
-	//~ for (int lat = 0; lat < latCount; lat++) {
-		//~ for (int lon = 0; lon < lonCount; lon++) {
-			//~ int first = (lat * (lonCount + 1)) + lon;
-			//~ int second = first + lonCount + 1;
-			//~ for (int i = 0; i < 6; i++) {
-				//~ list_uint32_t_add(&indices, 0);
-			//~ }
-			//~ indices.array[index++] = first;
-			//~ indices.array[index++] = second;
-			//~ indices.array[index++] = first + 1;
-			//~ indices.array[index++] = second;
-			//~ indices.array[index++] = second + 1;
-			//~ indices.array[index++] = first + 1;
-		//~ }
-	//~ }
-
-	//~ mesh_t m = mesh_alloc(&vertices.array[0], &indices.array[0], vertices.length,
-			//~ indices.length);
-	//~ list_vertex_t_free(&vertices);
-	//~ list_uint32_t_free(&indices);
-	//~ return m;
-//~ }
-
 //===========================================================================//
 // SECTION ECS
 //===========================================================================//
@@ -580,7 +330,7 @@ enum COMPONENT_TYPE {
 	COMPONENT_SHADER,
 };
 
-void ECS_alloc(void) {
+void ecs_alloc(void) {
 	entities = calloc(sizeof(entities), ENTITY_COUNT_MAX);
 	components = calloc(sizeof(int**), ENTITY_COUNT_MAX);
 	for(int i = 0; i < ENTITY_COUNT_MAX; i++) {
@@ -595,45 +345,10 @@ int entity_create(void) {
 	return entity_count;
 }
 
-int component_add(int entity, int component) {
+int ecs_component_add(int entity, int component) {
 	components[entity][component] = 1;
 	return component;
 }
-
-//===========================================================================//
-// SECTION GRAVITY SECTOR
-//===========================================================================//
-
-//~ typedef struct {
-	//~ float mass;
-	//~ vector3_t position;
-//~ } gravity_sector_t;
-//~ DECLARE_LIST(gravity_sector_t)
-//~ DEFINE_LIST(gravity_sector_t)
-
-//~ void gravity_sector_add_sectors(oct_tree_t* tree, list_gravity_sector_t* sectors, kinematic_body_t* kbodies) {
-	//~ gravity_sector_t sector = (gravity_sector_t) {0};
-	//~ for(size_t i = 0; i < tree->entries.length; i++) {
-		//~ sector.mass += kbodies[tree->entries.array[i].ID].mass;
-		//~ sector.position = tree->position;
-	//~ }
-	//~ list_gravity_sector_t_add(sectors, sector);
-
-	//~ if (tree->isSubdivided) {
-		//~ gravity_sector_add_sectors(tree->frontNorthEast, sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->frontNorthWest, sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->frontSouthEast, sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->frontSouthWest, sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->backNorthEast,  sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->backNorthWest,  sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->backSouthEast,  sectors, kbodies);
-		//~ gravity_sector_add_sectors(tree->backSouthWest,  sectors, kbodies);
-	//~ }
-//~ }
-
-//===========================================================================//
-// SECTION KINEMATIC BODY
-//===========================================================================//
 
 static inline vector3_t 
 kinematic_equation(
@@ -646,74 +361,6 @@ kinematic_equation(
 	float z = 0.5f * acceleration.z * time * time + velocity.z * time + position.z;
 	return (vector3_t){x, y, z};
 }
-
-//~ void gravity_simulate(oct_tree_t* tree, list_gravity_sector_t* sectors, kinematic_body_t* kbodies, transform_t* transforms) {
-	//~ for(size_t i = 0; i < tree->entries.length; i++) {
-		//~ if (!components[tree->entries.array[i].ID][COMPONENT_KINEMATIC_BODY])
-			//~ continue;
-		//~ assert(components[tree->entries.array[i].ID][COMPONENT_TRANSFORM]);
-		//~ kbodies[tree->entries.array[i].ID].acceleration = vector3_zero();
-		//~ for(size_t j = 0; j < sectors->length; j++) {
-			//~ float distanceSquared = vector3_square_distance(
-				//~ sectors->array[j].position, 
-				//~ kbodies[tree->entries.array[i].ID].position);
-
-			//~ if (distanceSquared < 1000.0)
-				//~ continue;
-
-			//~ vector3_t direction = vector3_normalize(
-					//~ vector3_subtract(
-						//~ sectors->array[j].position, 
-						//~ kbodies[tree->entries.array[i].ID].position));
-
-			//~ vector3_t force = vector3_scale(direction, 
-					//~ kbodies[tree->entries.array[i].ID].mass * 
-					//~ sectors->array[j].mass / 
-					//~ distanceSquared);
-
-			//~ kbodies[tree->entries.array[i].ID].acceleration = vector3_add(
-					//~ kbodies[tree->entries.array[i].ID].acceleration, vector3_scale(
-					//~ force, 1/kbodies[tree->entries.array[i].ID].mass));
-
-			//~ kbodies[tree->entries.array[i].ID].velocity = vector3_add(
-					//~ kbodies[tree->entries.array[i].ID].velocity, 
-					//~ kbodies[tree->entries.array[i].ID].acceleration);
-
-			//~ float newPosX = kinematic_equation(
-					//~ kbodies[tree->entries.array[i].ID].acceleration.x, 
-					//~ kbodies[tree->entries.array[i].ID].velocity.x,
-					//~ kbodies[tree->entries.array[i].ID].position.x, 
-					//~ lite_engine_context_current->time_delta);
-
-			//~ float newPosY = kinematic_equation(
-					//~ kbodies[tree->entries.array[i].ID].acceleration.y, 
-					//~ kbodies[tree->entries.array[i].ID].velocity.y,
-					//~ kbodies[tree->entries.array[i].ID].position.y, 
-					//~ lite_engine_context_current->time_delta);
-
-			//~ float newPosZ = kinematic_equation(
-					//~ kbodies[tree->entries.array[i].ID].acceleration.z, 
-					//~ kbodies[tree->entries.array[i].ID].velocity.z,
-					//~ kbodies[tree->entries.array[i].ID].position.z, 
-					//~ lite_engine_context_current->time_delta);
-
-			//~ kbodies[tree->entries.array[i].ID].position = (vector3_t) {
-				//~ newPosX, newPosY, newPosZ };
-			//~ transforms[tree->entries.array[i].ID].position = kbodies[tree->entries.array[i].ID].position;
-		//~ }
-	//~ }
-
-	//~ if (tree->isSubdivided) {
-		//~ gravity_simulate(tree->frontNorthEast, sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->frontNorthWest, sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->frontSouthEast, sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->frontSouthWest, sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->backNorthEast,  sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->backNorthWest,  sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->backSouthEast,  sectors, kbodies, transforms);
-		//~ gravity_simulate(tree->backSouthWest,  sectors, kbodies, transforms);
-	//~ }
-//~ }
 
 void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
 	oct_tree_t *tree = oct_tree_alloc();
@@ -748,11 +395,6 @@ void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
 		}
 
 	}
-
-	//~ list_gravity_sector_t sectors = list_gravity_sector_t_alloc();
-	//~ gravity_sector_add_sectors(tree, &sectors, kbodies);
-	//~ gravity_simulate(tree, &sectors, kbodies, transforms);
-	//~ list_gravity_sector_t_free(&sectors);
 
 	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
 	gizmo_draw_oct_tree(tree, gizmo_color);
@@ -1023,11 +665,11 @@ int main(void) {
 	context->frame_current        = 0;
 	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
 	context->active_camera        = (camera_t){
-		.transform.position = (vector3_t){0.0, 0.0, -1600.0},
-		.transform.rotation = quaternion_identity(),
-		.transform.scale = vector3_one(1.0),
-		.projection = matrix4_identity(),
-		.lookSensitivity = 0.002f,
+		.transform.position       = (vector3_t){0.0, 0.0, -1600.0},
+		.transform.rotation       = quaternion_identity(),
+		.transform.scale          = vector3_one(1.0),
+		.projection               = matrix4_identity(),
+		.lookSensitivity          = 0.002f,
 	};
 
 	lite_engine_context_current = context;
@@ -1035,19 +677,11 @@ int main(void) {
 
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-	// create shaders
-	//~ GLuint diffuseShader = shader_create(
-		//~ "res/shaders/diffuse.vs.glsl",
-		//~ "res/shaders/diffuse.fs.glsl");
-
 	GLuint unlitShader = shader_create(
 		"res/shaders/unlit.vs.glsl",
 		"res/shaders/unlit.fs.glsl");
 
-	// create textures
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	//~ GLuint testSpecularMap = texture_create("res/textures/test.png");
-	//~ GLuint rockDiffuseMap = texture_create("res/textures/lunarrock_d.png");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -1057,17 +691,17 @@ int main(void) {
 	kinematic_body_t* kinematic_body = calloc(sizeof(kinematic_body_t),ENTITY_COUNT_MAX);
 	pointLight_t* point_light = calloc(sizeof(pointLight_t), ENTITY_COUNT_MAX);
 
-	ECS_alloc(); 
+	ecs_alloc(); 
 
-	// create rocks
+	// create cubes
 	for (int i = 1; i <= 1000; i++) {
 		int cube = entity_create();
 
-		component_add(cube, COMPONENT_KINEMATIC_BODY);
-		component_add(cube, COMPONENT_TRANSFORM);
-		component_add(cube, COMPONENT_MESH);
-		component_add(cube, COMPONENT_MATERIAL);
-		component_add(cube, COMPONENT_SHADER);
+		ecs_component_add(cube, COMPONENT_KINEMATIC_BODY);
+		ecs_component_add(cube, COMPONENT_TRANSFORM);
+		ecs_component_add(cube, COMPONENT_MESH);
+		ecs_component_add(cube, COMPONENT_MATERIAL);
+		ecs_component_add(cube, COMPONENT_SHADER);
 
 		mesh[cube] = mesh_alloc_cube();
 		shader[cube] = unlitShader;
@@ -1101,8 +735,8 @@ int main(void) {
 
 	// create light
 	light = entity_create();
-	component_add(light, COMPONENT_POINT_LIGHT);
-	component_add(light, COMPONENT_TRANSFORM);
+	ecs_component_add(light, COMPONENT_POINT_LIGHT);
+	ecs_component_add(light, COMPONENT_TRANSFORM);
 	point_light[light] = (pointLight_t){
 		.diffuse = vector3_one(0.8f),
 		.specular = vector3_one(1.0f),
