@@ -226,7 +226,7 @@ void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			kbodies[e].acceleration = vector3_scale(vector3_left(0.01), 1/kbodies[e].mass);
+			kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
 			transforms[e].position = kinematic_equation(
@@ -241,8 +241,9 @@ void kinematic_body_update(
 				.position = transforms[e].position,
 				.ID = e, };
 			oct_tree_insert(tree, entry);
-			if (!oct_tree_contains(tree, transforms[e].position))
-				ecs_component_remove(e, COMPONENT_MESH);			
+			if (!oct_tree_contains(tree, transforms[e].position) && 
+				ecs_component_exists(e, COMPONENT_MESH))
+					ecs_component_remove(e, COMPONENT_MESH);			
 		}
 
 	}
