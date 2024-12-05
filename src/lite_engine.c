@@ -1,83 +1,8 @@
 #include "lite_engine.h"
 
 static lite_engine_context_t* lite_engine_context = NULL;
-
-void lite_engine_set_context(lite_engine_context_t* context) {
-	lite_engine_context = context;
-}
-
-GLuint primitive_shader;
-mesh_t primitive_mesh_cube;
-
-lite_engine_context_t* lite_engine_get_context(void) { return lite_engine_context; }
-
-void lite_engine_time_update(void) { // update time
-	lite_engine_context->time_current = glfwGetTime();
-	lite_engine_context->time_delta = lite_engine_context->time_current - lite_engine_context->time_last;
-	lite_engine_context->time_last = lite_engine_context->time_current;
-
-	lite_engine_context->time_FPS = 1 / lite_engine_context->time_delta;
-	lite_engine_context->frame_current++;
-
-#if 0 // log time
-	printf("time_current   %f\n"
-			"time_last     %f\n"
-			"time_delta    %f\n"
-			"FPS           %f\n"
-			"frame_current %lu\n",
-			lite_engine_get_context()->time_current, 
-			lite_engine_get_context()->time_last, 
-			lite_engine_get_context()->time_delta,
-			lite_engine_get_context()->time_FPS, 
-			lite_engine_get_context()->frame_current);
-#endif // log time
-}
-
-void lite_engine_update(void) {
-	lite_engine_time_update();
-}
-
-void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
-	glDisable(GL_CULL_FACE);
-	if (wireframe)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glUseProgram(primitive_shader);
-
-	// model matrix
-	transform_calculate_matrix(&transform);
-
-	shader_setUniformM4(primitive_shader, "u_modelMatrix", &transform.matrix);
-
-	// view matrix
-	shader_setUniformM4(primitive_shader, "u_viewMatrix",
-			&lite_engine_context->active_camera.transform.matrix);
-
-	// projection matrix
-	shader_setUniformM4(primitive_shader, "u_projectionMatrix",
-			&lite_engine_context->active_camera.projection);
-
-	shader_setUniformV4(primitive_shader, "u_color", color);
-
-	glBindVertexArray(primitive_mesh_cube.VAO);
-	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.
-			indexCount, GL_UNSIGNED_INT, 0);
-}
-
-void lite_engine_window_set_resolution(const int x, const int y) {
-	glfwSetWindowSize(lite_engine_context->window, x, y);
-}
-
-void lite_engine_window_set_position(const int x, const int y) {
-	glfwSetWindowPos(lite_engine_context->window, x, y);
-}
-
-void lite_engine_set_clear_color(const float r, const float g, const float b,
-		const float a) {
-	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
-}
+static GLuint primitive_shader;
+static mesh_t primitive_mesh_cube;
 
 void lite_engine_start(void) {
 	if (lite_engine_context == NULL) {
@@ -157,5 +82,87 @@ void lite_engine_start(void) {
 		"res/shaders/primitive.vs.glsl",
 		"res/shaders/primitive.fs.glsl");
 	primitive_mesh_cube = mesh_alloc_cube();
+}
+
+void lite_engine_stop(void) {
+	glfwTerminate();
+}
+
+void lite_engine_set_context(lite_engine_context_t* context) {
+	lite_engine_context = context;
+}
+
+lite_engine_context_t lite_engine_get_context(void) { return *lite_engine_context; }
+
+int lite_engine_is_running(void) {
+	return !glfwWindowShouldClose(lite_engine_context->window);
+}
+
+void lite_engine_time_update(void) { // update time
+	lite_engine_context->time_current = glfwGetTime();
+	lite_engine_context->time_delta = lite_engine_context->time_current - lite_engine_context->time_last;
+	lite_engine_context->time_last = lite_engine_context->time_current;
+
+	lite_engine_context->time_FPS = 1 / lite_engine_context->time_delta;
+	lite_engine_context->frame_current++;
+
+#if 0 // log time
+	printf("time_current   %f\n"
+			"time_last     %f\n"
+			"time_delta    %f\n"
+			"FPS           %f\n"
+			"frame_current %lu\n",
+			lite_engine_get_context()->time_current, 
+			lite_engine_get_context()->time_last, 
+			lite_engine_get_context()->time_delta,
+			lite_engine_get_context()->time_FPS, 
+			lite_engine_get_context()->frame_current);
+#endif // log time
+}
+
+void lite_engine_update(void) {
+	lite_engine_time_update();
+}
+
+void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
+	glDisable(GL_CULL_FACE);
+	if (wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glUseProgram(primitive_shader);
+
+	// model matrix
+	transform_calculate_matrix(&transform);
+
+	shader_setUniformM4(primitive_shader, "u_modelMatrix", &transform.matrix);
+
+	// view matrix
+	shader_setUniformM4(primitive_shader, "u_viewMatrix",
+			&lite_engine_context->active_camera->transform.matrix);
+
+	// projection matrix
+	shader_setUniformM4(primitive_shader, "u_projectionMatrix",
+			&lite_engine_context->active_camera->projection);
+
+	shader_setUniformV4(primitive_shader, "u_color", color);
+
+	glBindVertexArray(primitive_mesh_cube.VAO);
+	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.
+			indexCount, GL_UNSIGNED_INT, 0);
+}
+
+void lite_engine_window_set_resolution(const int x, const int y) {
+	glfwSetWindowSize(lite_engine_context->window, x, y);
+}
+
+void lite_engine_window_set_position(const int x, const int y) {
+	glfwSetWindowPos(lite_engine_context->window, x, y);
+}
+
+void lite_engine_set_clear_color(const float r, const float g, const float b,
+		const float a) {
+	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 

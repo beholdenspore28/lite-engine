@@ -17,14 +17,16 @@ typedef struct {
 	float       time_FPS;
 	uint64_t    frame_current;
 	vector3_t   ambient_light;
-	camera_t    active_camera;
+	camera_t    *active_camera;
 } lite_engine_context_t;
 
 void lite_engine_start(void);
+void lite_engine_stop(void);
 void lite_engine_update(void);
 
 void lite_engine_set_context(lite_engine_context_t* context);
-lite_engine_context_t* lite_engine_get_context(void);
+lite_engine_context_t lite_engine_get_context(void);
+int lite_engine_is_running(void);
 
 void lite_engine_window_set_resolution(const int x, const int y);
 void lite_engine_window_set_position(const int x, const int y);

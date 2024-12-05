@@ -72,7 +72,7 @@ void kinematic_body_update(
 				kbodies[e].acceleration,
 				kbodies[e].velocity,
 				transforms[e].position,
-				lite_engine_get_context()->time_delta);
+				lite_engine_get_context().time_delta);
 		}
 		
 		{ // oct tree insertion
@@ -100,19 +100,21 @@ void mesh_update(
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	int window_size_x = lite_engine_get_context().window_size_x;
+	int window_size_y = lite_engine_get_context().window_size_y;
 	// projection
 	glfwGetWindowSize(
-			lite_engine_get_context()->window, 
-			&lite_engine_get_context()->window_size_x,
-			&lite_engine_get_context()->window_size_y);
-	float aspect = (float)lite_engine_get_context()->window_size_x /
-		(float)lite_engine_get_context()->window_size_y;
-	lite_engine_get_context()->active_camera.projection =
+			lite_engine_get_context().window, 
+			&window_size_x,
+			&window_size_y);
+	float aspect = (float)lite_engine_get_context().window_size_x /
+		(float)lite_engine_get_context().window_size_y;
+	lite_engine_get_context().active_camera->projection =
 		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	lite_engine_get_context()->active_camera.transform.matrix = 
+	lite_engine_get_context().active_camera->transform.matrix = 
 		matrix4_identity();
 	transform_calculate_view_matrix(
-			&lite_engine_get_context()->active_camera.transform);
+			&lite_engine_get_context().active_camera->transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		{// ensure the entity has the required components.
@@ -134,15 +136,15 @@ void mesh_update(
 
 			// view matrix uniform
 			shader_setUniformM4(shaders[e], "u_viewMatrix",
-				&lite_engine_get_context()->active_camera.transform.matrix);
+				&lite_engine_get_context().active_camera->transform.matrix);
 
 			// projection matrix uniform
 			shader_setUniformM4(shaders[e], "u_projectionMatrix",
-				&lite_engine_get_context()->active_camera.projection);
+				&lite_engine_get_context().active_camera->projection);
 
 			// camera position uniform
 			shader_setUniformV3(shaders[e], "u_cameraPos",
-				lite_engine_get_context()->active_camera.transform.position);
+				lite_engine_get_context().active_camera->transform.position);
 
 			// light uniforms
 			shader_setUniformV3(shaders[e], "u_light.position",
@@ -170,7 +172,7 @@ void mesh_update(
 			shader_setUniformInt(shaders[e], "u_material.specular", 1);
 			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
 			shader_setUniformV3(shaders[e], "u_ambientLight",
-					lite_engine_get_context()->ambient_light);
+					lite_engine_get_context().ambient_light);
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
@@ -190,10 +192,10 @@ void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_FRONT);
 
 	// skybox should always appear static and never move
-	lite_engine_get_context()->active_camera.transform.matrix = 
+	lite_engine_get_context().active_camera->transform.matrix = 
 		matrix4_identity();
 	skybox->transform.rotation = quaternion_conjugate(
-			lite_engine_get_context()->active_camera.transform.rotation);
+			lite_engine_get_context().active_camera->transform.rotation);
 
 	{ // draw
 		glUseProgram(skybox->shader);
@@ -205,15 +207,15 @@ void skybox_update(skybox_t* skybox) {
 
 		// view matrix
 		shader_setUniformM4(skybox->shader, "u_viewMatrix",
-			&lite_engine_get_context()->active_camera.transform.matrix);
+			&lite_engine_get_context().active_camera->transform.matrix);
 
 		// projection matrix
 		shader_setUniformM4(skybox->shader, "u_projectionMatrix",
-			&lite_engine_get_context()->active_camera.projection);
+			&lite_engine_get_context().active_camera->projection);
 
 		// camera position
 		shader_setUniformV3(skybox->shader, "u_cameraPos",
-			lite_engine_get_context()->active_camera.transform.position);
+			lite_engine_get_context().active_camera->transform.position);
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
@@ -227,7 +229,7 @@ void skybox_update(skybox_t* skybox) {
 		shader_setUniformInt(skybox->shader, "u_material.specular", 1);
 		shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
 		shader_setUniformV3(skybox->shader, "u_ambientLight",
-			lite_engine_get_context()->ambient_light);
+			lite_engine_get_context().ambient_light);
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
@@ -245,42 +247,42 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
-		glfwGetCursorPos(lite_engine_get_context()->window, 
+		glfwGetCursorPos(lite_engine_get_context().window, 
 				&mouseX, &mouseY);
 
 		if (firstMouse) {
-			lite_engine_get_context()->active_camera.lastX = mouseX;
-			lite_engine_get_context()->active_camera.lastY = mouseY;
+			lite_engine_get_context().active_camera->lastX = mouseX;
+			lite_engine_get_context().active_camera->lastY = mouseY;
 			firstMouse = false;
 		}
 
 		float xoffset = 
-			mouseX - lite_engine_get_context()->active_camera.lastX;
+			mouseX - lite_engine_get_context().active_camera->lastX;
 		float yoffset = 
-			mouseY - lite_engine_get_context()->active_camera.lastY;
+			mouseY - lite_engine_get_context().active_camera->lastY;
 
-		lite_engine_get_context()->active_camera.lastX = mouseX;
-		lite_engine_get_context()->active_camera.lastY = mouseY;
+		lite_engine_get_context().active_camera->lastX = mouseX;
+		lite_engine_get_context().active_camera->lastY = mouseY;
 
 		mouseLookVector->x += yoffset * 
-			lite_engine_get_context()->active_camera.lookSensitivity;
+			lite_engine_get_context().active_camera->lookSensitivity;
 		mouseLookVector->y += xoffset * 
-			lite_engine_get_context()->active_camera.lookSensitivity;
+			lite_engine_get_context().active_camera->lookSensitivity;
 
 		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
 		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
 
 		vector3_scale(*mouseLookVector, 
-				lite_engine_get_context()->time_delta);
+				lite_engine_get_context().time_delta);
 
-		lite_engine_get_context()->active_camera.transform.rotation =
+		lite_engine_get_context().active_camera->transform.rotation =
 			quaternion_from_euler(*mouseLookVector);
 	}
 
 	{ // movement
-		float cameraSpeed = 32 * lite_engine_get_context()->time_delta;
+		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
 		float cameraSpeedCurrent;
-		if (glfwGetKey( lite_engine_get_context()->window, 
+		if (glfwGetKey( lite_engine_get_context().window, 
 					GLFW_KEY_LEFT_CONTROL)) {
 			cameraSpeedCurrent = 4 * cameraSpeed;
 		} else {
@@ -288,24 +290,24 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 		}
 		vector3_t movement = vector3_zero();
 
-		movement.x = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_D) -
-			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_A);
-		movement.y = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_SPACE) -
-			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_W) -
-			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_S);
+		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+		movement.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
 
 		movement = vector3_normalize(movement);
 		movement = vector3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vector3_rotate(movement, lite_engine_get_context()->active_camera.transform.rotation);
+			vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
 
-		lite_engine_get_context()->active_camera.transform.position =
-			vector3_add(lite_engine_get_context()->active_camera.transform.position, movement);
+		lite_engine_get_context().active_camera->transform.position =
+			vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
 
-		if (glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_get_context()->active_camera.transform.position = vector3_zero();
-			lite_engine_get_context()->active_camera.transform.rotation = quaternion_identity();
+		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
+			lite_engine_get_context().active_camera->transform.position = vector3_zero();
+			lite_engine_get_context().active_camera->transform.rotation = quaternion_identity();
 		}
 	}
 }
@@ -328,13 +330,16 @@ int main(void) {
 	context->time_FPS             = 0.0f;
 	context->frame_current        = 0;
 	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
-	context->active_camera        = (camera_t){
-		.transform.position       = (vector3_t){0.0, 0.0, -600.0},
-		.transform.rotation       = quaternion_identity(),
-		.transform.scale          = vector3_one(1.0),
-		.projection               = matrix4_identity(),
-		.lookSensitivity          = 0.002f,
-	};
+
+	// yes this looks silly but it helps to easily support
+	// multiple cameras
+	camera_t* camera = malloc(sizeof(camera_t));
+	camera->transform.position    = (vector3_t){0.0, 0.0, -600.0};
+	camera->transform.rotation    = quaternion_identity();
+	camera->transform.scale       = vector3_one(1.0);
+	camera->projection            = matrix4_identity();
+	camera->lookSensitivity       = 0.002f;
+	context->active_camera        = camera;
 
 	lite_engine_set_context(context);
 	lite_engine_start();
@@ -409,14 +414,14 @@ int main(void) {
 
 	vector3_t mouseLookVector = vector3_zero();
 
-	while (!glfwWindowShouldClose(lite_engine_get_context()->window)) {
+	while (lite_engine_is_running()) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		lite_engine_update();
 		input_update(&mouseLookVector);
 		mesh_update( mesh, transform, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transform);
 		skybox_update(&skybox);
-		glfwSwapBuffers(lite_engine_get_context()->window);
+		glfwSwapBuffers(lite_engine_get_context().window);
 		glfwPollEvents();
 	}
 
@@ -426,7 +431,8 @@ int main(void) {
 	free(transform);
 	free(kinematic_body);
 	free(point_light);
+	free(camera);
 
-	glfwTerminate();
+	lite_engine_stop();
 	return 0;
 }
