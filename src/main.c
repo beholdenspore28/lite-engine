@@ -58,6 +58,7 @@ typedef struct kinematic_body {
 
 int light;
 
+#if 1
 GLuint gizmo_shader;
 mesh_t gizmo_mesh_cube;
 
@@ -109,15 +110,20 @@ void gizmo_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
 		gizmo_draw_cube(t, true, color);
 	}
 }
+#endif
 
-// set window resolution
+#if 1
 void lite_engine_window_set_resolution(const int x, const int y) {
 	glfwSetWindowSize(lite_engine_context_current->window, x, y);
 }
 
-// position window in the center of the screen
 void lite_engine_window_set_position(const int x, const int y) {
 	glfwSetWindowPos(lite_engine_context_current->window, x, y);
+}
+
+void lite_engine_set_clear_color(const float r, const float g, const float b,
+		const float a) {
+	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
 void lite_engine_start(void) {
@@ -195,11 +201,7 @@ void lite_engine_start(void) {
 		"res/shaders/gizmos.fs.glsl");
 	gizmo_mesh_cube = mesh_alloc_cube();
 }
-
-void engine_set_clear_color(const float r, const float g, const float b,
-		const float a) {
-	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
-}
+#endif
 
 void kinematic_body_update(
 		kinematic_body_t* kbodies, 
@@ -511,7 +513,7 @@ int main(void) {
 	lite_engine_context_current = context;
 	lite_engine_start();
 
-	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
+	lite_engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
 	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
