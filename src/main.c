@@ -8,32 +8,13 @@
 #define B_LIST_IMPLEMENTATION
 #include "blib/blib.h"
 #include "blib/blib_math.h"
+#include "lite_engine.h"
 #include "oct_tree.h"
 #include "ecs.h"
 
 DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
-
-typedef struct lite_engine_context {
-	GLFWwindow *window;
-	int         window_size_x;
-	int         window_size_y;
-	int         window_position_x;
-	int         window_position_y;
-	char       *window_title;
-	bool        window_fullscreen;
-	bool        window_always_on_top;
-	float       time_current;
-	float       time_last;
-	float       time_delta;
-	float       time_FPS;
-	uint64_t    frame_current;
-	vector3_t   ambient_light;
-	camera_t    active_camera;
-} lite_engine_context_t;
-
-static lite_engine_context_t* lite_engine_context_current = NULL;
 
 typedef struct skybox {
 	mesh_t mesh;
@@ -50,152 +31,25 @@ typedef struct kinematic_body {
 
 int light;
 
-
-// primitives====================================================================//
-
-#if 1
-GLuint primitive_shader;
-mesh_t primitive_mesh_cube;
-
-void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
-	glDisable(GL_CULL_FACE);
-	if (wireframe)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glUseProgram(primitive_shader);
-
-	// model matrix
-	transform_calculate_matrix(&transform);
-
-	shader_setUniformM4(primitive_shader, "u_modelMatrix", &transform.matrix);
-
-	// view matrix
-	shader_setUniformM4(primitive_shader, "u_viewMatrix",
-			&lite_engine_context_current->active_camera.transform.matrix);
-
-	// projection matrix
-	shader_setUniformM4(primitive_shader, "u_projectionMatrix",
-			&lite_engine_context_current->active_camera.projection);
-
-	shader_setUniformV4(primitive_shader, "u_color", color);
-
-	glBindVertexArray(primitive_mesh_cube.VAO);
-	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.
-			indexCount, GL_UNSIGNED_INT, 0);
-}
-
-void primitive_draw_oct_tree(oct_tree_t *tree, vector4_t color) {
+void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
 		.rotation = quaternion_identity(),
 		.scale = vector3_one(tree->octSize),
 	};
 	if (tree->isSubdivided) {
-		primitive_draw_oct_tree(tree->frontNorthEast, color);
-		primitive_draw_oct_tree(tree->frontNorthWest, color);
-		primitive_draw_oct_tree(tree->frontSouthEast, color);
-		primitive_draw_oct_tree(tree->frontSouthWest, color);
-		primitive_draw_oct_tree(tree->backNorthEast, color);
-		primitive_draw_oct_tree(tree->backNorthWest, color);
-		primitive_draw_oct_tree(tree->backSouthEast, color);
-		primitive_draw_oct_tree(tree->backSouthWest, color);
+		oct_tree_draw(tree->frontNorthEast, color);
+		oct_tree_draw(tree->frontNorthWest, color);
+		oct_tree_draw(tree->frontSouthEast, color);
+		oct_tree_draw(tree->frontSouthWest, color);
+		oct_tree_draw(tree->backNorthEast, color);
+		oct_tree_draw(tree->backNorthWest, color);
+		oct_tree_draw(tree->backSouthEast, color);
+		oct_tree_draw(tree->backSouthWest, color);
 	}else {
 		primitive_draw_cube(t, true, color);
 	}
 }
-#endif
-#if 1
-void lite_engine_window_set_resolution(const int x, const int y) {
-	glfwSetWindowSize(lite_engine_context_current->window, x, y);
-}
-
-void lite_engine_window_set_position(const int x, const int y) {
-	glfwSetWindowPos(lite_engine_context_current->window, x, y);
-}
-
-void lite_engine_set_clear_color(const float r, const float g, const float b,
-		const float a) {
-	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
-}
-
-void lite_engine_start(void) {
-	assert(lite_engine_context_current != NULL);
-	if (!glfwInit()) {
-		printf("[ERROR_GLFW] Failed to initialize GLFW");
-	}
-
-	glfwSetErrorCallback(error_callback);
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-	if (lite_engine_context_current->window_always_on_top) {
-		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-	}
-	assert(lite_engine_context_current->window_title != NULL);
-
-	if (lite_engine_context_current->window_fullscreen) {
-		lite_engine_context_current->window =
-			glfwCreateWindow(
-					lite_engine_context_current->window_size_x, 
-					lite_engine_context_current->window_size_y,
-					lite_engine_context_current->window_title, 
-					glfwGetPrimaryMonitor(), NULL);
-	} else {
-		lite_engine_context_current->window = glfwCreateWindow(
-				lite_engine_context_current->window_size_x, 
-				lite_engine_context_current->window_size_y,
-				lite_engine_context_current->window_title, NULL, NULL);
-	}
-	assert(lite_engine_context_current->window != NULL);
-
-	glfwSetWindowPos(lite_engine_context_current->window, 
-			lite_engine_context_current->window_position_x,
-			lite_engine_context_current->window_position_y);
-	glfwShowWindow(lite_engine_context_current->window);
-	glfwMakeContextCurrent(lite_engine_context_current->window);
-	glfwSetKeyCallback(lite_engine_context_current->window, key_callback);
-	glfwSetFramebufferSizeCallback(
-			lite_engine_context_current->window, 
-			framebuffer_size_callback);
-	glfwSetInputMode(lite_engine_context_current->window, 
-			GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	glfwSwapInterval(0);
-
-	if (!gladLoadGL()) {
-		printf("[ERROR_GL] Failed to initialize GLAD\n");
-	}
-
-	int flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
-		printf("[ERROR_GL] Failed to set debug context flag\n");
-	} else {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, NULL);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL,
-				GL_TRUE);
-	}
-
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	primitive_shader = shader_create(
-		"res/shaders/primitive.vs.glsl",
-		"res/shaders/primitive.fs.glsl");
-	primitive_mesh_cube = mesh_alloc_cube();
-}
-#endif
 
 void kinematic_body_update(
 		kinematic_body_t* kbodies, 
@@ -218,7 +72,7 @@ void kinematic_body_update(
 				kbodies[e].acceleration,
 				kbodies[e].velocity,
 				transforms[e].position,
-				lite_engine_context_current->time_delta);
+				lite_engine_get_context()->time_delta);
 		}
 		
 		{ // oct tree insertion
@@ -233,7 +87,7 @@ void kinematic_body_update(
 	}
 
 	const vector4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
-	primitive_draw_oct_tree(tree, primitive_color);
+	oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
@@ -248,17 +102,17 @@ void mesh_update(
 
 	// projection
 	glfwGetWindowSize(
-			lite_engine_context_current->window, 
-			&lite_engine_context_current->window_size_x,
-			&lite_engine_context_current->window_size_y);
-	float aspect = (float)lite_engine_context_current->window_size_x /
-		(float)lite_engine_context_current->window_size_y;
-	lite_engine_context_current->active_camera.projection =
+			lite_engine_get_context()->window, 
+			&lite_engine_get_context()->window_size_x,
+			&lite_engine_get_context()->window_size_y);
+	float aspect = (float)lite_engine_get_context()->window_size_x /
+		(float)lite_engine_get_context()->window_size_y;
+	lite_engine_get_context()->active_camera.projection =
 		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	lite_engine_context_current->active_camera.transform.matrix = 
+	lite_engine_get_context()->active_camera.transform.matrix = 
 		matrix4_identity();
 	transform_calculate_view_matrix(
-			&lite_engine_context_current->active_camera.transform);
+			&lite_engine_get_context()->active_camera.transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		{// ensure the entity has the required components.
@@ -280,15 +134,15 @@ void mesh_update(
 
 			// view matrix uniform
 			shader_setUniformM4(shaders[e], "u_viewMatrix",
-				&lite_engine_context_current->active_camera.transform.matrix);
+				&lite_engine_get_context()->active_camera.transform.matrix);
 
 			// projection matrix uniform
 			shader_setUniformM4(shaders[e], "u_projectionMatrix",
-				&lite_engine_context_current->active_camera.projection);
+				&lite_engine_get_context()->active_camera.projection);
 
 			// camera position uniform
 			shader_setUniformV3(shaders[e], "u_cameraPos",
-				lite_engine_context_current->active_camera.transform.position);
+				lite_engine_get_context()->active_camera.transform.position);
 
 			// light uniforms
 			shader_setUniformV3(shaders[e], "u_light.position",
@@ -316,7 +170,7 @@ void mesh_update(
 			shader_setUniformInt(shaders[e], "u_material.specular", 1);
 			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
 			shader_setUniformV3(shaders[e], "u_ambientLight",
-					lite_engine_context_current->ambient_light);
+					lite_engine_get_context()->ambient_light);
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
@@ -336,10 +190,10 @@ void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_FRONT);
 
 	// skybox should always appear static and never move
-	lite_engine_context_current->active_camera.transform.matrix = 
+	lite_engine_get_context()->active_camera.transform.matrix = 
 		matrix4_identity();
 	skybox->transform.rotation = quaternion_conjugate(
-			lite_engine_context_current->active_camera.transform.rotation);
+			lite_engine_get_context()->active_camera.transform.rotation);
 
 	{ // draw
 		glUseProgram(skybox->shader);
@@ -351,15 +205,15 @@ void skybox_update(skybox_t* skybox) {
 
 		// view matrix
 		shader_setUniformM4(skybox->shader, "u_viewMatrix",
-			&lite_engine_context_current->active_camera.transform.matrix);
+			&lite_engine_get_context()->active_camera.transform.matrix);
 
 		// projection matrix
 		shader_setUniformM4(skybox->shader, "u_projectionMatrix",
-			&lite_engine_context_current->active_camera.projection);
+			&lite_engine_get_context()->active_camera.projection);
 
 		// camera position
 		shader_setUniformV3(skybox->shader, "u_cameraPos",
-			lite_engine_context_current->active_camera.transform.position);
+			lite_engine_get_context()->active_camera.transform.position);
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
@@ -373,7 +227,7 @@ void skybox_update(skybox_t* skybox) {
 		shader_setUniformInt(skybox->shader, "u_material.specular", 1);
 		shader_setUniformFloat(skybox->shader, "u_material.shininess", 32.0f);
 		shader_setUniformV3(skybox->shader, "u_ambientLight",
-			lite_engine_context_current->ambient_light);
+			lite_engine_get_context()->ambient_light);
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
@@ -391,42 +245,42 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
-		glfwGetCursorPos(lite_engine_context_current->window, 
+		glfwGetCursorPos(lite_engine_get_context()->window, 
 				&mouseX, &mouseY);
 
 		if (firstMouse) {
-			lite_engine_context_current->active_camera.lastX = mouseX;
-			lite_engine_context_current->active_camera.lastY = mouseY;
+			lite_engine_get_context()->active_camera.lastX = mouseX;
+			lite_engine_get_context()->active_camera.lastY = mouseY;
 			firstMouse = false;
 		}
 
 		float xoffset = 
-			mouseX - lite_engine_context_current->active_camera.lastX;
+			mouseX - lite_engine_get_context()->active_camera.lastX;
 		float yoffset = 
-			mouseY - lite_engine_context_current->active_camera.lastY;
+			mouseY - lite_engine_get_context()->active_camera.lastY;
 
-		lite_engine_context_current->active_camera.lastX = mouseX;
-		lite_engine_context_current->active_camera.lastY = mouseY;
+		lite_engine_get_context()->active_camera.lastX = mouseX;
+		lite_engine_get_context()->active_camera.lastY = mouseY;
 
 		mouseLookVector->x += yoffset * 
-			lite_engine_context_current->active_camera.lookSensitivity;
+			lite_engine_get_context()->active_camera.lookSensitivity;
 		mouseLookVector->y += xoffset * 
-			lite_engine_context_current->active_camera.lookSensitivity;
+			lite_engine_get_context()->active_camera.lookSensitivity;
 
 		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
 		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
 
 		vector3_scale(*mouseLookVector, 
-				lite_engine_context_current->time_delta);
+				lite_engine_get_context()->time_delta);
 
-		lite_engine_context_current->active_camera.transform.rotation =
+		lite_engine_get_context()->active_camera.transform.rotation =
 			quaternion_from_euler(*mouseLookVector);
 	}
 
 	{ // movement
-		float cameraSpeed = 32 * lite_engine_context_current->time_delta;
+		float cameraSpeed = 32 * lite_engine_get_context()->time_delta;
 		float cameraSpeedCurrent;
-		if (glfwGetKey( lite_engine_context_current->window, 
+		if (glfwGetKey( lite_engine_get_context()->window, 
 					GLFW_KEY_LEFT_CONTROL)) {
 			cameraSpeedCurrent = 4 * cameraSpeed;
 		} else {
@@ -434,48 +288,26 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 		}
 		vector3_t movement = vector3_zero();
 
-		movement.x = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_D) -
-			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_A);
-		movement.y = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_SPACE) -
-			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(lite_engine_context_current->window, GLFW_KEY_W) -
-			glfwGetKey(lite_engine_context_current->window, GLFW_KEY_S);
+		movement.x = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_D) -
+			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_A);
+		movement.y = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_SPACE) -
+			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_W) -
+			glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_S);
 
 		movement = vector3_normalize(movement);
 		movement = vector3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vector3_rotate(movement, lite_engine_context_current->active_camera.transform.rotation);
+			vector3_rotate(movement, lite_engine_get_context()->active_camera.transform.rotation);
 
-		lite_engine_context_current->active_camera.transform.position =
-			vector3_add(lite_engine_context_current->active_camera.transform.position, movement);
+		lite_engine_get_context()->active_camera.transform.position =
+			vector3_add(lite_engine_get_context()->active_camera.transform.position, movement);
 
-		if (glfwGetKey(lite_engine_context_current->window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_context_current->active_camera.transform.position = vector3_zero();
-			lite_engine_context_current->active_camera.transform.rotation = quaternion_identity();
+		if (glfwGetKey(lite_engine_get_context()->window, GLFW_KEY_BACKSPACE)) {
+			lite_engine_get_context()->active_camera.transform.position = vector3_zero();
+			lite_engine_get_context()->active_camera.transform.rotation = quaternion_identity();
 		}
 	}
-}
-
-void engine_time_update(void) { // update time
-	lite_engine_context_current->time_current = glfwGetTime();
-	lite_engine_context_current->time_delta = lite_engine_context_current->time_current - lite_engine_context_current->time_last;
-	lite_engine_context_current->time_last = lite_engine_context_current->time_current;
-
-	lite_engine_context_current->time_FPS = 1 / lite_engine_context_current->time_delta;
-	lite_engine_context_current->frame_current++;
-
-#if 0 // log time
-	printf("time_current   %f\n"
-			"time_last     %f\n"
-			"time_delta    %f\n"
-			"FPS           %f\n"
-			"frame_current %lu\n",
-			lite_engine_context_current->time_current, 
-			lite_engine_context_current->time_last, 
-			lite_engine_context_current->time_delta,
-			lite_engine_context_current->time_FPS, 
-			lite_engine_context_current->frame_current);
-#endif // log time
 }
 
 int main(void) {
@@ -504,7 +336,7 @@ int main(void) {
 		.lookSensitivity          = 0.002f,
 	};
 
-	lite_engine_context_current = context;
+	lite_engine_set_context(context);
 	lite_engine_start();
 
 	lite_engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
@@ -577,14 +409,14 @@ int main(void) {
 
 	vector3_t mouseLookVector = vector3_zero();
 
-	while (!glfwWindowShouldClose(lite_engine_context_current->window)) {
+	while (!glfwWindowShouldClose(lite_engine_get_context()->window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		engine_time_update();
+		lite_engine_update();
 		input_update(&mouseLookVector);
 		mesh_update( mesh, transform, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transform);
 		skybox_update(&skybox);
-		glfwSwapBuffers(lite_engine_context_current->window);
+		glfwSwapBuffers(lite_engine_get_context()->window);
 		glfwPollEvents();
 	}
 
