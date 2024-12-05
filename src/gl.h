@@ -12,20 +12,34 @@
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)
 
+void error_callback(const int error, const char *description);
+
+void key_callback(
+		GLFWwindow *window, 
+		const int key, 
+		const int scancode, 
+		const int action, 
+		const int mods);
+
+void framebuffer_size_callback( GLFWwindow *window, const int width, const int height);
+
+void APIENTRY glDebugOutput(
+	const GLenum source, 
+	const GLenum type, 
+	const unsigned int id, 
+	const GLenum severity, 
+	const GLsizei length, 
+	const char *message, 
+	const void *userParam);
+
 GLuint texture_create(const char *imageFile);
 
-GLuint shader_create(const char *vertexShaderSourcePath,
-                     const char *fragmentShaderSourcePath);
+GLuint shader_create(const char *vertexShaderSourcePath, const char *fragmentShaderSourcePath);
 void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m);
 void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v);
 void shader_setUniformV4(GLuint shader, const char* uniformName, const vector4_t color);
 void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f);
 void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);
-
-typedef enum {
-  ENGINE_RENDERER_API_GL,
-  ENGINE_RENDERER_API_NONE,
-} engine_renderer_API_t;
 
 typedef struct {
 	vector3_t position;

@@ -15,112 +15,6 @@ DEFINE_LIST(vector3_t)
 DEFINE_LIST(matrix4_t)
 DEFINE_LIST(quaternion_t)
 
-static void error_callback(const int error, const char *description) {
-	(void)error;
-	fprintf(stderr, "Error: %s\n", description);
-}
-
-static void key_callback(GLFWwindow *window, const int key, const int scancode,
-		const int action, const int mods) {
-	(void)scancode;
-	(void)mods;
-
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	}
-}
-
-static void framebuffer_size_callback(GLFWwindow *window, const int width,
-		const int height) {
-	(void)window;
-	glViewport(0, 0, width, height);
-}
-
-static void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
-		const unsigned int id, const GLenum severity,
-		const GLsizei length, const char *message,
-		const void *userParam) {
-	(void)length;
-	(void)userParam;
-
-	// ignore non-significant error/warning codes
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
-		return;
-	}
-
-	printf("---------------\n");
-	printf("Debug message (%d) %s\n", id, message);
-
-	switch (source) {
-		case GL_DEBUG_SOURCE_API:
-			printf("Source: API");
-			break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-			printf("Source: Window System");
-			break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER:
-			printf("Source: Shader Compiler");
-			break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY:
-			printf("Source: Third Party");
-			break;
-		case GL_DEBUG_SOURCE_APPLICATION:
-			printf("Source: Application");
-			break;
-		case GL_DEBUG_SOURCE_OTHER:
-			printf("Source: Other");
-			break;
-	}
-	printf("\n");
-
-	switch (type) {
-		case GL_DEBUG_TYPE_ERROR: {
-			printf("Type: Error");
-		} break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: {
-			printf("Type: Deprecated Behaviour");
-		} break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {
-			printf("Type: Undefined Behaviour");
-		} break;
-		case GL_DEBUG_TYPE_PORTABILITY: {
-			printf("Type: Portability");
-		} break;
-		case GL_DEBUG_TYPE_PERFORMANCE: {
-			printf("Type: Performance");
-		} break;
-		case GL_DEBUG_TYPE_MARKER: {
-			printf("Type: Marker");
-		} break;
-		case GL_DEBUG_TYPE_PUSH_GROUP: {
-			printf("Type: Push Group");
-		} break;
-		case GL_DEBUG_TYPE_POP_GROUP: {
-			printf("Type: Pop Group");
-		} break;
-		case GL_DEBUG_TYPE_OTHER: {
-			printf("Type: Other");
-		} break;
-	}
-	printf("\n");
-
-	switch (severity) {
-		case GL_DEBUG_SEVERITY_HIGH: {
-			printf("Severity: high");
-		} break;
-		case GL_DEBUG_SEVERITY_MEDIUM: {
-			printf("Severity: medium");
-		} break;
-		case GL_DEBUG_SEVERITY_LOW: {
-			printf("Severity: low");
-		} break;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: {
-			printf("Severity: notification");
-		} break;
-	}
-	printf("\n\n");
-}
-
 // TODO move all of this global state to an engine object
 typedef struct lite_engine_context {
 	GLFWwindow *window;
@@ -309,15 +203,12 @@ void engine_set_clear_color(const float r, const float g, const float b,
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-//===========================================================================//
-// SECTION ECS
-//===========================================================================//
-
 static int* entities;
 static int entity_count = 0;
 enum ENTITY_ENUM { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };
 
 static int** components;
+
 enum COMPONENT_TYPE { 
 	COMPONENT_NULL,
 	COMPONENT_KINEMATIC_BODY, 
@@ -338,7 +229,7 @@ void ecs_alloc(void) {
 	}
 }
 
-int entity_create(void) {
+int ecs_entity_create(void) {
 	++entity_count;
 	assert(entity_count != ENTITY_NULL);
 	assert(entity_count <= ENTITY_COUNT_MAX);
@@ -400,10 +291,6 @@ void kinematic_body_update(kinematic_body_t* kbodies, transform_t* transforms) {
 	gizmo_draw_oct_tree(tree, gizmo_color);
 	oct_tree_free(tree);
 }
-
-//===========================================================================//
-// SECTION MESH
-//===========================================================================//
 
 void mesh_update(
 		mesh_t* meshes, 
@@ -651,9 +538,9 @@ int main(void) {
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
-	context->window_size_x        = 854;
-	context->window_size_y        = 480;
-	context->window_position_x    = 0;
+	context->window_size_x        = 1920/2;
+	context->window_size_y        = 1080/2;
+	context->window_position_x    = 1920/2;
 	context->window_position_y    = 0;
 	context->window_title         = "Game Window";
 	context->window_fullscreen    = false;
@@ -695,7 +582,7 @@ int main(void) {
 
 	// create cubes
 	for (int i = 1; i <= 1000; i++) {
-		int cube = entity_create();
+		int cube = ecs_entity_create();
 
 		ecs_component_add(cube, COMPONENT_KINEMATIC_BODY);
 		ecs_component_add(cube, COMPONENT_TRANSFORM);
@@ -720,6 +607,7 @@ int main(void) {
 		kinematic_body[cube].mass = 1.0;
 	}
 
+	// create skybox
 	skybox_t skybox = (skybox_t) {
 		.mesh =   mesh_alloc_cube(),
 		.shader = unlitShader,
@@ -734,7 +622,7 @@ int main(void) {
 	};
 
 	// create light
-	light = entity_create();
+	light = ecs_entity_create();
 	ecs_component_add(light, COMPONENT_POINT_LIGHT);
 	ecs_component_add(light, COMPONENT_TRANSFORM);
 	point_light[light] = (pointLight_t){
