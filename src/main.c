@@ -552,7 +552,7 @@ int main(void) {
 	context->frame_current        = 0;
 	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
 	context->active_camera        = (camera_t){
-		.transform.position       = (vector3_t){0.0, 0.0, -1600.0},
+		.transform.position       = (vector3_t){0.0, 0.0, -600.0},
 		.transform.rotation       = quaternion_identity(),
 		.transform.scale          = vector3_one(1.0),
 		.projection               = matrix4_identity(),
