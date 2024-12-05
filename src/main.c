@@ -564,10 +564,7 @@ int main(void) {
 
 	engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-	GLuint unlitShader = shader_create(
-		"res/shaders/unlit.vs.glsl",
-		"res/shaders/unlit.fs.glsl");
-
+	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 
 	// allocate component data
