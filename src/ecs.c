@@ -22,11 +22,13 @@ int ecs_entity_create(void) {
 }
 
 int ecs_component_add(int entity, int component) {
+	assert(components[entity][component] != 1); // already added
 	components[entity][component] = 1;
 	return component;
 }
 
 void ecs_component_remove(int entity, int component) {
+	assert(components[entity][component] != 0); // already removed
 	components[entity][component] = 0;
 }
 
