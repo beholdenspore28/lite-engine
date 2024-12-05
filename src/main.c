@@ -201,17 +201,6 @@ void engine_set_clear_color(const float r, const float g, const float b,
 	glClearColor((GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a);
 }
 
-static inline vector3_t kinematic_equation(
-		vector3_t acceleration, 
-		vector3_t velocity,
-		vector3_t position, 
-		float time) {
-	float x = 0.5f * acceleration.x * time * time + velocity.x * time + position.x;
-	float y = 0.5f * acceleration.y * time * time + velocity.y * time + position.y;
-	float z = 0.5f * acceleration.z * time * time + velocity.z * time + position.z;
-	return (vector3_t){x, y, z};
-}
-
 void kinematic_body_update(
 		kinematic_body_t* kbodies, 
 		transform_t* transforms) {
@@ -229,7 +218,7 @@ void kinematic_body_update(
 			kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
-			transforms[e].position = kinematic_equation(
+			transforms[e].position = vector3_kinematic_equation(
 				kbodies[e].acceleration,
 				kbodies[e].velocity,
 				transforms[e].position,
@@ -245,7 +234,6 @@ void kinematic_body_update(
 				ecs_component_exists(e, COMPONENT_MESH))
 					ecs_component_remove(e, COMPONENT_MESH);			
 		}
-
 	}
 
 	const vector4_t gizmo_color = { 0.2, 0.2, 0.2, 1.0 };
