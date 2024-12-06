@@ -392,7 +392,7 @@ int main(void) {
 		.transform = (transform_t){
 			.position = { 0.0, 0.0, 0.0 },
 			.rotation = quaternion_identity(),
-			.scale = vector3_one(10000.0),
+			.scale = vector3_one(100000.0),
 		},
 	};
 
