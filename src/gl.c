@@ -155,8 +155,8 @@ GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath) {
   printf("Attempting to load shaders '%s' and '%s'\n", vertexShaderSourcePath,
          fragmentShaderSourcePath);
-  filebuffer_t vertSourceFileBuffer = filebuffer_read(vertexShaderSourcePath);
-  filebuffer_t fragSourceFileBuffer = filebuffer_read(fragmentShaderSourcePath);
+  file_buffer vertSourceFileBuffer = file_buffer_read(vertexShaderSourcePath);
+  file_buffer fragSourceFileBuffer = file_buffer_read(fragmentShaderSourcePath);
 
   if (vertSourceFileBuffer.error == true) {
     fprintf(stderr, "failed to read vertex shader");
@@ -191,8 +191,8 @@ GLuint shader_create(const char *vertexShaderSourcePath,
 
   glValidateProgram(program);
 
-  filebuffer_close(vertSourceFileBuffer);
-  filebuffer_close(fragSourceFileBuffer);
+  file_buffer_close(vertSourceFileBuffer);
+  file_buffer_close(fragSourceFileBuffer);
 
   return program;
 }

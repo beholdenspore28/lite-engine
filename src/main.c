@@ -5,13 +5,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#define B_LIST_IMPLEMENTATION
+#define BLIB_IMPLEMENTATION
 #include "blib/blib.h"
+#include "blib/blib_json.h"
 #include "blib/blib_math.h"
 
 #include "lite_engine.h"
-#include "oct_tree.h"
 #include "ecs.h"
+#include "oct_tree.h"
 
 typedef struct skybox {
 	mesh_t mesh;
@@ -62,7 +63,7 @@ void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
+			//~ kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
 			transforms[e].position = vector3_kinematic_equation(
@@ -309,8 +310,15 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 	}
 }
 
-int main(void) {
+int main() {
 	printf("Rev up those fryers!\n");
+
+#if 0
+	json_value *json = json_read("res/test.json");
+	json_print(json);
+	json_free(json);
+	return 0;
+#endif
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
@@ -330,7 +338,7 @@ int main(void) {
 
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
-	camera_t* camera = malloc(sizeof(camera_t));
+	camera_t* camera              = malloc(sizeof(camera_t));
 	camera->transform.position    = (vector3_t){0.0, 0.0, -600.0};
 	camera->transform.rotation    = quaternion_identity();
 	camera->transform.scale       = vector3_one(1.0);
