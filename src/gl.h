@@ -21,8 +21,6 @@ void key_callback(
 		const int action, 
 		const int mods);
 
-void framebuffer_size_callback( GLFWwindow *window, const int width, const int height);
-
 void APIENTRY glDebugOutput(
 	const GLenum source, 
 	const GLenum type, 

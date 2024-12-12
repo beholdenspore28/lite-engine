@@ -24,12 +24,6 @@ void key_callback(GLFWwindow *window, const int key, const int scancode,
 	}
 }
 
-void framebuffer_size_callback(GLFWwindow *window, const int width,
-		const int height) {
-	(void)window;
-	glViewport(0, 0, width, height);
-}
-
 void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
 		const GLsizei length, const char *message,

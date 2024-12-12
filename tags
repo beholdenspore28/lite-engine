@@ -1,0 +1,110 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/benis/repos/lite-engine/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+COMPONENT_COLLIDER	src/ecs.h	/^	COMPONENT_COLLIDER, $/;"	e	enum:COMPONENT_TYPE
+COMPONENT_COUNT_MAX	src/ecs.h	/^	COMPONENT_COUNT_MAX,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_KINEMATIC_BODY	src/ecs.h	/^	COMPONENT_KINEMATIC_BODY, $/;"	e	enum:COMPONENT_TYPE
+COMPONENT_MATERIAL	src/ecs.h	/^	COMPONENT_MATERIAL,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_MESH	src/ecs.h	/^	COMPONENT_MESH,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_NULL	src/ecs.h	/^	COMPONENT_NULL,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_POINT_LIGHT	src/ecs.h	/^	COMPONENT_POINT_LIGHT,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_SHADER	src/ecs.h	/^	COMPONENT_SHADER,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_TRANSFORM	src/ecs.h	/^	COMPONENT_TRANSFORM,$/;"	e	enum:COMPONENT_TYPE
+COMPONENT_TYPE	src/ecs.h	/^enum COMPONENT_TYPE { $/;"	g
+EBO	src/gl.h	/^  GLuint EBO;$/;"	m	struct:__anoncf307bc50208	typeref:typename:GLuint
+ENTITY_COUNT_MAX	src/ecs.h	/^enum ENTITY_ENUM { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };$/;"	e	enum:ENTITY_ENUM
+ENTITY_ENUM	src/ecs.h	/^enum ENTITY_ENUM { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };$/;"	g
+ENTITY_NULL	src/ecs.h	/^enum ENTITY_ENUM { ENTITY_NULL, ENTITY_COUNT_MAX = 6000, };$/;"	e	enum:ENTITY_ENUM
+GLFW_INCLUDE_NONE	src/gl.h	/^#define GLFW_INCLUDE_NONE$/;"	d
+ID	src/oct_tree.h	/^	int ID;$/;"	m	struct:__anoneef886e70108	typeref:typename:int
+MESH_CUBE_NUM_INDICES	src/gl.h	/^#define MESH_CUBE_NUM_INDICES /;"	d
+MESH_CUBE_NUM_VERTICES	src/gl.h	/^#define MESH_CUBE_NUM_VERTICES /;"	d
+MESH_QUAD_NUM_INDICES	src/gl.h	/^#define MESH_QUAD_NUM_INDICES /;"	d
+MESH_QUAD_NUM_VERTICES	src/gl.h	/^#define MESH_QUAD_NUM_VERTICES /;"	d
+VAO	src/gl.h	/^  GLuint VAO;$/;"	m	struct:__anoncf307bc50208	typeref:typename:GLuint
+VBO	src/gl.h	/^  GLuint VBO;$/;"	m	struct:__anoncf307bc50208	typeref:typename:GLuint
+__anoncf307bc50108	src/gl.h	/^typedef struct {$/;"	s
+__anoncf307bc50208	src/gl.h	/^typedef struct {$/;"	s
+__anoncf307bc50308	src/gl.h	/^typedef struct {$/;"	s
+__anoncf307bc50408	src/gl.h	/^typedef struct {$/;"	s
+__anoncf307bc50508	src/gl.h	/^typedef struct {$/;"	s
+__anoneef886e70108	src/oct_tree.h	/^typedef struct {$/;"	s
+__anonf5e1ef950108	src/lite_engine.h	/^typedef struct {$/;"	s
+active_camera	src/lite_engine.h	/^	camera_t    *active_camera;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:camera_t *
+ambient_light	src/lite_engine.h	/^	vector3_t   ambient_light;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:vector3_t
+backNorthEast	src/oct_tree.h	/^	struct oct_tree *backNorthEast;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+backNorthWest	src/oct_tree.h	/^	struct oct_tree *backNorthWest;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+backSouthEast	src/oct_tree.h	/^	struct oct_tree *backSouthEast;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+backSouthWest	src/oct_tree.h	/^	struct oct_tree *backSouthWest;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+camera_t	src/gl.h	/^} camera_t;$/;"	t	typeref:struct:__anoncf307bc50508
+capacity	src/oct_tree.h	/^	uint32_t capacity;$/;"	m	struct:oct_tree	typeref:typename:uint32_t
+constant	src/gl.h	/^	float constant;$/;"	m	struct:pointLight	typeref:typename:float
+depth	src/oct_tree.h	/^	int depth;$/;"	m	struct:oct_tree	typeref:typename:int
+diffuse	src/gl.h	/^	vector3_t diffuse;$/;"	m	struct:pointLight	typeref:typename:vector3_t
+diffuseMap	src/gl.h	/^	GLuint diffuseMap;$/;"	m	struct:__anoncf307bc50308	typeref:typename:GLuint
+enabled	src/gl.h	/^	bool enabled;$/;"	m	struct:__anoncf307bc50208	typeref:typename:bool
+entries	src/oct_tree.h	/^	list_oct_tree_entry_t entries;$/;"	m	struct:oct_tree	typeref:typename:list_oct_tree_entry_t
+frame_current	src/lite_engine.h	/^	uint64_t    frame_current;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:uint64_t
+frontNorthEast	src/oct_tree.h	/^	struct oct_tree *frontNorthEast;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+frontNorthWest	src/oct_tree.h	/^	struct oct_tree *frontNorthWest;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+frontSouthEast	src/oct_tree.h	/^	struct oct_tree *frontSouthEast;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+frontSouthWest	src/oct_tree.h	/^	struct oct_tree *frontSouthWest;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+indexCount	src/gl.h	/^  GLuint indexCount;$/;"	m	struct:__anoncf307bc50208	typeref:typename:GLuint
+isSubdivided	src/oct_tree.h	/^	bool isSubdivided;$/;"	m	struct:oct_tree	typeref:typename:bool
+lastX	src/gl.h	/^  float lastX;$/;"	m	struct:__anoncf307bc50508	typeref:typename:float
+lastY	src/gl.h	/^  float lastY;$/;"	m	struct:__anoncf307bc50508	typeref:typename:float
+linear	src/gl.h	/^	float linear;$/;"	m	struct:pointLight	typeref:typename:float
+lite_engine_context_t	src/lite_engine.h	/^} lite_engine_context_t;$/;"	t	typeref:struct:__anonf5e1ef950108
+lookSensitivity	src/gl.h	/^  float lookSensitivity;$/;"	m	struct:__anoncf307bc50508	typeref:typename:float
+material_t	src/gl.h	/^} material_t;$/;"	t	typeref:struct:__anoncf307bc50308
+matrix	src/gl.h	/^  matrix4_t matrix;$/;"	m	struct:__anoncf307bc50408	typeref:typename:matrix4_t
+mesh_cube_indices	src/gl.h	/^static GLuint mesh_cube_indices[MESH_CUBE_NUM_INDICES] = {$/;"	v	typeref:typename:GLuint[]
+mesh_cube_vertices	src/gl.h	/^static vertex_t mesh_cube_vertices[MESH_CUBE_NUM_VERTICES] = {$/;"	v	typeref:typename:vertex_t[]
+mesh_quad_indices	src/gl.h	/^static unsigned int mesh_quad_indices[MESH_QUAD_NUM_INDICES] = {$/;"	v	typeref:typename:unsigned int[]
+mesh_quad_vertices	src/gl.h	/^static vertex_t mesh_quad_vertices[MESH_QUAD_NUM_VERTICES] = {$/;"	v	typeref:typename:vertex_t[]
+mesh_t	src/gl.h	/^} mesh_t;$/;"	t	typeref:struct:__anoncf307bc50208
+minimumSize	src/oct_tree.h	/^	float minimumSize;$/;"	m	struct:oct_tree	typeref:typename:float
+normal	src/gl.h	/^	vector3_t normal;$/;"	m	struct:__anoncf307bc50108	typeref:typename:vector3_t
+octSize	src/oct_tree.h	/^	float octSize;$/;"	m	struct:oct_tree	typeref:typename:float
+oct_tree	src/oct_tree.h	/^typedef struct oct_tree {$/;"	s
+oct_tree_entry_t	src/oct_tree.h	/^} oct_tree_entry_t;$/;"	t	typeref:struct:__anoneef886e70108
+oct_tree_t	src/oct_tree.h	/^} oct_tree_t;$/;"	t	typeref:struct:oct_tree
+parent	src/oct_tree.h	/^	struct oct_tree *parent;$/;"	m	struct:oct_tree	typeref:struct:oct_tree *
+pointLight	src/gl.h	/^typedef struct pointLight {$/;"	s
+pointLight_t	src/gl.h	/^} pointLight_t;$/;"	t	typeref:struct:pointLight
+position	src/gl.h	/^	vector3_t position;$/;"	m	struct:__anoncf307bc50108	typeref:typename:vector3_t
+position	src/gl.h	/^  vector3_t position;$/;"	m	struct:__anoncf307bc50408	typeref:typename:vector3_t
+position	src/oct_tree.h	/^	vector3_t position; $/;"	m	struct:__anoneef886e70108	typeref:typename:vector3_t
+position	src/oct_tree.h	/^	vector3_t position;$/;"	m	struct:oct_tree	typeref:typename:vector3_t
+projection	src/gl.h	/^matrix4_t projection;$/;"	m	struct:__anoncf307bc50508	typeref:typename:matrix4_t
+quadratic	src/gl.h	/^	float quadratic;$/;"	m	struct:pointLight	typeref:typename:float
+rotation	src/gl.h	/^  quaternion_t rotation;$/;"	m	struct:__anoncf307bc50408	typeref:typename:quaternion_t
+scale	src/gl.h	/^  vector3_t scale;$/;"	m	struct:__anoncf307bc50408	typeref:typename:vector3_t
+shader	src/gl.h	/^	GLuint shader;$/;"	m	struct:__anoncf307bc50308	typeref:typename:GLuint
+specular	src/gl.h	/^	vector3_t specular;$/;"	m	struct:pointLight	typeref:typename:vector3_t
+specularMap	src/gl.h	/^	GLuint specularMap;$/;"	m	struct:__anoncf307bc50308	typeref:typename:GLuint
+texCoord	src/gl.h	/^	vector2_t texCoord;$/;"	m	struct:__anoncf307bc50108	typeref:typename:vector2_t
+time_FPS	src/lite_engine.h	/^	float       time_FPS;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:float
+time_current	src/lite_engine.h	/^	float       time_current;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:float
+time_delta	src/lite_engine.h	/^	float       time_delta;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:float
+time_last	src/lite_engine.h	/^	float       time_last;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:float
+transform	src/gl.h	/^  transform_t transform;$/;"	m	struct:__anoncf307bc50508	typeref:typename:transform_t
+transform_t	src/gl.h	/^} transform_t;$/;"	t	typeref:struct:__anoncf307bc50408
+vertexCount	src/gl.h	/^  GLuint vertexCount;$/;"	m	struct:__anoncf307bc50208	typeref:typename:GLuint
+vertex_t	src/gl.h	/^} vertex_t;$/;"	t	typeref:struct:__anoncf307bc50108
+window	src/lite_engine.h	/^	GLFWwindow *window;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:GLFWwindow *
+window_always_on_top	src/lite_engine.h	/^	int         window_always_on_top;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_fullscreen	src/lite_engine.h	/^	int         window_fullscreen;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_position_x	src/lite_engine.h	/^	int         window_position_x;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_position_y	src/lite_engine.h	/^	int         window_position_y;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_size_x	src/lite_engine.h	/^	int         window_size_x;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_size_y	src/lite_engine.h	/^	int         window_size_y;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:int
+window_title	src/lite_engine.h	/^	char       *window_title;$/;"	m	struct:__anonf5e1ef950108	typeref:typename:char *

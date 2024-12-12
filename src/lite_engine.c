@@ -4,6 +4,14 @@ static lite_engine_context_t* lite_engine_context = NULL;
 static GLuint primitive_shader;
 static mesh_t primitive_mesh_cube;
 
+void framebuffer_size_callback(
+		GLFWwindow *window,
+		const int width,
+		const int height) {
+	(void)window;
+	glViewport(0, 0, width, height);
+}
+
 void lite_engine_start(void) {
 	if (lite_engine_context == NULL) {
 		printf("[ERROR_LITE_ENGINE] Lite-Engine context was null before calling lite_engine_start()."

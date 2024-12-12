@@ -29,7 +29,7 @@ typedef struct kinematic_body {
 
 int light;
 
-void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
+static inline void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
 		.rotation = quaternion_identity(),
@@ -49,7 +49,7 @@ void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
 	}
 }
 
-void kinematic_body_update(
+static inline void kinematic_body_update(
 		kinematic_body_t* kbodies, 
 		transform_t* transforms) {
 	oct_tree_t *tree = oct_tree_alloc();
@@ -63,7 +63,7 @@ void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			//~ kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
+			kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
 			transforms[e].position = vector3_kinematic_equation(
@@ -89,7 +89,7 @@ void kinematic_body_update(
 	oct_tree_free(tree);
 }
 
-void mesh_update(
+static inline void mesh_update(
 		mesh_t* meshes, 
 		transform_t* transforms, 
 		GLuint* shaders,
@@ -183,7 +183,7 @@ void mesh_update(
 	glUseProgram(0);
 }
 
-void skybox_update(skybox_t* skybox) {
+static inline void skybox_update(skybox_t* skybox) {
 	// setup
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -241,7 +241,7 @@ void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_BACK);
 }
 
-void input_update(vector3_t* mouseLookVector) {   // INPUT
+static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -313,11 +313,10 @@ void input_update(vector3_t* mouseLookVector) {   // INPUT
 int main() {
 	printf("Rev up those fryers!\n");
 
-#if 0
+#if 1
 	json_value *json = json_read("res/test.json");
 	json_print(json);
 	json_free(json);
-	return 0;
 #endif
 
 	// init engine
