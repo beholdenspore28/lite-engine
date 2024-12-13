@@ -130,8 +130,6 @@ static inline void mesh_update(
 			assert(ecs_component_exists(e, COMPONENT_MATERIAL)); 
 		}
 
-		transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
-
 		{ // draw
 			glUseProgram(shaders[e]);
 
@@ -451,7 +449,7 @@ int main() {
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
 	GLuint* shader = calloc(sizeof(GLuint),ENTITY_COUNT_MAX);
 	material_t* material = calloc(sizeof(material_t),ENTITY_COUNT_MAX);
-	transform_t* transform = calloc(sizeof(transform_t),ENTITY_COUNT_MAX);
+	transform_t* transforms = calloc(sizeof(transform_t),ENTITY_COUNT_MAX);
 	kinematic_body_t* kinematic_body = calloc(sizeof(kinematic_body_t),ENTITY_COUNT_MAX);
 	pointLight_t* point_light = calloc(sizeof(pointLight_t), ENTITY_COUNT_MAX);
 
@@ -472,7 +470,7 @@ int main() {
 		shader[cube] = diffuseShader;
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
-		transform[cube] = (transform_t){
+		transforms[cube] = (transform_t){
 			.position = (vector3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
@@ -496,7 +494,7 @@ int main() {
 		material[suzanne] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
-		transform[suzanne] = (transform_t){
+		transforms[suzanne] = (transform_t){
 			.position = vector3_zero(),
 			.rotation = quaternion_from_euler(vector3_up(PI/2)),
 			.scale = vector3_one(10.0), 
@@ -527,7 +525,7 @@ int main() {
 		.linear = 0.09f,
 		.quadratic = 0.032f,
 	};
-	transform[light].position = (vector3_t){20, 20, 20};
+	transforms[light].position = (vector3_t){20, 20, 20};
 
 
 	vector3_t mouseLookVector = vector3_zero();
@@ -535,15 +533,17 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		mesh_update(mesh, transform, shader, material, point_light);
-		kinematic_body_update(kinematic_body, transform);
+		transforms[suzanne].rotation = quaternion_multiply(
+			transforms[suzanne].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
+		mesh_update(mesh, transforms, shader, material, point_light);
+		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);
 	}
 
 	free(mesh);
 	free(shader);
 	free(material);
-	free(transform);
+	free(transforms);
 	free(kinematic_body);
 	free(point_light);
 	free(camera);
