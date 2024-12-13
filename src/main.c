@@ -99,7 +99,7 @@ static inline void mesh_update(
 		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
 
-#if 0 // wireframe toggle
+#if 1 // wireframe toggle
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #else
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -130,7 +130,7 @@ static inline void mesh_update(
 			assert(ecs_component_exists(e, COMPONENT_MATERIAL)); 
 		}
 
-		transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
+		//transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
 
 		{ // draw
 			glUseProgram(shaders[e]);
@@ -329,23 +329,28 @@ mesh_t mesh_load_obj(const char* file_path) {
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
 		if (*c == '#')
 			while(*c != '\n') { ++c; }
-		if (*c == 'v') { // v
+		if (*c == 'v') {
 			c++;
-			if (*c == 't') { // vt
-				c++;
-				continue;
-			}
-			if (*c == 't') { // vn
-				c++;
-				continue;
-			}
 			vertex_t v = {0};
+			if (*c == 't') {
+				c++;
+				continue;
+			}
+			if (*c == 't') {
+				c++;
+				continue;
+			}
+			if (*c == 'n') {
+				c++;
+				sscanf(c, "%f %f %f", &v.normal.x, &v.normal.y, &v.normal.z);
+				list_vertex_t_add(&vertices, v);
+				continue;
+			}
 			sscanf(c, "%f %f %f", &v.position.x, &v.position.y, &v.position.z);
-			//vector3_print(v.position, "vertex position");
 			list_vertex_t_add(&vertices, v);
 			continue;
 		}
-		if (*c == 'f') { // f
+		if (*c == 'f') {
 			++c;
 			int posIndex0,  texIndex0,  normIndex0,
 				posIndex1,  texIndex1,  normIndex1,
@@ -415,6 +420,7 @@ int main() {
 	lite_engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
 	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
+	GLuint diffuseShader = shader_create( "res/shaders/diffuse.vs.glsl", "res/shaders/diffuse.fs.glsl");
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 
 	mesh_t testObj = mesh_load_obj("res/models/suzanne.obj");
@@ -431,7 +437,7 @@ int main() {
 
 #if 1
 	// create cubes
-	for (int i = 1; i <= 1000; i++) {
+	for (int i = 1; i <= 0; i++) {
 		int cube = ecs_entity_create();
 
 		ecs_component_add(cube, COMPONENT_KINEMATIC_BODY);
@@ -464,7 +470,7 @@ int main() {
 		ecs_component_add(suzanne, COMPONENT_SHADER);
 
 		mesh[suzanne] = testObj;
-		shader[suzanne] = unlitShader;
+		shader[suzanne] = diffuseShader;
 		material[suzanne] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
@@ -499,7 +505,7 @@ int main() {
 		.linear = 0.09f,
 		.quadratic = 0.032f,
 	};
-	transform[light].position = (vector3_t){5, 5, 5};
+	transform[light].position = (vector3_t){20, 20, 20};
 
 
 	vector3_t mouseLookVector = vector3_zero();
