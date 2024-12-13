@@ -354,9 +354,9 @@ mesh_t mesh_load_obj(const char* file_path) {
 					&posIndex0,  &texIndex0,  &normIndex0,
 					&posIndex1,  &texIndex1,  &normIndex1,
 					&posIndex2,  &texIndex2,  &normIndex2);
-			list_GLuint_add(&indices, posIndex0);
-			list_GLuint_add(&indices, posIndex1);
-			list_GLuint_add(&indices, posIndex2);
+			list_GLuint_add(&indices, posIndex2-1);
+			list_GLuint_add(&indices, posIndex1-1);
+			list_GLuint_add(&indices, posIndex0-1);
 		}
 	}
 
