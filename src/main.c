@@ -130,6 +130,8 @@ static inline void mesh_update(
 			assert(ecs_component_exists(e, COMPONENT_MATERIAL)); 
 		}
 
+		transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
+
 		{ // draw
 			glUseProgram(shaders[e]);
 
@@ -328,13 +330,13 @@ mesh_t mesh_load_obj(const char* file_path) {
 		if (*c == '#')
 			while(*c != '\n') { ++c; }
 		if (*c == 'v') { // v
-			++c;
+			c++;
 			if (*c == 't') { // vt
-				++c;
+				c++;
 				continue;
 			}
 			if (*c == 't') { // vn
-				++c;
+				c++;
 				continue;
 			}
 			vertex_t v = {0};
@@ -344,11 +346,11 @@ mesh_t mesh_load_obj(const char* file_path) {
 			continue;
 		}
 		if (*c == 'f') { // f
-			c+=2;
+			++c;
 			int posIndex0,  texIndex0,  normIndex0,
 				posIndex1,  texIndex1,  normIndex1,
 				posIndex2,  texIndex2,  normIndex2;
-			sscanf(c, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
+			sscanf(c, " %d/%d/%d %d/%d/%d %d/%d/%d\n", 
 					&posIndex0,  &texIndex0,  &normIndex0,
 					&posIndex1,  &texIndex1,  &normIndex1,
 					&posIndex2,  &texIndex2,  &normIndex2);
@@ -359,6 +361,10 @@ mesh_t mesh_load_obj(const char* file_path) {
 	}
 
 	file_buffer_close(fb);
+
+	for(size_t i = 0; i < indices.length; i++) {
+		printf("%d ", indices.array[i]);
+	}
 
 	mesh_t mesh = mesh_alloc(
 			vertices.array,  indices.array,
@@ -395,7 +401,7 @@ int main() {
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
 	camera_t* camera              = malloc(sizeof(camera_t));
-	camera->transform.position    = (vector3_t){0.0, 0.0, -600.0};
+	camera->transform.position    = (vector3_t){0.0, 0.0, -25.0};
 	camera->transform.rotation    = quaternion_identity();
 	camera->transform.scale       = vector3_one(1.0);
 	camera->projection            = matrix4_identity();
@@ -423,6 +429,7 @@ int main() {
 
 	ecs_alloc(); 
 
+#if 1
 	// create cubes
 	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
@@ -433,7 +440,7 @@ int main() {
 		ecs_component_add(cube, COMPONENT_MATERIAL);
 		ecs_component_add(cube, COMPONENT_SHADER);
 
-		mesh[cube] = testObj;
+		mesh[cube] = mesh_alloc_cube();
 		shader[cube] = unlitShader;
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
@@ -447,7 +454,26 @@ int main() {
 		kinematic_body[cube].velocity = vector3_zero();
 		kinematic_body[cube].mass = 1.0;
 	}
+#endif
 
+	int suzanne = ecs_entity_create();
+	{
+		ecs_component_add(suzanne, COMPONENT_TRANSFORM);
+		ecs_component_add(suzanne, COMPONENT_MESH);
+		ecs_component_add(suzanne, COMPONENT_MATERIAL);
+		ecs_component_add(suzanne, COMPONENT_SHADER);
+
+		mesh[suzanne] = testObj;
+		shader[suzanne] = unlitShader;
+		material[suzanne] = (material_t){
+			.diffuseMap = testDiffuseMap,
+		};
+		transform[suzanne] = (transform_t){
+			.position = vector3_forward(1.0),
+			.rotation = quaternion_identity(),
+			.scale = vector3_one(10.0), 
+		};
+	}
 	// create skybox
 	skybox_t skybox = (skybox_t) {
 		.mesh =   mesh_alloc_cube(),
