@@ -98,7 +98,12 @@ static inline void mesh_update(
 		material_t* material,
 		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
+
+#if 0 // wireframe toggle
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#else
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 
 	int window_size_x = lite_engine_get_context().window_size_x;
 	int window_size_y = lite_engine_get_context().window_size_y;
@@ -317,23 +322,19 @@ mesh_t mesh_load_obj(const char* file_path) {
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
-
 	list_GLuint indices = list_GLuint_alloc();
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
 		if (*c == '#')
 			while(*c != '\n') { ++c; }
-
 		if (*c == 'v') { // v
-			c++;
+			++c;
 			if (*c == 't') { // vt
-				c++;
-				//printf("found vt!\n");
+				++c;
 				continue;
 			}
 			if (*c == 't') { // vn
-				c++;
-				//printf("found n!\n");
+				++c;
 				continue;
 			}
 			vertex_t v = {0};
@@ -343,26 +344,18 @@ mesh_t mesh_load_obj(const char* file_path) {
 			continue;
 		}
 		if (*c == 'f') { // f
-			c++;
-			int i1, i2, i3;
-			sscanf(c, "%d/%d/%d", &i1, &i2, &i3);
-			//printf("found %d %d %d!\n", i1, i2, i3);
-			list_GLuint_add(&indices, i1);
-			list_GLuint_add(&indices, i2);
-			list_GLuint_add(&indices, i3);
-			continue;
+			c+=2;
+			int posIndex0,  texIndex0,  normIndex0,
+				posIndex1,  texIndex1,  normIndex1,
+				posIndex2,  texIndex2,  normIndex2;
+			sscanf(c, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
+					&posIndex0,  &texIndex0,  &normIndex0,
+					&posIndex1,  &texIndex1,  &normIndex1,
+					&posIndex2,  &texIndex2,  &normIndex2);
+			list_GLuint_add(&indices, posIndex0);
+			list_GLuint_add(&indices, posIndex1);
+			list_GLuint_add(&indices, posIndex2);
 		}
-		if (*c == 's') { // s
-			c++;
-			//printf("found s!\n");
-			continue;
-		}
-		if (*c == 'n') { // n
-			c++;
-			//printf("found n!\n");
-			continue;
-		}
-		//putchar(*c);
 	}
 
 	file_buffer_close(fb);
