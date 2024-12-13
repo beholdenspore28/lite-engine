@@ -63,8 +63,10 @@ static inline void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			kbodies[e].acceleration = vector3_scale(vector3_left(0.1), 1/kbodies[e].mass);
-			kbodies[e].velocity = vector3_add(kbodies[e].velocity, kbodies[e].acceleration);
+			kbodies[e].acceleration = vector3_scale(
+					vector3_left(0.1), 1/kbodies[e].mass);
+			kbodies[e].velocity = vector3_add(
+					kbodies[e].velocity, kbodies[e].acceleration);
 	
 			transforms[e].position = vector3_kinematic_equation(
 				kbodies[e].acceleration,
@@ -310,10 +312,69 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 	}
 }
 
+mesh_t obj_load_test(void) {
+	const char* file_path = "res/models/suzanne-anim0001.obj";
+	file_buffer fb = file_buffer_read(file_path);
+	if (fb.error) {
+		fprintf(stderr, "failed to read file %s", file_path);
+	}
+
+	list_vertex_t vertices = list_vertex_t_alloc();
+	for(char* c = fb.text; c < fb.text+fb.length; c++) {
+		if (*c == '#')
+			while(*c != '\n') { ++c; }
+
+		if (*c == 'v') { // v
+			c++;
+			if (*c == 't') { // vt
+				c++;
+				//printf("found vt!\n");
+				continue;
+			}
+			if (*c == 't') { // vn
+				c++;
+				//printf("found n!\n");
+				continue;
+			}
+			vertex_t v = {0};
+			sscanf(c, "%f %f %f\n", &v.position.x, &v.position.y, &v.position.z);
+			vector3_print(v.position, "vertex position");
+			list_vertex_t_add(&vertices, v);
+			continue;
+		}
+		if (*c == 'f') { // f
+			c++;
+			//printf("found f!\n");
+			continue;
+		}
+		if (*c == 's') { // s
+			c++;
+			//printf("found s!\n");
+			continue;
+		}
+		if (*c == 'n') { // n
+			c++;
+			//printf("found n!\n");
+			continue;
+		}
+		//putchar(*c);
+	}
+
+	file_buffer_close(fb);
+
+	list_GLuint indices;
+
+	mesh_t mesh = mesh_alloc(
+			vertices.array,  indices.array,
+			vertices.length, indices.length);
+
+	return mesh;
+}
+
 int main() {
 	printf("Rev up those fryers!\n");
 
-#if 1
+#if 0
 	json_value *json = json_read("res/test.json");
 	json_print(json);
 	json_free(json);
@@ -353,6 +414,8 @@ int main() {
 
 	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
+
+	mesh_t testObj = obj_load_test();
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
