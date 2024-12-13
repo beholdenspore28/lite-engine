@@ -87,7 +87,7 @@ static inline void kinematic_body_update(
 	}
 
 	const vector4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
-	oct_tree_draw(tree, primitive_color);
+	//oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
@@ -130,7 +130,7 @@ static inline void mesh_update(
 			assert(ecs_component_exists(e, COMPONENT_MATERIAL)); 
 		}
 
-		//transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
+		transforms[e].rotation = quaternion_multiply(transforms[e].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
 
 		{ // draw
 			glUseProgram(shaders[e]);
@@ -319,62 +319,84 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 	}
 }
 
+DEFINE_LIST(vector3_t)
+
 mesh_t mesh_load_obj(const char* file_path) {
 	file_buffer fb = file_buffer_read(file_path);
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
-	list_GLuint indices = list_GLuint_alloc();
-	list_vertex_t vertices = list_vertex_t_alloc();
+	list_GLuint position_indices = list_GLuint_alloc();
+	list_GLuint normal_indices = list_GLuint_alloc();
+	list_vector3_t vertex_positions = list_vector3_t_alloc();
+	list_vector3_t vertex_normals = list_vector3_t_alloc();
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
-		if (*c == '#')
-			while(*c != '\n') { ++c; }
-		if (*c == 'v') {
-			c++;
-			vertex_t v = {0};
-			if (*c == 't') {
+		switch(*c) {
+			case '#': { // ignore comments
+				while(*c != '\n') { ++c; }
+			} break;
+			case 'v': { // vertex
 				c++;
-				continue;
-			}
-			if (*c == 't') {
-				c++;
-				continue;
-			}
-			if (*c == 'n') {
-				c++;
-				sscanf(c, "%f %f %f", &v.normal.x, &v.normal.y, &v.normal.z);
-				list_vertex_t_add(&vertices, v);
-				continue;
-			}
-			sscanf(c, "%f %f %f", &v.position.x, &v.position.y, &v.position.z);
-			list_vertex_t_add(&vertices, v);
-			continue;
-		}
-		if (*c == 'f') {
-			++c;
-			int posIndex0,  texIndex0,  normIndex0,
-				posIndex1,  texIndex1,  normIndex1,
-				posIndex2,  texIndex2,  normIndex2;
-			sscanf(c, " %d/%d/%d %d/%d/%d %d/%d/%d\n", 
-					&posIndex0,  &texIndex0,  &normIndex0,
-					&posIndex1,  &texIndex1,  &normIndex1,
-					&posIndex2,  &texIndex2,  &normIndex2);
-			list_GLuint_add(&indices, posIndex2-1);
-			list_GLuint_add(&indices, posIndex1-1);
-			list_GLuint_add(&indices, posIndex0-1);
+				switch (*c) {
+					case 't': { // vertex texture coordinates
+						c++;
+					} break;  
+					case 'n': { // vertex normals
+						c++;
+						vector3_t normal;
+						int num_reads = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
+						if (num_reads != 3) {
+							fprintf(stderr, "failed to read vertex normal\n");
+							exit(0);
+						}
+						list_vector3_t_add(&vertex_normals, normal);
+					} break;
+					default: { // vertex position
+						vector3_t position;
+						int num_reads = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
+						if (num_reads != 3) {
+							fprintf(stderr, "failed to read vertex position\n");
+							exit(0);
+						}
+						list_vector3_t_add(&vertex_positions, position);
+					} break;
+				}
+			} break;
+			case 'f': { // indices
+				++c;
+				int posIndex0,  texIndex0,  normIndex0,
+					posIndex1,  texIndex1,  normIndex1,
+					posIndex2,  texIndex2,  normIndex2;
+				int num_reads = sscanf(c, " %d/%d/%d %d/%d/%d %d/%d/%d\n", 
+						&posIndex0,  &texIndex0,  &normIndex0,
+						&posIndex1,  &texIndex1,  &normIndex1,
+						&posIndex2,  &texIndex2,  &normIndex2);
+				if (num_reads != 9) {
+					fprintf(stderr, "failed to read index data");
+					exit(0);
+				}
+				list_GLuint_add(&position_indices, posIndex2-1);
+				list_GLuint_add(&position_indices, posIndex1-1);
+				list_GLuint_add(&position_indices, posIndex0-1);
+				list_GLuint_add(&normal_indices, normIndex2-1);
+				list_GLuint_add(&normal_indices, normIndex1-1);
+				list_GLuint_add(&normal_indices, normIndex0-1);
+			} break;
 		}
 	}
-
 	file_buffer_close(fb);
-
-	for(size_t i = 0; i < indices.length; i++) {
-		printf("%d ", indices.array[i]);
+	list_vertex_t vertices = list_vertex_t_alloc();
+	for(size_t i = 0; i < vertex_positions.length; i++) {
+		vertex_t v;
+		v.position = vertex_positions.array[i];
+		list_vertex_t_add(&vertices, v);
 	}
-
+	for(size_t i = 0; i < vertices.length; i++) {
+		vertices.array[i].normal = vertex_normals.array[i];
+	}
 	mesh_t mesh = mesh_alloc(
-			vertices.array,  indices.array,
-			vertices.length, indices.length);
-
+			vertices.array,  position_indices.array,
+			vertices.length, position_indices.length);
 	return mesh;
 }
 
@@ -437,7 +459,7 @@ int main() {
 
 #if 1
 	// create cubes
-	for (int i = 1; i <= 0; i++) {
+	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
 
 		ecs_component_add(cube, COMPONENT_KINEMATIC_BODY);
@@ -447,7 +469,7 @@ int main() {
 		ecs_component_add(cube, COMPONENT_SHADER);
 
 		mesh[cube] = mesh_alloc_cube();
-		shader[cube] = unlitShader;
+		shader[cube] = diffuseShader;
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
 		transform[cube] = (transform_t){
@@ -475,8 +497,8 @@ int main() {
 			.diffuseMap = testDiffuseMap,
 		};
 		transform[suzanne] = (transform_t){
-			.position = vector3_forward(1.0),
-			.rotation = quaternion_identity(),
+			.position = vector3_zero(),
+			.rotation = quaternion_from_euler(vector3_up(PI/2)),
 			.scale = vector3_one(10.0), 
 		};
 	}
