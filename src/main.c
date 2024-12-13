@@ -312,8 +312,7 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 	}
 }
 
-mesh_t obj_load_test(void) {
-	const char* file_path = "res/models/suzanne.obj";
+mesh_t mesh_load_obj(const char* file_path) {
 	file_buffer fb = file_buffer_read(file_path);
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
@@ -347,10 +346,10 @@ mesh_t obj_load_test(void) {
 			c++;
 			int i1, i2, i3;
 			sscanf(c, "%d/%d/%d", &i1, &i2, &i3);
-			printf("found %d %d %d!\n", i1, i2, i3);
-			list_GLuint_add(&indices, i3);
-			list_GLuint_add(&indices, i2);
+			//printf("found %d %d %d!\n", i1, i2, i3);
 			list_GLuint_add(&indices, i1);
+			list_GLuint_add(&indices, i2);
+			list_GLuint_add(&indices, i3);
 			continue;
 		}
 		if (*c == 's') { // s
@@ -419,7 +418,7 @@ int main() {
 	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 
-	mesh_t testObj = obj_load_test();
+	mesh_t testObj = mesh_load_obj("res/models/suzanne.obj");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
