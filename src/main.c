@@ -63,8 +63,8 @@ static inline void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			kbodies[e].acceleration = vector3_scale(
-					vector3_left(0.1), 1/kbodies[e].mass);
+			//kbodies[e].acceleration = vector3_scale(
+					//vector3_left(0.1), 1/kbodies[e].mass);
 			kbodies[e].velocity = vector3_add(
 					kbodies[e].velocity, kbodies[e].acceleration);
 	
@@ -313,12 +313,13 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 }
 
 mesh_t obj_load_test(void) {
-	const char* file_path = "res/models/suzanne-anim0001.obj";
+	const char* file_path = "res/models/suzanne.obj";
 	file_buffer fb = file_buffer_read(file_path);
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
 
+	list_GLuint indices = list_GLuint_alloc();
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
 		if (*c == '#')
@@ -337,14 +338,19 @@ mesh_t obj_load_test(void) {
 				continue;
 			}
 			vertex_t v = {0};
-			sscanf(c, "%f %f %f\n", &v.position.x, &v.position.y, &v.position.z);
-			vector3_print(v.position, "vertex position");
+			sscanf(c, "%f %f %f", &v.position.x, &v.position.y, &v.position.z);
+			//vector3_print(v.position, "vertex position");
 			list_vertex_t_add(&vertices, v);
 			continue;
 		}
 		if (*c == 'f') { // f
 			c++;
-			//printf("found f!\n");
+			int i1, i2, i3;
+			sscanf(c, "%d/%d/%d", &i1, &i2, &i3);
+			printf("found %d %d %d!\n", i1, i2, i3);
+			list_GLuint_add(&indices, i3);
+			list_GLuint_add(&indices, i2);
+			list_GLuint_add(&indices, i1);
 			continue;
 		}
 		if (*c == 's') { // s
@@ -361,8 +367,6 @@ mesh_t obj_load_test(void) {
 	}
 
 	file_buffer_close(fb);
-
-	list_GLuint indices;
 
 	mesh_t mesh = mesh_alloc(
 			vertices.array,  indices.array,
@@ -437,7 +441,7 @@ int main() {
 		ecs_component_add(cube, COMPONENT_MATERIAL);
 		ecs_component_add(cube, COMPONENT_SHADER);
 
-		mesh[cube] = mesh_alloc_cube();
+		mesh[cube] = testObj;
 		shader[cube] = unlitShader;
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
