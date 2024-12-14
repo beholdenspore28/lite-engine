@@ -1,38 +1,46 @@
-SRCFILES := \
-						src/*.c
-OBJFILES := \
-						build/obj/*.o
+###############################################################################
+#| Lite-Engine build system                                                  |#
+#|                                                                           |#
+#| To build a linux binary:                                                  |#
+#|    run: make -Bj linux                                                    |#
+#|                                                                           |#
+#| To build an Apple MacOS binary                                            |#
+#|    run: make -Bj macos                                                    |#
+#|                                                                           |#
+#| If the engine is built successfully, executables/binaries are stored in   |# 
+#| the build directory                                                       |#
+#|                                                                           |#
+#| If you are unable to build the project, please feel free to submit an     |#
+#| issue or pull request to this repository:                                 |#
+#| https://www.github.com/beholdenspore28/lite-engine                        |#
+#|                                                                           |#
+###############################################################################
 
-INCDIR := -Isrc -Idep
-
+SOURCE := src/*.c
+OBJECT := build/*.o
+INCLUDE := -Isrc -Idep
 C = clang
-OUT := build/bin/lite-engine
 
-OPT_DEBUG := -g3 -fsanitize=address
-OPT_SMALL := -Oz -flto
-OPT_RELEASE := -O3 -flto 
-OPT_ := ${OPT_DEBUG} 
-OPT := ${OPT_${MODE}}
-CFLAGS += ${OPT} -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
+CLANG_CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=c99 -ferror-limit=15
+CLANG_CFLAGS_RELEASE := -03 -flto
+CLANG_CFLAGS := ${CLANG_CFLAGS_DEBUG}
 
-LIBS := -lglfw -lGL -lm
+LIBS_LINUX := -lglfw -lGL -lm
 LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 
-default: build_lite_engine
+linux: build_directory linux_glad 
+	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/lite_engine_linux
+	./build/lite_engine_linux
 
-build_lite_engine_macos:	build_dir \
-										build_glad
-	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS_MACOS} ${CFLAGS} -o ${OUT}
-	time ./${OUT}
+linux_glad:
+	${C} -c dep/glad.c -o build/glad.o -Idep
 
-build_lite_engine:	build_dir \
-										build_glad
-	${C} ${OBJFILES} ${SRCFILES} ${INCDIR} ${LIBS} ${CFLAGS} -o ${OUT} 
-	time ./${OUT}
+macos: build_directory macos_glad
+	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CLANG_CFLAGS} -o build/lite_engine_macos
+	./build/lite_engine_macos
 
-build_glad: build_dir
-	${C} -c dep/glad.c ${CFLAGS} -Idep -o build/obj/glad.o
+macos_glad:
+	${C} -c dep/glad.c -o build/glad.o -Idep
 
-build_dir:
-	mkdir -p build/bin
-	mkdir -p build/obj
+build_directory:
+	mkdir -p build
