@@ -1,3 +1,4 @@
+
 #include "blib/blib.h"
 #include <gl.h>
 #include <stb_image.h>
@@ -149,8 +150,8 @@ GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath) {
   printf("Attempting to load shaders '%s' and '%s'\n", vertexShaderSourcePath,
          fragmentShaderSourcePath);
-  file_buffer vertSourceFileBuffer = file_buffer_read(vertexShaderSourcePath);
-  file_buffer fragSourceFileBuffer = file_buffer_read(fragmentShaderSourcePath);
+  file_buffer vertSourceFileBuffer = file_buffer_alloc(vertexShaderSourcePath);
+  file_buffer fragSourceFileBuffer = file_buffer_alloc(fragmentShaderSourcePath);
 
   if (vertSourceFileBuffer.error == true) {
     fprintf(stderr, "failed to read vertex shader");
@@ -185,8 +186,8 @@ GLuint shader_create(const char *vertexShaderSourcePath,
 
   glValidateProgram(program);
 
-  file_buffer_close(vertSourceFileBuffer);
-  file_buffer_close(fragSourceFileBuffer);
+  file_buffer_free(vertSourceFileBuffer);
+  file_buffer_free(fragSourceFileBuffer);
 
   return program;
 }

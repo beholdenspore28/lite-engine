@@ -320,7 +320,7 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 DEFINE_LIST(vector3_t)
 
 mesh_t mesh_load_obj(const char* file_path) {
-	file_buffer fb = file_buffer_read(file_path);
+	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
@@ -382,7 +382,7 @@ mesh_t mesh_load_obj(const char* file_path) {
 			} break;
 		}
 	}
-	file_buffer_close(fb);
+	file_buffer_free(fb);
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(size_t i = 0; i < vertex_positions.length; i++) {
 		vertex_t v;
