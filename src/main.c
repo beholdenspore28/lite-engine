@@ -317,8 +317,6 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 	}
 }
 
-DEFINE_LIST(vector3_t)
-
 mesh_t mesh_load_obj(const char* file_path) {
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
