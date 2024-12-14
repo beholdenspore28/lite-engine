@@ -97,6 +97,9 @@ void lite_engine_stop(void) {
 }
 
 void lite_engine_set_context(lite_engine_context_t* context) {
+	if (lite_engine_context != NULL) {
+		fprintf(stderr, "lite_engine_get_context failed. engine is already running.");	
+	}
 	lite_engine_context = context;
 }
 
