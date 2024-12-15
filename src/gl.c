@@ -201,71 +201,72 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
   glUniform1f(UniformLocation, f);
 }
 
-void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
+void shader_setUniformV3(GLuint shader, const char *uniformName, vec3_t v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {
+void shader_setUniformV4(GLuint shader, const char *uniformName, vec4_t v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform4f(UniformLocation, v.x, v.y, v.z, v.w);
 }
 
-void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
+void shader_setUniformM4(GLuint shader, const char *uniformName, mat4_t *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
 // TRANSFORM==================================================================//
 
 void transform_calculate_matrix(transform_t *t) {
-  matrix4_t translation = matrix4_translate(t->position);
-  matrix4_t rotation = quaternion_to_matrix4(t->rotation);
-  matrix4_t scale = matrix4_scale(t->scale);
-  t->matrix = matrix4_multiply(rotation, translation);
-  t->matrix = matrix4_multiply(scale, t->matrix);
+  mat4_t translation = mat4_translate(t->position);
+  mat4_t rotation = quat_to_mat4(t->rotation);
+  mat4_t scale = mat4_scale(t->scale);
+  t->matrix = mat4_multiply(rotation, translation);
+  t->matrix = mat4_multiply(scale, t->matrix);
 }
 
 void transform_calculate_view_matrix(transform_t *t) {
-  matrix4_t translation = matrix4_translate(vector3_negate(t->position));
-  matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
-  matrix4_t scale = matrix4_scale(t->scale);
-  t->matrix = matrix4_multiply(translation, rotation);
-  t->matrix = matrix4_multiply(scale, t->matrix);
+  mat4_t translation = mat4_translate(vec3_negate(t->position));
+  mat4_t rotation = quat_to_mat4(quat_conjugate(t->rotation));
+  mat4_t scale = mat4_scale(t->scale);
+  t->matrix = mat4_multiply(translation, rotation);
+  t->matrix = mat4_multiply(scale, t->matrix);
 }
 
-vector3_t transform_basis_forward(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_forward(magnitude), t.rotation);
+vec3_t transform_basis_forward(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_forward(magnitude), t.rotation);
 }
 
-vector3_t transform_basis_up(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_up(magnitude), t.rotation);
+vec3_t transform_basis_up(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_up(magnitude), t.rotation);
 }
 
-vector3_t transform_basis_right(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_right(magnitude), t.rotation);
+vec3_t transform_basis_right(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_right(magnitude), t.rotation);
 }
 
-vector3_t transform_basis_back(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_back(magnitude), t.rotation);
+vec3_t transform_basis_back(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_back(magnitude), t.rotation);
 }
 
-vector3_t transform_basis_down(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_down(magnitude), t.rotation);
+vec3_t transform_basis_down(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_down(magnitude), t.rotation);
 }
 
-vector3_t transform_basis_left(transform_t t, float magnitude) {
-  return vector3_rotate(vector3_left(magnitude), t.rotation);
+vec3_t transform_basis_left(transform_t t, float magnitude) {
+  return vec3_rotate(vec3_left(magnitude), t.rotation);
 }
 
 // MESH=======================================================================//
 
-mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices, GLuint numVertices,
-                  GLuint numIndices) {
-
+mesh_t mesh_alloc(vertex_t* vertices, GLuint vertices_length,
+		GLuint* indices, GLuint indices_length) {
   mesh_t m = {0};
   m.enabled = true;
-  m.vertexCount = numVertices;
-  m.indexCount = numIndices;
+  m.vertices = vertices;
+  m.vertices_length = vertices_length;
+  m.indices = indices;
+  m.indices_length = indices_length;
 
   glGenVertexArrays(1, &m.VAO);
   glGenBuffers(1, &m.VBO);
@@ -274,11 +275,11 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices, GLuint numVertices,
   glBindVertexArray(m.VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, m.VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * numVertices, vertices,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * vertices_length, vertices,
                GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices,
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices_length, indices,
                GL_STATIC_DRAW);
 
   GLuint vertStride = sizeof(vertex_t); // how many bytes per vertex?
@@ -305,13 +306,9 @@ mesh_t mesh_alloc(vertex_t *vertices, GLuint *indices, GLuint numVertices,
   return m;
 }
 
-mesh_t mesh_alloc_quad(void) {
-  return mesh_alloc(mesh_quad_vertices, mesh_quad_indices,
-                    MESH_QUAD_NUM_VERTICES, MESH_QUAD_NUM_INDICES);
-}
 mesh_t mesh_alloc_cube(void) {
-  return mesh_alloc(mesh_cube_vertices, mesh_cube_indices,
-                    MESH_CUBE_NUM_VERTICES, MESH_CUBE_NUM_INDICES);
+  return mesh_alloc(mesh_cube_vertices, MESH_CUBE_NUM_VERTICES,
+                    mesh_cube_indices, MESH_CUBE_NUM_INDICES);
 }
 
 // TEXTURE====================================================================//

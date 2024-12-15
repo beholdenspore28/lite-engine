@@ -23,17 +23,17 @@ typedef struct skybox {
 
 typedef struct kinematic_body {
 	float mass;
-	vector3_t acceleration;
-	vector3_t velocity;
+	vec3_t acceleration;
+	vec3_t velocity;
 } kinematic_body_t;
 
 int light;
 
-static inline void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
+static inline void oct_tree_draw(oct_tree_t *tree, vec4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
-		.rotation = quaternion_identity(),
-		.scale = vector3_one(tree->octSize),
+		.rotation = quat_identity(),
+		.scale = vec3_one(tree->octSize),
 	};
 	if (tree->isSubdivided) {
 		oct_tree_draw(tree->frontNorthEast, color);
@@ -63,12 +63,12 @@ static inline void kinematic_body_update(
 		assert(kbodies[e].mass > 0);
 		
 		{ // apply forces
-			//kbodies[e].acceleration = vector3_scale(
-					//vector3_left(0.1), 1/kbodies[e].mass);
-			kbodies[e].velocity = vector3_add(
+			//kbodies[e].acceleration = vec3_scale(
+					//vec3_left(0.1), 1/kbodies[e].mass);
+			kbodies[e].velocity = vec3_add(
 					kbodies[e].velocity, kbodies[e].acceleration);
 	
-			transforms[e].position = vector3_kinematic_equation(
+			transforms[e].position = vec3_kinematic_equation(
 				kbodies[e].acceleration,
 				kbodies[e].velocity,
 				transforms[e].position,
@@ -86,8 +86,8 @@ static inline void kinematic_body_update(
 		}
 	}
 
-	const vector4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
-	//oct_tree_draw(tree, primitive_color);
+	const vec4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
+	oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
@@ -115,9 +115,9 @@ static inline void mesh_update(
 	float aspect = (float)lite_engine_get_context().window_size_x /
 		(float)lite_engine_get_context().window_size_y;
 	lite_engine_get_context().active_camera->projection =
-		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+		mat4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 	lite_engine_get_context().active_camera->transform.matrix = 
-		matrix4_identity();
+		mat4_identity();
 	transform_calculate_view_matrix(
 			&lite_engine_get_context().active_camera->transform);
 
@@ -181,10 +181,7 @@ static inline void mesh_update(
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
-			glDrawElements(
-				GL_TRIANGLES, 
-				meshes[e].indexCount, 
-				GL_UNSIGNED_INT, 0);
+			glDrawElements( GL_TRIANGLES, meshes[e].indices_length, GL_UNSIGNED_INT, 0);
 		}
 	}
 	glUseProgram(0);
@@ -198,8 +195,8 @@ static inline void skybox_update(skybox_t* skybox) {
 
 	// skybox should always appear static and never move
 	lite_engine_get_context().active_camera->transform.matrix = 
-		matrix4_identity();
-	skybox->transform.rotation = quaternion_conjugate(
+		mat4_identity();
+	skybox->transform.rotation = quat_conjugate(
 			lite_engine_get_context().active_camera->transform.rotation);
 
 	{ // draw
@@ -238,17 +235,14 @@ static inline void skybox_update(skybox_t* skybox) {
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
-		glDrawElements(
-				GL_TRIANGLES, 
-				skybox->mesh.indexCount,
-				GL_UNSIGNED_INT, 0);
+		glDrawElements( GL_TRIANGLES, skybox->mesh.indices_length, GL_UNSIGNED_INT, 0);
 	}
 
 	// cleanup
 	glCullFace(GL_BACK);
 }
 
-static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
+static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -277,11 +271,11 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
 		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
 
-		vector3_scale(*mouseLookVector, 
+		vec3_scale(*mouseLookVector, 
 				lite_engine_get_context().time_delta);
 
 		lite_engine_get_context().active_camera->transform.rotation =
-			quaternion_from_euler(*mouseLookVector);
+			quat_from_euler(*mouseLookVector);
 	}
 
 	{ // movement
@@ -293,7 +287,7 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 		} else {
 			cameraSpeedCurrent = cameraSpeed;
 		}
-		vector3_t movement = vector3_zero();
+		vec3_t movement = vec3_zero();
 
 		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
 			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
@@ -302,30 +296,32 @@ static inline void input_update(vector3_t* mouseLookVector) {   // INPUT
 		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
 
-		movement = vector3_normalize(movement);
-		movement = vector3_scale(movement, cameraSpeedCurrent);
+		movement = vec3_normalize(movement);
+		movement = vec3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+			vec3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
 
 		lite_engine_get_context().active_camera->transform.position =
-			vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
+			vec3_add(lite_engine_get_context().active_camera->transform.position, movement);
 
 		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_get_context().active_camera->transform.position = vector3_zero();
-			lite_engine_get_context().active_camera->transform.rotation = quaternion_identity();
+			lite_engine_get_context().active_camera->transform.position = vec3_zero();
+			lite_engine_get_context().active_camera->transform.rotation = quat_identity();
 		}
 	}
 }
 
-mesh_t mesh_load_obj(const char* file_path) {
+mesh_t mesh_obj_alloc(const char* file_path) {
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
+
 	list_GLuint position_indices = list_GLuint_alloc();
 	list_GLuint normal_indices = list_GLuint_alloc();
-	list_vector3_t vertex_positions = list_vector3_t_alloc();
-	list_vector3_t vertex_normals = list_vector3_t_alloc();
+	list_vec3_t vertex_positions = list_vec3_t_alloc();
+	list_vec3_t vertex_normals = list_vec3_t_alloc();
+
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
 		switch(*c) {
 			case '#': { // ignore comments
@@ -339,22 +335,22 @@ mesh_t mesh_load_obj(const char* file_path) {
 					} break;  
 					case 'n': { // vertex normals
 						c++;
-						vector3_t normal;
+						vec3_t normal;
 						int num_reads = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
 						if (num_reads != 3) {
 							fprintf(stderr, "failed to read vertex normal\n");
 							exit(0);
 						}
-						list_vector3_t_add(&vertex_normals, normal);
+						list_vec3_t_add(&vertex_normals, normal);
 					} break;
 					default: { // vertex position
-						vector3_t position;
+						vec3_t position;
 						int num_reads = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
 						if (num_reads != 3) {
 							fprintf(stderr, "failed to read vertex position\n");
 							exit(0);
 						}
-						list_vector3_t_add(&vertex_positions, position);
+						list_vec3_t_add(&vertex_positions, position);
 					} break;
 				}
 			} break;
@@ -380,19 +376,23 @@ mesh_t mesh_load_obj(const char* file_path) {
 			} break;
 		}
 	}
+
 	file_buffer_free(fb);
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(size_t i = 0; i < vertex_positions.length; i++) {
 		vertex_t v;
 		v.position = vertex_positions.array[i];
+		v.normal = vertex_normals.array[normal_indices.array[i]];
 		list_vertex_t_add(&vertices, v);
 	}
-	for(size_t i = 0; i < vertices.length; i++) {
-		vertices.array[i].normal = vertex_normals.array[i];
-	}
+
+	list_vec3_t_free(&vertex_positions);
+	list_vec3_t_free(&vertex_normals);
+
 	mesh_t mesh = mesh_alloc(
-			vertices.array,  position_indices.array,
-			vertices.length, position_indices.length);
+			vertices.array, vertices.length, 
+			position_indices.array, position_indices.length);
+
 	return mesh;
 }
 
@@ -419,15 +419,15 @@ int main() {
 	context->time_delta           = 0.0f;
 	context->time_FPS             = 0.0f;
 	context->frame_current        = 0;
-	context->ambient_light        = (vector3_t) {0.1, 0.1, 0.1};
+	context->ambient_light        = (vec3_t) {0.1, 0.1, 0.1};
 
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
 	camera_t* camera              = malloc(sizeof(camera_t));
-	camera->transform.position    = (vector3_t){0.0, 0.0, -25.0};
-	camera->transform.rotation    = quaternion_identity();
-	camera->transform.scale       = vector3_one(1.0);
-	camera->projection            = matrix4_identity();
+	camera->transform.position    = (vec3_t){0.0, 0.0, -25.0};
+	camera->transform.rotation    = quat_identity();
+	camera->transform.scale       = vec3_one(1.0);
+	camera->projection            = mat4_identity();
 	camera->lookSensitivity       = 0.002f;
 
 	context->active_camera        = camera;
@@ -437,11 +437,15 @@ int main() {
 
 	lite_engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-	GLuint unlitShader = shader_create( "res/shaders/unlit.vs.glsl", "res/shaders/unlit.fs.glsl");
-	GLuint diffuseShader = shader_create( "res/shaders/diffuse.vs.glsl", "res/shaders/diffuse.fs.glsl");
-	GLuint testDiffuseMap = texture_create("res/textures/test.png");
+	GLuint unlitShader = shader_create(
+			"res/shaders/unlit.vs.glsl", 
+			"res/shaders/unlit.fs.glsl");
+	GLuint diffuseShader = shader_create(
+			"res/shaders/diffuse.vs.glsl",
+			"res/shaders/diffuse.fs.glsl");
 
-	mesh_t testObj = mesh_load_obj("res/models/suzanne.obj");
+	GLuint testDiffuseMap = texture_create("res/textures/test.png");
+	mesh_t testObj = mesh_obj_alloc("res/models/suzanne.obj");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -469,13 +473,13 @@ int main() {
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
 		transforms[cube] = (transform_t){
-			.position = (vector3_t){
+			.position = (vec3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
-			.rotation = quaternion_identity(),
-			.scale = vector3_one(5.0), };
-		kinematic_body[cube].velocity = vector3_zero();
+			.rotation = quat_identity(),
+			.scale = vec3_one(5.0), };
+		kinematic_body[cube].velocity = vec3_zero();
 		kinematic_body[cube].mass = 1.0;
 	}
 #endif
@@ -493,9 +497,9 @@ int main() {
 			.diffuseMap = testDiffuseMap,
 		};
 		transforms[suzanne] = (transform_t){
-			.position = vector3_zero(),
-			.rotation = quaternion_from_euler(vector3_up(PI/2)),
-			.scale = vector3_one(10.0), 
+			.position = vec3_zero(),
+			.rotation = quat_from_euler(vec3_up(PI/2)),
+			.scale = vec3_one(10.0), 
 		};
 	}
 	// create skybox
@@ -507,8 +511,8 @@ int main() {
 		},
 		.transform = (transform_t){
 			.position = { 0.0, 0.0, 0.0 },
-			.rotation = quaternion_identity(),
-			.scale = vector3_one(100000.0),
+			.rotation = quat_identity(),
+			.scale = vec3_one(100000.0),
 		},
 	};
 
@@ -517,22 +521,22 @@ int main() {
 	ecs_component_add(light, COMPONENT_POINT_LIGHT);
 	ecs_component_add(light, COMPONENT_TRANSFORM);
 	point_light[light] = (pointLight_t){
-		.diffuse = vector3_one(0.8f),
-		.specular = vector3_one(1.0f),
+		.diffuse = vec3_one(0.8f),
+		.specular = vec3_one(1.0f),
 		.constant = 1.0f,
 		.linear = 0.09f,
 		.quadratic = 0.032f,
 	};
-	transforms[light].position = (vector3_t){20, 20, 20};
+	transforms[light].position = (vec3_t){20, 20, 20};
 
 
-	vector3_t mouseLookVector = vector3_zero();
+	vec3_t mouseLookVector = vec3_zero();
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		transforms[suzanne].rotation = quaternion_multiply(
-			transforms[suzanne].rotation, quaternion_from_euler(vector3_up(lite_engine_get_context().time_delta)));
+		transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
+				quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);

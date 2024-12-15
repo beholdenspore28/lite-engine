@@ -138,7 +138,7 @@ void lite_engine_update(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
+void primitive_draw_cube(transform_t transform, bool wireframe, vec4_t color) {
 	glDisable(GL_CULL_FACE);
 	if (wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -163,8 +163,8 @@ void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color)
 	shader_setUniformV4(primitive_shader, "u_color", color);
 
 	glBindVertexArray(primitive_mesh_cube.VAO);
-	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.
-			indexCount, GL_UNSIGNED_INT, 0);
+	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.indices_length,
+			GL_UNSIGNED_INT, 0);
 }
 
 void lite_engine_window_set_resolution(const int x, const int y) {

@@ -42,7 +42,7 @@ void oct_tree_free(oct_tree_t *tree) {
 
 void oct_tree_subdivide(oct_tree_t *tree) {
 	tree->isSubdivided = true;
-	vector3_t tPos = tree->position;
+	vec3_t tPos = tree->position;
 	float quarterOctSize = tree->octSize * 0.25;
 
 	tree->frontNorthEast = oct_tree_alloc();
@@ -118,7 +118,7 @@ void oct_tree_subdivide(oct_tree_t *tree) {
 	tree->backSouthWest->depth = tree->depth + 1;
 }
 
-bool oct_tree_contains(oct_tree_t *tree, vector3_t point) {
+bool oct_tree_contains(oct_tree_t *tree, vec3_t point) {
 	float halfOctSize = tree->octSize * 0.5;
 	return 
 		point.x <= tree->position.x + halfOctSize &&
