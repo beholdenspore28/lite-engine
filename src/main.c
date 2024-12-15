@@ -368,22 +368,21 @@ mesh_t mesh_obj_alloc(const char* file_path) {
 					&posIndex[0],  &texIndex[0],  &normIndex[0],
 					&posIndex[1],  &texIndex[1],  &normIndex[1],
 					&posIndex[2],  &texIndex[2],  &normIndex[2]);
+			
 			/*
 			printf("%d/%d/%d %d/%d/%d %d/%d/%d\n", 
-					posIndex0,  texIndex0,  normIndex0,
-					posIndex1,  texIndex1,  normIndex1,
-					posIndex2,  texIndex2,  normIndex2);
+					posIndex[0],  texIndex[0],  normIndex[0],
+					posIndex[1],  texIndex[1],  normIndex[1],
+					posIndex[2],  texIndex[2],  normIndex[2]);
 					*/
-
+					
 			if (num_tokens != 9) {
 				fprintf(stderr, "failed to read index. invalid index format.\n");
 				exit(0);
 			}
-
 			list_GLuint_add(&position_indices,  posIndex[2]-1);
 			list_GLuint_add(&position_indices,  posIndex[1]-1);
 			list_GLuint_add(&position_indices,  posIndex[0]-1);
-
 			list_GLuint_add(&normal_indices,    normIndex[2]-1);
 			list_GLuint_add(&normal_indices,    normIndex[1]-1);
 			list_GLuint_add(&normal_indices,    normIndex[0]-1);
@@ -395,6 +394,7 @@ mesh_t mesh_obj_alloc(const char* file_path) {
 	for(size_t i = 0; i < vertex_positions.length; i++) {
 		vertex_t v = {0};
 		v.position = vertex_positions.array[i];
+		v.normal = vertex_normals.array[i];
 		list_vertex_t_add(&vertices, v);
 	}
 
