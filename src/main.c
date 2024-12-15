@@ -317,77 +317,86 @@ mesh_t mesh_obj_alloc(const char* file_path) {
 		fprintf(stderr, "failed to read file %s", file_path);
 	}
 
-	list_GLuint position_indices = list_GLuint_alloc();
-	list_GLuint normal_indices = list_GLuint_alloc();
-	list_vec3_t vertex_positions = list_vec3_t_alloc();
-	list_vec3_t vertex_normals = list_vec3_t_alloc();
+	list_GLuint position_indices  = list_GLuint_alloc();
+	list_GLuint normal_indices    = list_GLuint_alloc();
+
+	list_vec3_t vertex_positions  = list_vec3_t_alloc();
+	list_vec3_t vertex_normals    = list_vec3_t_alloc();
 
 	for(char* c = fb.text; c < fb.text+fb.length; c++) {
-		switch(*c) {
-			case '#': { // ignore comments
-				while(*c != '\n') { ++c; }
-			} break;
-			case 'v': { // vertex
-				c++;
-				switch (*c) {
-					case 't': { // vertex texture coordinates
-						c++;
-					} break;  
-					case 'n': { // vertex normals
-						c++;
-						vec3_t normal;
-						int num_reads = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
-						if (num_reads != 3) {
-							fprintf(stderr, "failed to read vertex normal\n");
-							exit(0);
-						}
-						list_vec3_t_add(&vertex_normals, normal);
-					} break;
-					default: { // vertex position
-						vec3_t position;
-						int num_reads = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
-						if (num_reads != 3) {
-							fprintf(stderr, "failed to read vertex position\n");
-							exit(0);
-						}
-						list_vec3_t_add(&vertex_positions, position);
-					} break;
-				}
-			} break;
-			case 'f': { // indices
-				++c;
-				int posIndex0,  texIndex0,  normIndex0,
+		//putchar(*c);
+		if (isspace(*c))
+			continue;
+		else if (*c == '#') { // ignore comments
+			while(*c != '\n') { ++c; }
+			continue;
+		}
+		char token[128];
+		{
+			int num_tokens = sscanf(c, "%s", token);
+			if (num_tokens != 1) {
+				fprintf(stderr, "failed to read token at '%c'\n", *c);
+				exit(0);
+			}
+		}
+		if (strcmp(token, "v") == 0) { // vertex position
+			//printf("token is %s\n", token);
+			++c;
+			vec3_t position;
+			int num_tokens = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
+			if (num_tokens != 3) {
+				fprintf(stderr, "failed to read vertex position at '%c'\n", *c);
+				exit(0);
+			}
+			//vec3_print(position, "position");
+			list_vec3_t_add(&vertex_positions, position);
+		} else if(strcmp(token, "vn") == 0) { // vertex normals
+			c+=2; // skip the chars 'v' and 'n'
+			vec3_t normal;
+			int num_tokens = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
+			if (num_tokens != 3) {
+				fprintf(stderr, "failed to read vertex normal at '%c'\n", *c);
+				exit(0);
+			}
+			//vec3_print(normal, "normal");
+			list_vec3_t_add(&vertex_normals, normal);
+		} else if (strcmp(token, "f") == 0) { // indices
+			//printf("token is %s\n", token);
+			c++; // skip the char 'f'
+			int posIndex[3],  texIndex[3],  normIndex[3];
+			int num_tokens = sscanf(c, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
+					&posIndex[0],  &texIndex[0],  &normIndex[0],
+					&posIndex[1],  &texIndex[1],  &normIndex[1],
+					&posIndex[2],  &texIndex[2],  &normIndex[2]);
+			/*
+			printf("%d/%d/%d %d/%d/%d %d/%d/%d\n", 
+					posIndex0,  texIndex0,  normIndex0,
 					posIndex1,  texIndex1,  normIndex1,
-					posIndex2,  texIndex2,  normIndex2;
-				int num_reads = sscanf(c, " %d/%d/%d %d/%d/%d %d/%d/%d\n", 
-						&posIndex0,  &texIndex0,  &normIndex0,
-						&posIndex1,  &texIndex1,  &normIndex1,
-						&posIndex2,  &texIndex2,  &normIndex2);
-				if (num_reads != 9) {
-					fprintf(stderr, "failed to read index data");
-					exit(0);
-				}
-				list_GLuint_add(&position_indices, posIndex2-1);
-				list_GLuint_add(&position_indices, posIndex1-1);
-				list_GLuint_add(&position_indices, posIndex0-1);
-				list_GLuint_add(&normal_indices, normIndex2-1);
-				list_GLuint_add(&normal_indices, normIndex1-1);
-				list_GLuint_add(&normal_indices, normIndex0-1);
-			} break;
+					posIndex2,  texIndex2,  normIndex2);
+					*/
+
+			if (num_tokens != 9) {
+				fprintf(stderr, "failed to read index. invalid index format.\n");
+				exit(0);
+			}
+
+			list_GLuint_add(&position_indices,  posIndex[2]-1);
+			list_GLuint_add(&position_indices,  posIndex[1]-1);
+			list_GLuint_add(&position_indices,  posIndex[0]-1);
+
+			list_GLuint_add(&normal_indices,    normIndex[2]-1);
+			list_GLuint_add(&normal_indices,    normIndex[1]-1);
+			list_GLuint_add(&normal_indices,    normIndex[0]-1);
 		}
 	}
-
 	file_buffer_free(fb);
+
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(size_t i = 0; i < vertex_positions.length; i++) {
-		vertex_t v;
+		vertex_t v = {0};
 		v.position = vertex_positions.array[i];
-		v.normal = vertex_normals.array[normal_indices.array[i]];
 		list_vertex_t_add(&vertices, v);
 	}
-
-	list_vec3_t_free(&vertex_positions);
-	list_vec3_t_free(&vertex_normals);
 
 	mesh_t mesh = mesh_alloc(
 			vertices.array, vertices.length, 
