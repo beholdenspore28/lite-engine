@@ -311,97 +311,105 @@ static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
 	}
 }
 
-mesh_t mesh_obj_alloc(const char* file_path) {
+mesh_t mesh_lmod_alloc(const char* file_path) {
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
-		fprintf(stderr, "failed to read file %s", file_path);
+		fprintf(stderr, "\nfailed to open .lmod file at '%s' did you specity the correct path?\n", file_path);
+		assert(0);
 	}
 
-	list_GLuint position_indices  = list_GLuint_alloc();
-	list_GLuint normal_indices    = list_GLuint_alloc();
+	list_vec3_t   positions = list_vec3_t_alloc();
+	list_vec3_t   normals = list_vec3_t_alloc();
+	list_GLuint   indices   = list_GLuint_alloc();
 
-	list_vec3_t vertex_positions  = list_vec3_t_alloc();
-	list_vec3_t vertex_normals    = list_vec3_t_alloc();
+	enum {
+		STATE_INITIAL = -1,
+		STATE_POSITION,
+		STATE_INDICES,
+		STATE_NORMAL,
+	};
+	uint8_t state = STATE_INITIAL;
 
-	for(char* c = fb.text; c < fb.text+fb.length; c++) {
-		//putchar(*c);
-		if (isspace(*c))
+	for(char *c = fb.text; c < fb.text+fb.length; c++) {
+
+		if (isspace(*c)) {
 			continue;
-		else if (*c == '#') { // ignore comments
-			while(*c != '\n') { ++c; }
+		} else if (*c == '#') {
+			while(*c != '\n' && *c != '\0') { c++; }
 			continue;
 		}
+
 		char token[128];
 		{
 			int num_tokens = sscanf(c, "%s", token);
 			if (num_tokens != 1) {
-				fprintf(stderr, "failed to read token at '%c'\n", *c);
-				exit(0);
+				fprintf(stderr, "\n[LMOD_PARSE] failed to read token at %s\n", file_path);
+				assert(0);
 			}
 		}
-		if (strcmp(token, "v") == 0) { // vertex position
-			//printf("token is %s\n", token);
-			++c;
-			vec3_t position;
-			int num_tokens = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
-			if (num_tokens != 3) {
-				fprintf(stderr, "failed to read vertex position at '%c'\n", *c);
-				exit(0);
+
+		if (strcmp(token, "vertex_indices:") == 0 || state == STATE_INDICES) {
+			if (state != STATE_INDICES)
+				c += sizeof("vertex_indices:");
+
+			state = STATE_INDICES;
+
+			GLuint index;
+			int num_tokens = sscanf(c, "%u", &index);
+			if (num_tokens != 1) {
+				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_indices at %s\n", file_path);
+				assert(0);
 			}
-			//vec3_print(position, "position");
-			list_vec3_t_add(&vertex_positions, position);
-		} else if(strcmp(token, "vn") == 0) { // vertex normals
-			c+=2; // skip the chars 'v' and 'n'
-			vec3_t normal;
+
+			printf("%u ", index);
+			list_GLuint_add(&indices, index);
+		}
+
+		if (strcmp(token, "vertex_normals:") == 0 || state == STATE_NORMAL) {
+			if (state != STATE_NORMAL)
+				c += sizeof("vertex_normals:");
+
+			state = STATE_NORMAL;
+
+			vec3_t normal = {0};
 			int num_tokens = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
 			if (num_tokens != 3) {
-				fprintf(stderr, "failed to read vertex normal at '%c'\n", *c);
-				exit(0);
+				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_normals at %s\n", file_path);
+				assert(0);
 			}
+
 			//vec3_print(normal, "normal");
-			list_vec3_t_add(&vertex_normals, normal);
-		} else if (strcmp(token, "f") == 0) { // indices
-			//printf("token is %s\n", token);
-			c++; // skip the char 'f'
-			int posIndex[3],  texIndex[3],  normIndex[3];
-			int num_tokens = sscanf(c, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
-					&posIndex[0],  &texIndex[0],  &normIndex[0],
-					&posIndex[1],  &texIndex[1],  &normIndex[1],
-					&posIndex[2],  &texIndex[2],  &normIndex[2]);
-			
-			/*
-			printf("%d/%d/%d %d/%d/%d %d/%d/%d\n", 
-					posIndex[0],  texIndex[0],  normIndex[0],
-					posIndex[1],  texIndex[1],  normIndex[1],
-					posIndex[2],  texIndex[2],  normIndex[2]);
-					*/
-					
-			if (num_tokens != 9) {
-				fprintf(stderr, "failed to read index. invalid index format.\n");
-				exit(0);
+			list_vec3_t_add(&normals, normal);
+			while (*c != '\n' && *c != '\0') { c++; } 
+		}
+		if (strcmp(token, "vertex_positions:") == 0 || state == STATE_POSITION) {
+			if (state != STATE_POSITION)
+				c += sizeof("vertex_positions:");
+
+			state = STATE_POSITION;
+
+			vec3_t position = {0};
+			int num_tokens = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
+			if (num_tokens != 3) {
+				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_positions at %s\n", file_path);
+				assert(0);
 			}
-			list_GLuint_add(&position_indices,  posIndex[2]-1);
-			list_GLuint_add(&position_indices,  posIndex[1]-1);
-			list_GLuint_add(&position_indices,  posIndex[0]-1);
-			list_GLuint_add(&normal_indices,    normIndex[2]-1);
-			list_GLuint_add(&normal_indices,    normIndex[1]-1);
-			list_GLuint_add(&normal_indices,    normIndex[0]-1);
+
+			//vec3_print(position, "position");
+			list_vec3_t_add(&positions, position);
+			while (*c != '\n' && *c != '\0') { c++; } 
 		}
 	}
-	file_buffer_free(fb);
 
 	list_vertex_t vertices = list_vertex_t_alloc();
-	for(size_t i = 0; i < vertex_positions.length; i++) {
-		vertex_t v = {0};
-		v.position = vertex_positions.array[i];
-		v.normal = vertex_normals.array[i];
-		list_vertex_t_add(&vertices, v);
+	for(size_t i = 0; i < positions.length; i++) {
+		vertex_t vertex = {0};
+		vertex.position = positions.array[i];
+		vertex.normal   = normals  .array[i];
+		list_vertex_t_add(&vertices, vertex);
 	}
 
-	mesh_t mesh = mesh_alloc(
-			vertices.array, vertices.length, 
-			position_indices.array, position_indices.length);
-
+	mesh_t mesh = mesh_alloc(vertices.array, vertices.length, indices.array, indices.length);
 	return mesh;
 }
 
@@ -454,7 +462,7 @@ int main() {
 			"res/shaders/diffuse.fs.glsl");
 
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	mesh_t testObj = mesh_obj_alloc("res/models/suzanne.obj");
+	mesh_t testLmod = mesh_lmod_alloc("res/models/untitled.lmod");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -500,7 +508,7 @@ int main() {
 		ecs_component_add(suzanne, COMPONENT_MATERIAL);
 		ecs_component_add(suzanne, COMPONENT_SHADER);
 
-		mesh[suzanne] = testObj;
+		mesh[suzanne] = testLmod;
 		shader[suzanne] = diffuseShader;
 		material[suzanne] = (material_t){
 			.diffuseMap = testDiffuseMap,
