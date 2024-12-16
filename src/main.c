@@ -117,9 +117,9 @@ static inline void mesh_update(
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (meshes[e].use_wire_frame) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		} else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
 		{// ensure the entity has the required components.
@@ -510,7 +510,7 @@ int main() {
 		transforms[cube] = (transform_t){
 			.position = vec3_scale(testLmod.vertices[i].position, transforms[suzanne].scale.x),					
 			.rotation = quat_identity(),
-			.scale = vec3_one(1.0), };
+			.scale = vec3_one(0.5), };
 	}
 #endif
 
