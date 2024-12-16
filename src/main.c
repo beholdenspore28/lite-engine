@@ -57,8 +57,10 @@ static inline void kinematic_body_update(
 	tree->minimumSize = 10;
  
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
-		if (!ecs_component_exists(e, COMPONENT_KINEMATIC_BODY))
+		if (!ecs_component_exists(e, COMPONENT_KINEMATIC_BODY)) {
 			continue;
+		}
+
 		assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
 		assert(kbodies[e].mass > 0);
 		
@@ -361,7 +363,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 				assert(0);
 			}
 
-			//printf("%u ", index);
+			printf("%u ", index);
 			list_GLuint_add(&indices, index);
 		}
 
@@ -405,7 +407,6 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 	for(size_t i = 0; i < positions.length; i++) {
 		vertex_t vertex = {0};
 		vertex.position = positions.array[i];
-		vertex.normal   = normals  .array[i];
 		list_vertex_t_add(&vertices, vertex);
 	}
 
@@ -426,7 +427,7 @@ int main() {
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
 	context->window_size_x        = 1920/2;
 	context->window_size_y        = 1080/2;
-	context->window_position_x    = 1920/2;
+	context->window_position_x    = 0;
 	context->window_position_y    = 0;
 	context->window_title         = "Game Window";
 	context->window_fullscreen    = false;
@@ -489,7 +490,7 @@ int main() {
 		};
 		transforms[suzanne] = (transform_t){
 			.position = vec3_zero(),
-			.rotation = quat_from_euler(vec3_up(PI/2)),
+			.rotation = quat_identity(),
 			.scale = vec3_one(10.0), 
 		};
 	}
@@ -577,8 +578,8 @@ int main() {
 		//transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
 				//quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
 		mesh_update(mesh, transforms, shader, material, point_light);
-		kinematic_body_update(kinematic_body, transforms);
-		skybox_update(&skybox);
+		//kinematic_body_update(kinematic_body, transforms);
+		//skybox_update(&skybox);
 	}
 
 	free(mesh);

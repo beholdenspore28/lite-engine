@@ -33,24 +33,29 @@ selectedObjects = context.selected_objects
 
 filepath = "/home/benis/repos/lite-engine/res/models/untitled.lmod"
 
+objects = selectedObjects
+
 with open(filepath, 'w') as f:
     f.write("# LMOD file\n")
-    for obj in selectedObjects:
+    for obj in objects:
         mesh = obj.data
+       
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.quads_convert_to_tris(quad_method='FIXED', ngon_method='BEAUTY')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
         f.write("mesh: %s\n" % mesh.name)
+
         f.write("vertex_positions:\n")
         for v in mesh.vertices:
-            f.write("%.4f %.4f %.4f\n" % v.co[:])
-    
-        f.write("vertex_normals:\n") 
-        for v in mesh.vertices:
-            f.write("%.4f %.4f %.4f\n" % v.normal[:])
+            f.write("%.4f\t%.4f\t%.4f\n" % v.co[:])
 
-        f.write("vertex_indices:\n") 
+        f.write("vertex_normals:\n")
         for v in mesh.vertices:
-            f.write(f"{v.index} ")
-        """ 
-        f.write("vertex_indices:\n") 
-        for poly in mesh.polygons:
-            f.write(f"{poly.index} ");
-        """
+            f.write("%.4f\t%.4f\t%.4f\n" % v.normal[:])
+
+        f.write("vertex_indices:\n")
+        for p in mesh.polygons:
+            for v in reversed(p.vertices):
+                f.write(f"{v} ")
+        f.write("\n")
