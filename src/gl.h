@@ -64,6 +64,7 @@ typedef struct {
   GLuint vertices_length;
   GLuint *indices;
   GLuint indices_length;
+  bool use_wire_frame;
 } mesh_t;
 DECLARE_LIST(mesh_t)
 

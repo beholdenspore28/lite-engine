@@ -99,12 +99,6 @@ static inline void mesh_update(
 		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
 
-#if 1 // wireframe toggle
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#else
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#endif
-
 	int window_size_x = lite_engine_get_context().window_size_x;
 	int window_size_y = lite_engine_get_context().window_size_y;
 	// projection
@@ -122,6 +116,12 @@ static inline void mesh_update(
 			&lite_engine_get_context().active_camera->transform);
 
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
+		if (meshes[e].use_wire_frame) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+
 		{// ensure the entity has the required components.
 			if (!ecs_component_exists(e, COMPONENT_MESH))
 				continue;
@@ -361,7 +361,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 				assert(0);
 			}
 
-			printf("%u ", index);
+			//printf("%u ", index);
 			list_GLuint_add(&indices, index);
 		}
 
@@ -474,7 +474,47 @@ int main() {
 
 	ecs_alloc(); 
 
-#if 1
+	int suzanne = ecs_entity_create();
+	{
+		ecs_component_add(suzanne, COMPONENT_TRANSFORM);
+		ecs_component_add(suzanne, COMPONENT_MESH);
+		ecs_component_add(suzanne, COMPONENT_MATERIAL);
+		ecs_component_add(suzanne, COMPONENT_SHADER);
+
+		mesh[suzanne] = testLmod;
+		mesh[suzanne].use_wire_frame = true;
+		shader[suzanne] = unlitShader;
+		material[suzanne] = (material_t){
+			.diffuseMap = testDiffuseMap,
+		};
+		transforms[suzanne] = (transform_t){
+			.position = vec3_zero(),
+			.rotation = quat_from_euler(vec3_up(PI/2)),
+			.scale = vec3_one(10.0), 
+		};
+	}
+
+#if 1 // lmod vertex position preview
+	for(int i = 0; i < testLmod.vertices_length; i++) {
+		int cube = ecs_entity_create();
+
+		ecs_component_add(cube, COMPONENT_TRANSFORM);
+		ecs_component_add(cube, COMPONENT_MESH);
+		ecs_component_add(cube, COMPONENT_MATERIAL);
+		ecs_component_add(cube, COMPONENT_SHADER);
+
+		mesh[cube] = mesh_alloc_cube();
+		shader[cube] = unlitShader;
+		material[cube] = (material_t){
+			.diffuseMap = testDiffuseMap, };
+		transforms[cube] = (transform_t){
+			.position = vec3_scale(testLmod.vertices[i].position, transforms[suzanne].scale.x),					
+			.rotation = quat_identity(),
+			.scale = vec3_one(1.0), };
+	}
+#endif
+
+#if 0
 	// create cubes
 	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
@@ -501,24 +541,6 @@ int main() {
 	}
 #endif
 
-	int suzanne = ecs_entity_create();
-	{
-		ecs_component_add(suzanne, COMPONENT_TRANSFORM);
-		ecs_component_add(suzanne, COMPONENT_MESH);
-		ecs_component_add(suzanne, COMPONENT_MATERIAL);
-		ecs_component_add(suzanne, COMPONENT_SHADER);
-
-		mesh[suzanne] = testLmod;
-		shader[suzanne] = diffuseShader;
-		material[suzanne] = (material_t){
-			.diffuseMap = testDiffuseMap,
-		};
-		transforms[suzanne] = (transform_t){
-			.position = vec3_zero(),
-			.rotation = quat_from_euler(vec3_up(PI/2)),
-			.scale = vec3_one(10.0), 
-		};
-	}
 	// create skybox
 	skybox_t skybox = (skybox_t) {
 		.mesh =   mesh_alloc_cube(),
@@ -552,8 +574,8 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
-				quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
+		//transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
+				//quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);

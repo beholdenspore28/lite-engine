@@ -44,9 +44,8 @@ with open(filepath, 'w') as f:
     
         f.write("vertex_normals:\n") 
         for v in mesh.vertices:
-            f.write(f"{v.normal.x} {v.normal.y} {v.normal.z}\n")
+            f.write("%.4f %.4f %.4f\n" % v.normal[:])
 
-        """
         f.write("vertex_indices:\n") 
         for v in mesh.vertices:
             f.write(f"{v.index} ")
@@ -54,3 +53,4 @@ with open(filepath, 'w') as f:
         f.write("vertex_indices:\n") 
         for poly in mesh.polygons:
             f.write(f"{poly.index} ");
+        """
