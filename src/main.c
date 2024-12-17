@@ -320,9 +320,9 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		assert(0);
 	}
 
-	list_vec3_t   positions = list_vec3_t_alloc();
-	list_vec3_t   normals = list_vec3_t_alloc();
-	list_GLuint   indices   = list_GLuint_alloc();
+	list_vec3_t normals   = list_vec3_t_alloc();
+	list_vec3_t positions = list_vec3_t_alloc();
+	list_GLuint indices   = list_GLuint_alloc();
 
 	enum {
 		STATE_INITIAL = -1,
@@ -362,6 +362,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_indices at %s\n", file_path);
 				assert(0);
 			}
+			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
 
 			printf("%u ", index);
 			list_GLuint_add(&indices, index);
@@ -384,6 +385,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			list_vec3_t_add(&normals, normal);
 			while (*c != '\n' && *c != '\0') { c++; } 
 		}
+
 		if (strcmp(token, "vertex_positions:") == 0 || state == STATE_POSITION) {
 			if (state != STATE_POSITION)
 				c += sizeof("vertex_positions:");
@@ -391,7 +393,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			state = STATE_POSITION;
 
 			vec3_t position = {0};
-			int num_tokens = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
+			int num_tokens = sscanf(c, "%f %f %f\n", &position.x, &position.y, &position.z);
 			if (num_tokens != 3) {
 				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_positions at %s\n", file_path);
 				assert(0);
@@ -410,7 +412,8 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		list_vertex_t_add(&vertices, vertex);
 	}
 
-	mesh_t mesh = mesh_alloc(vertices.array, vertices.length, indices.array, indices.length);
+	mesh_t mesh = mesh_alloc(vertices.array, vertices.length, 
+			                 indices.array,  indices.length);
 	return mesh;
 }
 
@@ -458,6 +461,7 @@ int main() {
 	GLuint unlitShader = shader_create(
 			"res/shaders/unlit.vs.glsl", 
 			"res/shaders/unlit.fs.glsl");
+
 	GLuint diffuseShader = shader_create(
 			"res/shaders/diffuse.vs.glsl",
 			"res/shaders/diffuse.fs.glsl");
@@ -495,7 +499,7 @@ int main() {
 		};
 	}
 
-#if 1 // lmod vertex position preview
+#if 0 // lmod vertex position preview
 	for(int i = 0; i < testLmod.vertices_length; i++) {
 		int cube = ecs_entity_create();
 
@@ -511,7 +515,7 @@ int main() {
 		transforms[cube] = (transform_t){
 			.position = vec3_scale(testLmod.vertices[i].position, transforms[suzanne].scale.x),					
 			.rotation = quat_identity(),
-			.scale = vec3_one(0.5), };
+			.scale = vec3_one(0.25), };
 	}
 #endif
 
@@ -575,10 +579,10 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		//transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
-				//quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
+		transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
+				quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
 		mesh_update(mesh, transforms, shader, material, point_light);
-		//kinematic_body_update(kinematic_body, transforms);
+		kinematic_body_update(kinematic_body, transforms);
 		//skybox_update(&skybox);
 	}
 
