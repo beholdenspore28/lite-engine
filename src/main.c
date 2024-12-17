@@ -364,7 +364,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			}
 			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
 
-			printf("%u ", index);
+			//printf("%u ", index);
 			list_GLuint_add(&indices, index);
 		}
 

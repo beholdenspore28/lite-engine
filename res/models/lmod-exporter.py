@@ -77,7 +77,7 @@ with open(filepath, 'w') as f:
                 """
 
         for loopt in mesh.loop_triangles:
-            for v in loopt.vertices:
-                f.write(f"{v+1} ")
+            for v in reversed(loopt.vertices):
+                f.write(f"{v} ")
 
         f.write("\n")
