@@ -50,32 +50,11 @@ with open(filepath, 'w') as f:
         for v in mesh.vertices:
             f.write("%.4f\t%.4f\t%.4f\n" % (v.co.x, v.co.z, -v.co.y))
 
-        """
-        for loopt in mesh.loop_triangles:
-            for v in loopt.vertices:
-                f.write(f"{mesh.vertices[v].co.x} {mesh.vertices[v].co.z} {mesh.vertices[v].co.y}\n")
-        """
-
-        """
         f.write("vertex_normals:\n")
         for v in mesh.vertices:
-            f.write("%.4f\t%.4f\t%.4f\n" % v.normal[:])
-            """
-
-        """ this almost works
-        f.write("vertex_indices:\n")
-        for p in mesh.polygons:
-            for v in p.vertices:
-                f.write(f"{v} ")
-                """
+            f.write("%.4f\t%.4f\t%.4f\n" % (v.normal.x, v.normal.z, -v.normal.y))
 
         f.write("vertex_indices:\n")
-        """
-        for loopt in mesh.loop_triangles:
-            for v, vertex in enumerate(loopt.vertices):
-                f.write(f"{loopt.vertices[v]} ")
-                """
-
         for loopt in mesh.loop_triangles:
             for v in reversed(loopt.vertices):
                 f.write(f"{v} ")

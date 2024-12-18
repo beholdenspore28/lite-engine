@@ -409,6 +409,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 	for(size_t i = 0; i < positions.length; i++) {
 		vertex_t vertex = {0};
 		vertex.position = positions.array[i];
+		vertex.normal   = normals.array[i];
 		list_vertex_t_add(&vertices, vertex);
 	}
 
@@ -519,7 +520,7 @@ int main() {
 	}
 #endif
 
-#if 0
+#if 1
 	// create cubes
 	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
