@@ -260,6 +260,11 @@ static inline void camera_update(const transform_t *transforms, const int space_
 	camera_t *camera = lite_engine_get_context().active_camera;
 	camera->transform.position = transforms[space_ship].position;
 
+	camera->transform.position = vec3_add(camera->transform.position, 
+			transform_basis_back(transforms[space_ship], 200.0));
+	camera->transform.rotation = transforms[space_ship].rotation;
+
+	/*
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -294,42 +299,7 @@ static inline void camera_update(const transform_t *transforms, const int space_
 		camera->transform.rotation =
 			quat_from_euler(mouseLookVector);
 	}
-
-	camera->transform.position = vec3_add(camera->transform.position, transform_basis_back(camera->transform, 200.0));
-
-#if 0
-	{ // movement
-		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
-		float cameraSpeedCurrent;
-		if (glfwGetKey( window, 
-					GLFW_KEY_LEFT_CONTROL)) {
-			cameraSpeedCurrent = 4 * cameraSpeed;
-		} else {
-			cameraSpeedCurrent = cameraSpeed;
-		}
-		vec3_t movement = vec3_zero();
-
-		movement.x = glfwGetKey(window, GLFW_KEY_D) -
-			glfwGetKey(window, GLFW_KEY_A);
-		movement.y = glfwGetKey(window, GLFW_KEY_SPACE) -
-			glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(window, GLFW_KEY_W) -
-			glfwGetKey(window, GLFW_KEY_S);
-
-		movement = vec3_normalize(movement);
-		movement = vec3_scale(movement, cameraSpeedCurrent);
-		movement =
-			vec3_rotate(movement, camera->transform.rotation);
-
-		camera->transform.position =
-			vec3_add(camera->transform.position, movement);
-
-		if (glfwGetKey(window, GLFW_KEY_BACKSPACE)) {
-			camera->transform.position = vec3_zero();
-			camera->transform.rotation = quat_identity();
-		}
-	}
-#endif
+	*/
 }
 
 mesh_t asteroid_mesh_alloc(void) {
@@ -565,27 +535,56 @@ int main() {
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
-		camera_update(transforms, space_ship);
 
 		{ // space ship update
-			vec3_t force = vec3_zero();
+			{ // movement
+				vec3_t force = vec3_zero();
 
-			force.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
-				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
-			force.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
-				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
-			force.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
-				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+				force.x = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+				force.y = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+				force.z = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
 
-			force = vec3_normalize(force);
+				force = vec3_normalize(force);
 
-			const float power = 10.0 * lite_engine_get_context().time_delta;
-			force = vec3_scale(force, power);
+				const float power = 10.0 * lite_engine_get_context().time_delta;
+				force = vec3_scale(force, power);
 
-			kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
-			//vec3_print(kinematic_body[space_ship].velocity, "velocity");
+				kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
+				//vec3_print(kinematic_body[space_ship].velocity, "velocity");
+			}
+
+			{ // rotation
+				vec3_t torque = vec3_zero();
+
+				torque.x = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
+				torque.y = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
+				torque.z = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_7) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_9);
+
+				torque = vec3_normalize(torque);
+
+				const float power = 1.0 * lite_engine_get_context().time_delta;
+				torque = vec3_scale(torque, power);
+
+				quat_t rotation = quat_from_euler(torque);
+				
+				transforms[space_ship].rotation = quat_multiply(transforms[space_ship].rotation, rotation);
+			}
+
 		}
 
+		camera_update(transforms, space_ship);
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);
