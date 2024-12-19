@@ -502,7 +502,7 @@ int main() {
 		};
 	}
 
-#if 1
+#if 0
 	// create cubes
 	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
