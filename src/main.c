@@ -183,7 +183,7 @@ static inline void mesh_update(
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
-			glDrawElements( GL_TRIANGLES, meshes[e].indices_length, GL_UNSIGNED_INT, 0);
+			glDrawElements( GL_TRIANGLES, meshes[e].indices.length, GL_UNSIGNED_INT, 0);
 		}
 	}
 	glUseProgram(0);
@@ -237,7 +237,7 @@ static inline void skybox_update(skybox_t* skybox) {
 
 		// draw
 		glBindVertexArray(skybox->mesh.VAO);
-		glDrawElements( GL_TRIANGLES, skybox->mesh.indices_length, GL_UNSIGNED_INT, 0);
+		glDrawElements( GL_TRIANGLES, skybox->mesh.indices.length, GL_UNSIGNED_INT, 0);
 	}
 
 	// cleanup
@@ -313,119 +313,97 @@ static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
 	}
 }
 
-mesh_t mesh_lmod_alloc(const char* file_path) {
-	file_buffer fb = file_buffer_alloc(file_path);
-	if (fb.error) {
-		fprintf(stderr, "\nfailed to open .lmod file at '%s' did you specity the correct path?\n", file_path);
-		assert(0);
-	}
+mesh_t asteroid_mesh_alloc(void) {
+	list_vertex_t vertices   = list_vertex_t_alloc();
+	list_GLuint   indices    = list_GLuint_alloc();
 
-	list_vec3_t normals   = list_vec3_t_alloc();
-	list_vec3_t positions = list_vec3_t_alloc();
-	list_GLuint indices   = list_GLuint_alloc();
+	const float   radius     = 10.0;
+	const float   resolution = 100.0;
 
-	enum {
-		STATE_INITIAL = -1,
-		STATE_POSITION,
-		STATE_INDICES,
-		STATE_NORMAL,
-	};
-	uint8_t state = STATE_INITIAL;
+	int index = 0;
+	for(int face = 0; face < 6; face++) {
+		const int offset = resolution * resolution * face;
+		for(float x = 0; x < resolution; x++) {
+			for(float y = 0; y < resolution; y++) {
 
-	for(char *c = fb.text; c < fb.text+fb.length; c++) {
+				vec3_t position = (vec3_t) { 
+					.x = map(x, 0, resolution -1, -0.5, 0.5), 
+					.y = map(y, 0, resolution -1, -0.5, 0.5), 
+					.z = 0.5,
+				};
+				position = vec3_normalize(position);
 
-		if (isspace(*c)) {
-			continue;
-		} else if (*c == '#') {
-			while(*c != '\n' && *c != '\0') { c++; }
-			continue;
-		}
+				// calculate indices
+				if (x < resolution-1 && y < resolution-1) {
+					int first = offset + (x * (resolution)) + y;
+					int second = first + resolution;
+					for (int i = 0; i < 6; i++) {
+						list_GLuint_add(&indices, 0);
+					}
+					// one quad face
+					indices.array[index++] = first; // triangle 1
+					indices.array[index++] = second;
+					indices.array[index++] = first + 1;
+					indices.array[index++] = second; // triangle 2
+					indices.array[index++] = second + 1;
+					indices.array[index++] = first + 1;
+				}
 
-		char token[128];
-		{
-			int num_tokens = sscanf(c, "%s", token);
-			if (num_tokens != 1) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read token at %s\n", file_path);
-				assert(0);
+				// 0 is front
+				const vec3_t temp = position;
+				switch (face) {
+					case 0: { // 0 is front
+						// do nothing.
+						position.x = -temp.x;
+					} break;
+					case 1: { // 1 is rear
+						position.z = -position.z;
+					}break;
+					case 2: { // 2 is left
+						position.z = temp.x;
+						position.x = temp.z;
+					} break;	
+					case 3: { // 3 is right
+						position.z = -temp.x;
+						position.x = -temp.z;
+					} break;
+					case 4: { // 4 is bottom
+						position.y = -temp.z;
+						position.z = -temp.y;
+					} break;
+					case 5: { // 5 is top
+						position.y = temp.z;
+						position.z = temp.y;
+					} break;
+					default: {
+						fprintf(stderr, "rock generator encountered invalid face index");
+					} break;
+				}
+
+				const float amplitude = 10;
+				const float frequency = 1;
+				const float noise = radius + (noise3_fbm(
+							position.x * frequency,
+							position.y * frequency,
+							position.z * frequency) * amplitude);
+
+				vertex_t v = (vertex_t) {
+					.position = vec3_scale(position, noise),
+					.normal = vec3_zero(),
+					.texCoord = vec2_zero(),
+				};
+
+				list_vertex_t_add(&vertices, v);
 			}
-		}
-
-		if (strcmp(token, "vertex_indices:") == 0 || state == STATE_INDICES) {
-			if (state != STATE_INDICES)
-				c += sizeof("vertex_indices:");
-
-			state = STATE_INDICES;
-
-			GLuint index;
-			int num_tokens = sscanf(c, "%u", &index);
-			if (num_tokens != 1) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_indices at %s\n", file_path);
-				assert(0);
-			}
-			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
-
-			//printf("%u ", index);
-			list_GLuint_add(&indices, index);
-		}
-
-		if (strcmp(token, "vertex_normals:") == 0 || state == STATE_NORMAL) {
-			if (state != STATE_NORMAL)
-				c += sizeof("vertex_normals:");
-
-			state = STATE_NORMAL;
-
-			vec3_t normal = {0};
-			int num_tokens = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
-			if (num_tokens != 3) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_normals at %s\n", file_path);
-				assert(0);
-			}
-
-			//vec3_print(normal, "normal");
-			list_vec3_t_add(&normals, normal);
-			while (*c != '\n' && *c != '\0') { c++; } 
-		}
-
-		if (strcmp(token, "vertex_positions:") == 0 || state == STATE_POSITION) {
-			if (state != STATE_POSITION)
-				c += sizeof("vertex_positions:");
-
-			state = STATE_POSITION;
-
-			vec3_t position = {0};
-			int num_tokens = sscanf(c, "%f %f %f\n", &position.x, &position.y, &position.z);
-			if (num_tokens != 3) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_positions at %s\n", file_path);
-				assert(0);
-			}
-
-			//vec3_print(position, "position");
-			list_vec3_t_add(&positions, position);
-			while (*c != '\n' && *c != '\0') { c++; } 
 		}
 	}
 
-	list_vertex_t vertices = list_vertex_t_alloc();
-	for(size_t i = 0; i < positions.length; i++) {
-		vertex_t vertex = {0};
-		vertex.position = positions.array[i];
-		vertex.normal   = normals.array[i];
-		list_vertex_t_add(&vertices, vertex);
-	}
-
-	mesh_t mesh = mesh_alloc(vertices.array, vertices.length, 
-			                 indices.array,  indices.length);
+	mesh_t mesh = mesh_alloc(vertices, indices);
 	return mesh;
 }
 
 int main() {
 	printf("Rev up those fryers!\n");
-
-#if 0
-	json_value *json = json_read("res/test.json");
-	json_print(json);
-	json_free(json);
-#endif
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
@@ -446,7 +424,7 @@ int main() {
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
 	camera_t* camera              = malloc(sizeof(camera_t));
-	camera->transform.position    = (vec3_t){0.0, 20.0, -300.0};
+	camera->transform.position    = (vec3_t){0.0, 0.0, -30.0};
 	camera->transform.rotation    = quat_identity();
 	camera->transform.scale       = vec3_one(1.0);
 	camera->projection            = mat4_identity();
@@ -467,7 +445,6 @@ int main() {
 			"res/shaders/diffuse.fs.glsl");
 
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
-	mesh_t testLmod = mesh_lmod_alloc("res/models/untitled.lmod");
 
 	// allocate component data
 	mesh_t* mesh = calloc(sizeof(mesh_t),ENTITY_COUNT_MAX);
@@ -479,45 +456,49 @@ int main() {
 
 	ecs_alloc(); 
 
-	int suzanne = ecs_entity_create();
-	{
-		ecs_component_add(suzanne, COMPONENT_TRANSFORM);
-		ecs_component_add(suzanne, COMPONENT_MESH);
-		ecs_component_add(suzanne, COMPONENT_MATERIAL);
-		ecs_component_add(suzanne, COMPONENT_SHADER);
+	mesh_t lmod_test = mesh_lmod_alloc("res/models/untitled.lmod");
+	mesh_t lmod_cube = mesh_lmod_alloc("res/models/cube.lmod");
+	mesh_t asteroid_test = asteroid_mesh_alloc();
 
-		mesh[suzanne] = testLmod;
-		//mesh[suzanne].use_wire_frame = true;
-		shader[suzanne] = diffuseShader;
-		material[suzanne] = (material_t){
+	int asteroid = ecs_entity_create();
+	{
+		ecs_component_add(asteroid, COMPONENT_TRANSFORM);
+		ecs_component_add(asteroid, COMPONENT_MESH);
+		ecs_component_add(asteroid, COMPONENT_MATERIAL);
+		ecs_component_add(asteroid, COMPONENT_SHADER);
+
+		mesh[asteroid] = asteroid_test;
+		//mesh[asteroid].use_wire_frame = true;
+		shader[asteroid] = diffuseShader;
+		material[asteroid] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
-		transforms[suzanne] = (transform_t){
-			.position = vec3_zero(),
+		transforms[asteroid] = (transform_t){
+			.position = (vec3_t) { 0.0, 0.0, 500.0 },
 			.rotation = quat_identity(),
 			.scale = vec3_one(10.0), 
 		};
 	}
 
-#if 0 // lmod vertex position preview
-	for(int i = 0; i < testLmod.vertices_length; i++) {
-		int cube = ecs_entity_create();
+	int space_ship = ecs_entity_create();
+	{
+		ecs_component_add(space_ship, COMPONENT_TRANSFORM);
+		ecs_component_add(space_ship, COMPONENT_MESH);
+		ecs_component_add(space_ship, COMPONENT_MATERIAL);
+		ecs_component_add(space_ship, COMPONENT_SHADER);
 
-		ecs_component_add(cube, COMPONENT_TRANSFORM);
-		ecs_component_add(cube, COMPONENT_MESH);
-		ecs_component_add(cube, COMPONENT_MATERIAL);
-		ecs_component_add(cube, COMPONENT_SHADER);
-
-		mesh[cube] = mesh_alloc_cube();
-		shader[cube] = unlitShader;
-		material[cube] = (material_t){
-			.diffuseMap = testDiffuseMap, };
-		transforms[cube] = (transform_t){
-			.position = vec3_scale(testLmod.vertices[i].position, transforms[suzanne].scale.x),					
+		mesh[space_ship] = lmod_test;
+		//mesh[space_ship].use_wire_frame = true;
+		shader[space_ship] = diffuseShader;
+		material[space_ship] = (material_t){
+			.diffuseMap = testDiffuseMap,
+		};
+		transforms[space_ship] = (transform_t){
+			.position = (vec3_t) { 0.0, 0.0, 400.0 },
 			.rotation = quat_identity(),
-			.scale = vec3_one(0.25), };
+			.scale = vec3_one(10.0), 
+		};
 	}
-#endif
 
 #if 1
 	// create cubes
@@ -530,7 +511,7 @@ int main() {
 		ecs_component_add(cube, COMPONENT_MATERIAL);
 		ecs_component_add(cube, COMPONENT_SHADER);
 
-		mesh[cube] = mesh_alloc_cube();
+		mesh[cube] = lmod_cube;
 		shader[cube] = diffuseShader;
 		material[cube] = (material_t){
 			.diffuseMap = testDiffuseMap, };
@@ -548,7 +529,7 @@ int main() {
 
 	// create skybox
 	skybox_t skybox = (skybox_t) {
-		.mesh =   mesh_alloc_cube(),
+		.mesh =   lmod_cube,
 		.shader = unlitShader,
 		.material = (material_t){
 			.diffuseMap = texture_create("res/textures/space.png"),
@@ -583,6 +564,9 @@ int main() {
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);
 	}
+
+	mesh_free(&lmod_test);
+	mesh_free(&asteroid_test);
 
 	free(mesh);
 	free(shader);

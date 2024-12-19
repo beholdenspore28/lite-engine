@@ -89,7 +89,7 @@ void lite_engine_start(void) {
 	primitive_shader = shader_create(
 		"res/shaders/primitive.vs.glsl",
 		"res/shaders/primitive.fs.glsl");
-	primitive_mesh_cube = mesh_alloc_cube();
+	primitive_mesh_cube = mesh_lmod_alloc("res/models/cube.lmod");
 }
 
 void lite_engine_stop(void) {
@@ -163,7 +163,7 @@ void primitive_draw_cube(transform_t transform, bool wireframe, vec4_t color) {
 	shader_setUniformV4(primitive_shader, "u_color", color);
 
 	glBindVertexArray(primitive_mesh_cube.VAO);
-	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.indices_length,
+	glDrawElements( GL_TRIANGLES, primitive_mesh_cube.indices.length,
 			GL_UNSIGNED_INT, 0);
 }
 

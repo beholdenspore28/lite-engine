@@ -56,15 +56,13 @@ typedef struct {
 DECLARE_LIST(vertex_t)
 
 typedef struct {
-	bool enabled;
-  GLuint VAO;
-  GLuint VBO;
-  GLuint EBO;
-  vertex_t *vertices;
-  GLuint vertices_length;
-  GLuint *indices;
-  GLuint indices_length;
-  bool use_wire_frame;
+	bool          enabled;
+	GLuint        VAO;
+	GLuint        VBO;
+	GLuint        EBO;
+	list_vertex_t vertices;
+	list_GLuint   indices;
+	bool          use_wire_frame;
 } mesh_t;
 DECLARE_LIST(mesh_t)
 
@@ -104,53 +102,6 @@ mat4_t projection;
 #define MESH_CUBE_NUM_VERTICES 24
 #define MESH_CUBE_NUM_INDICES 36
 
-static vertex_t mesh_quad_vertices[MESH_QUAD_NUM_VERTICES] = {
-	//positions         //tex	      //normal
-	{ { 0.5f,  0.5f, 0.0f }, { 1.0f, 1.0f }, { 0.0,  1.0,  0.0 } },// top right
-	{ { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f }, { 0.0,  1.0,  0.0 } },// bottom right
-	{ {-0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f }, { 0.0,  1.0,  0.0 } },// bottom left
-	{ {-0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f }, { 0.0,  1.0,  0.0 } },// top left 
-};
-
-static unsigned int mesh_quad_indices[MESH_QUAD_NUM_INDICES] = {
-	3, 1, 0,  // first Triangle
-	3, 2, 1   // second Triangle
-};
-
-static vertex_t mesh_cube_vertices[MESH_CUBE_NUM_VERTICES] = {
-	// position            //tex          //normal
-	{ {-0.5,  0.5,  0.5 }, { 0.0,  1.0 }, { 0.0,  1.0,  0.0 } },
-	{ {-0.5,  0.5, -0.5 }, { 0.0,  0.0 }, { 0.0,  1.0,  0.0 } },
-	{ { 0.5,  0.5, -0.5 }, { 1.0,  0.0 }, { 0.0,  1.0,  0.0 } },
-	{ { 0.5,  0.5,  0.5 }, { 1.0,  1.0 }, { 0.0,  1.0,  0.0 } },
-	{ {-0.5,  0.5,  0.5 }, { 0.0,  1.0 }, {-1.0,  0.0,  0.0 } },
-	{ {-0.5, -0.5,  0.5 }, { 0.0,  0.0 }, {-1.0,  0.0,  0.0 } },
-	{ {-0.5, -0.5, -0.5 }, { 1.0,  0.0 }, {-1.0,  0.0,  0.0 } },
-	{ {-0.5,  0.5, -0.5 }, { 1.0,  1.0 }, {-1.0,  0.0,  0.0 } },
-	{ {-0.5,  0.5, -0.5 }, { 0.0,  1.0 }, { 0.0,  0.0, -1.0 } },
-	{ {-0.5, -0.5, -0.5 }, { 0.0,  0.0 }, { 0.0,  0.0, -1.0 } },
-	{ { 0.5, -0.5, -0.5 }, { 1.0,  0.0 }, { 0.0,  0.0, -1.0 } },
-	{ { 0.5,  0.5, -0.5 }, { 1.0,  1.0 }, { 0.0,  0.0, -1.0 } },
-	{ { 0.5,  0.5, -0.5 }, { 0.0,  1.0 }, { 1.0,  0.0,  0.0 } },
-	{ { 0.5, -0.5, -0.5 }, { 0.0,  0.0 }, { 1.0,  0.0,  0.0 } },
-	{ { 0.5, -0.5,  0.5 }, { 1.0,  0.0 }, { 1.0,  0.0,  0.0 } },
-	{ { 0.5,  0.5,  0.5 }, { 1.0,  1.0 }, { 1.0,  0.0,  0.0 } },
-	{ { 0.5,  0.5,  0.5 }, { 0.0,  1.0 }, { 0.0,  0.0,  1.0 } },
-	{ { 0.5, -0.5,  0.5 }, { 0.0,  0.0 }, { 0.0,  0.0,  1.0 } },
-	{ {-0.5, -0.5,  0.5 }, { 1.0,  0.0 }, { 0.0,  0.0,  1.0 } },
-	{ {-0.5,  0.5,  0.5 }, { 1.0,  1.0 }, { 0.0,  0.0,  1.0 } },
-	{ {-0.5, -0.5, -0.5 }, { 0.0,  1.0 }, { 0.0, -1.0,  0.0 } },
-	{ {-0.5, -0.5,  0.5 }, { 0.0,  0.0 }, { 0.0, -1.0,  0.0 } },
-	{ { 0.5, -0.5,  0.5 }, { 1.0,  0.0 }, { 0.0, -1.0,  0.0 } },
-	{ { 0.5, -0.5, -0.5 }, { 1.0,  1.0 }, { 0.0, -1.0,  0.0 } },
-};
-
-static GLuint mesh_cube_indices[MESH_CUBE_NUM_INDICES] = {
-	0,1,2,    0,2,3,    4,5,6,    4,6,7,    8,9,10,   8,10,11,
-	12,13,14, 12,14,15, 16,17,18, 16,18,19, 20,21,22, 20,22,23,
-};
-
-mesh_t mesh_alloc(vertex_t* vertices, GLuint vertices_length,
-		GLuint* indices, GLuint num_vertices);
-mesh_t mesh_alloc_cube(void);
-mesh_t mesh_alloc_quad(void);
+mesh_t mesh_alloc(list_vertex_t vertices, list_GLuint indices);
+mesh_t mesh_lmod_alloc(const char* file_path);
+void mesh_free(mesh_t* mesh);
