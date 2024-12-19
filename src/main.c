@@ -23,8 +23,11 @@ typedef struct skybox {
 
 typedef struct kinematic_body {
 	float mass;
+	float drag_coefficient;
 	vec3_t acceleration;
 	vec3_t velocity;
+	quat_t angular_velocity;
+	quat_t angular_acceleration;
 } kinematic_body_t;
 
 int light;
@@ -64,11 +67,17 @@ static inline void kinematic_body_update(
 		assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
 		assert(kbodies[e].mass > 0);
 		
+#if 1
+		{ // drag force
+			vec3_t drag = vec3_scale(vec3_normalize(kbodies[e].velocity), -1);
+			const float speed = vec3_magnitude(kbodies[e].velocity);
+			drag = vec3_scale(drag, kbodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
+			kbodies[e].velocity = vec3_add(kbodies[e].velocity, drag);
+		}
+#endif
+
 		{ // apply forces
-			//kbodies[e].acceleration = vec3_scale(
-					//vec3_left(0.1), 1/kbodies[e].mass);
-			kbodies[e].velocity = vec3_add(
-					kbodies[e].velocity, kbodies[e].acceleration);
+			kbodies[e].velocity = vec3_add(kbodies[e].velocity, kbodies[e].acceleration);
 	
 			transforms[e].position = vec3_kinematic_equation(
 				kbodies[e].acceleration,
@@ -76,6 +85,7 @@ static inline void kinematic_body_update(
 				transforms[e].position,
 				lite_engine_get_context().time_delta);
 		}
+
 		
 		{ // oct tree insertion
 			oct_tree_entry_t entry = (oct_tree_entry_t) {
@@ -244,7 +254,8 @@ static inline void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_BACK);
 }
 
-static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
+static inline void camera_update(vec3_t* mouseLookVector) {   // INPUT
+#if 0	
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -279,7 +290,9 @@ static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
 		lite_engine_get_context().active_camera->transform.rotation =
 			quat_from_euler(*mouseLookVector);
 	}
+#endif
 
+#if 0
 	{ // movement
 		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
 		float cameraSpeedCurrent;
@@ -311,14 +324,15 @@ static inline void input_update(vec3_t* mouseLookVector) {   // INPUT
 			lite_engine_get_context().active_camera->transform.rotation = quat_identity();
 		}
 	}
+#endif
 }
 
 mesh_t asteroid_mesh_alloc(void) {
 	list_vertex_t vertices   = list_vertex_t_alloc();
 	list_GLuint   indices    = list_GLuint_alloc();
 
-	const float   radius     = 100.0;
-	const float   resolution = 500.0;
+	const float   radius     = 1.0;
+	const float   resolution = 5.0;
 
 	int index = 0;
 	for(int face = 0; face < 6; face++) {
@@ -459,31 +473,9 @@ int main() {
 	mesh_t lmod_test = mesh_lmod_alloc("res/models/untitled.lmod");
 	mesh_t lmod_cube = mesh_lmod_alloc("res/models/cube.lmod");
 
-#if 1
-	mesh_t asteroid_test = asteroid_mesh_alloc();
-	int asteroid = ecs_entity_create();
-	{
-		ecs_component_add(asteroid, COMPONENT_TRANSFORM);
-		ecs_component_add(asteroid, COMPONENT_MESH);
-		ecs_component_add(asteroid, COMPONENT_MATERIAL);
-		ecs_component_add(asteroid, COMPONENT_SHADER);
-
-		mesh[asteroid] = asteroid_test;
-		mesh[asteroid].use_wire_frame = true;
-		shader[asteroid] = diffuseShader;
-		material[asteroid] = (material_t){
-			.diffuseMap = testDiffuseMap,
-		};
-		transforms[asteroid] = (transform_t){
-			.position = (vec3_t) { 1000.0, 0.0, 1000.0 },
-			.rotation = quat_identity(),
-			.scale = vec3_one(10.0), 
-		};
-	}
-#endif
-
 	int space_ship = ecs_entity_create();
 	{
+		ecs_component_add(space_ship, COMPONENT_KINEMATIC_BODY);
 		ecs_component_add(space_ship, COMPONENT_TRANSFORM);
 		ecs_component_add(space_ship, COMPONENT_MESH);
 		ecs_component_add(space_ship, COMPONENT_MATERIAL);
@@ -498,12 +490,16 @@ int main() {
 		transforms[space_ship] = (transform_t){
 			.position = (vec3_t) { 0.0, 0.0, 400.0 },
 			.rotation = quat_identity(),
+			//.rotation = quat_from_euler(vec3_up(PI/2.0)),
 			.scale = vec3_one(10.0), 
 		};
+		kinematic_body[space_ship].velocity = vec3_zero();
+		kinematic_body[space_ship].mass = 1.0;
+		kinematic_body[space_ship].drag_coefficient = 0.01;
 	}
 
-#if 0
-	// create cubes
+#if 1
+	mesh_t asteroid_test = asteroid_mesh_alloc();
 	for (int i = 1; i <= 1000; i++) {
 		int cube = ecs_entity_create();
 
@@ -513,17 +509,22 @@ int main() {
 		ecs_component_add(cube, COMPONENT_MATERIAL);
 		ecs_component_add(cube, COMPONENT_SHADER);
 
-		mesh[cube] = lmod_cube;
+		mesh[cube] = asteroid_test;
 		shader[cube] = diffuseShader;
+
 		material[cube] = (material_t){
-			.diffuseMap = testDiffuseMap, };
+			.diffuseMap = testDiffuseMap,
+		};
+
 		transforms[cube] = (transform_t){
 			.position = (vec3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
 			.rotation = quat_identity(),
-			.scale = vec3_one(5.0), };
+			.scale = vec3_one(1.0),
+		};
+
 		kinematic_body[cube].velocity = vec3_zero();
 		kinematic_body[cube].mass = 1.0;
 	}
@@ -561,14 +562,39 @@ int main() {
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
-		input_update(&mouseLookVector);
+		camera_update(&mouseLookVector);
+
+		{ // space ship update
+			vec3_t offset = transform_basis_back(transforms[space_ship], 200.0); 
+			offset = vec3_add(offset, transform_basis_up(transforms[space_ship], 50));
+			
+			lite_engine_get_context().active_camera->transform.position = 
+				vec3_add(transforms[space_ship].position, offset);
+
+			vec3_t force = vec3_zero();
+
+			force.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+			force.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+			force.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+
+			force = vec3_normalize(force);
+
+			const float power = 10.0 * lite_engine_get_context().time_delta;
+			force = vec3_scale(force, power);
+
+			kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
+			vec3_print(kinematic_body[space_ship].velocity, "velocity");
+		}
+
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);
 	}
 
-	mesh_free(&lmod_test);
-	mesh_free(&asteroid_test);
+	//mesh_free(&lmod_test);
 
 	free(mesh);
 	free(shader);
