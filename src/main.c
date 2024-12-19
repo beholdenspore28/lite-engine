@@ -99,7 +99,7 @@ static inline void kinematic_body_update(
 	}
 
 	const vec4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
-	//oct_tree_draw(tree, primitive_color);
+	oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
@@ -254,8 +254,12 @@ static inline void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_BACK);
 }
 
-static inline void camera_update(vec3_t* mouseLookVector) {   // INPUT
-#if 0	
+static inline void camera_update(const transform_t *transforms, const int space_ship) {
+	static vec3_t mouseLookVector = {0};
+
+	camera_t *camera = lite_engine_get_context().active_camera;
+	camera->transform.position = transforms[space_ship].position;
+
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -263,40 +267,41 @@ static inline void camera_update(vec3_t* mouseLookVector) {   // INPUT
 				&mouseX, &mouseY);
 
 		if (firstMouse) {
-			lite_engine_get_context().active_camera->lastX = mouseX;
-			lite_engine_get_context().active_camera->lastY = mouseY;
+			camera->lastX = mouseX;
+			camera->lastY = mouseY;
 			firstMouse = false;
 		}
 
 		float xoffset = 
-			mouseX - lite_engine_get_context().active_camera->lastX;
+			mouseX - camera->lastX;
 		float yoffset = 
-			mouseY - lite_engine_get_context().active_camera->lastY;
+			mouseY - camera->lastY;
 
-		lite_engine_get_context().active_camera->lastX = mouseX;
-		lite_engine_get_context().active_camera->lastY = mouseY;
+		camera->lastX = mouseX;
+		camera->lastY = mouseY;
 
-		mouseLookVector->x += yoffset * 
-			lite_engine_get_context().active_camera->lookSensitivity;
-		mouseLookVector->y += xoffset * 
-			lite_engine_get_context().active_camera->lookSensitivity;
+		mouseLookVector.x += yoffset * 
+			camera->lookSensitivity;
+		mouseLookVector.y += xoffset * 
+			camera->lookSensitivity;
 
-		mouseLookVector->y = loop(mouseLookVector->y, 2 * PI);
-		mouseLookVector->x = clamp(mouseLookVector->x, -PI * 0.5, PI * 0.5);
+		mouseLookVector.y = loop(mouseLookVector.y, 2 * PI);
+		mouseLookVector.x = clamp(mouseLookVector.x, -PI * 0.5, PI * 0.5);
 
-		vec3_scale(*mouseLookVector, 
+		vec3_scale(mouseLookVector, 
 				lite_engine_get_context().time_delta);
 
-		lite_engine_get_context().active_camera->transform.rotation =
-			quat_from_euler(*mouseLookVector);
+		camera->transform.rotation =
+			quat_from_euler(mouseLookVector);
 	}
-#endif
+
+	camera->transform.position = vec3_add(camera->transform.position, transform_basis_back(camera->transform, 200.0));
 
 #if 0
 	{ // movement
 		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
 		float cameraSpeedCurrent;
-		if (glfwGetKey( lite_engine_get_context().window, 
+		if (glfwGetKey( window, 
 					GLFW_KEY_LEFT_CONTROL)) {
 			cameraSpeedCurrent = 4 * cameraSpeed;
 		} else {
@@ -304,24 +309,24 @@ static inline void camera_update(vec3_t* mouseLookVector) {   // INPUT
 		}
 		vec3_t movement = vec3_zero();
 
-		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
-		movement.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+		movement.x = glfwGetKey(window, GLFW_KEY_D) -
+			glfwGetKey(window, GLFW_KEY_A);
+		movement.y = glfwGetKey(window, GLFW_KEY_SPACE) -
+			glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(window, GLFW_KEY_W) -
+			glfwGetKey(window, GLFW_KEY_S);
 
 		movement = vec3_normalize(movement);
 		movement = vec3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vec3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+			vec3_rotate(movement, camera->transform.rotation);
 
-		lite_engine_get_context().active_camera->transform.position =
-			vec3_add(lite_engine_get_context().active_camera->transform.position, movement);
+		camera->transform.position =
+			vec3_add(camera->transform.position, movement);
 
-		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_get_context().active_camera->transform.position = vec3_zero();
-			lite_engine_get_context().active_camera->transform.rotation = quat_identity();
+		if (glfwGetKey(window, GLFW_KEY_BACKSPACE)) {
+			camera->transform.position = vec3_zero();
+			camera->transform.rotation = quat_identity();
 		}
 	}
 #endif
@@ -558,19 +563,11 @@ int main() {
 	transforms[light].position = (vec3_t){100, 100, -100};
 
 
-	vec3_t mouseLookVector = vec3_zero();
-
 	while (lite_engine_is_running()) {
 		lite_engine_update();
-		camera_update(&mouseLookVector);
+		camera_update(transforms, space_ship);
 
 		{ // space ship update
-			vec3_t offset = transform_basis_back(transforms[space_ship], 200.0); 
-			offset = vec3_add(offset, transform_basis_up(transforms[space_ship], 50));
-			
-			lite_engine_get_context().active_camera->transform.position = 
-				vec3_add(transforms[space_ship].position, offset);
-
 			vec3_t force = vec3_zero();
 
 			force.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
@@ -586,7 +583,7 @@ int main() {
 			force = vec3_scale(force, power);
 
 			kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
-			vec3_print(kinematic_body[space_ship].velocity, "velocity");
+			//vec3_print(kinematic_body[space_ship].velocity, "velocity");
 		}
 
 		mesh_update(mesh, transforms, shader, material, point_light);
