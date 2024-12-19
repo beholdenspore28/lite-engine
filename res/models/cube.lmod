@@ -1,5 +1,5 @@
 # LMOD file
-mesh: Cube.2803
+mesh: Cube.2807
 vertex_positions:
 -1.0000	-1.0000	1.0000
 -1.0000	1.0000	1.0000

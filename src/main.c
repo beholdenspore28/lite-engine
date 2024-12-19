@@ -317,8 +317,8 @@ mesh_t asteroid_mesh_alloc(void) {
 	list_vertex_t vertices   = list_vertex_t_alloc();
 	list_GLuint   indices    = list_GLuint_alloc();
 
-	const float   radius     = 10.0;
-	const float   resolution = 100.0;
+	const float   radius     = 100.0;
+	const float   resolution = 500.0;
 
 	int index = 0;
 	for(int face = 0; face < 6; face++) {
@@ -380,8 +380,8 @@ mesh_t asteroid_mesh_alloc(void) {
 					} break;
 				}
 
-				const float amplitude = 10;
-				const float frequency = 1;
+				const float amplitude = 1.0;
+				const float frequency = 10;
 				const float noise = radius + (noise3_fbm(
 							position.x * frequency,
 							position.y * frequency,
@@ -389,7 +389,7 @@ mesh_t asteroid_mesh_alloc(void) {
 
 				vertex_t v = (vertex_t) {
 					.position = vec3_scale(position, noise),
-					.normal = vec3_zero(),
+					.normal = position,
 					.texCoord = vec2_zero(),
 				};
 
@@ -458,8 +458,9 @@ int main() {
 
 	mesh_t lmod_test = mesh_lmod_alloc("res/models/untitled.lmod");
 	mesh_t lmod_cube = mesh_lmod_alloc("res/models/cube.lmod");
-	mesh_t asteroid_test = asteroid_mesh_alloc();
 
+#if 1
+	mesh_t asteroid_test = asteroid_mesh_alloc();
 	int asteroid = ecs_entity_create();
 	{
 		ecs_component_add(asteroid, COMPONENT_TRANSFORM);
@@ -468,17 +469,18 @@ int main() {
 		ecs_component_add(asteroid, COMPONENT_SHADER);
 
 		mesh[asteroid] = asteroid_test;
-		//mesh[asteroid].use_wire_frame = true;
+		mesh[asteroid].use_wire_frame = true;
 		shader[asteroid] = diffuseShader;
 		material[asteroid] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
 		transforms[asteroid] = (transform_t){
-			.position = (vec3_t) { 0.0, 0.0, 500.0 },
+			.position = (vec3_t) { 1000.0, 0.0, 1000.0 },
 			.rotation = quat_identity(),
 			.scale = vec3_one(10.0), 
 		};
 	}
+#endif
 
 	int space_ship = ecs_entity_create();
 	{
