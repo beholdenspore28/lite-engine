@@ -42,6 +42,8 @@ with open(filepath, 'w') as f:
         bm = bmesh.new()
         bm.from_mesh(mesh)
         bmesh.ops.triangulate(bm, faces=bm.faces)
+        bmesh.ops.split_edges(bm, edges=bm.edges)
+        bm.to_mesh(mesh)
         bm.free()
 
         f.write("mesh: %s\n" % mesh.name)
@@ -60,3 +62,4 @@ with open(filepath, 'w') as f:
                 f.write(f"{v} ")
 
         f.write("\n")
+

@@ -89,7 +89,7 @@ static inline void kinematic_body_update(
 	}
 
 	const vec4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
-	oct_tree_draw(tree, primitive_color);
+	//oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
 
@@ -446,7 +446,7 @@ int main() {
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
 	camera_t* camera              = malloc(sizeof(camera_t));
-	camera->transform.position    = (vec3_t){0.0, 0.0, -25.0};
+	camera->transform.position    = (vec3_t){0.0, 20.0, -300.0};
 	camera->transform.rotation    = quat_identity();
 	camera->transform.scale       = vec3_one(1.0);
 	camera->projection            = mat4_identity();
@@ -456,8 +456,7 @@ int main() {
 
 	lite_engine_set_context(context);
 	lite_engine_start();
-
-	lite_engine_set_clear_color(0.0, 0.0, 0.0, 1.0);
+	lite_engine_set_clear_color(0.2, 0.3, 0.4, 1.0);
 
 	GLuint unlitShader = shader_create(
 			"res/shaders/unlit.vs.glsl", 
@@ -488,8 +487,8 @@ int main() {
 		ecs_component_add(suzanne, COMPONENT_SHADER);
 
 		mesh[suzanne] = testLmod;
-		mesh[suzanne].use_wire_frame = true;
-		shader[suzanne] = unlitShader;
+		//mesh[suzanne].use_wire_frame = true;
+		shader[suzanne] = diffuseShader;
 		material[suzanne] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
@@ -572,7 +571,7 @@ int main() {
 		.linear = 0.09f,
 		.quadratic = 0.032f,
 	};
-	transforms[light].position = (vec3_t){20, 20, 20};
+	transforms[light].position = (vec3_t){100, 100, -100};
 
 
 	vec3_t mouseLookVector = vec3_zero();
@@ -580,11 +579,9 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		input_update(&mouseLookVector);
-		transforms[suzanne].rotation = quat_multiply(transforms[suzanne].rotation,
-				quat_from_euler( vec3_up(lite_engine_get_context().time_delta)));
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
-		//skybox_update(&skybox);
+		skybox_update(&skybox);
 	}
 
 	free(mesh);
