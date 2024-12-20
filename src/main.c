@@ -464,8 +464,8 @@ int main() {
 			"res/shaders/unlit.fs.glsl");
 
 	GLuint diffuseShader = shader_create(
-			"res/shaders/diffuse.vs.glsl",
-			"res/shaders/diffuse.fs.glsl");
+			"res/shaders/phong_diffuse_vertex.glsl",
+			"res/shaders/phong_diffuse_fragment.glsl");
 
 	GLuint testDiffuseMap = texture_create("res/textures/test.png");
 
@@ -576,7 +576,7 @@ int main() {
 		lite_engine_update();
 
 #if 1
-		{ // space ship update
+		{ // space ship update TODO remove this example.
 			{ // movement
 				vector3_t input = vector3_zero();
 				input.x = 
@@ -595,7 +595,7 @@ int main() {
 				force = vector3_add(force, transform_basis_up(transforms[space_ship], input.y));
 				force = vector3_add(force, transform_basis_forward(transforms[space_ship], input.z));
 
-				const float power = 10.0 * lite_engine_get_context().time_delta;
+				const float power = 100.0 * lite_engine_get_context().time_delta;
 				force = vector3_scale(force, power);
 
 				kinematic_body[space_ship].velocity = vector3_add(kinematic_body[space_ship].velocity, force);	
