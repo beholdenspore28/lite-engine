@@ -61,7 +61,7 @@ static inline quat_t angular_kinematic_equation(
 }
 
 static inline void kinematic_body_update(
-		kinematic_body_t* kbodies, 
+		kinematic_body_t* kinematic_bodies, 
 		transform_t* transforms) {
 	oct_tree_t *tree = oct_tree_alloc();
 	tree->octSize = 10000;
@@ -73,37 +73,28 @@ static inline void kinematic_body_update(
 		}
 
 		assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
-		assert(kbodies[e].mass > 0);
+		assert(kinematic_bodies[e].mass > 0);
 		
 #if 1
 		{ // drag force
-			vec3_t drag = vec3_scale(vec3_normalize(kbodies[e].velocity), -1);
-			const float speed = vec3_magnitude(kbodies[e].velocity);
-			drag = vec3_scale(drag, kbodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
-			kbodies[e].velocity = vec3_add(kbodies[e].velocity, drag);
+			vec3_t drag = vec3_scale(vec3_normalize(kinematic_bodies[e].velocity), -1);
+			const float speed = vec3_magnitude(kinematic_bodies[e].velocity);
+			drag = vec3_scale(drag, kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
+			kinematic_bodies[e].velocity = vec3_add(kinematic_bodies[e].velocity, drag);
 		}
 #endif
 
 		{ // apply forces
-			kbodies[e].velocity = vec3_add(kbodies[e].velocity, kbodies[e].acceleration);
+			kinematic_bodies[e].velocity = vec3_add(kinematic_bodies[e].velocity, kinematic_bodies[e].acceleration);
 	
 			transforms[e].position = vec3_kinematic_equation(
-				kbodies[e].acceleration,
-				kbodies[e].velocity,
+				kinematic_bodies[e].acceleration,
+				kinematic_bodies[e].velocity,
 				transforms[e].position,
 				lite_engine_get_context().time_delta);
 		}
 
-		{ // torque
-			kbodies[e].angular_velocity = quat_multiply(
-					kbodies[e].angular_velocity, 
-					kbodies[e].angular_acceleration);
-
-			transforms[e].rotation = angular_kinematic_equation(
-					kbodies[e].angular_acceleration,
-					kbodies[e].angular_velocity,
-					transforms[e].rotation,
-					lite_engine_get_context().time_delta);
+		{ // apply torques
 		}
 		
 		{ // oct tree insertion
@@ -277,7 +268,7 @@ static inline void camera_update(const transform_t *transforms, const int space_
 	static vec3_t mouseLookVector = {0};
 	camera_t *camera = lite_engine_get_context().active_camera;
 
-#if 0
+#if 1
 	camera->transform.position = transforms[space_ship].position;
 
 	camera->transform.position = vec3_add(camera->transform.position, 
@@ -520,6 +511,8 @@ int main() {
 			.scale = vec3_one(10.0), 
 		};
 		kinematic_body[space_ship].velocity = vec3_zero();
+		kinematic_body[space_ship].angular_velocity = quat_identity();
+		kinematic_body[space_ship].angular_acceleration = quat_identity();
 		kinematic_body[space_ship].mass = 1.0;
 		kinematic_body[space_ship].drag_coefficient = 0.01;
 	}
@@ -552,7 +545,10 @@ int main() {
 		};
 
 		kinematic_body[cube].velocity = vec3_zero();
+		kinematic_body[cube].angular_velocity = quat_identity();
+		kinematic_body[cube].angular_acceleration = quat_identity();
 		kinematic_body[cube].mass = 1.0;
+		kinematic_body[cube].drag_coefficient = 0.01;
 	}
 #endif
 
@@ -615,28 +611,34 @@ int main() {
 
 			{ // rotation
 				vec3_t input = vec3_zero();
-				input.x = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
-				input.y = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
-				input.z = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
-				input = vec3_normalize(input);
+				{
+					const float power = 0.01 * lite_engine_get_context().time_delta;
+					input.x = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
+					input.y = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
+					input.z = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
+					input = vec3_normalize(input);
 
-				const float power = 10.0 * lite_engine_get_context().time_delta;
-				input = vec3_scale(input, power);
+					input = vec3_scale(input, power);
+				}
 
 				const quat_t torque = quat_from_euler(input);
-				kinematic_body[space_ship].angular_velocity = 
-					quat_multiply(kinematic_body[space_ship].angular_velocity, torque);
+				kinematic_body[space_ship].angular_velocity = quat_multiply(
+						torque, kinematic_body[space_ship].angular_velocity);
+
+				transforms[space_ship].rotation = quat_multiply(
+						transforms[space_ship].rotation, 
+						kinematic_body[space_ship].angular_velocity);
+
 				quat_print(torque, "torque");
 				quat_print(kinematic_body[space_ship].angular_velocity, "angular_velocity");
 				quat_print(kinematic_body[space_ship].angular_acceleration, "angular_acceleration");
 			}
-
 		}
 #endif
 
