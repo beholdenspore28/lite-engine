@@ -612,7 +612,7 @@ int main() {
 			{ // rotation
 				vec3_t input = vec3_zero();
 				{
-					const float power = 0.01 * lite_engine_get_context().time_delta;
+					const float power = 0.001 * lite_engine_get_context().time_delta;
 					input.x = 
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
