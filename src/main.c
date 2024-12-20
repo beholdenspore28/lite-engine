@@ -538,19 +538,24 @@ int main() {
 
 		{ // space ship update
 			{ // movement
-				vec3_t force = vec3_zero();
+				vec3_t input = vec3_zero();
 
-				force.x = 
+				input.x = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
-				force.y = 
+				input.y = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
-				force.z = 
+				input.z = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
 
-				force = vec3_normalize(force);
+				input = vec3_normalize(input);
+
+				vec3_t force = {0};
+				force = vec3_add(force, transform_basis_right(transforms[space_ship], input.x));
+				force = vec3_add(force, transform_basis_up(transforms[space_ship], input.y));
+				force = vec3_add(force, transform_basis_forward(transforms[space_ship], input.z));
 
 				const float power = 10.0 * lite_engine_get_context().time_delta;
 				force = vec3_scale(force, power);
