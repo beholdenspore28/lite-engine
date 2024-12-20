@@ -202,60 +202,60 @@ void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
   glUniform1f(UniformLocation, f);
 }
 
-void shader_setUniformV3(GLuint shader, const char *uniformName, vec3_t v) {
+void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void shader_setUniformV4(GLuint shader, const char *uniformName, vec4_t v) {
+void shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniform4f(UniformLocation, v.x, v.y, v.z, v.w);
 }
 
-void shader_setUniformM4(GLuint shader, const char *uniformName, mat4_t *m) {
+void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
   GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
   glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
 // TRANSFORM==================================================================//
 
 void transform_calculate_matrix(transform_t *t) {
-  mat4_t translation = mat4_translate(t->position);
-  mat4_t rotation = quat_to_mat4(t->rotation);
-  mat4_t scale = mat4_scale(t->scale);
-  t->matrix = mat4_multiply(rotation, translation);
-  t->matrix = mat4_multiply(scale, t->matrix);
+  matrix4_t translation = matrix4_translate(t->position);
+  matrix4_t rotation = quaternion_to_matrix4(t->rotation);
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(rotation, translation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
 }
 
 void transform_calculate_view_matrix(transform_t *t) {
-  mat4_t translation = mat4_translate(vec3_negate(t->position));
-  mat4_t rotation = quat_to_mat4(quat_conjugate(t->rotation));
-  mat4_t scale = mat4_scale(t->scale);
-  t->matrix = mat4_multiply(translation, rotation);
-  t->matrix = mat4_multiply(scale, t->matrix);
+  matrix4_t translation = matrix4_translate(vector3_negate(t->position));
+  matrix4_t rotation = quaternion_to_matrix4(quaternion_conjugate(t->rotation));
+  matrix4_t scale = matrix4_scale(t->scale);
+  t->matrix = matrix4_multiply(translation, rotation);
+  t->matrix = matrix4_multiply(scale, t->matrix);
 }
 
-vec3_t transform_basis_forward(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_forward(magnitude), t.rotation);
+vector3_t transform_basis_forward(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_forward(magnitude), t.rotation);
 }
 
-vec3_t transform_basis_up(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_up(magnitude), t.rotation);
+vector3_t transform_basis_up(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_up(magnitude), t.rotation);
 }
 
-vec3_t transform_basis_right(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_right(magnitude), t.rotation);
+vector3_t transform_basis_right(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_right(magnitude), t.rotation);
 }
 
-vec3_t transform_basis_back(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_back(magnitude), t.rotation);
+vector3_t transform_basis_back(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_back(magnitude), t.rotation);
 }
 
-vec3_t transform_basis_down(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_down(magnitude), t.rotation);
+vector3_t transform_basis_down(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_down(magnitude), t.rotation);
 }
 
-vec3_t transform_basis_left(transform_t t, float magnitude) {
-  return vec3_rotate(vec3_left(magnitude), t.rotation);
+vector3_t transform_basis_left(transform_t t, float magnitude) {
+  return vector3_rotate(vector3_left(magnitude), t.rotation);
 }
 
 // MESH=======================================================================//
@@ -311,8 +311,8 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		assert(0);
 	}
 
-	list_vec3_t normals   = list_vec3_t_alloc();
-	list_vec3_t positions = list_vec3_t_alloc();
+	list_vector3_t normals   = list_vector3_t_alloc();
+	list_vector3_t positions = list_vector3_t_alloc();
 	list_GLuint indices   = list_GLuint_alloc();
 
 	enum {
@@ -365,15 +365,15 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 
 			state = STATE_NORMAL;
 
-			vec3_t normal = {0};
+			vector3_t normal = {0};
 			int num_tokens = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
 			if (num_tokens != 3) {
 				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_normals at %s\n", file_path);
 				assert(0);
 			}
 
-			//vec3_print(normal, "normal");
-			list_vec3_t_add(&normals, normal);
+			//vector3_print(normal, "normal");
+			list_vector3_t_add(&normals, normal);
 			while (*c != '\n' && *c != '\0') { c++; } 
 		}
 
@@ -383,15 +383,15 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 
 			state = STATE_POSITION;
 
-			vec3_t position = {0};
+			vector3_t position = {0};
 			int num_tokens = sscanf(c, "%f %f %f\n", &position.x, &position.y, &position.z);
 			if (num_tokens != 3) {
 				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_positions at %s\n", file_path);
 				assert(0);
 			}
 
-			//vec3_print(position, "position");
-			list_vec3_t_add(&positions, position);
+			//vector3_print(position, "position");
+			list_vector3_t_add(&positions, position);
 			while (*c != '\n' && *c != '\0') { c++; } 
 		}
 	}

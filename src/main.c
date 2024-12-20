@@ -24,19 +24,19 @@ typedef struct skybox {
 typedef struct kinematic_body {
 	float mass;
 	float drag_coefficient;
-	vec3_t acceleration;
-	vec3_t velocity;
-	quat_t angular_velocity;
-	quat_t angular_acceleration;
+	vector3_t acceleration;
+	vector3_t velocity;
+	quaternion_t angular_velocity;
+	quaternion_t angular_acceleration;
 } kinematic_body_t;
 
 int light;
 
-static inline void oct_tree_draw(oct_tree_t *tree, vec4_t color) {
+static inline void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
-		.rotation = quat_identity(),
-		.scale = vec3_one(tree->octSize),
+		.rotation = quaternion_identity(),
+		.scale = vector3_one(tree->octSize),
 	};
 	if (tree->isSubdivided) {
 		oct_tree_draw(tree->frontNorthEast, color);
@@ -50,14 +50,6 @@ static inline void oct_tree_draw(oct_tree_t *tree, vec4_t color) {
 	}else {
 		primitive_draw_cube(t, true, color);
 	}
-}
-
-static inline quat_t angular_kinematic_equation(
-		quat_t angular_acceleration, 
-		quat_t angular_velocity, 
-		quat_t rotation,
-		float time) {
-	return quat_add(quat_scale(quat_add(quat_scale(angular_acceleration,0.5*time*time),angular_velocity),time),rotation);
 }
 
 static inline void kinematic_body_update(
@@ -77,17 +69,17 @@ static inline void kinematic_body_update(
 		
 #if 1
 		{ // drag force
-			vec3_t drag = vec3_scale(vec3_normalize(kinematic_bodies[e].velocity), -1);
-			const float speed = vec3_magnitude(kinematic_bodies[e].velocity);
-			drag = vec3_scale(drag, kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
-			kinematic_bodies[e].velocity = vec3_add(kinematic_bodies[e].velocity, drag);
+			vector3_t drag = vector3_scale(vector3_normalize(kinematic_bodies[e].velocity), -1);
+			const float speed = vector3_magnitude(kinematic_bodies[e].velocity);
+			drag = vector3_scale(drag, kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
+			kinematic_bodies[e].velocity = vector3_add(kinematic_bodies[e].velocity, drag);
 		}
 #endif
 
 		{ // apply forces
-			kinematic_bodies[e].velocity = vec3_add(kinematic_bodies[e].velocity, kinematic_bodies[e].acceleration);
+			kinematic_bodies[e].velocity = vector3_add(kinematic_bodies[e].velocity, kinematic_bodies[e].acceleration);
 	
-			transforms[e].position = vec3_kinematic_equation(
+			transforms[e].position = vector3_kinematic_equation(
 				kinematic_bodies[e].acceleration,
 				kinematic_bodies[e].velocity,
 				transforms[e].position,
@@ -108,7 +100,7 @@ static inline void kinematic_body_update(
 		}
 	}
 
-	const vec4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
+	const vector4_t primitive_color = { 0.2, 0.2, 0.2, 1.0 };
 	oct_tree_draw(tree, primitive_color);
 	oct_tree_free(tree);
 }
@@ -131,9 +123,9 @@ static inline void mesh_update(
 	float aspect = (float)lite_engine_get_context().window_size_x /
 		(float)lite_engine_get_context().window_size_y;
 	lite_engine_get_context().active_camera->projection =
-		mat4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
 	lite_engine_get_context().active_camera->transform.matrix = 
-		mat4_identity();
+		matrix4_identity();
 	transform_calculate_view_matrix(
 			&lite_engine_get_context().active_camera->transform);
 
@@ -217,8 +209,8 @@ static inline void skybox_update(skybox_t* skybox) {
 
 	// skybox should always appear static and never move
 	lite_engine_get_context().active_camera->transform.matrix = 
-		mat4_identity();
-	skybox->transform.rotation = quat_conjugate(
+		matrix4_identity();
+	skybox->transform.rotation = quaternion_conjugate(
 			lite_engine_get_context().active_camera->transform.rotation);
 
 	{ // draw
@@ -265,13 +257,13 @@ static inline void skybox_update(skybox_t* skybox) {
 }
 
 static inline void camera_update(const transform_t *transforms, const int space_ship) {
-	static vec3_t mouseLookVector = {0};
+	static vector3_t mouseLookVector = {0};
 	camera_t *camera = lite_engine_get_context().active_camera;
 
 #if 1
 	camera->transform.position = transforms[space_ship].position;
 
-	camera->transform.position = vec3_add(camera->transform.position, 
+	camera->transform.position = vector3_add(camera->transform.position, 
 			transform_basis_back(transforms[space_ship], 200.0));
 	camera->transform.rotation = transforms[space_ship].rotation;
 #else
@@ -303,11 +295,11 @@ static inline void camera_update(const transform_t *transforms, const int space_
 		mouseLookVector.y = loop(mouseLookVector.y, 2 * PI);
 		mouseLookVector.x = clamp(mouseLookVector.x, -PI * 0.5, PI * 0.5);
 
-		vec3_scale(mouseLookVector, 
+		vector3_scale(mouseLookVector, 
 				lite_engine_get_context().time_delta);
 
 		camera->transform.rotation =
-			quat_from_euler(mouseLookVector);
+			quaternion_from_euler(mouseLookVector);
 	}
 
 	{ // movement
@@ -319,7 +311,7 @@ static inline void camera_update(const transform_t *transforms, const int space_
 		} else {
 			cameraSpeedCurrent = cameraSpeed;
 		}
-		vec3_t movement = vec3_zero();
+		vector3_t movement = vector3_zero();
 
 		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
 			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
@@ -328,17 +320,17 @@ static inline void camera_update(const transform_t *transforms, const int space_
 		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
 
-		movement = vec3_normalize(movement);
-		movement = vec3_scale(movement, cameraSpeedCurrent);
+		movement = vector3_normalize(movement);
+		movement = vector3_scale(movement, cameraSpeedCurrent);
 		movement =
-			vec3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+			vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
 
 		lite_engine_get_context().active_camera->transform.position =
-			vec3_add(lite_engine_get_context().active_camera->transform.position, movement);
+			vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
 
 		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_get_context().active_camera->transform.position = vec3_zero();
-			lite_engine_get_context().active_camera->transform.rotation = quat_identity();
+			lite_engine_get_context().active_camera->transform.position = vector3_zero();
+			lite_engine_get_context().active_camera->transform.rotation = quaternion_identity();
 		}
 	}
 #endif
@@ -357,12 +349,12 @@ mesh_t asteroid_mesh_alloc(void) {
 		for(float x = 0; x < resolution; x++) {
 			for(float y = 0; y < resolution; y++) {
 
-				vec3_t position = (vec3_t) { 
+				vector3_t position = (vector3_t) { 
 					.x = map(x, 0, resolution -1, -0.5, 0.5), 
 					.y = map(y, 0, resolution -1, -0.5, 0.5), 
 					.z = 0.5,
 				};
-				position = vec3_normalize(position);
+				position = vector3_normalize(position);
 
 				// calculate indices
 				if (x < resolution-1 && y < resolution-1) {
@@ -381,7 +373,7 @@ mesh_t asteroid_mesh_alloc(void) {
 				}
 
 				// 0 is front
-				const vec3_t temp = position;
+				const vector3_t temp = position;
 				switch (face) {
 					case 0: { // 0 is front
 						// do nothing.
@@ -419,9 +411,9 @@ mesh_t asteroid_mesh_alloc(void) {
 							position.z * frequency) * amplitude);
 
 				vertex_t v = (vertex_t) {
-					.position = vec3_scale(position, noise),
+					.position = vector3_scale(position, noise),
 					.normal = position,
-					.texCoord = vec2_zero(),
+					.texCoord = vector2_zero(),
 				};
 
 				list_vertex_t_add(&vertices, v);
@@ -450,15 +442,15 @@ int main() {
 	context->time_delta           = 0.0f;
 	context->time_FPS             = 0.0f;
 	context->frame_current        = 0;
-	context->ambient_light        = (vec3_t) {0.1, 0.1, 0.1};
+	context->ambient_light        = (vector3_t) { 0.1, 0.1, 0.1 };
 
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
 	camera_t* camera              = malloc(sizeof(camera_t));
-	camera->transform.position    = (vec3_t){0.0, 0.0, -30.0};
-	camera->transform.rotation    = quat_identity();
-	camera->transform.scale       = vec3_one(1.0);
-	camera->projection            = mat4_identity();
+	camera->transform.position    = (vector3_t){ 0.0, 0.0, -30.0 };
+	camera->transform.rotation    = quaternion_identity();
+	camera->transform.scale       = vector3_one(1.0);
+	camera->projection            = matrix4_identity();
 	camera->lookSensitivity       = 0.002f;
 
 	context->active_camera        = camera;
@@ -505,14 +497,14 @@ int main() {
 			.diffuseMap = testDiffuseMap,
 		};
 		transforms[space_ship] = (transform_t){
-			.position = (vec3_t) { 0.0, 0.0, 400.0 },
-			.rotation = quat_identity(),
-			//.rotation = quat_from_euler(vec3_up(PI/2.0)),
-			.scale = vec3_one(10.0), 
+			.position = (vector3_t) { 0.0, 0.0, 400.0 },
+			.rotation = quaternion_identity(),
+			//.rotation = quaternion_from_euler(vector3_up(PI/2.0)),
+			.scale = vector3_one(10.0), 
 		};
-		kinematic_body[space_ship].velocity = vec3_zero();
-		kinematic_body[space_ship].angular_velocity = quat_identity();
-		kinematic_body[space_ship].angular_acceleration = quat_identity();
+		kinematic_body[space_ship].velocity = vector3_zero();
+		kinematic_body[space_ship].angular_velocity = quaternion_identity();
+		kinematic_body[space_ship].angular_acceleration = quaternion_identity();
 		kinematic_body[space_ship].mass = 1.0;
 		kinematic_body[space_ship].drag_coefficient = 0.01;
 	}
@@ -536,17 +528,17 @@ int main() {
 		};
 
 		transforms[cube] = (transform_t){
-			.position = (vec3_t){
+			.position = (vector3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
 				(float)noise1(i + 2) * 1000 - 500},
-			.rotation = quat_identity(),
-			.scale = vec3_one(1.0),
+			.rotation = quaternion_identity(),
+			.scale = vector3_one(1.0),
 		};
 
-		kinematic_body[cube].velocity = vec3_zero();
-		kinematic_body[cube].angular_velocity = quat_identity();
-		kinematic_body[cube].angular_acceleration = quat_identity();
+		kinematic_body[cube].velocity = vector3_zero();
+		kinematic_body[cube].angular_velocity = quaternion_identity();
+		kinematic_body[cube].angular_acceleration = quaternion_identity();
 		kinematic_body[cube].mass = 1.0;
 		kinematic_body[cube].drag_coefficient = 0.01;
 	}
@@ -561,8 +553,8 @@ int main() {
 		},
 		.transform = (transform_t){
 			.position = { 0.0, 0.0, 0.0 },
-			.rotation = quat_identity(),
-			.scale = vec3_one(100000.0),
+			.rotation = quaternion_identity(),
+			.scale = vector3_one(100000.0),
 		},
 	};
 
@@ -571,13 +563,13 @@ int main() {
 	ecs_component_add(light, COMPONENT_POINT_LIGHT);
 	ecs_component_add(light, COMPONENT_TRANSFORM);
 	point_light[light] = (pointLight_t){
-		.diffuse = vec3_one(0.8f),
-		.specular = vec3_one(1.0f),
+		.diffuse = vector3_one(0.8f),
+		.specular = vector3_one(1.0f),
 		.constant = 1.0f,
 		.linear = 0.09f,
 		.quadratic = 0.032f,
 	};
-	transforms[light].position = (vec3_t){100, 100, -100};
+	transforms[light].position = (vector3_t){100, 100, -100};
 
 
 	while (lite_engine_is_running()) {
@@ -586,7 +578,7 @@ int main() {
 #if 1
 		{ // space ship update
 			{ // movement
-				vec3_t input = vec3_zero();
+				vector3_t input = vector3_zero();
 				input.x = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
@@ -596,21 +588,21 @@ int main() {
 				input.z = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
-				input = vec3_normalize(input);
+				input = vector3_normalize(input);
 
-				vec3_t force = {0};
-				force = vec3_add(force, transform_basis_right(transforms[space_ship], input.x));
-				force = vec3_add(force, transform_basis_up(transforms[space_ship], input.y));
-				force = vec3_add(force, transform_basis_forward(transforms[space_ship], input.z));
+				vector3_t force = {0};
+				force = vector3_add(force, transform_basis_right(transforms[space_ship], input.x));
+				force = vector3_add(force, transform_basis_up(transforms[space_ship], input.y));
+				force = vector3_add(force, transform_basis_forward(transforms[space_ship], input.z));
 
 				const float power = 10.0 * lite_engine_get_context().time_delta;
-				force = vec3_scale(force, power);
+				force = vector3_scale(force, power);
 
-				kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
+				kinematic_body[space_ship].velocity = vector3_add(kinematic_body[space_ship].velocity, force);	
 			}
 
 			{ // rotation
-				vec3_t input = vec3_zero();
+				vector3_t input = vector3_zero();
 				{
 					const float power = 0.001 * lite_engine_get_context().time_delta;
 					input.x = 
@@ -622,22 +614,22 @@ int main() {
 					input.z = 
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
-					input = vec3_normalize(input);
+					input = vector3_normalize(input);
 
-					input = vec3_scale(input, power);
+					input = vector3_scale(input, power);
 				}
 
-				const quat_t torque = quat_from_euler(input);
-				kinematic_body[space_ship].angular_velocity = quat_multiply(
+				const quaternion_t torque = quaternion_from_euler(input);
+				kinematic_body[space_ship].angular_velocity = quaternion_multiply(
 						torque, kinematic_body[space_ship].angular_velocity);
 
-				transforms[space_ship].rotation = quat_multiply(
+				transforms[space_ship].rotation = quaternion_multiply(
 						transforms[space_ship].rotation, 
 						kinematic_body[space_ship].angular_velocity);
 
-				quat_print(torque, "torque");
-				quat_print(kinematic_body[space_ship].angular_velocity, "angular_velocity");
-				quat_print(kinematic_body[space_ship].angular_acceleration, "angular_acceleration");
+				quaternion_print(torque, "torque");
+				quaternion_print(kinematic_body[space_ship].angular_velocity, "angular_velocity");
+				quaternion_print(kinematic_body[space_ship].angular_acceleration, "angular_acceleration");
 			}
 		}
 #endif

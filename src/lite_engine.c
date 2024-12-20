@@ -138,7 +138,7 @@ void lite_engine_update(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void primitive_draw_cube(transform_t transform, bool wireframe, vec4_t color) {
+void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color) {
 	glDisable(GL_CULL_FACE);
 	if (wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -16,7 +16,7 @@ typedef struct {
 	float       time_delta;
 	float       time_FPS;
 	uint64_t    frame_current;
-	vec3_t   ambient_light;
+	vector3_t   ambient_light;
 	camera_t    *active_camera;
 } lite_engine_context_t;
 
@@ -33,4 +33,4 @@ void lite_engine_window_set_position(const int x, const int y);
 
 void lite_engine_set_clear_color(const float r, const float g, const float b, const float a);
 
-void primitive_draw_cube(transform_t transform, bool wireframe, vec4_t color);
+void primitive_draw_cube(transform_t transform, bool wireframe, vector4_t color);
