@@ -52,6 +52,14 @@ static inline void oct_tree_draw(oct_tree_t *tree, vec4_t color) {
 	}
 }
 
+static inline quat_t angular_kinematic_equation(
+		quat_t angular_acceleration, 
+		quat_t angular_velocity, 
+		quat_t rotation,
+		float time) {
+	return quat_add(quat_scale(quat_add(quat_scale(angular_acceleration,0.5*time*time),angular_velocity),time),rotation);
+}
+
 static inline void kinematic_body_update(
 		kinematic_body_t* kbodies, 
 		transform_t* transforms) {
@@ -86,6 +94,17 @@ static inline void kinematic_body_update(
 				lite_engine_get_context().time_delta);
 		}
 
+		{ // torque
+			kbodies[e].angular_velocity = quat_multiply(
+					kbodies[e].angular_velocity, 
+					kbodies[e].angular_acceleration);
+
+			transforms[e].rotation = angular_kinematic_equation(
+					kbodies[e].angular_acceleration,
+					kbodies[e].angular_velocity,
+					transforms[e].rotation,
+					lite_engine_get_context().time_delta);
+		}
 		
 		{ // oct tree insertion
 			oct_tree_entry_t entry = (oct_tree_entry_t) {
@@ -561,30 +580,30 @@ int main() {
 				force = vec3_scale(force, power);
 
 				kinematic_body[space_ship].velocity = vec3_add(kinematic_body[space_ship].velocity, force);	
-				//vec3_print(kinematic_body[space_ship].velocity, "velocity");
 			}
 
 			{ // rotation
-				vec3_t torque = vec3_zero();
+				vec3_t input = vec3_zero();
 
-				torque.x = 
+				input.x = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
-				torque.y = 
+				input.y = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
-				torque.z = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_7) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_9);
+				input.z = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
 
-				torque = vec3_normalize(torque);
+				input = vec3_normalize(input);
 
-				const float power = 1.0 * lite_engine_get_context().time_delta;
-				torque = vec3_scale(torque, power);
-
-				quat_t rotation = quat_from_euler(torque);
+				const float power = 100.0 * lite_engine_get_context().time_delta;
+				quat_t torque = quat_from_euler(input);
+				quat_scale(torque, power);
 				
-				transforms[space_ship].rotation = quat_multiply(transforms[space_ship].rotation, rotation);
+				kinematic_body[space_ship].angular_velocity = 
+					quat_multiply(kinematic_body[space_ship].angular_velocity, torque);
+				quat_print(torque, "torque");
 			}
 
 		}
