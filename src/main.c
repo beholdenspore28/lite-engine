@@ -277,7 +277,7 @@ static inline void camera_update(const transform_t *transforms, const int space_
 	static vec3_t mouseLookVector = {0};
 	camera_t *camera = lite_engine_get_context().active_camera;
 
-#if 1
+#if 0
 	camera->transform.position = transforms[space_ship].position;
 
 	camera->transform.position = vec3_add(camera->transform.position, 
@@ -357,8 +357,8 @@ mesh_t asteroid_mesh_alloc(void) {
 	list_vertex_t vertices   = list_vertex_t_alloc();
 	list_GLuint   indices    = list_GLuint_alloc();
 
-	const float   radius     = 1.0;
-	const float   resolution = 5.0;
+	const float   radius     = 5.0;
+	const float   resolution = 20.0;
 
 	int index = 0;
 	for(int face = 0; face < 6; face++) {
@@ -420,8 +420,8 @@ mesh_t asteroid_mesh_alloc(void) {
 					} break;
 				}
 
-				const float amplitude = 1.0;
-				const float frequency = 10;
+				const float amplitude = 5.0;
+				const float frequency = 1;
 				const float noise = radius + (noise3_fbm(
 							position.x * frequency,
 							position.y * frequency,
@@ -626,13 +626,15 @@ int main() {
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
 				input = vec3_normalize(input);
 
-				const float power = 100.0 * lite_engine_get_context().time_delta;
-				quat_t torque = quat_from_euler(input);
-				quat_scale(torque, power);
-				
+				const float power = 10.0 * lite_engine_get_context().time_delta;
+				input = vec3_scale(input, power);
+
+				const quat_t torque = quat_from_euler(input);
 				kinematic_body[space_ship].angular_velocity = 
 					quat_multiply(kinematic_body[space_ship].angular_velocity, torque);
 				quat_print(torque, "torque");
+				quat_print(kinematic_body[space_ship].angular_velocity, "angular_velocity");
+				quat_print(kinematic_body[space_ship].angular_acceleration, "angular_acceleration");
 			}
 
 		}
