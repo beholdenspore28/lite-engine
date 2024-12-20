@@ -275,15 +275,15 @@ static inline void skybox_update(skybox_t* skybox) {
 
 static inline void camera_update(const transform_t *transforms, const int space_ship) {
 	static vec3_t mouseLookVector = {0};
-
 	camera_t *camera = lite_engine_get_context().active_camera;
+
+#if 1
 	camera->transform.position = transforms[space_ship].position;
 
 	camera->transform.position = vec3_add(camera->transform.position, 
 			transform_basis_back(transforms[space_ship], 200.0));
 	camera->transform.rotation = transforms[space_ship].rotation;
-
-	/*
+#else
 	{ // mouse look
 		static bool firstMouse = true;
 		double mouseX, mouseY;
@@ -318,7 +318,39 @@ static inline void camera_update(const transform_t *transforms, const int space_
 		camera->transform.rotation =
 			quat_from_euler(mouseLookVector);
 	}
-	*/
+
+	{ // movement
+		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
+		float cameraSpeedCurrent;
+		if (glfwGetKey( lite_engine_get_context().window, 
+					GLFW_KEY_LEFT_CONTROL)) {
+			cameraSpeedCurrent = 4 * cameraSpeed;
+		} else {
+			cameraSpeedCurrent = cameraSpeed;
+		}
+		vec3_t movement = vec3_zero();
+
+		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+		movement.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+
+		movement = vec3_normalize(movement);
+		movement = vec3_scale(movement, cameraSpeedCurrent);
+		movement =
+			vec3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+
+		lite_engine_get_context().active_camera->transform.position =
+			vec3_add(lite_engine_get_context().active_camera->transform.position, movement);
+
+		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
+			lite_engine_get_context().active_camera->transform.position = vec3_zero();
+			lite_engine_get_context().active_camera->transform.rotation = quat_identity();
+		}
+	}
+#endif
 }
 
 mesh_t asteroid_mesh_alloc(void) {
@@ -555,10 +587,10 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 
+#if 1
 		{ // space ship update
 			{ // movement
 				vec3_t input = vec3_zero();
-
 				input.x = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
@@ -568,7 +600,6 @@ int main() {
 				input.z = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
-
 				input = vec3_normalize(input);
 
 				vec3_t force = {0};
@@ -584,7 +615,6 @@ int main() {
 
 			{ // rotation
 				vec3_t input = vec3_zero();
-
 				input.x = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
@@ -594,7 +624,6 @@ int main() {
 				input.z = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
-
 				input = vec3_normalize(input);
 
 				const float power = 100.0 * lite_engine_get_context().time_delta;
@@ -607,6 +636,7 @@ int main() {
 			}
 
 		}
+#endif
 
 		camera_update(transforms, space_ship);
 		mesh_update(mesh, transforms, shader, material, point_light);
