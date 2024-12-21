@@ -67,17 +67,19 @@ static inline void kinematic_body_update(
 		assert(ecs_component_exists(e, COMPONENT_TRANSFORM));
 		assert(kinematic_bodies[e].mass > 0);
 		
-#if 1
 		{ // drag force
 			vector3_t drag = vector3_scale(vector3_normalize(kinematic_bodies[e].velocity), -1);
 			const float speed = vector3_magnitude(kinematic_bodies[e].velocity);
-			drag = vector3_scale(drag, kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
+			drag = vector3_scale(
+					drag,
+					kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
 			kinematic_bodies[e].velocity = vector3_add(kinematic_bodies[e].velocity, drag);
 		}
-#endif
 
 		{ // apply forces
-			kinematic_bodies[e].velocity = vector3_add(kinematic_bodies[e].velocity, kinematic_bodies[e].acceleration);
+			kinematic_bodies[e].velocity = vector3_add(
+					kinematic_bodies[e].velocity, 
+					kinematic_bodies[e].acceleration);
 	
 			transforms[e].position = vector3_kinematic_equation(
 				kinematic_bodies[e].acceleration,
@@ -87,6 +89,9 @@ static inline void kinematic_body_update(
 		}
 
 		{ // apply torques
+			transforms[e].rotation = quaternion_multiply(
+					transforms[e].rotation, 
+					kinematic_bodies[e].angular_velocity);
 		}
 		
 		{ // oct tree insertion
@@ -94,9 +99,6 @@ static inline void kinematic_body_update(
 				.position = transforms[e].position,
 				.ID = e, };
 			oct_tree_insert(tree, entry);
-			if (!oct_tree_contains(tree, transforms[e].position) && 
-				ecs_component_exists(e, COMPONENT_MESH))
-					ecs_component_remove(e, COMPONENT_MESH);			
 		}
 	}
 
@@ -256,18 +258,70 @@ static inline void skybox_update(skybox_t* skybox) {
 	glCullFace(GL_BACK);
 }
 
-static inline void camera_update(const transform_t *transforms, const int space_ship) {
+static inline void camera_update(
+		transform_t *transforms,
+		kinematic_body_t *kinematic_bodies,
+		int space_ship) {
 	static vector3_t mouseLookVector = {0};
 	camera_t *camera = lite_engine_get_context().active_camera;
 
-#if 1
-	camera->transform.position = transforms[space_ship].position;
+	if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_ALT)) {
+		camera->transform.position = transforms[space_ship].position;
+		camera->transform.position = vector3_add(camera->transform.position, 
+				transform_basis_back(transforms[space_ship], 200.0));
+		camera->transform.position = vector3_add(camera->transform.position, 
+				transform_basis_up(transforms[space_ship], 30.0));
+		camera->transform.rotation = transforms[space_ship].rotation;
 
-	camera->transform.position = vector3_add(camera->transform.position, 
-			transform_basis_back(transforms[space_ship], 200.0));
-	camera->transform.rotation = transforms[space_ship].rotation;
-#else
-	{ // mouse look
+		{ // space ship update TODO remove this example.
+			{ // movement
+				vector3_t input = vector3_zero();
+				input.x = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+				input.y = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+				input.z = 
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+				input = vector3_normalize(input);
+
+				vector3_t force = {0};
+				force = vector3_add(force, transform_basis_right(transforms[space_ship], input.x));
+				force = vector3_add(force, transform_basis_up(transforms[space_ship], input.y));
+				force = vector3_add(force, transform_basis_forward(transforms[space_ship], input.z));
+
+				const float power = 100.0 * lite_engine_get_context().time_delta;
+				force = vector3_scale(force, power);
+
+				kinematic_bodies[space_ship].velocity = vector3_add(kinematic_bodies[space_ship].velocity, force);	
+			}
+
+			{ // rotation
+				vector3_t input = vector3_zero();
+				{
+					const float power = 0.001 * lite_engine_get_context().time_delta;
+					input.x = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
+					input.y = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
+					input.z = 
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
+						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
+					input = vector3_normalize(input);
+
+					input = vector3_scale(input, power);
+				}
+
+				const quaternion_t torque = quaternion_from_euler(input);
+				kinematic_bodies[space_ship].angular_velocity = quaternion_multiply(
+						torque, kinematic_bodies[space_ship].angular_velocity);
+			}
+		}
+	} else {
 		static bool firstMouse = true;
 		double mouseX, mouseY;
 		glfwGetCursorPos(lite_engine_get_context().window, 
@@ -300,40 +354,39 @@ static inline void camera_update(const transform_t *transforms, const int space_
 
 		camera->transform.rotation =
 			quaternion_from_euler(mouseLookVector);
-	}
 
-	{ // movement
-		float cameraSpeed = 32 * lite_engine_get_context().time_delta;
-		float cameraSpeedCurrent;
-		if (glfwGetKey( lite_engine_get_context().window, 
-					GLFW_KEY_LEFT_CONTROL)) {
-			cameraSpeedCurrent = 4 * cameraSpeed;
-		} else {
-			cameraSpeedCurrent = cameraSpeed;
+		{ // movement
+			float cameraSpeed = 32 * lite_engine_get_context().time_delta;
+			float cameraSpeedCurrent;
+			if (glfwGetKey( lite_engine_get_context().window, 
+						GLFW_KEY_LEFT_CONTROL)) {
+				cameraSpeedCurrent = 4 * cameraSpeed;
+			} else {
+				cameraSpeedCurrent = cameraSpeed;
+			}
+			vector3_t movement = vector3_zero();
+
+			movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
+			movement.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
+			movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
+				glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+
+			movement = vector3_normalize(movement);
+			movement = vector3_scale(movement, cameraSpeedCurrent);
+			movement =
+				vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+
+			lite_engine_get_context().active_camera->transform.position =
+				vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
+
+			if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
+				lite_engine_get_context().active_camera->transform.position = vector3_zero();
+				lite_engine_get_context().active_camera->transform.rotation = quaternion_identity();
+			}
 		}
-		vector3_t movement = vector3_zero();
-
-		movement.x = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
-		movement.y = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
-		movement.z = glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
-			glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
-
-		movement = vector3_normalize(movement);
-		movement = vector3_scale(movement, cameraSpeedCurrent);
-		movement =
-			vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
-
-		lite_engine_get_context().active_camera->transform.position =
-			vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
-
-		if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
-			lite_engine_get_context().active_camera->transform.position = vector3_zero();
-			lite_engine_get_context().active_camera->transform.rotation = quaternion_identity();
-		}
 	}
-#endif
 }
 
 mesh_t asteroid_mesh_alloc(void) {
@@ -506,28 +559,28 @@ int main() {
 		kinematic_body[space_ship].angular_velocity = quaternion_identity();
 		kinematic_body[space_ship].angular_acceleration = quaternion_identity();
 		kinematic_body[space_ship].mass = 1.0;
-		kinematic_body[space_ship].drag_coefficient = 0.01;
+		kinematic_body[space_ship].drag_coefficient = 0.00;
 	}
 
 #if 1
 	mesh_t asteroid_test = asteroid_mesh_alloc();
 	for (int i = 1; i <= 1000; i++) {
-		int cube = ecs_entity_create();
+		int asteroid = ecs_entity_create();
 
-		ecs_component_add(cube, COMPONENT_KINEMATIC_BODY);
-		ecs_component_add(cube, COMPONENT_TRANSFORM);
-		ecs_component_add(cube, COMPONENT_MESH);
-		ecs_component_add(cube, COMPONENT_MATERIAL);
-		ecs_component_add(cube, COMPONENT_SHADER);
+		ecs_component_add(asteroid, COMPONENT_KINEMATIC_BODY);
+		ecs_component_add(asteroid, COMPONENT_TRANSFORM);
+		ecs_component_add(asteroid, COMPONENT_MESH);
+		ecs_component_add(asteroid, COMPONENT_MATERIAL);
+		ecs_component_add(asteroid, COMPONENT_SHADER);
 
-		mesh[cube] = asteroid_test;
-		shader[cube] = diffuseShader;
+		mesh[asteroid] = asteroid_test;
+		shader[asteroid] = diffuseShader;
 
-		material[cube] = (material_t){
+		material[asteroid] = (material_t){
 			.diffuseMap = testDiffuseMap,
 		};
 
-		transforms[cube] = (transform_t){
+		transforms[asteroid] = (transform_t){
 			.position = (vector3_t){
 				(float)noise1(i    ) * 1000 - 500,
 				(float)noise1(i + 1) * 1000 - 500,
@@ -536,11 +589,11 @@ int main() {
 			.scale = vector3_one(1.0),
 		};
 
-		kinematic_body[cube].velocity = vector3_zero();
-		kinematic_body[cube].angular_velocity = quaternion_identity();
-		kinematic_body[cube].angular_acceleration = quaternion_identity();
-		kinematic_body[cube].mass = 1.0;
-		kinematic_body[cube].drag_coefficient = 0.01;
+		kinematic_body[asteroid].velocity = vector3_zero();
+		kinematic_body[asteroid].angular_velocity = quaternion_identity();
+		kinematic_body[asteroid].angular_acceleration = quaternion_identity();
+		kinematic_body[asteroid].mass = 1.0;
+		kinematic_body[asteroid].drag_coefficient = 0.01;
 	}
 #endif
 
@@ -567,74 +620,14 @@ int main() {
 		.specular = vector3_one(1.0f),
 		.constant = 1.0f,
 		.linear = 0.09f,
-		.quadratic = 0.032f,
+		.quadratic = 0.0032f,
 	};
 	transforms[light].position = (vector3_t){100, 100, -100};
 
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
-
-#if 1
-		{ // space ship update TODO remove this example.
-			{ // movement
-				vector3_t input = vector3_zero();
-				input.x = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_D) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_A);
-				input.y = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_SPACE) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_LEFT_SHIFT);
-				input.z = 
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
-					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
-				input = vector3_normalize(input);
-
-				vector3_t force = {0};
-				force = vector3_add(force, transform_basis_right(transforms[space_ship], input.x));
-				force = vector3_add(force, transform_basis_up(transforms[space_ship], input.y));
-				force = vector3_add(force, transform_basis_forward(transforms[space_ship], input.z));
-
-				const float power = 100.0 * lite_engine_get_context().time_delta;
-				force = vector3_scale(force, power);
-
-				kinematic_body[space_ship].velocity = vector3_add(kinematic_body[space_ship].velocity, force);	
-			}
-
-			{ // rotation
-				vector3_t input = vector3_zero();
-				{
-					const float power = 0.001 * lite_engine_get_context().time_delta;
-					input.x = 
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
-					input.y = 
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_6) -
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_4);
-					input.z = 
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_Q) -
-						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_E);
-					input = vector3_normalize(input);
-
-					input = vector3_scale(input, power);
-				}
-
-				const quaternion_t torque = quaternion_from_euler(input);
-				kinematic_body[space_ship].angular_velocity = quaternion_multiply(
-						torque, kinematic_body[space_ship].angular_velocity);
-
-				transforms[space_ship].rotation = quaternion_multiply(
-						transforms[space_ship].rotation, 
-						kinematic_body[space_ship].angular_velocity);
-
-				quaternion_print(torque, "torque");
-				quaternion_print(kinematic_body[space_ship].angular_velocity, "angular_velocity");
-				quaternion_print(kinematic_body[space_ship].angular_acceleration, "angular_acceleration");
-			}
-		}
-#endif
-
-		camera_update(transforms, space_ship);
+		camera_update(transforms, kinematic_body, space_ship);
 		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
 		skybox_update(&skybox);
