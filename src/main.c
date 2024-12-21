@@ -88,6 +88,13 @@ static inline void kinematic_body_update(
 				lite_engine_get_context().time_delta);
 		}
 
+		{
+			transforms[e].rotation = quaternion_multiply(
+					transforms[e].rotation,
+					kinematic_bodies[e].angular_velocity);
+			transforms[e].rotation = quaternion_normalize(transforms[e].rotation);
+		}
+
 		{ // oct tree insertion
 			oct_tree_entry_t entry = (oct_tree_entry_t) {
 				.position = transforms[e].position,
@@ -343,7 +350,7 @@ static inline void camera_update(
 			{ // rotation
 				vector3_t input = vector3_zero();
 				{
-					const float power = 0.01 * lite_engine_get_context().time_delta;
+					const float power = 0.001 * lite_engine_get_context().time_delta;
 					input.x = 
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
@@ -361,10 +368,6 @@ static inline void camera_update(
 				const quaternion_t torque = quaternion_from_euler(input);
 				kinematic_bodies[space_ship].angular_velocity = quaternion_multiply(
 						torque, kinematic_bodies[space_ship].angular_velocity);
-				transforms[space_ship].rotation = quaternion_multiply(
-						transforms[space_ship].rotation,
-						kinematic_bodies[space_ship].angular_velocity);
-				transforms[space_ship].rotation = quaternion_normalize(transforms[space_ship].rotation);
 			}
 		}
 	}
@@ -492,7 +495,7 @@ int main() {
 	context->time_delta           = 0.0f;
 	context->time_FPS             = 0.0f;
 	context->frame_current        = 0;
-	context->ambient_light        = (vector3_t) { 0.1, 0.1, 0.1 };
+	context->ambient_light        = (vector3_t) { 0.0, 0.0, 0.0 };
 
 	// yes this looks silly but it helps to easily support
 	// multiple cameras
@@ -630,7 +633,8 @@ int main() {
 		skybox_update(&skybox);
 	}
 
-	//mesh_free(&lmod_test);
+	mesh_free(&lmod_test);
+	mesh_free(&lmod_cube);
 
 	free(mesh);
 	free(shader);
