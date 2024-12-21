@@ -574,6 +574,7 @@ int main() {
 
 	mesh_t lmod_test = mesh_lmod_alloc("res/models/untitled.lmod");
 	mesh_t lmod_cube = mesh_lmod_alloc("res/models/cube.lmod");
+	mesh_t lmod_quad = mesh_lmod_alloc("res/models/quad.lmod");
 
 	int space_ship = ecs_entity_create();
 	{
@@ -675,6 +676,7 @@ int main() {
 
 	mesh_free(&lmod_test);
 	mesh_free(&lmod_cube);
+	mesh_free(&lmod_quad);
 	mesh_free(&asteroid_test);
 
 	free(mesh);
