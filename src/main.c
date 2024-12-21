@@ -517,7 +517,7 @@ int main() {
 	glGenFramebuffers(1, &frame_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
-#if 0 // create frame buffer texture
+#if 1 // create frame buffer texture
 	GLuint texture_color_buffer;
 	glGenTextures(1, &texture_color_buffer);
 	glBindTexture(GL_TEXTURE_2D, texture_color_buffer);
