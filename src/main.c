@@ -393,7 +393,7 @@ mesh_t asteroid_mesh_alloc(void) {
 	list_vertex_t vertices   = list_vertex_t_alloc();
 	list_GLuint   indices    = list_GLuint_alloc();
 
-	const float   radius     = 5.0;
+	const float   radius     = 10.0;
 	const float   resolution = 20.0;
 
 	int index = 0;
@@ -559,7 +559,7 @@ int main() {
 		kinematic_body[space_ship].angular_velocity = quaternion_identity();
 		kinematic_body[space_ship].angular_acceleration = quaternion_identity();
 		kinematic_body[space_ship].mass = 1.0;
-		kinematic_body[space_ship].drag_coefficient = 0.00;
+		kinematic_body[space_ship].drag_coefficient = 0.0;
 	}
 
 #if 1
@@ -582,9 +582,9 @@ int main() {
 
 		transforms[asteroid] = (transform_t){
 			.position = (vector3_t){
-				(float)noise1(i    ) * 1000 - 500,
-				(float)noise1(i + 1) * 1000 - 500,
-				(float)noise1(i + 2) * 1000 - 500},
+				(float)noise1(i    ) * 10000 - 5000,
+				(float)noise1(i + 1) * 10000 - 5000,
+				(float)noise1(i + 2) * 10000 - 5000},
 			.rotation = quaternion_identity(),
 			.scale = vector3_one(1.0),
 		};
