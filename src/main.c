@@ -513,6 +513,45 @@ int main() {
 	lite_engine_start();
 	lite_engine_set_clear_color(0.2, 0.3, 0.4, 1.0);
 
+	GLuint frame_buffer;
+	glGenFramebuffers(1, &frame_buffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+
+#if 0 // create frame buffer texture
+	GLuint texture_color_buffer;
+	glGenTextures(1, &texture_color_buffer);
+	glBindTexture(GL_TEXTURE_2D, texture_color_buffer);
+	glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_RGB, 
+			lite_engine_get_context().window_size_x, 
+			lite_engine_get_context().window_size_y, 
+			0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_color_buffer, 0);
+
+	// create render buffer object
+	GLuint rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(
+			GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+			lite_engine_get_context().window_size_x,
+			lite_engine_get_context().window_size_y);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
+
+	// attach render buffer to depth and stencil of the frame buffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		fprintf(stdout, "[LITE_ENGINE_ERROR_OPENGL] frame buffer is incomplete!\n");
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#else
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
+
 	GLuint unlitShader = shader_create(
 			"res/shaders/unlit.vs.glsl", 
 			"res/shaders/unlit.fs.glsl");
