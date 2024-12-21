@@ -1,9 +1,8 @@
-#include "gl.h"
+#include "lite_opengl.h"
 #include <GLFW/glfw3.h>
-#include <stdio.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "stb_image.h"
 
 #define BLIB_IMPLEMENTATION
 #include "blib/blib.h"
@@ -11,8 +10,10 @@
 #include "blib/blib_math.h"
 
 #include "lite_engine.h"
-#include "ecs.h"
-#include "oct_tree.h"
+#include "lite_entities.h"
+#include "lite_oct_tree.h"
+
+#include <stdio.h>
 
 typedef struct skybox {
 	mesh_t mesh;

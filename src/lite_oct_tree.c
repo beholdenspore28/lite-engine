@@ -1,4 +1,4 @@
-#include "oct_tree.h"
+#include "lite_oct_tree.h"
 
 DEFINE_LIST(oct_tree_entry_t)
 

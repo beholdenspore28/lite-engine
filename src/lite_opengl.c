@@ -1,6 +1,7 @@
+#include "stb_image.h"
 #include "blib/blib.h"
-#include <gl.h>
-#include <stb_image.h>
+#include "lite_opengl.h"
+
 #include <ctype.h>
 
 DEFINE_LIST(GLint)

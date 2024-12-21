@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl.h"
+#include "lite_opengl.h"
 
 typedef struct {
 	GLFWwindow *window;

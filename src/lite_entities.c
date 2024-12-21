@@ -1,4 +1,5 @@
-#include "ecs.h"
+#include "lite_entities.h"
+
 #include <stdlib.h>
 #include <assert.h>
 
