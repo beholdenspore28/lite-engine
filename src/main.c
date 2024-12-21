@@ -88,12 +88,6 @@ static inline void kinematic_body_update(
 				lite_engine_get_context().time_delta);
 		}
 
-		{ // apply torques
-			transforms[e].rotation = quaternion_multiply(
-					transforms[e].rotation, 
-					kinematic_bodies[e].angular_velocity);
-		}
-		
 		{ // oct tree insertion
 			oct_tree_entry_t entry = (oct_tree_entry_t) {
 				.position = transforms[e].position,
@@ -114,23 +108,6 @@ static inline void mesh_update(
 		material_t* material,
 		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
-
-	int window_size_x = lite_engine_get_context().window_size_x;
-	int window_size_y = lite_engine_get_context().window_size_y;
-	// projection
-	glfwGetWindowSize(
-			lite_engine_get_context().window, 
-			&window_size_x,
-			&window_size_y);
-	float aspect = (float)lite_engine_get_context().window_size_x /
-		(float)lite_engine_get_context().window_size_y;
-	lite_engine_get_context().active_camera->projection =
-		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	lite_engine_get_context().active_camera->transform.matrix = 
-		matrix4_identity();
-	transform_calculate_view_matrix(
-			&lite_engine_get_context().active_camera->transform);
-
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (meshes[e].use_wire_frame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -366,7 +343,7 @@ static inline void camera_update(
 			{ // rotation
 				vector3_t input = vector3_zero();
 				{
-					const float power = 0.001 * lite_engine_get_context().time_delta;
+					const float power = 0.01 * lite_engine_get_context().time_delta;
 					input.x = 
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_8) -
 						glfwGetKey(lite_engine_get_context().window, GLFW_KEY_KP_2);
@@ -384,9 +361,30 @@ static inline void camera_update(
 				const quaternion_t torque = quaternion_from_euler(input);
 				kinematic_bodies[space_ship].angular_velocity = quaternion_multiply(
 						torque, kinematic_bodies[space_ship].angular_velocity);
+				transforms[space_ship].rotation = quaternion_multiply(
+						transforms[space_ship].rotation,
+						kinematic_bodies[space_ship].angular_velocity);
+				transforms[space_ship].rotation = quaternion_normalize(transforms[space_ship].rotation);
 			}
 		}
 	}
+
+	int window_size_x = lite_engine_get_context().window_size_x;
+	int window_size_y = lite_engine_get_context().window_size_y;
+
+	// projection
+	glfwGetWindowSize(
+			lite_engine_get_context().window, 
+			&window_size_x,
+			&window_size_y);
+	float aspect = (float)lite_engine_get_context().window_size_x /
+		(float)lite_engine_get_context().window_size_y;
+	lite_engine_get_context().active_camera->projection =
+		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+	lite_engine_get_context().active_camera->transform.matrix = 
+		matrix4_identity();
+	transform_calculate_view_matrix(
+			&lite_engine_get_context().active_camera->transform);
 }
 
 mesh_t asteroid_mesh_alloc(void) {
@@ -628,8 +626,8 @@ int main() {
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		camera_update(transforms, kinematic_body, space_ship);
-		mesh_update(mesh, transforms, shader, material, point_light);
 		kinematic_body_update(kinematic_body, transforms);
+		mesh_update(mesh, transforms, shader, material, point_light);
 		skybox_update(&skybox);
 	}
 
