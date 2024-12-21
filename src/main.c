@@ -635,6 +635,7 @@ int main() {
 
 	mesh_free(&lmod_test);
 	mesh_free(&lmod_cube);
+	mesh_free(&asteroid_test);
 
 	free(mesh);
 	free(shader);

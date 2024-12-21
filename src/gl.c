@@ -396,6 +396,8 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		}
 	}
 
+	file_buffer_free(fb);
+
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(size_t i = 0; i < positions.length; i++) {
 		vertex_t vertex = {0};
@@ -403,13 +405,15 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		vertex.normal   = normals.array[i];
 		list_vertex_t_add(&vertices, vertex);
 	}
+	
+	list_vector3_t_free(&positions);
+	list_vector3_t_free(&normals);
 
 	mesh_t mesh = mesh_alloc(vertices, indices);
 	return mesh;
 }
 
 void mesh_free(mesh_t* mesh) {
-
 	list_vertex_t_free(&mesh->vertices);
 	list_GLuint_free(&mesh->indices);
 }
