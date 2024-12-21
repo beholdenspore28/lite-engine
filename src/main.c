@@ -108,23 +108,6 @@ static inline void mesh_update(
 		material_t* material,
 		pointLight_t* point_lights) {
 	glEnable(GL_CULL_FACE);
-
-	int window_size_x = lite_engine_get_context().window_size_x;
-	int window_size_y = lite_engine_get_context().window_size_y;
-	// projection
-	glfwGetWindowSize(
-			lite_engine_get_context().window, 
-			&window_size_x,
-			&window_size_y);
-	float aspect = (float)lite_engine_get_context().window_size_x /
-		(float)lite_engine_get_context().window_size_y;
-	lite_engine_get_context().active_camera->projection =
-		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	lite_engine_get_context().active_camera->transform.matrix = 
-		matrix4_identity();
-	transform_calculate_view_matrix(
-			&lite_engine_get_context().active_camera->transform);
-
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {
 		if (meshes[e].use_wire_frame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -385,6 +368,22 @@ static inline void camera_update(
 			}
 		}
 	}
+	// projection
+	int window_size_x = lite_engine_get_context().window_size_x;
+	int window_size_y = lite_engine_get_context().window_size_y;
+	glfwGetWindowSize(
+			lite_engine_get_context().window, 
+			&window_size_x,
+			&window_size_y);
+	float aspect = (float)lite_engine_get_context().window_size_x /
+		(float)lite_engine_get_context().window_size_y;
+	lite_engine_get_context().active_camera->projection =
+		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+	lite_engine_get_context().active_camera->transform.matrix = 
+		matrix4_identity();
+	transform_calculate_view_matrix(
+			&lite_engine_get_context().active_camera->transform);
+
 }
 
 mesh_t asteroid_mesh_alloc(void) {
