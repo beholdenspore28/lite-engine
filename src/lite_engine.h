@@ -22,6 +22,7 @@ typedef struct {
 
 void lite_engine_start(void);
 lite_engine_context_t lite_engine_context(void);
+void lite_engine_use_render_api(ui8 api);
 ui8 lite_engine_is_running(void);
 void lite_engine_update(void);
 void lite_engine_stop(void);

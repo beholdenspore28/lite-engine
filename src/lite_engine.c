@@ -1,6 +1,22 @@
 #include "lite_engine.h"
+#include "lite_engine_gl.h"
 
 static lite_engine_context_t *internal_context = NULL;
+static ui8 internal_preferred_api; // render api to use when calling lite_engine_start
+
+void lite_engine_use_render_api(ui8 api) {
+	switch(api) {
+		case LITE_ENGINE_RENDERER_GL: {
+			internal_preferred_api = LITE_ENGINE_RENDERER_GL;	
+		} break;
+		case LITE_ENGINE_RENDERER_NONE: {
+			internal_preferred_api = LITE_ENGINE_RENDERER_NONE;	
+		} break;
+		default: {
+			internal_preferred_api = LITE_ENGINE_RENDERER_NONE;	
+		} break;
+	}
+}
 
 // initializes lite-engine. call this to rev up those fryers!
 void lite_engine_start(void) {
@@ -9,14 +25,16 @@ void lite_engine_start(void) {
 
 	internal_context = calloc(sizeof(internal_context), 1);
 
-	switch(internal_context->renderer) {
+	switch(internal_preferred_api) {
 		case LITE_ENGINE_RENDERER_GL: {
-			//lite_engine_start_gl();
-		}
+			lite_engine_start_gl();
+		} break;
 		case LITE_ENGINE_RENDERER_NONE: {
 			debug_warn("no renderer set");
-		}
+		} break;
 	}
+
+	internal_context->renderer = internal_preferred_api;
 	internal_context->is_running = 1;
 	debug_log("Startup completed successfuly");
 }
