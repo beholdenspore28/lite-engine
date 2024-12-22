@@ -48,6 +48,7 @@ static inline void lite_engine_gl_mesh_update(
 			shader_setUniformV3(shaders[e], "u_cameraPos",
 				lite_engine_get_context().active_camera->transform.position);
 
+			/*
 			// light uniforms
 			shader_setUniformV3(shaders[e], "u_light.position",
 					transforms[light].position);
@@ -75,6 +76,7 @@ static inline void lite_engine_gl_mesh_update(
 			shader_setUniformFloat(shaders[e], "u_material.shininess", 32.0f);
 			shader_setUniformV3(shaders[e], "u_ambientLight",
 					lite_engine_get_context().ambient_light);
+					*/
 
 			// draw
 			glBindVertexArray(meshes[e].VAO);
