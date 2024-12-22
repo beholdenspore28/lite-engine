@@ -9,7 +9,11 @@
 DEFINE_LIST(GLuint)
 
 // object lists to keep stuff hot on the cache
-GLuint internal_shaders[1024];
+mesh_t        *internal_meshes;
+transform_t   *internal_transforms;
+GLuint        *internal_shaders;
+material_t    *internal_material;
+point_light_t *internal_point_lights;
 
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;

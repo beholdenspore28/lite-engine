@@ -6,13 +6,13 @@ DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
 // this system requires these components
-#if 0
 extern mesh_t        *internal_meshes;
 extern transform_t   *internal_transforms;
 extern GLuint        *internal_shaders;
 extern material_t    *internal_material;
 extern point_light_t *internal_point_lights;
 
+#if 0
 static inline void lite_engine_gl_mesh_update() {
 	glEnable(GL_CULL_FACE);
 	for(int e = 1; e < ENTITY_COUNT_MAX; e++) {

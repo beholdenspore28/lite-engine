@@ -14,6 +14,15 @@ void   lite_engine_gl_render(void);
 GLuint lite_engine_gl_texture_create(const char *imageFile);
 
 typedef struct {
+	float     constant;
+	float     linear;
+	float     quadratic;
+	vector3_t diffuse;
+	vector3_t specular;
+} point_light_t;
+DECLARE_LIST(point_light_t)
+
+typedef struct {
 	vector3_t position;
 	vector2_t texCoord;
 	vector3_t normal;
@@ -21,21 +30,27 @@ typedef struct {
 DECLARE_LIST(vertex_t)
 
 typedef struct {
-	bool          enabled;
-	GLuint        VAO;
-	GLuint        VBO;
-	GLuint        EBO;
-	list_vertex_t vertices;
-	list_GLuint   indices;
-	bool          use_wire_frame;
+	bool           enabled;
+	GLuint         VAO;
+	GLuint         VBO;
+	GLuint         EBO;
+	list_vertex_t  vertices;
+	list_GLuint    indices;
+	bool           use_wire_frame;
 } mesh_t;
 DECLARE_LIST(mesh_t)
 
 typedef struct {
-  matrix4_t matrix;
-  vector3_t position;
+	GLuint shader;
+	GLuint diffuseMap;
+	GLuint specularMap;
+} material_t;
+
+typedef struct {
+  matrix4_t    matrix;
+  vector3_t    position;
   quaternion_t rotation;
-  vector3_t scale;
+  vector3_t    scale;
 } transform_t;
 DECLARE_LIST(transform_t)
 
