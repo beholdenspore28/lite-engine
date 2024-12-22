@@ -36,28 +36,42 @@ static GLuint shader_compile(GLuint type, const char *source) {
 	return shader;
 }
 
-GLuint shader_create(const char *vertexShaderSourcePath,
-		const char *fragmentShaderSourcePath) {
-	debug_log("Loading shaders from '%s' and '%s'", vertexShaderSourcePath,
-			fragmentShaderSourcePath);
-	file_buffer vertSourceFileBuffer = file_buffer_alloc(vertexShaderSourcePath);
-	file_buffer fragSourceFileBuffer = file_buffer_alloc(fragmentShaderSourcePath);
+GLuint shader_create(
+		const char *vertex_shader_file_path,
+		const char *fragment_shader_file_path) {
 
-	if (vertSourceFileBuffer.error == 1) {
-		debug_error("Failed to locate '%s'", vertexShaderSourcePath);
+	debug_log("Loading shaders from '%s' and '%s'", 
+			vertex_shader_file_path,
+			fragment_shader_file_path);
+
+	file_buffer vertex_source_string = file_buffer_alloc(vertex_shader_file_path);
+	file_buffer fragment_source_string = file_buffer_alloc(fragment_shader_file_path);
+
+	if (vertex_source_string.error == 1) {
+		debug_error(
+				"Failed to locate '%s'", 
+				vertex_shader_file_path);
 		exit(1);
 	}
-	if (fragSourceFileBuffer.error == 1) {
-		debug_error("Failed to locate '%s'", fragmentShaderSourcePath);
+	if (fragment_source_string.error == 1) {
+		debug_error(
+				"Failed to locate '%s'", 
+				fragment_shader_file_path);
 		exit(1);
 	}
 
-	const char *vertSourceString = vertSourceFileBuffer.text;
-	const char *fragSourceString = fragSourceFileBuffer.text;
+	const char *vertSourceString = vertex_source_string.text;
+	const char *fragSourceString = fragment_source_string.text;
 
 	GLuint program = glCreateProgram();
-	GLuint vertShader = shader_compile(GL_VERTEX_SHADER, vertSourceString);
-	GLuint fragShader = shader_compile(GL_FRAGMENT_SHADER, fragSourceString);
+
+	GLuint vertShader = shader_compile(
+			GL_VERTEX_SHADER, 
+			vertSourceString);
+
+	GLuint fragShader = shader_compile(
+			GL_FRAGMENT_SHADER, 
+			fragSourceString);
 
 	glAttachShader(program, vertShader);
 	glAttachShader(program, fragShader);
@@ -76,8 +90,8 @@ GLuint shader_create(const char *vertexShaderSourcePath,
 
 	glValidateProgram(program);
 
-	file_buffer_free(vertSourceFileBuffer);
-	file_buffer_free(fragSourceFileBuffer);
+	file_buffer_free(vertex_source_string);
+	file_buffer_free(fragment_source_string);
 
 	return program;
 }
