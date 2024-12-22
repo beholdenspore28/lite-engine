@@ -10,7 +10,6 @@
 #include "blib/blib_math.h"
 
 #include "lite_engine.h"
-#include "lite_entities.h"
 #include "lite_oct_tree.h"
 #include "lite_engine_log.h"
 
