@@ -11,9 +11,17 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define debug_log( ... )   { printf(ANSI_COLOR_BLUE   "[LITE_ENGINE_LOG]\t"     __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
-#define debug_warn( ... )  { printf(ANSI_COLOR_YELLOW "[LITE_ENGINE_WARNING]\t" __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
-#define debug_error( ... ) { printf(ANSI_COLOR_RED    "[LITE_ENGINE_ERROR]\t"   __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
+#define debug_log( ... )   {\
+	printf(ANSI_COLOR_BLUE   "[LITE_ENGINE_LOG]\t"     __VA_ARGS__);\
+	printf("\n" ANSI_COLOR_RESET); }
+
+#define debug_warn( ... )  {\
+	printf(ANSI_COLOR_YELLOW "[LITE_ENGINE_WARNING]\t" __VA_ARGS__);\
+	printf("\n" ANSI_COLOR_RESET); }
+
+#define debug_error( ... ) {\
+	printf(ANSI_COLOR_RED    "[LITE_ENGINE_ERROR]\t"   __VA_ARGS__);\
+	printf("\n" ANSI_COLOR_RESET); }
 
 #define debug_test()\
 	debug_log("this is a test message");\
