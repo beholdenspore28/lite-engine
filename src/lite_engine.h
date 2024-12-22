@@ -4,6 +4,7 @@
 #include "lite_engine_debug.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 
 enum {
 	LITE_ENGINE_RENDERER_NONE,
@@ -15,13 +16,7 @@ typedef uint16_t ui16;
 typedef uint32_t ui32;
 typedef uint64_t ui64;
 
-typedef struct {
-	ui8 renderer;
-	ui8 is_running;
-} lite_engine_context_t;
-
 void lite_engine_start(void);
-lite_engine_context_t lite_engine_context(void);
 void lite_engine_use_render_api(ui8 api);
 ui8 lite_engine_is_running(void);
 void lite_engine_update(void);

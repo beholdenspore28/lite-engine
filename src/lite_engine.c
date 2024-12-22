@@ -1,6 +1,11 @@
 #include "lite_engine.h"
 #include "lite_engine_gl.h"
 
+typedef struct {
+	ui8 renderer;
+	ui8 is_running;
+} lite_engine_context_t;
+
 static lite_engine_context_t *internal_context = NULL;
 static ui8 internal_preferred_api; // render api to use when calling lite_engine_start
 
@@ -70,6 +75,16 @@ void lite_engine_set_context(lite_engine_context_t *context) {
 // update the internal lite-engine state
 void lite_engine_update(void) {
 	debug_log("running");
+	
+	switch(internal_context->renderer) {
+		case LITE_ENGINE_RENDERER_GL: {
+			lite_engine_gl_render();
+		} break;
+		case LITE_ENGINE_RENDERER_NONE: {
+		} break;
+		default: {
+		} break;
+	}
 }
 
 // shut down and free all memory associated with the lite-engine context
