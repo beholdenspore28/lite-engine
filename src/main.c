@@ -12,11 +12,14 @@ int main(const int argc, const char** argv) {
 			"res/shaders/unlit_fragment.glsl");
 
 	GLuint test_diffuse_map = lite_engine_gl_texture_create("res/textures/test.png");
+	mesh_t space_ship       = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		lite_engine_stop();
 	}
+
+	lite_engine_gl_mesh_free(&space_ship);
 
 	return 0;
 }

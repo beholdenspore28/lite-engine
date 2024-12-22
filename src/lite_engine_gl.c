@@ -250,4 +250,5 @@ void lite_engine_start_gl(void) {
 
 void lite_engine_gl_render(void) {
 	debug_log("rendering...");
+	
 }
