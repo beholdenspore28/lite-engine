@@ -1,6 +1,7 @@
 #include "stb_image.h"
 #include "blib/blib.h"
 #include "lite_opengl.h"
+#include "lite_engine_log.h"
 
 #include <ctype.h>
 
@@ -13,7 +14,7 @@ DEFINE_LIST(mesh_t)
 
 void error_callback(const int error, const char *description) {
 	(void)error;
-	fprintf(stderr, "Error: %s\n", description);
+	debug_error("%s", description);
 }
 
 void key_callback(GLFWwindow *window, const int key, const int scancode,
@@ -136,10 +137,10 @@ static GLuint shader_compile(GLuint type, const char *source) {
     glGetShaderInfoLog(shader, length, &length, infoLog);
 
     if (type == GL_VERTEX_SHADER) {
-      fprintf(stderr, "failed to compile vertex shader\n%s\n", infoLog);
+      debug_error("Failed to compile vertex shader\n%s\n", infoLog);
       exit(1);
     } else if (type == GL_FRAGMENT_SHADER) {
-      fprintf(stderr, "failed to compile fragment shader\n%s\n", infoLog);
+      debug_error("Failed to compile fragment shader\n%s\n", infoLog);
       exit(1);
     }
     glDeleteShader(shader);
@@ -149,17 +150,17 @@ static GLuint shader_compile(GLuint type, const char *source) {
 
 GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath) {
-	printf("[LITE_ENGINE_MESSAGE] Loading shaders from '%s' and '%s'\n", vertexShaderSourcePath,
+	debug_log("Loading shaders from '%s' and '%s'", vertexShaderSourcePath,
          fragmentShaderSourcePath);
   file_buffer vertSourceFileBuffer = file_buffer_alloc(vertexShaderSourcePath);
   file_buffer fragSourceFileBuffer = file_buffer_alloc(fragmentShaderSourcePath);
 
   if (vertSourceFileBuffer.error == true) {
-    fprintf(stderr, "failed to read vertex shader");
+    debug_error("failed to read vertex shader");
     exit(1);
   }
   if (fragSourceFileBuffer.error == true) {
-    fprintf(stderr, "failed to read fragment shader");
+    debug_error("failed to read fragment shader");
     exit(1);
   }
 
@@ -182,7 +183,7 @@ GLuint shader_create(const char *vertexShaderSourcePath,
   char infoLog[length];
   if (!success) {
     glGetProgramInfoLog(program, length, &length, infoLog);
-    fprintf(stderr, "\n\nfailed to link shader\n\n%s", infoLog);
+    debug_error("Failed to link shader\n %s", infoLog);
   }
 
   glValidateProgram(program);
@@ -306,10 +307,10 @@ mesh_t mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 }
 
 mesh_t mesh_lmod_alloc(const char* file_path) {
-	printf("[LITE_ENGINE_MESSAGE] Loading lmod file from '%s'\n", file_path);
+	debug_log("Loading lmod file from '%s'", file_path);
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
-		fprintf(stderr, "\nfailed to open .lmod file at '%s' did you specity the correct path?\n", file_path);
+		debug_error("Failed to open .lmod file at '%s' did you specity the correct path?", file_path);
 		assert(0);
 	}
 
@@ -338,7 +339,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		{
 			int num_tokens = sscanf(c, "%s", token);
 			if (num_tokens != 1) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read token at %s\n", file_path);
+				debug_error("Failed to read token at '%s'", file_path);
 				assert(0);
 			}
 		}
@@ -352,12 +353,12 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			GLuint index;
 			int num_tokens = sscanf(c, "%u", &index);
 			if (num_tokens != 1) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_indices at %s\n", file_path);
+				debug_error("Failed to read vertex_indices at '%s'", file_path);
 				assert(0);
 			}
 			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
 
-			//printf("%u ", index);
+			//debug_error("%u ", index);
 			list_GLuint_add(&indices, index);
 		}
 
@@ -370,7 +371,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			vector3_t normal = {0};
 			int num_tokens = sscanf(c, "%f %f %f", &normal.x, &normal.y, &normal.z);
 			if (num_tokens != 3) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_normals at %s\n", file_path);
+				debug_error("Failed to read vertex_normals at '%s'", file_path);
 				assert(0);
 			}
 
@@ -388,7 +389,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			vector3_t position = {0};
 			int num_tokens = sscanf(c, "%f %f %f\n", &position.x, &position.y, &position.z);
 			if (num_tokens != 3) {
-				fprintf(stderr, "\n[LMOD_PARSE] failed to read vertex_positions at %s\n", file_path);
+				debug_error("Failed to read vertex_positions at '%s'", file_path);
 				assert(0);
 			}
 
@@ -451,7 +452,7 @@ GLuint texture_create(const char *imageFile) {
       glGenerateMipmap(GL_TEXTURE_2D);
     }
   } else {
-    fprintf(stderr, "failed to load texture from '%s'\n", imageFile);
+    debug_error("Failed to load texture from '%s'", imageFile);
   }
 
   /*cleanup*/

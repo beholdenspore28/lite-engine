@@ -11,15 +11,13 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define debug_log( ... )   printf(ANSI_COLOR_BLUE  "[LITE_ENGINE_LOG]\t"     __VA_ARGS__ "\n" )
-#define debug_warn( ... )  printf(ANSI_COLOR_YELLOW"[LITE_ENGINE_WARNING]\t" __VA_ARGS__ "\n" )
-#define debug_error( ... ) printf(ANSI_COLOR_RED   "[LITE_ENGINE_ERROR]\t"   __VA_ARGS__ "\n" )
-#define debug_fatal( ... ) printf(ANSI_COLOR_RED   "[LITE_ENGINE_FATAL]\t"   __VA_ARGS__ "\n" ); assert(0)
+#define debug_log( ... )   { printf(ANSI_COLOR_BLUE   "[LITE_ENGINE_LOG]\t"     __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
+#define debug_warn( ... )  { printf(ANSI_COLOR_YELLOW "[LITE_ENGINE_WARNING]\t" __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
+#define debug_error( ... ) { printf(ANSI_COLOR_RED    "[LITE_ENGINE_ERROR]\t"   __VA_ARGS__); printf("\n" ANSI_COLOR_RESET); }
 
-#define debug_test() \
-	debug_log("this is a message");\
-	debug_warn("this is a warning");\
-	debug_error("this is an error");\
-	debug_fatal("this is fatal");
+#define debug_test()\
+	debug_log("this is a test message");\
+	debug_warn("this is a test warning");\
+	debug_error("this is a test error");\
 
 #endif

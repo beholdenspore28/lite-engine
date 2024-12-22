@@ -1,4 +1,5 @@
 #include "lite_engine.h"
+#include "lite_engine_log.h"
 
 static lite_engine_context_t* lite_engine_context = NULL;
 static GLuint primitive_shader;
@@ -14,13 +15,13 @@ void framebuffer_size_callback(
 
 void lite_engine_start(void) {
 	if (lite_engine_context == NULL) {
-		printf("[ERROR_LITE_ENGINE] Lite-Engine context was null before calling lite_engine_start()."
-				" Set it using lite_engine_set_context(context)\n");
+		debug_error("Lite-Engine context was null before calling lite_engine_start()."
+				" Set it using lite_engine_set_context(context)");
 	}
 	assert(lite_engine_context != NULL);
 
 	if (!glfwInit()) {
-		printf("[ERROR_GLFW] Failed to initialize GLFW");
+		debug_error("Failed to initialize GLFW");
 	}
 
 	glfwSetErrorCallback(error_callback);
@@ -65,13 +66,13 @@ void lite_engine_start(void) {
 	glfwSwapInterval(0);
 
 	if (!gladLoadGL()) {
-		printf("[ERROR_GL] Failed to initialize GLAD\n");
+		debug_error("Failed to initialize GLAD");
 	}
 
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
-		printf("[ERROR_GL] Failed to set debug context flag\n");
+		debug_error("Failed to set debug context flag");
 	} else {
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -98,7 +99,7 @@ void lite_engine_stop(void) {
 
 void lite_engine_set_context(lite_engine_context_t* context) {
 	if (lite_engine_context != NULL) {
-		fprintf(stderr, "lite_engine_get_context failed. engine is already running.");	
+		debug_error("lite_engine_set_context failed. engine is already running.");	
 	}
 	lite_engine_context = context;
 }
@@ -118,7 +119,7 @@ void lite_engine_time_update(void) { // update time
 	lite_engine_context->frame_current++;
 
 #if 0 // log time
-	printf("time_current   %f\n"
+	debug_error("time_current   %f\n"
 			"time_last     %f\n"
 			"time_delta    %f\n"
 			"FPS           %f\n"

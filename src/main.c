@@ -12,6 +12,7 @@
 #include "lite_engine.h"
 #include "lite_entities.h"
 #include "lite_oct_tree.h"
+#include "lite_engine_log.h"
 
 #include <stdio.h>
 
@@ -453,7 +454,7 @@ mesh_t asteroid_mesh_alloc(void) {
 						position.z = temp.y;
 					} break;
 					default: {
-						fprintf(stderr, "rock generator encountered invalid face index");
+						debug_error("rock generator encountered invalid face index");
 					} break;
 				}
 
@@ -478,8 +479,6 @@ mesh_t asteroid_mesh_alloc(void) {
 	mesh_t mesh = mesh_alloc(vertices, indices);
 	return mesh;
 }
-
-#include "lite_engine_log.h"
 
 int main() {
 	debug_log("Rev up those fryers!");
@@ -548,7 +547,7 @@ int main() {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		fprintf(stdout, "[LITE_ENGINE_ERROR_OPENGL] frame buffer is incomplete!\n");
+		debug_error("frame buffer is incomplete!");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #else
