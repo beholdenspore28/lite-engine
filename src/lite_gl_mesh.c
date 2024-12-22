@@ -60,15 +60,17 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 		assert(0);
 	}
 
-	list_vector3_t normals   = list_vector3_t_alloc();
-	list_vector3_t positions = list_vector3_t_alloc();
-	list_GLuint indices   = list_GLuint_alloc();
+	list_vector3_t positions  = list_vector3_t_alloc();
+	list_vector3_t normals    = list_vector3_t_alloc();
+	list_vector2_t tex_coords = list_vector2_t_alloc();
+	list_GLuint indices       = list_GLuint_alloc();
 
 	enum {
 		STATE_INITIAL = -1,
 		STATE_POSITION,
 		STATE_INDICES,
 		STATE_NORMAL,
+		STATE_TEX_COORD,
 	};
 	uint8_t state = STATE_INITIAL;
 
@@ -90,6 +92,10 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			}
 		}
 
+		// TODO The order in which a buffer is loaded from the lmod file matters.
+		// need to change the importer so that it can handle parsing the buffers
+		// in any order.
+
 		if (strcmp(token, "vertex_indices:") == 0 || state == STATE_INDICES) {
 			if (state != STATE_INDICES)
 				c += sizeof("vertex_indices:");
@@ -106,6 +112,24 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 
 			//debug_error("%u ", index);
 			list_GLuint_add(&indices, index);
+		}
+
+		if (strcmp(token, "vertex_texture_coordinates:") == 0 || state == STATE_TEX_COORD) {
+			if (state != STATE_TEX_COORD)
+				c += sizeof("vertex_texture_coordinates:");
+
+			state = STATE_TEX_COORD;
+
+			vector2_t tex_coord = {0};
+			int num_tokens = sscanf(c, "%f %f", &tex_coord.x, &tex_coord.y);
+			if (num_tokens != 2) {
+				debug_error("Failed to read vertex_texture_coordinates at '%s'", file_path);
+				assert(0);
+			}
+
+			list_vector2_t_add(&tex_coords, tex_coord);
+			//vector2_print(tex_coords.array[tex_coords.length-1], "tex coord");
+			while (*c != '\n' && *c != '\0') { c++; } 
 		}
 
 		if (strcmp(token, "vertex_normals:") == 0 || state == STATE_NORMAL) {
@@ -133,7 +157,7 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 			state = STATE_POSITION;
 
 			vector3_t position = {0};
-			int num_tokens = sscanf(c, "%f %f %f\n", &position.x, &position.y, &position.z);
+			int num_tokens = sscanf(c, "%f %f %f", &position.x, &position.y, &position.z);
 			if (num_tokens != 3) {
 				debug_error("Failed to read vertex_positions at '%s'", file_path);
 				assert(0);
@@ -150,13 +174,18 @@ mesh_t mesh_lmod_alloc(const char* file_path) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for(size_t i = 0; i < positions.length; i++) {
 		vertex_t vertex = {0};
+		if (positions.length > 0)
 		vertex.position = positions.array[i];
+		if (normals.length > 0)
 		vertex.normal   = normals.array[i];
+		if (tex_coords.length > 0)
+		vertex.texCoord = tex_coords.array[i];
 		list_vertex_t_add(&vertices, vertex);
 	}
 
 	list_vector3_t_free(&positions);
 	list_vector3_t_free(&normals);
+	list_vector2_t_free(&tex_coords);
 
 	mesh_t mesh = mesh_alloc(vertices, indices);
 	return mesh;

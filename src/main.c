@@ -593,6 +593,26 @@ int main() {
 	mesh_t lmod_cube = mesh_lmod_alloc("res/models/cube.lmod");
 	mesh_t lmod_quad = mesh_lmod_alloc("res/models/quad.lmod");
 
+	int buffer_quad = ecs_entity_create();
+	{
+		ecs_component_add(buffer_quad, COMPONENT_TRANSFORM);
+		ecs_component_add(buffer_quad, COMPONENT_MESH);
+		ecs_component_add(buffer_quad, COMPONENT_MATERIAL);
+		ecs_component_add(buffer_quad, COMPONENT_SHADER);
+
+		mesh[buffer_quad] = lmod_quad;
+		shader[buffer_quad] = unlitShader;
+		material[buffer_quad] = (material_t){
+			.diffuseMap = testDiffuseMap,
+		};
+		transforms[buffer_quad] = (transform_t){
+			.position = (vector3_t) { 0.0, 0.0, 0.0 },
+			.rotation = quaternion_identity(),
+			//.rotation = quaternion_from_euler(vector3_up(PI/2.0)),
+			.scale = vector3_one(-10.0), 
+		};
+	}
+
 	int space_ship = ecs_entity_create();
 	{
 		ecs_component_add(space_ship, COMPONENT_KINEMATIC_BODY);
