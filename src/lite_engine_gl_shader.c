@@ -2,7 +2,7 @@
 #include "blib/blib_math3d.h"
 #include "blib/blib_file.h"
 
-static GLuint shader_compile(GLuint type, const char *source) {
+static GLuint internal_shader_compile(GLuint type, const char *source) {
 	/*creation*/
 	GLuint shader = 0;
 	if (type == GL_VERTEX_SHADER) {
@@ -36,7 +36,7 @@ static GLuint shader_compile(GLuint type, const char *source) {
 	return shader;
 }
 
-GLuint shader_create(
+GLuint lite_engine_gl_shader_create(
 		const char *vertex_shader_file_path,
 		const char *fragment_shader_file_path) {
 
@@ -65,11 +65,11 @@ GLuint shader_create(
 
 	GLuint program = glCreateProgram();
 
-	GLuint vertShader = shader_compile(
+	GLuint vertShader = internal_shader_compile(
 			GL_VERTEX_SHADER, 
 			vertSourceString);
 
-	GLuint fragShader = shader_compile(
+	GLuint fragShader = internal_shader_compile(
 			GL_FRAGMENT_SHADER, 
 			fragSourceString);
 
@@ -96,27 +96,27 @@ GLuint shader_create(
 	return program;
 }
 
-void shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i) {
+void lite_engine_gl_shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i) {
 	GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
 	glUniform1i(UniformLocation, i);
 }
 
-void shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
+void lite_engine_gl_shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {
 	GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
 	glUniform1f(UniformLocation, f);
 }
 
-void shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
+void lite_engine_gl_shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {
 	GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
 	glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {
+void lite_engine_gl_shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {
 	GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
 	glUniform4f(UniformLocation, v.x, v.y, v.z, v.w);
 }
 
-void shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
+void lite_engine_gl_shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {
 	GLuint UniformLocation = glGetUniformLocation(shader, uniformName);
 	glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, &m->elements[0]);
 }
