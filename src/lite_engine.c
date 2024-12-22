@@ -88,8 +88,8 @@ void lite_engine_start(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	primitive_shader = shader_create(
-		"res/shaders/primitive.vs.glsl",
-		"res/shaders/primitive.fs.glsl");
+		"res/shaders/primitive_vertex.glsl",
+		"res/shaders/primitive_fragment.glsl");
 	primitive_mesh_cube = mesh_lmod_alloc("res/models/cube.lmod");
 }
 

@@ -555,8 +555,8 @@ int main() {
 #endif
 
 	GLuint unlitShader = shader_create(
-			"res/shaders/unlit.vs.glsl", 
-			"res/shaders/unlit.fs.glsl");
+			"res/shaders/unlit_vertex.glsl", 
+			"res/shaders/unlit_fragment.glsl");
 
 	GLuint diffuseShader = shader_create(
 			"res/shaders/phong_diffuse_vertex.glsl",

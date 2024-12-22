@@ -156,11 +156,11 @@ GLuint shader_create(const char *vertexShaderSourcePath,
   file_buffer fragSourceFileBuffer = file_buffer_alloc(fragmentShaderSourcePath);
 
   if (vertSourceFileBuffer.error == true) {
-    debug_error("failed to read vertex shader");
+    debug_error("Failed to locate '%s'", vertexShaderSourcePath);
     exit(1);
   }
   if (fragSourceFileBuffer.error == true) {
-    debug_error("failed to read fragment shader");
+    debug_error("Failed to locate '%s'", fragmentShaderSourcePath);
     exit(1);
   }
 
