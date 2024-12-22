@@ -45,6 +45,7 @@ typedef struct {
 	GLuint diffuseMap;
 	GLuint specularMap;
 } material_t;
+DECLARE_LIST(material_t)
 
 typedef struct {
   matrix4_t    matrix;
@@ -53,6 +54,14 @@ typedef struct {
   vector3_t    scale;
 } transform_t;
 DECLARE_LIST(transform_t)
+
+typedef struct {
+	transform_t transform;
+	matrix4_t   projection;
+	float       lastX;
+	float       lastY;
+} camera_t;
+DECLARE_LIST(camera_t)
 
 void      lite_engine_gl_transform_calculate_matrix(transform_t *t);
 void      lite_engine_gl_transform_calculate_view_matrix(transform_t *t);
