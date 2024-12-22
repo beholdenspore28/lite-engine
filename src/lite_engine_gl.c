@@ -1,8 +1,12 @@
 #include "lite_engine.h"
+#include "lite_engine_gl.h"
 
 #define GLFW_INCLUDE_NONE
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include "blib/blib.h"
+
+DEFINE_LIST(GLuint)
 
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;

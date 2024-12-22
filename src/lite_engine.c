@@ -3,6 +3,7 @@
 
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_file.h"
+#include "blib/blib_math3d.h"
 
 typedef struct {
 	ui8 renderer;
