@@ -1,6 +1,9 @@
 #include "lite_engine.h"
 #include "lite_engine_gl.h"
 
+#define BLIB_IMPLEMENTATION
+#include "blib/blib_file.h"
+
 typedef struct {
 	ui8 renderer;
 	ui8 is_running;
