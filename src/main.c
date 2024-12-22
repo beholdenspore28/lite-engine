@@ -34,7 +34,9 @@ typedef struct kinematic_body {
 
 int light;
 
-static inline void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
+static inline void oct_tree_draw(
+		oct_tree_t *tree,
+		vector4_t color) {
 	transform_t t = (transform_t){
 		.position = tree->position,
 		.rotation = quaternion_identity(),
@@ -45,10 +47,10 @@ static inline void oct_tree_draw(oct_tree_t *tree, vector4_t color) {
 		oct_tree_draw(tree->frontNorthWest, color);
 		oct_tree_draw(tree->frontSouthEast, color);
 		oct_tree_draw(tree->frontSouthWest, color);
-		oct_tree_draw(tree->backNorthEast, color);
-		oct_tree_draw(tree->backNorthWest, color);
-		oct_tree_draw(tree->backSouthEast, color);
-		oct_tree_draw(tree->backSouthWest, color);
+		oct_tree_draw(tree->backNorthEast,  color);
+		oct_tree_draw(tree->backNorthWest,  color);
+		oct_tree_draw(tree->backSouthEast,  color);
+		oct_tree_draw(tree->backSouthWest,  color);
 	}else {
 		primitive_draw_cube(t, true, color);
 	}
@@ -70,11 +72,11 @@ static inline void kinematic_body_update(
 		assert(kinematic_bodies[e].mass > 0);
 		
 		{ // drag force
+			const float drag_coefficient = kinematic_bodies[e].drag_coefficient;
+			const float time_delta = lite_engine_get_context().time_delta;
 			vector3_t drag = vector3_scale(vector3_normalize(kinematic_bodies[e].velocity), -1);
-			const float speed = vector3_magnitude(kinematic_bodies[e].velocity);
-			drag = vector3_scale(
-					drag,
-					kinematic_bodies[e].drag_coefficient * speed * speed * lite_engine_get_context().time_delta);
+			const float speed = vector3_magnitude( kinematic_bodies[e].velocity);
+			drag = vector3_scale( drag, drag_coefficient * speed * speed * time_delta);
 			kinematic_bodies[e].velocity = vector3_add(kinematic_bodies[e].velocity, drag);
 		}
 
@@ -305,11 +307,13 @@ static inline void camera_update(
 
 			movement = vector3_normalize(movement);
 			movement = vector3_scale(movement, cameraSpeedCurrent);
-			movement =
-				vector3_rotate(movement, lite_engine_get_context().active_camera->transform.rotation);
+			movement = vector3_rotate(
+						movement, 
+						lite_engine_get_context().active_camera->transform.rotation);
 
-			lite_engine_get_context().active_camera->transform.position =
-				vector3_add(lite_engine_get_context().active_camera->transform.position, movement);
+			lite_engine_get_context().active_camera->transform.position = vector3_add(
+						lite_engine_get_context().active_camera->transform.position, 
+						movement);
 
 			if (glfwGetKey(lite_engine_get_context().window, GLFW_KEY_BACKSPACE)) {
 				lite_engine_get_context().active_camera->transform.position = vector3_zero();
@@ -336,17 +340,25 @@ static inline void camera_update(
 				input.z = 
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_W) -
 					glfwGetKey(lite_engine_get_context().window, GLFW_KEY_S);
+
 				input = vector3_normalize(input);
 
 				vector3_t force = {0};
-				force = vector3_add(force, transform_basis_right(transforms[space_ship], input.x));
-				force = vector3_add(force, transform_basis_up(transforms[space_ship], input.y));
-				force = vector3_add(force, transform_basis_forward(transforms[space_ship], input.z));
+
+				force = vector3_add(force, transform_basis_right(
+							transforms[space_ship], input.x));
+
+				force = vector3_add(force, transform_basis_up(
+							transforms[space_ship], input.y));
+
+				force = vector3_add(force, transform_basis_forward(
+							transforms[space_ship], input.z));
 
 				const float power = 100.0 * lite_engine_get_context().time_delta;
 				force = vector3_scale(force, power);
 
-				kinematic_bodies[space_ship].velocity = vector3_add(kinematic_bodies[space_ship].velocity, force);	
+				kinematic_bodies[space_ship].velocity = vector3_add(
+						kinematic_bodies[space_ship].velocity, force);	
 			}
 
 			{ // rotation
@@ -531,20 +543,26 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_color_buffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+			GL_TEXTURE_2D, texture_color_buffer, 0);
 
 	// create render buffer object
 	GLuint rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
 	glRenderbufferStorage(
 			GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
 			lite_engine_get_context().window_size_x,
 			lite_engine_get_context().window_size_y);
+
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
 
 	// attach render buffer to depth and stencil of the frame buffer
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	glFramebufferRenderbuffer(
+			GL_FRAMEBUFFER, 
+			GL_DEPTH_STENCIL_ATTACHMENT, 
+			GL_RENDERBUFFER, rbo);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		debug_error("frame buffer is incomplete!");
