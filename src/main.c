@@ -479,8 +479,11 @@ mesh_t asteroid_mesh_alloc(void) {
 	return mesh;
 }
 
+#include "lite_engine_log.h"
+
 int main() {
-	printf("[LITE_ENGINE_MESSAGE] Rev up those fryers!\n");
+	debug_log("Rev up those fryers!");
+	debug_test();
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));
