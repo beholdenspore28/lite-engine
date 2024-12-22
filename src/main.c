@@ -546,7 +546,6 @@ int main() {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
 			GL_TEXTURE_2D, texture_color_buffer, 0);
 
-	// create render buffer object
 	GLuint rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
@@ -558,7 +557,6 @@ int main() {
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
 
-	// attach render buffer to depth and stencil of the frame buffer
 	glFramebufferRenderbuffer(
 			GL_FRAMEBUFFER, 
 			GL_DEPTH_STENCIL_ATTACHMENT, 
