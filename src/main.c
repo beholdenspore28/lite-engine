@@ -682,7 +682,6 @@ int main() {
 	};
 	transforms[light].position = (vector3_t){100, 100, -100};
 
-
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		camera_update(transforms, kinematic_body, space_ship);
