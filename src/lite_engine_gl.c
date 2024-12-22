@@ -62,7 +62,7 @@ typedef struct {
 	ui8         window_fullscreen;
 } opengl_context_t;
 
-opengl_context_t *internal_context = NULL;
+opengl_context_t *internal_gl_context = NULL;
 
 void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
@@ -175,14 +175,14 @@ void key_callback(GLFWwindow *window, const int key, const int scancode,
 void lite_engine_start_gl(void) {
 	debug_log("initializing OpenGL renderer.");
 
-	internal_context                       = calloc(sizeof(*internal_context), 1);
-	internal_context->window_title         = internal_prefer_window_title;
-	internal_context->window_size_x        = internal_prefer_window_size_x;
-	internal_context->window_size_y        = internal_prefer_window_size_y;
-	internal_context->window_position_x    = internal_prefer_window_position_x; 
-	internal_context->window_position_y    = internal_prefer_window_position_y;
-	internal_context->window_always_on_top = internal_prefer_window_always_on_top; 
-	internal_context->window_fullscreen    = internal_prefer_window_fullscreen; 
+	internal_gl_context                       = calloc(sizeof(*internal_gl_context), 1);
+	internal_gl_context->window_title         = internal_prefer_window_title;
+	internal_gl_context->window_size_x        = internal_prefer_window_size_x;
+	internal_gl_context->window_size_y        = internal_prefer_window_size_y;
+	internal_gl_context->window_position_x    = internal_prefer_window_position_x; 
+	internal_gl_context->window_position_y    = internal_prefer_window_position_y;
+	internal_gl_context->window_always_on_top = internal_prefer_window_always_on_top; 
+	internal_gl_context->window_fullscreen    = internal_prefer_window_fullscreen; 
 
 	if (!glfwInit()) {
 		debug_error("Failed to initialize GLFW");
@@ -196,36 +196,36 @@ void lite_engine_start_gl(void) {
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	if (internal_context->window_always_on_top) {
+	if (internal_gl_context->window_always_on_top) {
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 	}
 
-	if (internal_context->window_fullscreen) {
-		internal_context->window = glfwCreateWindow(
-				internal_context->window_size_x, 
-				internal_context->window_size_y,
-				internal_context->window_title, 
+	if (internal_gl_context->window_fullscreen) {
+		internal_gl_context->window = glfwCreateWindow(
+				internal_gl_context->window_size_x, 
+				internal_gl_context->window_size_y,
+				internal_gl_context->window_title, 
 				glfwGetPrimaryMonitor(), NULL);
 	} else {
-		internal_context->window = glfwCreateWindow(
-				internal_context->window_size_x, 
-				internal_context->window_size_y,
-				internal_context->window_title, 
+		internal_gl_context->window = glfwCreateWindow(
+				internal_gl_context->window_size_x, 
+				internal_gl_context->window_size_y,
+				internal_gl_context->window_title, 
 				NULL, NULL);
 	}
 
-	assert(internal_context->window != NULL);
+	assert(internal_gl_context->window != NULL);
 
-	glfwSetWindowPos(internal_context->window, 
-			internal_context->window_position_x,
-			internal_context->window_position_y);
-	glfwShowWindow(internal_context->window);
-	glfwMakeContextCurrent(internal_context->window);
-	glfwSetKeyCallback(internal_context->window, key_callback);
+	glfwSetWindowPos(internal_gl_context->window, 
+			internal_gl_context->window_position_x,
+			internal_gl_context->window_position_y);
+	glfwShowWindow(internal_gl_context->window);
+	glfwMakeContextCurrent(internal_gl_context->window);
+	glfwSetKeyCallback(internal_gl_context->window, key_callback);
 	glfwSetFramebufferSizeCallback(
-			internal_context->window, 
+			internal_gl_context->window, 
 			framebuffer_size_callback);
-	glfwSetInputMode(internal_context->window, 
+	glfwSetInputMode(internal_gl_context->window, 
 			GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
@@ -256,6 +256,9 @@ void lite_engine_start_gl(void) {
 }
 
 void lite_engine_gl_render(void) {
-	debug_log("rendering...");
+	//debug_log("rendering...");
 	
+	glfwSwapBuffers(internal_gl_context->window);
+	glfwPollEvents();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 }
