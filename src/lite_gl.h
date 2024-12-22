@@ -9,6 +9,8 @@
 #include "blib/blib_math3d.h"
 #include "blib/blib_file.h"
 
+#include "lite_engine_log.h"
+
 DECLARE_LIST(GLint)
 DECLARE_LIST(GLuint)
 

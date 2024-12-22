@@ -1,4 +1,4 @@
-#include "lite_opengl.h"
+#include "lite_gl.h"
 #include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
