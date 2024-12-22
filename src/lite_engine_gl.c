@@ -12,6 +12,34 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
+void lite_engine_gl_set_prefer_window_title(char *title) {
+	internal_prefer_window_title = title;
+}
+
+void lite_engine_gl_set_prefer_window_size_x(ui16 size_x) {
+	internal_prefer_window_size_x = size_x;
+}
+
+void lite_engine_gl_set_prefer_window_size_y(ui16 size_y) {
+	internal_prefer_window_size_y = size_y;
+}
+
+void lite_engine_gl_set_prefer_window_position_x(ui16 pos_x) {
+	internal_prefer_window_position_x = pos_x;
+}
+
+void lite_engine_gl_set_prefer_window_position_y(ui16 pos_y) {
+	internal_prefer_window_position_y = pos_y;
+}
+
+void lite_engine_gl_set_prefer_window_always_on_top(ui8 always_on_top) {
+	internal_prefer_window_always_on_top = always_on_top;
+}
+
+void lite_engine_gl_set_prefer_window_fullscreen(ui8 fullscreen) {
+	internal_prefer_window_fullscreen = fullscreen;
+}
+
 typedef struct {
 	GLFWwindow *window;
 	char       *window_title;	

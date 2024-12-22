@@ -1,10 +1,17 @@
 #include "lite_engine.h"
+#include "lite_engine_gl.h"
 
 int main(const int argc, const char** argv) {
 	(void)argc; (void) argv;
 
 	lite_engine_use_render_api(LITE_ENGINE_RENDERER_GL);
 	lite_engine_start();
+
+	GLuint unlit_shader = lite_engine_gl_shader_create(
+			"res/shaders/unlit_vertex.glsl",
+			"res/shaders/unlit_fragment.glsl");
+
+	GLuint test_diffuse_map = lite_engine_gl_texture_create("res/textures/test.png");
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
