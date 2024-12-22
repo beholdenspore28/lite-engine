@@ -480,7 +480,7 @@ mesh_t asteroid_mesh_alloc(void) {
 }
 
 int main() {
-	printf("Rev up those fryers!\n");
+	printf("[LITE_ENGINE_MESSAGE] Rev up those fryers!\n");
 
 	// init engine
 	lite_engine_context_t* context = malloc(sizeof(lite_engine_context_t));

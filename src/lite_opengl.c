@@ -149,7 +149,7 @@ static GLuint shader_compile(GLuint type, const char *source) {
 
 GLuint shader_create(const char *vertexShaderSourcePath,
                      const char *fragmentShaderSourcePath) {
-  printf("Attempting to load shaders '%s' and '%s'\n", vertexShaderSourcePath,
+	printf("[LITE_ENGINE_MESSAGE] Loading shaders from '%s' and '%s'\n", vertexShaderSourcePath,
          fragmentShaderSourcePath);
   file_buffer vertSourceFileBuffer = file_buffer_alloc(vertexShaderSourcePath);
   file_buffer fragSourceFileBuffer = file_buffer_alloc(fragmentShaderSourcePath);
@@ -306,6 +306,7 @@ mesh_t mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 }
 
 mesh_t mesh_lmod_alloc(const char* file_path) {
+	printf("[LITE_ENGINE_MESSAGE] Loading lmod file from '%s'\n", file_path);
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
 		fprintf(stderr, "\nfailed to open .lmod file at '%s' did you specity the correct path?\n", file_path);
