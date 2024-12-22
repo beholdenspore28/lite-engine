@@ -18,7 +18,7 @@ typedef uint64_t ui64;
 
 void lite_engine_start(void);
 void lite_engine_use_render_api(ui8 api);
-ui8 lite_engine_is_running(void);
+ui8  lite_engine_is_running(void);
 void lite_engine_update(void);
 void lite_engine_stop(void);
 
