@@ -8,6 +8,9 @@
 
 DEFINE_LIST(GLuint)
 
+// object lists to keep stuff hot on the cache
+GLuint internal_shaders[1024];
+
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
 static ui16  internal_prefer_window_size_y        = 480;

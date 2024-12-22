@@ -31,6 +31,23 @@ typedef struct {
 } mesh_t;
 DECLARE_LIST(mesh_t)
 
+typedef struct {
+  matrix4_t matrix;
+  vector3_t position;
+  quaternion_t rotation;
+  vector3_t scale;
+} transform_t;
+DECLARE_LIST(transform_t)
+
+void      lite_engine_gl_transform_calculate_matrix(transform_t *t);
+void      lite_engine_gl_transform_calculate_view_matrix(transform_t *t);
+vector3_t lite_engine_gl_transform_basis_forward(transform_t t, float magnitude);
+vector3_t lite_engine_gl_transform_basis_up(transform_t t, float magnitude);
+vector3_t lite_engine_gl_transform_basis_right(transform_t t, float magnitude);
+vector3_t lite_engine_gl_transform_basis_back(transform_t t, float magnitude);
+vector3_t lite_engine_gl_transform_basis_down(transform_t t, float magnitude);
+vector3_t lite_engine_gl_transform_basis_left(transform_t t, float magnitude);
+
 mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices);
 mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path);
 void   lite_engine_gl_mesh_free(mesh_t* mesh);
