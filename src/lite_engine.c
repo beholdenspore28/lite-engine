@@ -113,7 +113,7 @@ void internal_time_update(void) { // update time
 // update the internal lite-engine state
 void lite_engine_update(void) {
 	// debug_log("running");
-	
+
 	switch(internal_engine_context->renderer) {
 		case LITE_ENGINE_RENDERER_GL: {
 			lite_engine_gl_render();
