@@ -5,14 +5,17 @@
 #include "blib/blib_file.h"
 #include "blib/blib_math3d.h"
 
+#include <unistd.h>
+#include <time.h>
+
 typedef struct {
-	ui8   renderer;
-	ui8   is_running;
-	ui64  time_current;
-	ui64  frame_current;
-	float time_delta;
-	float time_last;
-	float time_FPS;
+	ui8     renderer;
+	ui8     is_running;
+	ui64    frame_current;
+	double  time_current;
+	double  time_last;
+	double  time_delta;
+	double  time_FPS;
 } lite_engine_context_t;
 
 static lite_engine_context_t *internal_engine_context = NULL;
@@ -90,23 +93,34 @@ void lite_engine_set_context(lite_engine_context_t *context) {
 
 void internal_time_update(void) { // update time
 	//internal_engine_context->time_current = glfwGetTime();
-	internal_engine_context->time_delta = internal_engine_context->time_current - internal_engine_context->time_last;
+	
+	struct timespec spec;
+	if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
+			debug_error("failed to get time spec.");
+			exit(0);
+	}
+	internal_engine_context->time_current = spec.tv_sec + spec.tv_nsec * 1e-9;
+
+	internal_engine_context->time_delta = 
+		internal_engine_context->time_current - internal_engine_context->time_last;
+
 	internal_engine_context->time_last  = internal_engine_context->time_current;
 
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
 
-#if 0 // log time
-	debug_error("time_current   %f\n"
-			"time_last     %f\n"
-			"time_delta    %f\n"
-			"FPS           %f\n"
-			"frame_current %lu\n",
-			internal_engine_context->time_current, 
-			internal_engine_context->time_last, 
-			internal_engine_context->time_delta,
-			internal_engine_context->time_FPS, 
-			internal_engine_context->frame_current);
+#if 1 // log time
+	debug_log( "\n"
+		"time_current:  %lf\n"  
+		"frame_current: %lu\n"  
+		"time_delta:    %lf\n"   
+		"time_last:     %lf\n"   
+		"time_FPS:      %lf",   
+		internal_engine_context->time_current,
+		internal_engine_context->frame_current,
+		internal_engine_context->time_delta,
+		internal_engine_context->time_last,
+		internal_engine_context->time_FPS);
 #endif // log time
 }
 
@@ -124,6 +138,8 @@ void lite_engine_update(void) {
 		} break;
 	}
 	internal_time_update();
+	//if (internal_engine_context->frame_current > 10)
+		//lite_engine_stop();
 }
 
 // shut down and free all memory associated with the lite-engine context
