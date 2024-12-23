@@ -30,18 +30,18 @@ LIBS_LINUX := -lglfw -lGL -lm -lrt
 #LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 
 linux: build_directory linux_glad 
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/lite_engine_linux
+	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS_LINUX} -o build/lite_engine_linux
 	./build/lite_engine_linux
 
 linux_glad:
 	${C} -c dep/glad.c -o build/glad.o -Idep
 
-macos: build_directory macos_glad
-	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CLANG_CFLAGS} -o build/lite_engine_macos
-	./build/lite_engine_macos
-
-macos_glad:
-	${C} -c dep/glad.c -o build/glad.o -Idep
+#macos: build_directory macos_glad
+#	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CLANG_CFLAGS} -o build/lite_engine_macos
+#	./build/lite_engine_macos
+#
+#macos_glad:
+#	${C} -c dep/glad.c -o build/glad.o -Idep
 
 build_directory:
 	mkdir -p build
