@@ -41,7 +41,7 @@ void lite_engine_start(void) {
 
 	switch(internal_preferred_api) {
 		case LITE_ENGINE_RENDERER_GL: {
-			lite_engine_start_gl();
+			lite_engine_gl_start();
 		} break;
 		case LITE_ENGINE_RENDERER_NONE: {
 			debug_warn("no renderer set");

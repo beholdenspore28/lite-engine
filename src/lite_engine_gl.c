@@ -68,14 +68,6 @@ static int* entities;
 static int entity_count = 0;
 static int** components;
 
-void lite_engine_gl_alloc(void) {
-	entities = calloc(sizeof(entities), LITE_ENGINE_ENTITY_MAX);
-	components = calloc(sizeof(int**), LITE_ENGINE_ENTITY_MAX);
-	for(int i = 0; i < LITE_ENGINE_ENTITY_MAX; i++) {
-		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
-	}
-}
-
 int lite_engine_gl_entity_create(void) {
 	++entity_count;
 	assert(entity_count != LITE_ENGINE_ENTITY_NULL);
@@ -206,7 +198,7 @@ void key_callback(GLFWwindow *window, const int key, const int scancode,
 	}
 }
 
-void lite_engine_start_gl(void) {
+void lite_engine_gl_start(void) {
 	debug_log("initializing OpenGL renderer.");
 
 	internal_gl_context                       = calloc(sizeof(*internal_gl_context), 1);
@@ -287,6 +279,13 @@ void lite_engine_start_gl(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
+
+	// allocate ecs for the renderer
+	entities = calloc(sizeof(entities), LITE_ENGINE_ENTITY_MAX);
+	components = calloc(sizeof(int**), LITE_ENGINE_ENTITY_MAX);
+	for(int i = 0; i < LITE_ENGINE_ENTITY_MAX; i++) {
+		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
+	}
 
 	debug_log("OpenGL renderer initialized successfuly");
 }
