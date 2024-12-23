@@ -13,18 +13,18 @@ extern list_GLuint        internal_shaders;
 extern list_material_t    internal_material;
 extern list_point_light_t internal_point_lights;
 
-#if 1
-static inline void lite_engine_gl_mesh_update() {
+void lite_engine_gl_mesh_update() {
 	glEnable(GL_CULL_FACE);
+
 	for(size_t e = 0; e < internal_meshes.length; e++) {
+		if (internal_meshes.array[e].enabled == 0) {
+			continue;
+		}
+
 		if (internal_meshes.array[e].use_wire_frame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		} else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-
-		{// ensure the entity has the required components.
-			assert(0);
 		}
 
 		{ // draw
@@ -85,9 +85,8 @@ static inline void lite_engine_gl_mesh_update() {
 	}
 	glUseProgram(0);
 }
-#endif
 
-mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
+int lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 	mesh_t m   = {0};
 	m.enabled  = true;
 	m.vertices = vertices;
@@ -128,10 +127,13 @@ mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 
 	glBindVertexArray(0);
 
-	return m;
+
+	list_mesh_t_add(&internal_meshes, m); 
+
+	return internal_meshes.length;
 }
 
-mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
+int lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 	debug_log("Loading lmod file from '%s'", file_path);
 	file_buffer fb = file_buffer_alloc(file_path);
 
@@ -269,11 +271,10 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 	list_vector3_t_free(&normals);
 	list_vector2_t_free(&tex_coords);
 
-	mesh_t mesh = lite_engine_gl_mesh_alloc(vertices, indices);
+	int mesh = lite_engine_gl_mesh_alloc(vertices, indices);
 	return mesh;
 }
 
-void lite_engine_gl_mesh_free(mesh_t* mesh) {
-	list_vertex_t_free(&mesh->vertices);
-	list_GLuint_free(&mesh->indices);
+void lite_engine_gl_mesh_free(int index) {
+
 }

@@ -25,10 +25,10 @@ C = clang
 # LINUX BUILD
 CLANG_CFLAGS_LINUX_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
 CLANG_CFLAGS_LINUX_RELEASE := -03 -flto
-CLANG_CFLAGS_LINUX := ${CLANG_CFLAGS_DEBUG}
+CLANG_CFLAGS_LINUX := ${CLANG_CFLAGS_LINUX_DEBUG}
 
 LIBS_LINUX := -lglfw -lGL -lm -lrt
-LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
+#LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 
 linux: build_directory linux_glad 
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS_LINUX} -o build/lite_engine_linux

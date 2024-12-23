@@ -9,6 +9,7 @@
 DEFINE_LIST(GLuint)
 
 // object lists to keep stuff hot on the cache
+camera_t           internal_active_camera;
 list_mesh_t        internal_meshes;
 list_transform_t   internal_transforms;
 list_GLuint        internal_shaders;
@@ -22,6 +23,8 @@ static ui16  internal_prefer_window_position_x    = 0;
 static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
+
+extern void lite_engine_gl_mesh_update();
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -259,8 +262,10 @@ void lite_engine_start_gl(void) {
 
 void lite_engine_gl_render(void) {
 	//debug_log("rendering...");
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	lite_engine_gl_mesh_update();
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+
 }

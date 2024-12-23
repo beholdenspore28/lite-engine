@@ -109,7 +109,7 @@ void internal_time_update(void) { // update time
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
 	debug_log( "\n"
 		"time_current:  %lf\n"  
 		"frame_current: %lu\n"  
@@ -138,8 +138,6 @@ void lite_engine_update(void) {
 		} break;
 	}
 	internal_time_update();
-	//if (internal_engine_context->frame_current > 10)
-		//lite_engine_stop();
 }
 
 // shut down and free all memory associated with the lite-engine context

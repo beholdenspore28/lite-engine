@@ -72,9 +72,9 @@ vector3_t lite_engine_gl_transform_basis_back(transform_t t, float magnitude);
 vector3_t lite_engine_gl_transform_basis_down(transform_t t, float magnitude);
 vector3_t lite_engine_gl_transform_basis_left(transform_t t, float magnitude);
 
-mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices);
-mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path);
-void   lite_engine_gl_mesh_free(mesh_t* mesh);
+int    lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices);
+int    lite_engine_gl_mesh_lmod_alloc(const char* file_path);
+void   lite_engine_gl_mesh_free(int index);
 
 GLuint lite_engine_gl_shader_create( const char *vertex_shader_file_path, const char *fragment_shader_file_path);
 void   lite_engine_gl_shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i);

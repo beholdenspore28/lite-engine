@@ -53,7 +53,7 @@ diffuse	src/lite_engine_gl.h	/^	vector3_t diffuse;$/;"	m	struct:__anonbd19398701
 diffuseMap	src/lite_engine_gl.h	/^	GLuint diffuseMap;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
 enabled	src/lite_engine_gl.h	/^	bool           enabled;$/;"	m	struct:__anonbd1939870308	typeref:typename:bool
 error_callback	src/lite_engine_gl.c	/^void error_callback(const int error, const char *description) {$/;"	f	typeref:typename:void
-frame_current	src/lite_engine.c	/^	ui64  frame_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui64	file:
+frame_current	src/lite_engine.c	/^	ui64    frame_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui64	file:
 framebuffer_size_callback	src/lite_engine_gl.c	/^void framebuffer_size_callback($/;"	f	typeref:typename:void
 glDebugOutput	src/lite_engine_gl.c	/^void APIENTRY glDebugOutput(const GLenum source, const GLenum type,$/;"	f	typeref:typename:void APIENTRY
 indices	src/lite_engine_gl.h	/^	list_GLuint    indices;$/;"	m	struct:__anonbd1939870308	typeref:typename:list_GLuint
@@ -72,7 +72,7 @@ internal_preferred_api	src/lite_engine.c	/^static ui8 internal_preferred_api; \/
 internal_shader_compile	src/lite_engine_gl_shader.c	/^static GLuint internal_shader_compile(GLuint type, const char *source) {$/;"	f	typeref:typename:GLuint	file:
 internal_shaders	src/lite_engine_gl.c	/^list_GLuint        internal_shaders;$/;"	v	typeref:typename:list_GLuint
 internal_time_update	src/lite_engine.c	/^void internal_time_update(void) { \/\/ update time$/;"	f	typeref:typename:void
-is_running	src/lite_engine.c	/^	ui8   is_running;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
+is_running	src/lite_engine.c	/^	ui8     is_running;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
 key_callback	src/lite_engine_gl.c	/^void key_callback(GLFWwindow *window, const int key, const int scancode,$/;"	f	typeref:typename:void
 lastX	src/lite_engine_gl.h	/^	float       lastX;$/;"	m	struct:__anonbd1939870608	typeref:typename:float
 lastY	src/lite_engine_gl.h	/^	float       lastY;$/;"	m	struct:__anonbd1939870608	typeref:typename:float
@@ -82,7 +82,7 @@ lite_engine_context_t	src/lite_engine.c	/^} lite_engine_context_t;$/;"	t	typeref
 lite_engine_gl_mesh_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {$/;"	f	typeref:typename:mesh_t
 lite_engine_gl_mesh_free	src/lite_engine_gl_mesh.c	/^void lite_engine_gl_mesh_free(mesh_t* mesh) {$/;"	f	typeref:typename:void
 lite_engine_gl_mesh_lmod_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {$/;"	f	typeref:typename:mesh_t
-lite_engine_gl_mesh_update	src/lite_engine_gl_mesh.c	/^static inline void lite_engine_gl_mesh_update() {$/;"	f	typeref:typename:void	file:
+lite_engine_gl_mesh_update	src/lite_engine_gl_mesh.c	/^void lite_engine_gl_mesh_update() {$/;"	f	typeref:typename:void
 lite_engine_gl_render	src/lite_engine_gl.c	/^void lite_engine_gl_render(void) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_prefer_window_always_on_top	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_always_on_top(ui8 always_on_top) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_prefer_window_fullscreen	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_fullscreen(ui8 fullscreen) {$/;"	f	typeref:typename:void
@@ -116,17 +116,17 @@ position	src/lite_engine_gl.h	/^	vector3_t position;$/;"	m	struct:__anonbd193987
 position	src/lite_engine_gl.h	/^  vector3_t    position;$/;"	m	struct:__anonbd1939870508	typeref:typename:vector3_t
 projection	src/lite_engine_gl.h	/^	matrix4_t   projection;$/;"	m	struct:__anonbd1939870608	typeref:typename:matrix4_t
 quadratic	src/lite_engine_gl.h	/^	float     quadratic;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
-renderer	src/lite_engine.c	/^	ui8   renderer;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
+renderer	src/lite_engine.c	/^	ui8     renderer;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
 rotation	src/lite_engine_gl.h	/^  quaternion_t rotation;$/;"	m	struct:__anonbd1939870508	typeref:typename:quaternion_t
 scale	src/lite_engine_gl.h	/^  vector3_t    scale;$/;"	m	struct:__anonbd1939870508	typeref:typename:vector3_t
 shader	src/lite_engine_gl.h	/^	GLuint shader;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
 specular	src/lite_engine_gl.h	/^	vector3_t specular;$/;"	m	struct:__anonbd1939870108	typeref:typename:vector3_t
 specularMap	src/lite_engine_gl.h	/^	GLuint specularMap;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
 texCoord	src/lite_engine_gl.h	/^	vector2_t texCoord;$/;"	m	struct:__anonbd1939870208	typeref:typename:vector2_t
-time_FPS	src/lite_engine.c	/^	float time_FPS;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:float	file:
-time_current	src/lite_engine.c	/^	ui64  time_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui64	file:
-time_delta	src/lite_engine.c	/^	float time_delta;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:float	file:
-time_last	src/lite_engine.c	/^	float time_last;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:float	file:
+time_FPS	src/lite_engine.c	/^	double  time_FPS;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
+time_current	src/lite_engine.c	/^	double  time_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
+time_delta	src/lite_engine.c	/^	double  time_delta;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
+time_last	src/lite_engine.c	/^	double  time_last;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
 transform	src/lite_engine_gl.h	/^	transform_t transform;$/;"	m	struct:__anonbd1939870608	typeref:typename:transform_t
 transform_basis_back	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_back(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_down	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_down(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
