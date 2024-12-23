@@ -6,10 +6,10 @@
 #include "blib/blib_math3d.h"
 
 typedef struct {
-	ui8  renderer;
-	ui8  is_running;
-	ui64 time_current;
-	ui64 frame_current;
+	ui8   renderer;
+	ui8   is_running;
+	ui64  time_current;
+	ui64  frame_current;
 	float time_delta;
 	float time_last;
 	float time_FPS;
@@ -39,12 +39,6 @@ void lite_engine_start(void) {
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
 
-	internal_engine_context->time_current  = 0;
-	internal_engine_context->frame_current = 0;
-	internal_engine_context->time_delta    = 0;
-	internal_engine_context->time_last     = 0;
-	internal_engine_context->time_FPS      = 0;
-
 	switch(internal_preferred_api) {
 		case LITE_ENGINE_RENDERER_GL: {
 			lite_engine_start_gl();
@@ -54,8 +48,15 @@ void lite_engine_start(void) {
 		} break;
 	}
 
-	internal_engine_context->renderer = internal_preferred_api;
-	internal_engine_context->is_running = 1;
+	internal_engine_context->renderer      = internal_preferred_api;
+	internal_engine_context->is_running    = 1;
+
+	internal_engine_context->time_current  = 0;
+	internal_engine_context->frame_current = 0;
+	internal_engine_context->time_delta    = 0;
+	internal_engine_context->time_last     = 0;
+	internal_engine_context->time_FPS      = 0;
+
 	debug_log("Startup completed successfuly");
 }
 
@@ -90,7 +91,7 @@ void lite_engine_set_context(lite_engine_context_t *context) {
 void internal_time_update(void) { // update time
 	//internal_engine_context->time_current = glfwGetTime();
 	internal_engine_context->time_delta = internal_engine_context->time_current - internal_engine_context->time_last;
-	internal_engine_context->time_last = internal_engine_context->time_current;
+	internal_engine_context->time_last  = internal_engine_context->time_current;
 
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
@@ -116,13 +117,13 @@ void lite_engine_update(void) {
 	switch(internal_engine_context->renderer) {
 		case LITE_ENGINE_RENDERER_GL: {
 			lite_engine_gl_render();
-			internal_time_update();
 		} break;
 		case LITE_ENGINE_RENDERER_NONE: {
 		} break;
 		default: {
 		} break;
 	}
+	internal_time_update();
 }
 
 // shut down and free all memory associated with the lite-engine context

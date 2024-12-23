@@ -252,6 +252,8 @@ void lite_engine_start_gl(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glClearColor(0.2, 0.3, 0.4, 1.0);
+
 	debug_log("OpenGL renderer initialized successfuly");
 }
 
