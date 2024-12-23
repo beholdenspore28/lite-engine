@@ -64,6 +64,40 @@ typedef struct {
 
 opengl_context_t *internal_gl_context = NULL;
 
+static int* entities;
+static int entity_count = 0;
+static int** components;
+
+void lite_engine_gl_alloc(void) {
+	entities = calloc(sizeof(entities), LITE_ENGINE_ENTITY_MAX);
+	components = calloc(sizeof(int**), LITE_ENGINE_ENTITY_MAX);
+	for(int i = 0; i < LITE_ENGINE_ENTITY_MAX; i++) {
+		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
+	}
+}
+
+int lite_engine_gl_entity_create(void) {
+	++entity_count;
+	assert(entity_count != LITE_ENGINE_ENTITY_NULL);
+	assert(entity_count <= LITE_ENGINE_ENTITY_MAX);
+	return entity_count;
+}
+
+int lite_engine_gl_component_add(int entity, int component) {
+	assert(components[entity][component] != 1); // already added
+	components[entity][component] = 1;
+	return component;
+}
+
+void lite_engine_gl_component_remove(int entity, int component) {
+	assert(components[entity][component] != 0); // already removed
+	components[entity][component] = 0;
+}
+
+int lite_engine_gl_component_exists(int entity, int component) {
+	return components[entity][component];
+}
+
 void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
 		const GLsizei length, const char *message,
@@ -266,7 +300,7 @@ void lite_engine_gl_render(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	lite_engine_gl_mesh_render();
+
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
-
 }
