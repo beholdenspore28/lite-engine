@@ -16,7 +16,7 @@ typedef struct {
 } lite_engine_context_t;
 
 static lite_engine_context_t *internal_engine_context = NULL;
-static ui8 internal_preferred_api; // render api to use when calling lite_engine_start
+static ui8                    internal_preferred_api;
 
 void lite_engine_use_render_api(ui8 api) {
 	switch(api) {
