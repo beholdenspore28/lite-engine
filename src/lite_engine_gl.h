@@ -30,13 +30,13 @@ typedef struct {
 DECLARE_LIST(vertex_t)
 
 typedef struct {
-	bool           enabled;
+	ui8            enabled;
+	ui8            use_wire_frame;
 	GLuint         VAO;
 	GLuint         VBO;
 	GLuint         EBO;
 	list_vertex_t  vertices;
 	list_GLuint    indices;
-	bool           use_wire_frame;
 } mesh_t;
 DECLARE_LIST(mesh_t)
 
