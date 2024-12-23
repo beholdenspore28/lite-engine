@@ -264,7 +264,7 @@ void lite_engine_gl_render(void) {
 	//debug_log("rendering...");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	lite_engine_gl_mesh_update();
+	//lite_engine_gl_mesh_update();
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 

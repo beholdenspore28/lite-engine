@@ -6,13 +6,8 @@ DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
 // this system requires these components
-extern camera_t           internal_active_camera;
-extern list_mesh_t        internal_meshes;
-extern list_transform_t   internal_transforms;
-extern list_GLuint        internal_shaders;
-extern list_material_t    internal_material;
-extern list_point_light_t internal_point_lights;
 
+#if 0
 void lite_engine_gl_mesh_update() {
 	glEnable(GL_CULL_FACE);
 
@@ -85,6 +80,7 @@ void lite_engine_gl_mesh_update() {
 	}
 	glUseProgram(0);
 }
+#endif
 
 int lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 	mesh_t m   = {0};
@@ -124,13 +120,11 @@ int lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	glBindVertexArray(0);
 
+	//list_mesh_t_add(&internal_meshes, m); 
 
-	list_mesh_t_add(&internal_meshes, m); 
-
-	return internal_meshes.length;
+	//return internal_meshes.length;
 }
 
 int lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
