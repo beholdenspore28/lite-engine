@@ -21,7 +21,7 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-extern void lite_engine_gl_mesh_update();
+extern void lite_engine_gl_mesh_render();
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -259,9 +259,13 @@ void lite_engine_start_gl(void) {
 
 void lite_engine_gl_render(void) {
 	//debug_log("rendering...");
+#if 1 // debugging input to exit
+	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
+		lite_engine_stop();
+#endif
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	lite_engine_gl_mesh_update();
+	lite_engine_gl_mesh_render();
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 

@@ -9,7 +9,7 @@ extern lite_engine_gl_components_t  internal_gl_components;
 extern ui64                         internal_gl_num_entities;
 extern camera_t                    *internal_gl_active_camera;
 
-void lite_engine_gl_mesh_update() {
+void lite_engine_gl_mesh_render() {
 	glEnable(GL_CULL_FACE);
 
 	for(size_t e = 0; e < internal_gl_num_entities; e++) {
@@ -82,7 +82,7 @@ void lite_engine_gl_mesh_update() {
 	glUseProgram(0);
 }
 
-mesh_t lite_engine_gl_mesh_create(list_vertex_t vertices, list_GLuint indices) {
+mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 	mesh_t m   = {0};
 	m.enabled  = true;
 	m.vertices = vertices;
@@ -263,7 +263,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 	list_vector3_t_free(&normals);
 	list_vector2_t_free(&tex_coords);
 
-	mesh_t mesh = lite_engine_gl_mesh_create(vertices, indices);
+	mesh_t mesh = lite_engine_gl_mesh_alloc(vertices, indices);
 	return mesh;
 }
 
