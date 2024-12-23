@@ -63,6 +63,16 @@ typedef struct {
 } camera_t;
 DECLARE_LIST(camera_t)
 
+typedef struct {
+	camera_t           *cameras;
+	transform_t        *transforms;
+	material_t         *materials;
+	mesh_t             *meshes;
+	point_light_t      *point_lights;
+	GLuint             *shaders;
+	GLuint             *textures;
+} lite_engine_gl_components_t;
+
 void      lite_engine_gl_transform_calculate_matrix(transform_t *t);
 void      lite_engine_gl_transform_calculate_view_matrix(transform_t *t);
 vector3_t lite_engine_gl_transform_basis_forward(transform_t t, float magnitude);
@@ -72,8 +82,8 @@ vector3_t lite_engine_gl_transform_basis_back(transform_t t, float magnitude);
 vector3_t lite_engine_gl_transform_basis_down(transform_t t, float magnitude);
 vector3_t lite_engine_gl_transform_basis_left(transform_t t, float magnitude);
 
-int    lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices);
-int    lite_engine_gl_mesh_lmod_alloc(const char* file_path);
+mesh_t lite_engine_gl_mesh_create(list_vertex_t vertices, list_GLuint indices);
+mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path);
 void   lite_engine_gl_mesh_free(int index);
 
 GLuint lite_engine_gl_shader_create( const char *vertex_shader_file_path, const char *fragment_shader_file_path);

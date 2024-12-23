@@ -9,12 +9,9 @@
 DEFINE_LIST(GLuint)
 
 // object lists to keep stuff hot on the cache
-camera_t           internal_active_camera;
-list_mesh_t        internal_meshes;
-list_transform_t   internal_transforms;
-list_GLuint        internal_shaders;
-list_material_t    internal_material;
-list_point_light_t internal_point_lights;
+lite_engine_gl_components_t    internal_gl_components;
+ui64                           internal_gl_num_entities;
+camera_t                      *internal_gl_active_camera = NULL;
 
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
@@ -264,7 +261,7 @@ void lite_engine_gl_render(void) {
 	//debug_log("rendering...");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//lite_engine_gl_mesh_update();
+	lite_engine_gl_mesh_update();
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 
