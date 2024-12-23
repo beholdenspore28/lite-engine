@@ -13,7 +13,5 @@ int main(const int argc, const char** argv) {
 		//lite_engine_stop();
 	}
 
-	//lite_engine_gl_mesh_free(&space_ship);
-
 	return 0;
 }
