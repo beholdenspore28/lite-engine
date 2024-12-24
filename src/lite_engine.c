@@ -131,6 +131,16 @@ void lite_engine_update(void) {
 void lite_engine_stop(void) {
 	debug_log("Shutting down...");
 	internal_engine_context->is_running = 0;
-	//glfwTerminate();
+
+	switch(internal_engine_context->renderer) {
+		case LITE_ENGINE_RENDERER_GL: {
+			lite_engine_gl_stop();
+		} break;
+		case LITE_ENGINE_RENDERER_NONE: {
+		} break;
+		default: {
+		} break;
+	}
+
 	debug_log("Shutdown complete");
 }

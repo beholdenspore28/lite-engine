@@ -255,6 +255,10 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
 
+	internal_meshes = list_mesh_t_alloc();
+	internal_shaders = list_GLuint_alloc();
+	internal_transforms = list_transform_t_alloc();
+
 	debug_log("OpenGL renderer initialized successfuly");
 }
 
@@ -273,4 +277,10 @@ void lite_engine_gl_render(void) {
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
+}
+
+void lite_engine_gl_stop(void) {
+	list_mesh_t_free(&internal_meshes);
+	list_GLuint_free(&internal_shaders);
+	list_transform_t_free(&internal_transforms);
 }
