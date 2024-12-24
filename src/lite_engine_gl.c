@@ -279,33 +279,35 @@ void lite_engine_gl_render(void) {
 		lite_engine_stop();
 #endif
 
-	// projection
-	int window_size_x;
-	int window_size_y;
-	glfwGetWindowSize(
-			internal_gl_context->window, 
-			&window_size_x,
-			&window_size_y);
-	float aspect = (float)internal_gl_context->window_size_x /
-		(float)internal_gl_context->window_size_y;
-	internal_gl_active_camera->projection =
-		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-	internal_gl_active_camera->transform.matrix = 
-		matrix4_identity();
-	lite_engine_gl_transform_calculate_view_matrix(
-			&internal_gl_active_camera->transform);
+	{ // projection
+		int window_size_x;
+		int window_size_y;
+		glfwGetWindowSize(
+				internal_gl_context->window, 
+				&window_size_x,
+				&window_size_y);
+		float aspect = (float)internal_gl_context->window_size_x /
+			(float)internal_gl_context->window_size_y;
+		internal_gl_active_camera->projection =
+			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+		internal_gl_active_camera->transform.matrix = 
+			matrix4_identity();
+		lite_engine_gl_transform_calculate_view_matrix(
+				&internal_gl_active_camera->transform);
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	test_transform.rotation = quaternion_multiply(test_transform.rotation, quaternion_from_euler(vector3_up(0.001)));
-
+	test_transform.rotation = quaternion_multiply(test_transform.rotation,
+			quaternion_from_euler(vector3_up(lite_engine_gl_get_time_delta())));
+ 
 	lite_engine_gl_mesh_update(test_mesh, test_material, test_transform);
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 }
 
-void   lite_engine_gl_set_active_camera(camera_t * camera) {
+void lite_engine_gl_set_active_camera(camera_t * camera) {
 	internal_gl_active_camera = camera;
 }
 

@@ -5,14 +5,16 @@
 #include "blib/blib_file.h"
 #include "blib/blib_math3d.h"
 
+#include <time.h>
+
 typedef struct {
-	ui8   renderer;
-	ui8   is_running;
-	ui64  time_current;
-	ui64  frame_current;
-	float time_delta;
-	float time_last;
-	float time_FPS;
+	ui8     renderer;
+	ui8     is_running;
+	double  time_current;
+	ui64    frame_current;
+	double  time_delta;
+	double  time_last;
+	double  time_FPS;
 } lite_engine_context_t;
 
 static lite_engine_context_t *internal_engine_context = NULL;
@@ -30,6 +32,10 @@ void lite_engine_use_render_api(ui8 api) {
 			internal_preferred_api = LITE_ENGINE_RENDERER_NONE;	
 		} break;
 	}
+}
+
+float lite_engine_gl_get_time_delta(void) {
+	return internal_engine_context->time_delta;
 }
 
 // initializes lite-engine. call this to rev up those fryers!
@@ -89,14 +95,20 @@ void lite_engine_set_context(lite_engine_context_t *context) {
 }
 
 void internal_time_update(void) { // update time
-	//internal_engine_context->time_current = glfwGetTime();
+	struct timespec spec;
+	if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
+			debug_error("failed to get time spec.");
+			exit(0);
+	}
+	internal_engine_context->time_current = spec.tv_sec + spec.tv_nsec * 1e-9;
+
 	internal_engine_context->time_delta = internal_engine_context->time_current - internal_engine_context->time_last;
 	internal_engine_context->time_last  = internal_engine_context->time_current;
 
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
 
-#if 0 // log time
+#if 1 // log time
 	debug_log( "\n"
 		"time_current:  %lf\n"  
 		"frame_current: %lu\n"  
@@ -124,6 +136,7 @@ void lite_engine_update(void) {
 		default: {
 		} break;
 	}
+
 	internal_time_update();
 }
 
