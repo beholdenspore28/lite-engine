@@ -20,10 +20,6 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static list_mesh_t      internal_meshes;
-static list_GLuint      internal_shaders;
-static list_transform_t internal_transforms;
-
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
 }
@@ -255,10 +251,6 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
 
-	internal_meshes = list_mesh_t_alloc();
-	internal_shaders = list_GLuint_alloc();
-	internal_transforms = list_transform_t_alloc();
-
 	debug_log("OpenGL renderer initialized successfuly");
 }
 
@@ -268,19 +260,32 @@ void lite_engine_gl_render(void) {
 	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
 		lite_engine_stop();
 #endif
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	lite_engine_gl_mesh_update(
-			internal_meshes,
-			internal_shaders,
-			internal_transforms);
+	// projection
+	int window_size_x;
+	int window_size_y;
+	glfwGetWindowSize(
+			internal_gl_context->window, 
+			&window_size_x,
+			&window_size_y);
+	float aspect = (float)internal_gl_context->window_size_x /
+		(float)internal_gl_context->window_size_y;
+	internal_gl_active_camera->projection =
+		matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+	internal_gl_active_camera->transform.matrix = 
+		matrix4_identity();
+	lite_engine_gl_transform_calculate_view_matrix(
+			&internal_gl_active_camera->transform);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 }
 
+void   lite_engine_gl_set_active_camera(camera_t * camera) {
+	internal_gl_active_camera  = camera;
+}
+
 void lite_engine_gl_stop(void) {
-	list_mesh_t_free(&internal_meshes);
-	list_GLuint_free(&internal_shaders);
-	list_transform_t_free(&internal_transforms);
 }

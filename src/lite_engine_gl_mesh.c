@@ -8,80 +8,77 @@ DEFINE_LIST(vertex_t)
 extern camera_t *internal_gl_active_camera;
 
 void lite_engine_gl_mesh_update(
-		list_mesh_t       meshes,
-		list_GLuint       shaders,
-		list_transform_t  transforms) {
+		mesh_t       mesh,
+		GLuint       shader,
+		transform_t  transform) {
 	glEnable(GL_CULL_FACE);
 
-#if 0
-	for(size_t e = 0; e < meshes.length; e++) {
-		if (meshes.array[e].enabled == 0) {
-			continue;
-		}
+	if (mesh.enabled == 0) {
+		return;
+	}
 
-		if (meshes.array[e].use_wire_frame) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		} else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+	if (mesh.use_wire_frame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
-		{ // draw
-			glUseProgram(shaders[e]);
+	{ // draw
+		glUseProgram(shader);
 
-			// model matrix uniform
-			lite_engine_gl_transform_calculate_matrix(&transforms.array[e]);
+		// model matrix uniform
+		lite_engine_gl_transform_calculate_matrix(&transform);
 
-			lite_engine_gl_shader_setUniformM4(shaders.array[e], "u_modelMatrix", 
-					&transforms.array[e].matrix);
+		lite_engine_gl_shader_setUniformM4(shader, "u_modelMatrix", 
+				&transform.matrix);
 
-			// view matrix uniform
-			lite_engine_gl_shader_setUniformM4(shaders.array[e], "u_viewMatrix",
+		// view matrix uniform
+		lite_engine_gl_shader_setUniformM4(shader, "u_viewMatrix",
 				&internal_gl_active_camera->transform.matrix);
 
-			// projection matrix uniform
-			lite_engine_gl_shader_setUniformM4(shaders.array[e], "u_projectionMatrix",
+		// projection matrix uniform
+		lite_engine_gl_shader_setUniformM4(shader, "u_projectionMatrix",
 				&internal_gl_active_camera->projection);
 
-			// camera position uniform
-			lite_engine_gl_shader_setUniformV3(shaders.array[e], "u_cameraPos",
+		// camera position uniform
+		lite_engine_gl_shader_setUniformV3(shader, "u_cameraPos",
 				internal_gl_active_camera->transform.position);
 
-			/*
-			// light uniforms
-			lite_engine_gl_shader_setUniformV3(shaders.array[e], "u_light.position",
-					transforms->array[light].position);
-			lite_engine_gl_shader_setUniformFloat(shaders.array[e], "u_light.constant",
-					point_lights.array[light].constant);
-			lite_engine_gl_shader_setUniformFloat(shaders.array[e], "u_light.linear",
-					point_lights.array[light].linear);
-			lite_engine_gl_shader_setUniformFloat(shaders.array[e], "u_light.quadratic",
-					point_lights.array[light].quadratic);
-			lite_engine_gl_shader_setUniformV3(shaders.array[e], "u_light.diffuse",
-					point_lights.array[light].diffuse);
-			lite_engine_gl_shader_setUniformV3(shaders.array[e], "u_light.specular",
-					point_lights.array[light].specular);
+		/*
+		// light uniforms
+		lite_engine_gl_shader_setUniformV3(shader, "u_light.position",
+		transform->array[light].position);
+		lite_engine_gl_shader_setUniformFloat(shader, "u_light.constant",
+		point_lights.array[light].constant);
+		lite_engine_gl_shader_setUniformFloat(shader, "u_light.linear",
+		point_lights.array[light].linear);
+		lite_engine_gl_shader_setUniformFloat(shader, "u_light.quadratic",
+		point_lights.array[light].quadratic);
+		lite_engine_gl_shader_setUniformV3(shader, "u_light.diffuse",
+		point_lights.array[light].diffuse);
+		lite_engine_gl_shader_setUniformV3(shader, "u_light.specular",
+		point_lights.array[light].specular);
 
-			// textures
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, material.array[e].diffuseMap);
+		// textures
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, material.diffuseMap);
 
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, material.array[e].specularMap);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, material.specularMap);
 
-			// other material properties
-			lite_engine_gl_shader_setUniformInt(shaders.array[e], "u_material.diffuse", 0);
-			lite_engine_gl_shader_setUniformInt(shaders.array[e], "u_material.specular", 1);
-			lite_engine_gl_shader_setUniformFloat(shaders.array[e], "u_material.shininess", 32.0f);
-			lite_engine_gl_shader_setUniformV3(shaders.array[e], "u_ambientLight",
-					lite_engine_get_context().ambient_light);
-					*/
+		// other material properties
+		lite_engine_gl_shader_setUniformInt(shader, "u_material.diffuse", 0);
+		lite_engine_gl_shader_setUniformInt(shader, "u_material.specular", 1);
+		lite_engine_gl_shader_setUniformFloat(shader, "u_material.shininess", 32.0f);
+		lite_engine_gl_shader_setUniformV3(shader, "u_ambientLight",
+		lite_engine_get_context().ambient_light);
+		*/
 
-			// draw
-			glBindVertexArray(meshes.array[e].VAO);
-			glDrawElements( GL_TRIANGLES, meshes.array[e].indices.length, GL_UNSIGNED_INT, 0);
-		}
+		// draw
+		glBindVertexArray(mesh.VAO);
+		glDrawElements( GL_TRIANGLES, mesh.indices.length, GL_UNSIGNED_INT, 0);
 	}
-#endif
+
 	glUseProgram(0);
 }
 
@@ -189,7 +186,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 			}
 			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
 
-			//debug_error("%u ", index);
+			debug_log("%u ", index);
 			list_GLuint_add(&indices, index);
 		}
 
