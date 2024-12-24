@@ -20,6 +20,10 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
+static GLuint test_shader;
+static mesh_t test_mesh;
+static transform_t test_transform;
+
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
 }
@@ -251,6 +255,15 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
 
+	test_shader = lite_engine_gl_shader_create("res/shaders/unlit_vertex.glsl", "res/shaders/unlit_fragment.glsl");
+	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	test_transform = (transform_t) {
+		.position = vector3_zero(),
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+	};
+
+
 	debug_log("OpenGL renderer initialized successfuly");
 }
 
@@ -279,12 +292,14 @@ void lite_engine_gl_render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	lite_engine_gl_mesh_update(test_mesh, test_shader, test_transform);
+
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 }
 
 void   lite_engine_gl_set_active_camera(camera_t * camera) {
-	internal_gl_active_camera  = camera;
+	internal_gl_active_camera = camera;
 }
 
 void lite_engine_gl_stop(void) {
