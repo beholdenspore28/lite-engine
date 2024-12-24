@@ -20,7 +20,7 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static GLuint test_shader;
+static material_t test_material;
 static mesh_t test_mesh;
 static transform_t test_transform;
 
@@ -255,14 +255,16 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
 
-	test_shader = lite_engine_gl_shader_create("res/shaders/unlit_vertex.glsl", "res/shaders/unlit_fragment.glsl");
+	test_material = (material_t) {
+		.shader = lite_engine_gl_shader_create("res/shaders/unlit_vertex.glsl", "res/shaders/unlit_fragment.glsl"),
+		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
+	};
 	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
 	test_transform = (transform_t) {
 		.position = vector3_zero(),
-		.rotation = quaternion_identity(),
+		.rotation = quaternion_from_euler(vector3_up(PI)),
 		.scale    = vector3_one(1.0),
 	};
-
 
 	debug_log("OpenGL renderer initialized successfuly");
 }
@@ -292,7 +294,9 @@ void lite_engine_gl_render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	lite_engine_gl_mesh_update(test_mesh, test_shader, test_transform);
+	test_transform.rotation = quaternion_multiply(test_transform.rotation, quaternion_from_euler(vector3_up(0.001)));
+
+	lite_engine_gl_mesh_update(test_mesh, test_material, test_transform);
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
