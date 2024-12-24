@@ -63,39 +63,6 @@ typedef struct {
 } camera_t;
 DECLARE_LIST(camera_t)
 
-typedef struct {
-	camera_t      *cameras;
-	transform_t   *transforms;
-	material_t    *materials;
-	mesh_t        *meshes;
-	point_light_t *point_lights;
-	GLuint        *shaders;
-	GLuint        *textures;
-} lite_engine_gl_components_t;
-
-enum LITE_ENGINE_GL_ENTITY_ENUM { 
-	LITE_ENGINE_ENTITY_NULL = 0,
-	LITE_ENGINE_ENTITY_MAX = 1024,
-};
-
-enum LITE_ENGINE_GL_COMPONENT_TYPE { 
-	COMPONENT_NULL,
-	COMPONENT_KINEMATIC_BODY, 
-	COMPONENT_COLLIDER, 
-	COMPONENT_TRANSFORM,
-	COMPONENT_POINT_LIGHT,
-	COMPONENT_MESH,
-	COMPONENT_MATERIAL,
-	COMPONENT_SHADER,
-	COMPONENT_COUNT_MAX,
-};
-
-void lite_engine_gl_alloc             (void);
-int  lite_engine_gl_entity_create     (void);
-void lite_engine_gl_component_destroy (int entity, int component);
-int  lite_engine_gl_component_add     (int entity, int component);
-int  lite_engine_gl_component_exists  (int entity, int component);
-
 void      lite_engine_gl_transform_calculate_matrix       (transform_t *t);
 void      lite_engine_gl_transform_calculate_view_matrix  (transform_t *t);
 vector3_t lite_engine_gl_transform_basis_forward          (transform_t t, float magnitude);

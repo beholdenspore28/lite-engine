@@ -9,7 +9,6 @@
 DEFINE_LIST(GLuint)
 
 // object lists to keep stuff hot on the cache
-lite_engine_gl_components_t    internal_gl_components;
 ui64                           internal_gl_num_entities;
 camera_t                      *internal_gl_active_camera = NULL;
 
@@ -63,32 +62,6 @@ typedef struct {
 } opengl_context_t;
 
 opengl_context_t *internal_gl_context = NULL;
-
-static int* entities;
-static int entity_count = 0;
-static int** components;
-
-int lite_engine_gl_entity_create(void) {
-	++entity_count;
-	assert(entity_count != LITE_ENGINE_ENTITY_NULL);
-	assert(entity_count <= LITE_ENGINE_ENTITY_MAX);
-	return entity_count;
-}
-
-int lite_engine_gl_component_add(int entity, int component) {
-	assert(components[entity][component] != 1); // already added
-	components[entity][component] = 1;
-	return component;
-}
-
-void lite_engine_gl_component_remove(int entity, int component) {
-	assert(components[entity][component] != 0); // already removed
-	components[entity][component] = 0;
-}
-
-int lite_engine_gl_component_exists(int entity, int component) {
-	return components[entity][component];
-}
 
 void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
@@ -279,13 +252,6 @@ void lite_engine_gl_start(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
-
-	// allocate ecs for the renderer
-	entities = calloc(sizeof(entities), LITE_ENGINE_ENTITY_MAX);
-	components = calloc(sizeof(int**), LITE_ENGINE_ENTITY_MAX);
-	for(int i = 0; i < LITE_ENGINE_ENTITY_MAX; i++) {
-		components[i] = calloc(sizeof(int*), COMPONENT_COUNT_MAX);
-	}
 
 	debug_log("OpenGL renderer initialized successfuly");
 }

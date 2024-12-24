@@ -5,13 +5,13 @@
 DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
-extern lite_engine_gl_components_t  internal_gl_components;
 extern ui64                         internal_gl_num_entities;
 extern camera_t                    *internal_gl_active_camera;
 
 void lite_engine_gl_mesh_render() {
 	glEnable(GL_CULL_FACE);
 
+#if 0
 	for(size_t e = 0; e < internal_gl_num_entities; e++) {
 		if (internal_gl_components.meshes[e].enabled == 0) {
 			continue;
@@ -79,6 +79,9 @@ void lite_engine_gl_mesh_render() {
 			glDrawElements( GL_TRIANGLES, internal_gl_components.meshes[e].indices.length, GL_UNSIGNED_INT, 0);
 		}
 	}
+#else
+
+#endif
 	glUseProgram(0);
 }
 
