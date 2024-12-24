@@ -253,10 +253,12 @@ void lite_engine_gl_start(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClearColor(0.2, 0.3, 0.4, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	test_material = (material_t) {
-		.shader = lite_engine_gl_shader_create("res/shaders/unlit_vertex.glsl", "res/shaders/unlit_fragment.glsl"),
+		.shader = lite_engine_gl_shader_create(
+				"res/shaders/unlit_vertex.glsl",
+				"res/shaders/unlit_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
