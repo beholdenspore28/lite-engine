@@ -7,10 +7,12 @@ DEFINE_LIST(vertex_t)
 
 extern camera_t *internal_gl_active_camera;
 
-void lite_engine_gl_mesh_update(
-		mesh_t       mesh,
-		material_t   material,
-		transform_t  transform) {
+void   lite_engine_gl_mesh_update (
+		mesh_t        mesh,
+		material_t    material,
+		transform_t   transform,
+		point_light_t point_light,
+		transform_t   light_transform) {
 	glEnable(GL_CULL_FACE);
 
 	if (mesh.enabled == 0) {
@@ -44,21 +46,36 @@ void lite_engine_gl_mesh_update(
 		lite_engine_gl_shader_setUniformV3(material.shader, "u_cameraPos",
 				internal_gl_active_camera->transform.position);
 
-		/*
 		// light uniforms
-		lite_engine_gl_shader_setUniformV3(material.shader, "u_light.position",
-		transform->array[light].position);
-		lite_engine_gl_shader_setUniformFloat(material.shader, "u_light.constant",
-		point_lights.array[light].constant);
-		lite_engine_gl_shader_setUniformFloat(material.shader, "u_light.linear",
-		point_lights.array[light].linear);
-		lite_engine_gl_shader_setUniformFloat(material.shader, "u_light.quadratic",
-		point_lights.array[light].quadratic);
-		lite_engine_gl_shader_setUniformV3(material.shader, "u_light.diffuse",
-		point_lights.array[light].diffuse);
-		lite_engine_gl_shader_setUniformV3(material.shader, "u_light.specular",
-		point_lights.array[light].specular);
-		*/
+		lite_engine_gl_shader_setUniformV3(
+				material.shader,
+				"u_light.position",
+				light_transform.position);
+
+		lite_engine_gl_shader_setUniformFloat(
+				material.shader,
+				"u_light.constant",
+				point_light.constant);
+
+		lite_engine_gl_shader_setUniformFloat(
+				material.shader,
+				"u_light.linear",
+				point_light.linear);
+
+		lite_engine_gl_shader_setUniformFloat(
+				material.shader,
+				"u_light.quadratic",
+				point_light.quadratic);
+
+		lite_engine_gl_shader_setUniformV3(
+				material.shader,
+				"u_light.diffuse",
+				point_light.diffuse);
+
+		lite_engine_gl_shader_setUniformV3(
+				material.shader,
+				"u_light.specular",
+				point_light.specular);
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);

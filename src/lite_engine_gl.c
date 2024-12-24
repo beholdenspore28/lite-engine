@@ -24,6 +24,7 @@ static material_t test_material;
 static mesh_t test_mesh;
 static transform_t test_transform;
 static point_light_t test_light;
+static transform_t test_light_transform;
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -255,6 +256,11 @@ void lite_engine_gl_start(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+	test_light_transform = (transform_t) {
+		.position = vector3_right(100.0),
+		.rotation = quaternion_from_euler(vector3_up(PI)),
+		.scale    = vector3_one(1.0),
+	};
 
 	test_light = (point_light_t) {
 		.diffuse = vector3_one(0.8f),
@@ -270,8 +276,9 @@ void lite_engine_gl_start(void) {
 				"res/shaders/phong_diffuse_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
+
 	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
-	test_mesh.use_wire_frame = 1;
+
 	test_transform = (transform_t) {
 		.position = vector3_zero(),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
@@ -310,7 +317,12 @@ void lite_engine_gl_render(void) {
 	test_transform.rotation = quaternion_multiply(test_transform.rotation,
 			quaternion_from_euler(vector3_one(lite_engine_gl_get_time_delta())));
  
-	lite_engine_gl_mesh_update(test_mesh, test_material, test_transform);
+	lite_engine_gl_mesh_update(
+			test_mesh,
+			test_material,
+			test_transform,
+			test_light,
+			test_light_transform);
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
