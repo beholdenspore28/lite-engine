@@ -108,7 +108,7 @@ void internal_time_update(void) { // update time
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
 	debug_log( "\n"
 		"time_current:  %lf\n"  
 		"frame_current: %lu\n"  

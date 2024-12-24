@@ -23,6 +23,7 @@ static ui8   internal_prefer_window_fullscreen    = 0;
 static material_t test_material;
 static mesh_t test_mesh;
 static transform_t test_transform;
+static point_light_t test_light;
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -255,10 +256,18 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	test_light = (point_light_t) {
+		.diffuse = vector3_one(0.8f),
+		.specular = vector3_one(1.0f),
+		.constant = 1.0f,
+		.linear = 0.09f,
+		.quadratic = 0.0032f,
+	};
+		
 	test_material = (material_t) {
 		.shader = lite_engine_gl_shader_create(
-				"res/shaders/unlit_vertex.glsl",
-				"res/shaders/unlit_fragment.glsl"),
+				"res/shaders/phong_diffuse_vertex.glsl",
+				"res/shaders/phong_diffuse_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
@@ -299,7 +308,7 @@ void lite_engine_gl_render(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	test_transform.rotation = quaternion_multiply(test_transform.rotation,
-			quaternion_from_euler(vector3_up(lite_engine_gl_get_time_delta())));
+			quaternion_from_euler(vector3_one(lite_engine_gl_get_time_delta())));
  
 	lite_engine_gl_mesh_update(test_mesh, test_material, test_transform);
 
