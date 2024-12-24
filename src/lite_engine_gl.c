@@ -259,7 +259,8 @@ void lite_engine_gl_start(void) {
 		.shader = lite_engine_gl_shader_create("res/shaders/unlit_vertex.glsl", "res/shaders/unlit_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
-	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	test_mesh.use_wire_frame = 1;
 	test_transform = (transform_t) {
 		.position = vector3_zero(),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
