@@ -20,6 +20,7 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
+
 static list_mesh_t      internal_meshes;
 static list_GLuint      internal_shaders;
 static list_transform_t internal_transforms;
