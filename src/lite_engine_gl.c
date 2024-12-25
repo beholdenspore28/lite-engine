@@ -13,12 +13,6 @@ DEFINE_LIST(GLuint)
 DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
-extern camera_t *internal_gl_active_camera;
-
-// object lists to keep stuff hot on the cache
-ui64                           internal_gl_num_entities;
-camera_t                      *internal_gl_active_camera = NULL;
-
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
 static ui16  internal_prefer_window_size_y        = 480;
@@ -27,12 +21,11 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static material_t    test_material;
-static mesh_t        test_mesh;
-static transform_t   test_transform;
-static point_light_t test_light;
-static transform_t   test_light_transform;
-static camera_t      test_camera;
+// object lists to keep stuff hot on the cache
+ui64                  internal_gl_num_entities;
+int                   internal_gl_active_camera = 0;
+
+static object_pool_t  internal_object_pool;
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -265,22 +258,29 @@ void lite_engine_gl_start(void) {
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	test_camera = (camera_t) {
+	// allocate initial pool of objects
+	internal_object_pool = (object_pool_t) {
+		.materials  = calloc(sizeof(*internal_object_pool.materials),  1024),
+		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     1024),
+		.transforms = calloc(sizeof(*internal_object_pool.transforms), 1024),
+		.lights     = calloc(sizeof(*internal_object_pool.lights),     1024),
+		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
+	};
+
+	internal_object_pool.cameras[0] = (camera_t) {
 		.transform.position    = (vector3_t){ 0.0, 0.0, -30.0 },
 		.transform.rotation    = quaternion_identity(),
 		.transform.scale       = vector3_one(1.0),
 		.projection            = matrix4_identity(),
 	};
 
-	lite_engine_gl_set_active_camera(&test_camera);
-
-	test_light_transform = (transform_t) {
+	internal_object_pool.transforms[1] = (transform_t) {
 		.position = vector3_right(100.0),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
 		.scale    = vector3_one(1.0),
 	};
 
-	test_light = (point_light_t) {
+	internal_object_pool.lights[0] = (point_light_t) {
 		.diffuse = vector3_one(0.8f),
 		.specular = vector3_one(1.0f),
 		.constant = 1.0f,
@@ -288,16 +288,16 @@ void lite_engine_gl_start(void) {
 		.quadratic = 0.0032f,
 	};
 		
-	test_material = (material_t) {
+	internal_object_pool.materials[0] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
 				"res/shaders/phong_diffuse_vertex.glsl",
 				"res/shaders/phong_diffuse_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	test_mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	internal_object_pool.meshes[0] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 
-	test_transform = (transform_t) {
+	internal_object_pool.transforms[0] = (transform_t) {
 		.position = vector3_zero(),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
 		.scale    = vector3_one(1.0),
@@ -322,31 +322,26 @@ void lite_engine_gl_render(void) {
 				&window_size_y);
 		float aspect = (float)internal_gl_context->window_size_x /
 			(float)internal_gl_context->window_size_y;
-		internal_gl_active_camera->projection =
+		internal_object_pool.cameras[internal_gl_active_camera].projection =
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-		internal_gl_active_camera->transform.matrix = 
+		internal_object_pool.cameras[internal_gl_active_camera].transform.matrix = 
 			matrix4_identity();
 		lite_engine_gl_transform_calculate_view_matrix(
-				&internal_gl_active_camera->transform);
+				&internal_object_pool.cameras[internal_gl_active_camera].transform);
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	test_transform.rotation = quaternion_multiply(test_transform.rotation,
+	internal_object_pool.transforms->rotation = quaternion_multiply(internal_object_pool.transforms->rotation,
 			quaternion_from_euler(vector3_one(lite_engine_gl_get_time_delta())));
  
-	lite_engine_gl_mesh_update(
-			test_mesh,
-			test_material,
-			test_transform,
-			test_light,
-			test_light_transform);
+	lite_engine_gl_mesh_update(internal_object_pool);
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
 }
 
-void lite_engine_gl_set_active_camera(camera_t * camera) {
+void lite_engine_gl_set_active_camera(int camera) {
 	internal_gl_active_camera = camera;
 }
 

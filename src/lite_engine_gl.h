@@ -64,6 +64,14 @@ typedef struct {
 } camera_t;
 DECLARE_LIST(camera_t)
 
+typedef struct {
+	material_t    *materials;
+	mesh_t        *meshes;
+	transform_t   *transforms;
+	point_light_t *lights;
+	camera_t      *cameras;
+} object_pool_t;
+
 void      lite_engine_gl_transform_calculate_matrix       (transform_t *t);
 void      lite_engine_gl_transform_calculate_view_matrix  (transform_t *t);
 vector3_t lite_engine_gl_transform_basis_forward          (transform_t t, float magnitude);
@@ -76,12 +84,7 @@ vector3_t lite_engine_gl_transform_basis_left             (transform_t t, float 
 mesh_t lite_engine_gl_mesh_alloc       (list_vertex_t vertices, list_GLuint indices);
 mesh_t lite_engine_gl_mesh_lmod_alloc  (const char* file_path);
 void   lite_engine_gl_mesh_free        (mesh_t *mesh);
-void   lite_engine_gl_mesh_update (
-		mesh_t        mesh,
-		material_t    material,
-		transform_t   transform,
-		point_light_t point_light,
-		transform_t   light_transform);
+void   lite_engine_gl_mesh_update      (object_pool_t object_pool);
 
 GLuint lite_engine_gl_shader_create           ( const char *vertex_shader_file_path, const char *fragment_shader_file_path);
 void   lite_engine_gl_shader_setUniformInt    (GLuint shader, const char *uniformName, GLuint i);
@@ -90,7 +93,7 @@ void   lite_engine_gl_shader_setUniformV3     (GLuint shader, const char *unifor
 void   lite_engine_gl_shader_setUniformV4     (GLuint shader, const char *uniformName, vector4_t v);
 void   lite_engine_gl_shader_setUniformM4     (GLuint shader, const char *uniformName, matrix4_t *m);
 
-void   lite_engine_gl_set_active_camera(camera_t * camera);
+void   lite_engine_gl_set_active_camera                (int camera);
 void   lite_engine_gl_set_prefer_window_title          (char *title);
 void   lite_engine_gl_set_prefer_window_size_x         (ui16 size_x);
 void   lite_engine_gl_set_prefer_window_size_y         (ui16 size_y);
