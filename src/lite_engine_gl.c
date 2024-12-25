@@ -20,11 +20,12 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static material_t test_material;
-static mesh_t test_mesh;
-static transform_t test_transform;
+static material_t    test_material;
+static mesh_t        test_mesh;
+static transform_t   test_transform;
 static point_light_t test_light;
-static transform_t test_light_transform;
+static transform_t   test_light_transform;
+static camera_t      test_camera;
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -256,6 +257,16 @@ void lite_engine_gl_start(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	test_camera = (camera_t) {
+		.transform.position    = (vector3_t){ 0.0, 0.0, -30.0 },
+		.transform.rotation    = quaternion_identity(),
+		.transform.scale       = vector3_one(1.0),
+		.projection            = matrix4_identity(),
+	};
+
+	lite_engine_gl_set_active_camera(&test_camera);
+
 	test_light_transform = (transform_t) {
 		.position = vector3_right(100.0),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
