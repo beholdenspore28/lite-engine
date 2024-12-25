@@ -1,9 +1,7 @@
 #include "lite_engine.h"
 #include "lite_engine_gl.h"
 
-int main(const int argc, const char** argv) {
-	(void)argc; (void) argv;
-
+int main() {
 	//lite_engine_use_render_api(LITE_ENGINE_RENDERER_GL);
 	lite_engine_gl_set_prefer_window_size_x(1600);
 	lite_engine_gl_set_prefer_window_size_y(900);
