@@ -31,19 +31,13 @@ void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
 }
 
-void lite_engine_gl_set_prefer_window_size_x(ui16 size_x) {
+void lite_engine_gl_set_prefer_window_size(ui16 size_x, ui16 size_y) {
 	internal_prefer_window_size_x = size_x;
-}
-
-void lite_engine_gl_set_prefer_window_size_y(ui16 size_y) {
 	internal_prefer_window_size_y = size_y;
 }
 
-void lite_engine_gl_set_prefer_window_position_x(ui16 pos_x) {
+void lite_engine_gl_set_prefer_window_position(ui16 pos_x, ui16 pos_y) {
 	internal_prefer_window_position_x = pos_x;
-}
-
-void lite_engine_gl_set_prefer_window_position_y(ui16 pos_y) {
 	internal_prefer_window_position_y = pos_y;
 }
 
@@ -183,10 +177,10 @@ void lite_engine_gl_start(void) {
 	internal_gl_context->window_title         = internal_prefer_window_title;
 	internal_gl_context->window_size_x        = internal_prefer_window_size_x;
 	internal_gl_context->window_size_y        = internal_prefer_window_size_y;
-	internal_gl_context->window_position_x    = internal_prefer_window_position_x; 
+	internal_gl_context->window_position_x    = internal_prefer_window_position_x;
 	internal_gl_context->window_position_y    = internal_prefer_window_position_y;
-	internal_gl_context->window_always_on_top = internal_prefer_window_always_on_top; 
-	internal_gl_context->window_fullscreen    = internal_prefer_window_fullscreen; 
+	internal_gl_context->window_always_on_top = internal_prefer_window_always_on_top;
+	internal_gl_context->window_fullscreen    = internal_prefer_window_fullscreen;
 
 	if (!glfwInit()) {
 		debug_error("Failed to initialize GLFW");
@@ -203,32 +197,38 @@ void lite_engine_gl_start(void) {
 	if (internal_gl_context->window_always_on_top) {
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 	}
-
+	
 	if (internal_gl_context->window_fullscreen) {
 		internal_gl_context->window = glfwCreateWindow(
-				internal_gl_context->window_size_x, 
-				internal_gl_context->window_size_y,
-				internal_gl_context->window_title, 
-				glfwGetPrimaryMonitor(), NULL);
+			internal_gl_context->window_size_x, 
+			internal_gl_context->window_size_y,
+			internal_gl_context->window_title, 
+			glfwGetPrimaryMonitor(), NULL);
 	} else {
 		internal_gl_context->window = glfwCreateWindow(
-				internal_gl_context->window_size_x, 
-				internal_gl_context->window_size_y,
-				internal_gl_context->window_title, 
-				NULL, NULL);
+			internal_gl_context->window_size_x, 
+			internal_gl_context->window_size_y,
+			internal_gl_context->window_title, 
+			NULL, NULL);
 	}
+	
+	glfwDefaultWindowHints();
 
 	assert(internal_gl_context->window != NULL);
 
 	glfwSetWindowPos(internal_gl_context->window, 
 			internal_gl_context->window_position_x,
 			internal_gl_context->window_position_y);
+			
 	glfwShowWindow(internal_gl_context->window);
+	
 	glfwMakeContextCurrent(internal_gl_context->window);
+
 	glfwSetKeyCallback(internal_gl_context->window, key_callback);
 	glfwSetFramebufferSizeCallback(
 			internal_gl_context->window, 
 			framebuffer_size_callback);
+			
 	glfwSetInputMode(internal_gl_context->window, 
 			GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -256,7 +256,7 @@ void lite_engine_gl_start(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.2, 0.3, 0.4, 1.0);
 
 	// allocate initial pool of objects
 	internal_object_pool = (object_pool_t) {

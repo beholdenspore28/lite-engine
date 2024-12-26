@@ -84,7 +84,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 			lite_engine_gl_shader_setUniformInt   (object_pool.materials[e].shader, "u_material.specular",  1);
 			lite_engine_gl_shader_setUniformFloat (object_pool.materials[e].shader, "u_material.shininess", 32.0f);
 			lite_engine_gl_shader_setUniformV3    (object_pool.materials[e].shader, "u_ambientLight",
-					vector3_one(0.1));
+					vector3_one(0.4));
 
 			// draw
 			glBindVertexArray(object_pool.meshes[e].VAO);
