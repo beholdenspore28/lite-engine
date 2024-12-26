@@ -229,8 +229,8 @@ void lite_engine_gl_start(void) {
 			internal_gl_context->window, 
 			framebuffer_size_callback);
 			
-	glfwSetInputMode(internal_gl_context->window, 
-			GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(internal_gl_context->window, 
+	//		GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
 
@@ -267,20 +267,16 @@ void lite_engine_gl_start(void) {
 		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
 	};
 
-	internal_object_pool.cameras[0] = (camera_t) {
-		.transform.position    = (vector3_t){ 0.0, 0.0, -30.0 },
-		.transform.rotation    = quaternion_identity(),
-		.transform.scale       = vector3_one(1.0),
-		.projection            = matrix4_identity(),
-	};
+	// create a light for test scene
+	const int light = 1;
 
-	internal_object_pool.transforms[1] = (transform_t) {
-		.position = vector3_right(100.0),
+	internal_object_pool.transforms[light] = (transform_t) {
+		.position = { 0.0, 10, -10 },
 		.rotation = quaternion_from_euler(vector3_up(PI)),
 		.scale    = vector3_one(1.0),
 	};
 
-	internal_object_pool.lights[0] = (point_light_t) {
+	internal_object_pool.lights[light] = (point_light_t) {
 		.diffuse = vector3_one(0.8f),
 		.specular = vector3_one(1.0f),
 		.constant = 1.0f,
@@ -288,16 +284,25 @@ void lite_engine_gl_start(void) {
 		.quadratic = 0.0032f,
 	};
 		
-	internal_object_pool.materials[0] = (material_t) {
+	const int space_ship = 0;
+
+	internal_object_pool.cameras[space_ship] = (camera_t) {
+		.transform.position    = (vector3_t){ 0.0, 0.0, -30.0 },
+		.transform.rotation    = quaternion_identity(),
+		.transform.scale       = vector3_one(1.0),
+		.projection            = matrix4_identity(),
+	};
+
+	internal_object_pool.materials[space_ship] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
 				"res/shaders/phong_diffuse_vertex.glsl",
 				"res/shaders/phong_diffuse_fragment.glsl"),
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	internal_object_pool.meshes[0] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 
-	internal_object_pool.transforms[0] = (transform_t) {
+	internal_object_pool.transforms[space_ship] = (transform_t) {
 		.position = vector3_zero(),
 		.rotation = quaternion_from_euler(vector3_up(PI)),
 		.scale    = vector3_one(1.0),
@@ -320,6 +325,10 @@ void lite_engine_gl_render(void) {
 				internal_gl_context->window, 
 				&window_size_x,
 				&window_size_y);
+
+		internal_gl_context->window_size_x = window_size_x;
+		internal_gl_context->window_size_y = window_size_y;
+
 		float aspect = (float)internal_gl_context->window_size_x /
 			(float)internal_gl_context->window_size_y;
 		internal_object_pool.cameras[internal_gl_active_camera].projection =
