@@ -7,6 +7,10 @@ const int   internal_ECS_entity_growth_factor = 2;
 
 int         test_entity;
 
+int lite_engine_ECS_get_capacity(void) {
+	return internal_ECS_entity_capacity;	
+}
+
 void lite_engine_ECS_start(void) {
 	debug_log("starting ECS...");
 	internal_ECS_data = calloc(

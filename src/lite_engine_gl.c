@@ -260,11 +260,11 @@ void lite_engine_gl_start(void) {
 
 	// allocate initial pool of objects
 	internal_object_pool = (object_pool_t) {
-		.materials  = calloc(sizeof(*internal_object_pool.materials),  1024),
-		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     1024),
-		.transforms = calloc(sizeof(*internal_object_pool.transforms), 1024),
-		.lights     = calloc(sizeof(*internal_object_pool.lights),     1024),
-		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
+		.materials  = calloc(sizeof(*internal_object_pool.materials),  lite_engine_ECS_get_capacity()),
+		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     lite_engine_ECS_get_capacity()),
+		.transforms = calloc(sizeof(*internal_object_pool.transforms), lite_engine_ECS_get_capacity()),
+		.lights     = calloc(sizeof(*internal_object_pool.lights),     lite_engine_ECS_get_capacity()),
+		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    lite_engine_ECS_get_capacity()),
 	};
 
 	// create a light for test scene
