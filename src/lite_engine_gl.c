@@ -287,7 +287,7 @@ void lite_engine_gl_start(void) {
 	const int space_ship = 0;
 
 	internal_object_pool.cameras[space_ship] = (camera_t) {
-		.transform.position    = (vector3_t){ 0.0, 0.0, -30.0 },
+		.transform.position    = (vector3_t){ 0.0, 0.0, -10.0 },
 		.transform.rotation    = quaternion_identity(),
 		.transform.scale       = vector3_one(1.0),
 		.projection            = matrix4_identity(),
