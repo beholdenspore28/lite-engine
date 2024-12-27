@@ -20,7 +20,6 @@ BLIB_IMPLEMENTATION	src/lite_engine.c	/^#define BLIB_IMPLEMENTATION$/;"	d	file:
 DEFINE_LIST	src/lite_engine_gl_transform.c	/^DEFINE_LIST(transform_t)$/;"	f
 EBO	src/lite_engine_gl.h	/^	GLuint         EBO;$/;"	m	struct:__anonbd1939870308	typeref:typename:GLuint
 GLFW_INCLUDE_NONE	src/lite_engine_gl.c	/^#define GLFW_INCLUDE_NONE$/;"	d	file:
-LITE_ENGINE_ECS_H	src/lite_engine_ECS.h	/^#define LITE_ENGINE_ECS_H$/;"	d
 LITE_ENGINE_GL_H	src/lite_engine_gl.h	/^#define LITE_ENGINE_GL_H$/;"	d
 LITE_ENGINE_H	src/lite_engine.h	/^#define LITE_ENGINE_H$/;"	d
 LITE_ENGINE_LOG_H	src/lite_engine_debug.h	/^#define LITE_ENGINE_LOG_H$/;"	d
@@ -86,6 +85,7 @@ lastY	src/lite_engine_gl.h	/^	float          lastY;$/;"	m	struct:__anonbd1939870
 lights	src/lite_engine_gl.h	/^	point_light_t *lights;$/;"	m	struct:__anonbd1939870708	typeref:typename:point_light_t *
 linear	src/lite_engine_gl.h	/^	float          linear;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
 lite_engine_ECS_entity_create	src/lite_engine_ECS.c	/^int lite_engine_ECS_entity_create(void) {$/;"	f	typeref:typename:int
+lite_engine_ECS_get_capacity	src/lite_engine_ECS.c	/^int lite_engine_ECS_get_capacity(void) {$/;"	f	typeref:typename:int
 lite_engine_ECS_start	src/lite_engine_ECS.c	/^void lite_engine_ECS_start(void) {$/;"	f	typeref:typename:void
 lite_engine_ECS_stop	src/lite_engine_ECS.c	/^void lite_engine_ECS_stop(void) {$/;"	f	typeref:typename:void
 lite_engine_context	src/lite_engine.c	/^lite_engine_context_t lite_engine_context(void) {$/;"	f	typeref:typename:lite_engine_context_t

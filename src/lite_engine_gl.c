@@ -287,10 +287,13 @@ void lite_engine_gl_start(void) {
 	const int camera = lite_engine_ECS_entity_create();
 
 	internal_object_pool.cameras[camera] = (camera_t) {
-		.transform.position    = (vector3_t){ 0.0, 0.0, -10.0 },
-		.transform.rotation    = quaternion_identity(),
-		.transform.scale       = vector3_one(1.0),
 		.projection            = matrix4_identity(),
+	};
+
+	internal_object_pool.transforms[camera] = (transform_t) {
+		.position = (vector3_t){ 0.0, 0.0, -10.0 },
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
 	};
 
 	lite_engine_gl_set_active_camera(camera);
