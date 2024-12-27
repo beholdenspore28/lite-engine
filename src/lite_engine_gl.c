@@ -13,6 +13,19 @@ DEFINE_LIST(GLuint)
 DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
+typedef struct {
+	GLFWwindow *window;
+	char       *window_title;	
+	ui16        window_size_x;
+	ui16        window_size_y;
+	ui16        window_position_x;
+	ui16        window_position_y;
+	ui8         window_always_on_top;
+	ui8         window_fullscreen;
+} opengl_context_t;
+
+opengl_context_t *internal_gl_context = NULL;
+
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
 static ui16  internal_prefer_window_size_y        = 480;
@@ -48,19 +61,6 @@ void lite_engine_gl_set_prefer_window_always_on_top(ui8 always_on_top) {
 void lite_engine_gl_set_prefer_window_fullscreen(ui8 fullscreen) {
 	internal_prefer_window_fullscreen = fullscreen;
 }
-
-typedef struct {
-	GLFWwindow *window;
-	char       *window_title;	
-	ui16        window_size_x;
-	ui16        window_size_y;
-	ui16        window_position_x;
-	ui16        window_position_y;
-	ui8         window_always_on_top;
-	ui8         window_fullscreen;
-} opengl_context_t;
-
-opengl_context_t *internal_gl_context = NULL;
 
 void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
@@ -272,7 +272,7 @@ void lite_engine_gl_start(void) {
 
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
-		.rotation = quaternion_from_euler(vector3_up(PI)),
+		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
 
@@ -304,7 +304,7 @@ void lite_engine_gl_start(void) {
 
 	internal_object_pool.transforms[space_ship] = (transform_t) {
 		.position = vector3_zero(),
-		.rotation = quaternion_from_euler(vector3_up(PI)),
+		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
 
