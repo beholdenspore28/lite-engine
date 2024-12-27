@@ -1,5 +1,4 @@
 #include "lite_engine.h"
-#include "lite_engine_ECS.h"
 #include "lite_engine_gl.h"
 
 #define BLIB_IMPLEMENTATION
