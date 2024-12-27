@@ -268,7 +268,7 @@ void lite_engine_gl_start(void) {
 	};
 
 	// create a light for test scene
-	const int light = 1;
+	const int light = lite_engine_ECS_entity_create();
 
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
@@ -284,7 +284,7 @@ void lite_engine_gl_start(void) {
 		.quadratic = 0.0032f,
 	};
 		
-	const int space_ship = 0;
+	const int space_ship = lite_engine_ECS_entity_create();
 
 	internal_object_pool.cameras[space_ship] = (camera_t) {
 		.transform.position    = (vector3_t){ 0.0, 0.0, -10.0 },
