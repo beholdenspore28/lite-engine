@@ -7,7 +7,7 @@ extern int internal_gl_active_camera;
 void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 	glEnable(GL_CULL_FACE);
 
-	for (int e = 0; e < 1024; e++) {
+	for (int e = 0; e < lite_engine_ECS_get_capacity(); e++) {
 		if (object_pool.meshes[e].enabled == 0) {
 			return;
 		}
@@ -39,8 +39,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 			lite_engine_gl_shader_setUniformV3(object_pool.materials[e].shader, "u_cameraPos",
 					object_pool.cameras[internal_gl_active_camera].transform.position);
 
-			const int light = 1;
-
+#if 0
 			// light uniforms
 			lite_engine_gl_shader_setUniformV3(
 					object_pool.materials[e].shader,
@@ -71,6 +70,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 					object_pool.materials[e].shader,
 					"u_light.specular",
 					object_pool.lights[light].specular);
+#endif
 
 			// textures
 			glActiveTexture(GL_TEXTURE0);
@@ -97,7 +97,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 
 mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
 	mesh_t m   = {0};
-	m.enabled  = true;
+	m.enabled  = 1;
 	m.vertices = vertices;
 	m.indices  = indices;
 

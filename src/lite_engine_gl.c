@@ -283,15 +283,19 @@ void lite_engine_gl_start(void) {
 		.linear = 0.09f,
 		.quadratic = 0.0032f,
 	};
-		
-	const int space_ship = lite_engine_ECS_entity_create();
 
-	internal_object_pool.cameras[space_ship] = (camera_t) {
+	const int camera = lite_engine_ECS_entity_create();
+
+	internal_object_pool.cameras[camera] = (camera_t) {
 		.transform.position    = (vector3_t){ 0.0, 0.0, -10.0 },
 		.transform.rotation    = quaternion_identity(),
 		.transform.scale       = vector3_one(1.0),
 		.projection            = matrix4_identity(),
 	};
+
+	lite_engine_gl_set_active_camera(camera);
+		
+	const int space_ship = lite_engine_ECS_entity_create();
 
 	internal_object_pool.materials[space_ship] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
