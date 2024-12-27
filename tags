@@ -20,6 +20,7 @@ BLIB_IMPLEMENTATION	src/lite_engine.c	/^#define BLIB_IMPLEMENTATION$/;"	d	file:
 DEFINE_LIST	src/lite_engine_gl_transform.c	/^DEFINE_LIST(transform_t)$/;"	f
 EBO	src/lite_engine_gl.h	/^	GLuint         EBO;$/;"	m	struct:__anonbd1939870308	typeref:typename:GLuint
 GLFW_INCLUDE_NONE	src/lite_engine_gl.c	/^#define GLFW_INCLUDE_NONE$/;"	d	file:
+LITE_ENGINE_ECS_H	src/lite_engine_ECS.h	/^#define LITE_ENGINE_ECS_H$/;"	d
 LITE_ENGINE_GL_H	src/lite_engine_gl.h	/^#define LITE_ENGINE_GL_H$/;"	d
 LITE_ENGINE_H	src/lite_engine.h	/^#define LITE_ENGINE_H$/;"	d
 LITE_ENGINE_LOG_H	src/lite_engine_debug.h	/^#define LITE_ENGINE_LOG_H$/;"	d
@@ -59,6 +60,10 @@ frame_current	src/lite_engine.c	/^	ui64    frame_current;$/;"	m	struct:__anonf5e
 framebuffer_size_callback	src/lite_engine_gl.c	/^void framebuffer_size_callback($/;"	f	typeref:typename:void
 glDebugOutput	src/lite_engine_gl.c	/^void APIENTRY glDebugOutput(const GLenum source, const GLenum type,$/;"	f	typeref:typename:void APIENTRY
 indices	src/lite_engine_gl.h	/^	list_GLuint    indices;$/;"	m	struct:__anonbd1939870308	typeref:typename:list_GLuint
+internal_ECS_data	src/lite_engine_ECS.c	/^int        *internal_ECS_data                 = NULL;$/;"	v	typeref:typename:int *
+internal_ECS_entity_capacity	src/lite_engine_ECS.c	/^int         internal_ECS_entity_capacity      = 1024;$/;"	v	typeref:typename:int
+internal_ECS_entity_count	src/lite_engine_ECS.c	/^int         internal_ECS_entity_count         = 0;$/;"	v	typeref:typename:int
+internal_ECS_entity_growth_factor	src/lite_engine_ECS.c	/^const int   internal_ECS_entity_growth_factor = 2;$/;"	v	typeref:typename:const int
 internal_engine_context	src/lite_engine.c	/^static lite_engine_context_t *internal_engine_context = NULL;$/;"	v	typeref:typename:lite_engine_context_t *	file:
 internal_gl_active_camera	src/lite_engine_gl.c	/^int                   internal_gl_active_camera = 0;$/;"	v	typeref:typename:int
 internal_gl_context	src/lite_engine_gl.c	/^opengl_context_t *internal_gl_context = NULL;$/;"	v	typeref:typename:opengl_context_t *
@@ -80,6 +85,9 @@ lastX	src/lite_engine_gl.h	/^	float          lastX;$/;"	m	struct:__anonbd1939870
 lastY	src/lite_engine_gl.h	/^	float          lastY;$/;"	m	struct:__anonbd1939870608	typeref:typename:float
 lights	src/lite_engine_gl.h	/^	point_light_t *lights;$/;"	m	struct:__anonbd1939870708	typeref:typename:point_light_t *
 linear	src/lite_engine_gl.h	/^	float          linear;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
+lite_engine_ECS_entity_create	src/lite_engine_ECS.c	/^int lite_engine_ECS_entity_create(void) {$/;"	f	typeref:typename:int
+lite_engine_ECS_start	src/lite_engine_ECS.c	/^void lite_engine_ECS_start(void) {$/;"	f	typeref:typename:void
+lite_engine_ECS_stop	src/lite_engine_ECS.c	/^void lite_engine_ECS_stop(void) {$/;"	f	typeref:typename:void
 lite_engine_context	src/lite_engine.c	/^lite_engine_context_t lite_engine_context(void) {$/;"	f	typeref:typename:lite_engine_context_t
 lite_engine_context_t	src/lite_engine.c	/^} lite_engine_context_t;$/;"	t	typeref:struct:__anonf5e1ef900108	file:
 lite_engine_gl_get_time_delta	src/lite_engine.c	/^float lite_engine_gl_get_time_delta(void) {$/;"	f	typeref:typename:float
