@@ -1,4 +1,5 @@
 #include "lite_engine.h"
+#include "lite_engine_ECS.h"
 #include "lite_engine_gl.h"
 
 #define BLIB_IMPLEMENTATION
@@ -63,6 +64,8 @@ void lite_engine_start(void) {
 	internal_engine_context->time_last     = 0;
 	internal_engine_context->time_FPS      = 0;
 
+	lite_engine_ECS_start();
+
 	debug_log("Startup completed successfuly");
 }
 
@@ -102,7 +105,8 @@ void internal_time_update(void) { // update time
 	}
 	internal_engine_context->time_current = spec.tv_sec + spec.tv_nsec * 1e-9;
 
-	internal_engine_context->time_delta = internal_engine_context->time_current - internal_engine_context->time_last;
+	internal_engine_context->time_delta = internal_engine_context->time_current -
+		internal_engine_context->time_last;
 	internal_engine_context->time_last  = internal_engine_context->time_current;
 
 	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
@@ -143,6 +147,9 @@ void lite_engine_update(void) {
 // shut down and free all memory associated with the lite-engine context
 void lite_engine_stop(void) {
 	debug_log("Shutting down...");
+
+	lite_engine_ECS_stop();
+
 	internal_engine_context->is_running = 0;
 
 	switch(internal_engine_context->renderer) {

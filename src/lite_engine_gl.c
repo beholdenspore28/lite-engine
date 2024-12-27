@@ -300,7 +300,7 @@ void lite_engine_gl_start(void) {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
 
 	internal_object_pool.transforms[space_ship] = (transform_t) {
 		.position = vector3_zero(),
@@ -341,7 +341,8 @@ void lite_engine_gl_render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	internal_object_pool.transforms->rotation = quaternion_multiply(internal_object_pool.transforms->rotation,
+	internal_object_pool.transforms->rotation = quaternion_multiply(
+			internal_object_pool.transforms->rotation,
 			quaternion_from_euler(vector3_one(lite_engine_gl_get_time_delta())));
  
 	lite_engine_gl_mesh_update(internal_object_pool);
