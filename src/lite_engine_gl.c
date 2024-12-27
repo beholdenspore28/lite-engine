@@ -277,17 +277,17 @@ void lite_engine_gl_start(void) {
 	};
 
 	internal_object_pool.lights[light] = (point_light_t) {
-		.diffuse = vector3_one(0.8f),
-		.specular = vector3_one(1.0f),
-		.constant = 1.0f,
-		.linear = 0.09f,
+		.diffuse   = vector3_one(0.8f),
+		.specular  = vector3_one(1.0f),
+		.constant  = 1.0f,
+		.linear    = 0.09f,
 		.quadratic = 0.0032f,
 	};
 
 	const int camera = lite_engine_ECS_entity_create();
 
 	internal_object_pool.cameras[camera] = (camera_t) {
-		.projection            = matrix4_identity(),
+		.projection = matrix4_identity(),
 	};
 
 	internal_object_pool.transforms[camera] = (transform_t) {
