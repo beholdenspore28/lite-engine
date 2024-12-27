@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 
-extern int internal_gl_active_camera;
+extern ui64 internal_gl_active_camera;
 
 void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 	glEnable(GL_CULL_FACE);
@@ -29,7 +29,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 
 			// view matrix uniform
 			lite_engine_gl_shader_setUniformM4(object_pool.materials[e].shader, "u_viewMatrix",
-					&object_pool.cameras[internal_gl_active_camera].transform.matrix);
+					&object_pool.transforms[internal_gl_active_camera].matrix);
 
 			// projection matrix uniform
 			lite_engine_gl_shader_setUniformM4(object_pool.materials[e].shader, "u_projectionMatrix",
@@ -37,7 +37,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 
 			// camera position uniform
 			lite_engine_gl_shader_setUniformV3(object_pool.materials[e].shader, "u_cameraPos",
-					object_pool.cameras[internal_gl_active_camera].transform.position);
+					object_pool.transforms[internal_gl_active_camera].position);
 
 #if 0
 			// light uniforms

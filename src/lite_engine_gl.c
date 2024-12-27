@@ -268,7 +268,7 @@ void lite_engine_gl_start(void) {
 	};
 
 	// create a light for test scene
-	const int light = lite_engine_ECS_entity_create();
+	const ui64 light = lite_engine_ECS_entity_create();
 
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
@@ -284,7 +284,7 @@ void lite_engine_gl_start(void) {
 		.quadratic = 0.0032f,
 	};
 
-	const int camera = lite_engine_ECS_entity_create();
+	const ui64 camera = lite_engine_ECS_entity_create();
 
 	internal_object_pool.cameras[camera] = (camera_t) {
 		.projection = matrix4_identity(),
@@ -298,7 +298,7 @@ void lite_engine_gl_start(void) {
 
 	lite_engine_gl_set_active_camera(camera);
 		
-	const int space_ship = lite_engine_ECS_entity_create();
+	const ui64 space_ship = lite_engine_ECS_entity_create();
 
 	internal_object_pool.materials[space_ship] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
@@ -342,10 +342,10 @@ void lite_engine_gl_render(void) {
 			(float)internal_gl_context->window_size_y;
 		internal_object_pool.cameras[internal_gl_active_camera].projection =
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-		internal_object_pool.cameras[internal_gl_active_camera].transform.matrix = 
+		internal_object_pool.transforms[internal_gl_active_camera].matrix = 
 			matrix4_identity();
 		lite_engine_gl_transform_calculate_view_matrix(
-				&internal_object_pool.cameras[internal_gl_active_camera].transform);
+				&internal_object_pool.transforms[internal_gl_active_camera]);
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
