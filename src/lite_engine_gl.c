@@ -326,15 +326,17 @@ void lite_engine_gl_render(void) {
 #endif
 
 	{ // projection
-		int window_size_x;
-		int window_size_y;
-		glfwGetWindowSize(
-				internal_gl_context->window, 
-				&window_size_x,
-				&window_size_y);
+		{
+			int window_size_x;
+			int window_size_y;
+			glfwGetWindowSize(
+					internal_gl_context->window, 
+					&window_size_x,
+					&window_size_y);
 
-		internal_gl_context->window_size_x = window_size_x;
-		internal_gl_context->window_size_y = window_size_y;
+			internal_gl_context->window_size_x = window_size_x;
+			internal_gl_context->window_size_y = window_size_y;
+		}
 
 		float aspect = (float)internal_gl_context->window_size_x /
 			(float)internal_gl_context->window_size_y;
