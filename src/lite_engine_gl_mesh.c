@@ -5,7 +5,8 @@
 void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 	glEnable(GL_CULL_FACE);
 
-	for (ui64 e = 0; e < lite_engine_ECS_get_count(); e++) {
+	for (ui64 e = 1; e <= lite_engine_ECS_get_count(); e++) {
+		debug_log("e is: %lu", e);
 		if (object_pool.meshes[e].enabled == 0) {
 			continue;
 		}
