@@ -46,7 +46,7 @@ int main() {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
 	internal_object_pool.meshes[space_ship].enabled = 1;
 
 	internal_object_pool.transforms[space_ship] = (transform_t) {
@@ -56,6 +56,14 @@ int main() {
 	};
 
 #endif
+
+	const ui64 light = lite_engine_ECS_entity_create();
+	const ui64 camera = lite_engine_ECS_entity_create();
+	const ui64 space_ship = lite_engine_ECS_entity_create();
+
+	debug_log("space_ship id: %lu", space_ship);
+	debug_log("camera id: %lu",     camera);
+	debug_log("light id: %lu",      light);
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
