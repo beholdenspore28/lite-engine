@@ -1,5 +1,4 @@
 #include "lite_engine.h"
-#include "lite_engine_gl.h"
 
 int main() {
 	//lite_engine_use_render_api(LITE_ENGINE_RENDERER_GL);
