@@ -268,56 +268,6 @@ void lite_engine_gl_start(void) {
 		.lights     = calloc(sizeof(*internal_object_pool.lights),     lite_engine_ECS_get_capacity()),
 		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    lite_engine_ECS_get_capacity()),
 	};
-
-	// create a light for test scene
-	const ui64 light = lite_engine_ECS_entity_create();
-
-	internal_object_pool.transforms[light] = (transform_t) {
-		.position = { 0.0, 10, -10 },
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-	};
-
-	internal_object_pool.lights[light] = (point_light_t) {
-		.diffuse   = vector3_one(0.8f),
-		.specular  = vector3_one(1.0f),
-		.constant  = 1.0f,
-		.linear    = 0.09f,
-		.quadratic = 0.0032f,
-	};
-
-	const ui64 camera = lite_engine_ECS_entity_create();
-
-	internal_object_pool.cameras[camera] = (camera_t) {
-		.projection = matrix4_identity(),
-	};
-
-	internal_object_pool.transforms[camera] = (transform_t) {
-		.position = (vector3_t){ 0.0, 0.0, -10.0 },
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-		.matrix   = matrix4_identity(),
-	};
-
-	lite_engine_gl_set_active_camera(camera);
-		
-	const ui64 space_ship = lite_engine_ECS_entity_create();
-
-	internal_object_pool.materials[space_ship] = (material_t) {
-		.shader = lite_engine_gl_shader_create(
-				"res/shaders/phong_diffuse_vertex.glsl",
-				"res/shaders/phong_diffuse_fragment.glsl"),
-		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
-	};
-
-	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
-	internal_object_pool.meshes[space_ship].enabled = 1;
-
-	internal_object_pool.transforms[space_ship] = (transform_t) {
-		.position = vector3_zero(),
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-	};
 }
 
 void lite_engine_gl_render(void) {
