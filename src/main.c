@@ -7,7 +7,6 @@ int main() {
 	lite_engine_gl_set_prefer_window_position(1920 / 2.0, 1080 / 2.0);
 
 #if 0 // copied this code from the end of lite_engine_gl_start()
-
 	const ui64 light = lite_engine_ECS_entity_create();
 	const ui64 camera = lite_engine_ECS_entity_create();
 	const ui64 space_ship = lite_engine_ECS_entity_create();
@@ -60,10 +59,6 @@ int main() {
 	const ui64 light = lite_engine_ECS_entity_create();
 	const ui64 camera = lite_engine_ECS_entity_create();
 	const ui64 space_ship = lite_engine_ECS_entity_create();
-
-	debug_log("space_ship id: %lu", space_ship);
-	debug_log("camera id: %lu",     camera);
-	debug_log("light id: %lu",      light);
 
 	while (lite_engine_is_running()) {
 		lite_engine_update();
