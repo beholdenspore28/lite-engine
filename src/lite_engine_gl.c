@@ -351,10 +351,6 @@ void lite_engine_gl_render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	internal_object_pool.transforms->rotation = quaternion_multiply(
-			internal_object_pool.transforms->rotation,
-			quaternion_from_euler(vector3_one(lite_engine_gl_get_time_delta())));
- 
 	lite_engine_gl_mesh_update(internal_object_pool);
 
 	glfwSwapBuffers(internal_gl_context->window);
