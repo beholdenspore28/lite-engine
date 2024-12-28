@@ -310,7 +310,7 @@ void lite_engine_gl_start(void) {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 	internal_object_pool.meshes[space_ship].enabled = 1;
 
 	internal_object_pool.transforms[space_ship] = (transform_t) {
