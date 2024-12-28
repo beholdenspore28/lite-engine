@@ -53,7 +53,6 @@ int main() {
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
-
 #endif
 
 	const ui64 light = lite_engine_ECS_entity_create();
