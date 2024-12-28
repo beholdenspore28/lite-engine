@@ -41,7 +41,6 @@ float lite_engine_gl_get_time_delta(void) {
 // initializes lite-engine. call this to rev up those fryers!
 void lite_engine_start(void) {
 	debug_log("Rev up those fryers!");
-	debug_log("Starting...");
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
 	internal_engine_context->renderer      = internal_preferred_api;
