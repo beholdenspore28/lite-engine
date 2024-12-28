@@ -60,6 +60,9 @@ void lite_engine_start(void) {
 		case LITE_ENGINE_RENDERER_NONE: {
 			debug_warn("no renderer set");
 		} break;
+		default: {
+			debug_error("Invalid render API. Enumeration does not represent a valid API");
+		} break;
 	}
 
 	debug_log("Startup completed successfuly");
@@ -134,6 +137,7 @@ void lite_engine_update(void) {
 		case LITE_ENGINE_RENDERER_NONE: {
 		} break;
 		default: {
+			debug_error("Invalid render API. Enumeration does not represent a valid API");
 		} break;
 	}
 
