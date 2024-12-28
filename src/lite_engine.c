@@ -44,6 +44,13 @@ void lite_engine_start(void) {
 	debug_log("Starting...");
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
+	internal_engine_context->renderer      = internal_preferred_api;
+	internal_engine_context->is_running    = 1;
+	internal_engine_context->time_current  = 0;
+	internal_engine_context->frame_current = 0;
+	internal_engine_context->time_delta    = 0;
+	internal_engine_context->time_last     = 0;
+	internal_engine_context->time_FPS      = 0;
 
 	lite_engine_ECS_start();
 
@@ -55,15 +62,6 @@ void lite_engine_start(void) {
 			debug_warn("no renderer set");
 		} break;
 	}
-
-	internal_engine_context->renderer      = internal_preferred_api;
-	internal_engine_context->is_running    = 1;
-
-	internal_engine_context->time_current  = 0;
-	internal_engine_context->frame_current = 0;
-	internal_engine_context->time_delta    = 0;
-	internal_engine_context->time_last     = 0;
-	internal_engine_context->time_FPS      = 0;
 
 	debug_log("Startup completed successfuly");
 }

@@ -24,7 +24,7 @@ typedef struct {
 	ui8         window_fullscreen;
 } opengl_context_t;
 
-opengl_context_t *internal_gl_context = NULL;
+static opengl_context_t *internal_gl_context = NULL;
 
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
@@ -35,10 +35,12 @@ static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
 // object lists to keep stuff hot on the cache
-ui64                  internal_gl_num_entities;
-int                   internal_gl_active_camera = 0;
+static ui64                  internal_gl_active_camera = 0;
+static object_pool_t         internal_object_pool;
 
-static object_pool_t  internal_object_pool;
+ui64 lite_engine_gl_get_active_camera(void) {
+	return internal_gl_active_camera;
+}
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
 	internal_prefer_window_title = title;
@@ -294,6 +296,7 @@ void lite_engine_gl_start(void) {
 		.position = (vector3_t){ 0.0, 0.0, -10.0 },
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
+		.matrix   = matrix4_identity(),
 	};
 
 	lite_engine_gl_set_active_camera(camera);
@@ -308,18 +311,16 @@ void lite_engine_gl_start(void) {
 	};
 
 	internal_object_pool.meshes[space_ship] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	internal_object_pool.meshes[space_ship].enabled = 1;
 
 	internal_object_pool.transforms[space_ship] = (transform_t) {
 		.position = vector3_zero(),
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
-
-	debug_log("OpenGL renderer initialized successfuly");
 }
 
 void lite_engine_gl_render(void) {
-	//debug_log("rendering...");
 #if 1 // debugging input to exit
 	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
 		lite_engine_stop();
@@ -360,7 +361,7 @@ void lite_engine_gl_render(void) {
 	glfwPollEvents();
 }
 
-void lite_engine_gl_set_active_camera(int camera) {
+void lite_engine_gl_set_active_camera(ui64 camera) {
 	internal_gl_active_camera = camera;
 }
 

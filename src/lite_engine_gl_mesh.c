@@ -2,15 +2,15 @@
 
 #include <ctype.h>
 
-extern ui64 internal_gl_active_camera;
-
 void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 	glEnable(GL_CULL_FACE);
 
-	for (ui64 e = 0; e < lite_engine_ECS_get_capacity(); e++) {
+	for (ui64 e = 0; e < lite_engine_ECS_get_count(); e++) {
 		if (object_pool.meshes[e].enabled == 0) {
-			return;
+			continue;
 		}
+
+		debug_log("HELLO");
 
 		if (object_pool.meshes[e].use_wire_frame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -29,15 +29,15 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 
 			// view matrix uniform
 			lite_engine_gl_shader_setUniformM4(object_pool.materials[e].shader, "u_viewMatrix",
-					&object_pool.transforms[internal_gl_active_camera].matrix);
+					&object_pool.transforms[lite_engine_gl_get_active_camera()].matrix);
 
 			// projection matrix uniform
 			lite_engine_gl_shader_setUniformM4(object_pool.materials[e].shader, "u_projectionMatrix",
-					&object_pool.cameras[internal_gl_active_camera].projection);
+					&object_pool.cameras[lite_engine_gl_get_active_camera()].projection);
 
 			// camera position uniform
 			lite_engine_gl_shader_setUniformV3(object_pool.materials[e].shader, "u_cameraPos",
-					object_pool.transforms[internal_gl_active_camera].position);
+					object_pool.transforms[lite_engine_gl_get_active_camera()].position);
 
 #if 0
 			// light uniforms

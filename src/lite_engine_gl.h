@@ -94,7 +94,8 @@ void      lite_engine_gl_shader_setUniformV3             (GLuint shader, const c
 void      lite_engine_gl_shader_setUniformV4             (GLuint shader, const char *uniformName, vector4_t v);
 void      lite_engine_gl_shader_setUniformM4             (GLuint shader, const char *uniformName, matrix4_t *m);
 
-void      lite_engine_gl_set_active_camera               (int camera);
+ui64      lite_engine_gl_get_active_camera               (void);
+void      lite_engine_gl_set_active_camera               (ui64 camera);
 void      lite_engine_gl_set_prefer_window_title         (char *title);
 void      lite_engine_gl_set_prefer_window_size_x        (ui16 size_x);
 void      lite_engine_gl_set_prefer_window_size_y        (ui16 size_y);

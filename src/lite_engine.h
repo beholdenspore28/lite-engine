@@ -23,6 +23,7 @@ ui8    lite_engine_is_running        (void);
 void   lite_engine_update            (void);
 void   lite_engine_stop              (void);
 
+ui64   lite_engine_ECS_get_count     (void);
 ui64   lite_engine_ECS_get_capacity  (void);
 void   lite_engine_ECS_start         (void);
 void   lite_engine_ECS_stop          (void);
