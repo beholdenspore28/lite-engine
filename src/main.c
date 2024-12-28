@@ -7,7 +7,10 @@ int main() {
 	lite_engine_gl_set_prefer_window_position(1920 / 2.0, 1080 / 2.0);
 
 #if 0 // copied this code from the end of lite_engine_gl_start()
+
 	const ui64 light = lite_engine_ECS_entity_create();
+	const ui64 camera = lite_engine_ECS_entity_create();
+	const ui64 space_ship = lite_engine_ECS_entity_create();
 
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
@@ -23,8 +26,6 @@ int main() {
 		.quadratic = 0.0032f,
 	};
 
-	const ui64 camera = lite_engine_ECS_entity_create();
-
 	internal_object_pool.cameras[camera] = (camera_t) {
 		.projection = matrix4_identity(),
 	};
@@ -37,8 +38,6 @@ int main() {
 	};
 
 	lite_engine_gl_set_active_camera(camera);
-		
-	const ui64 space_ship = lite_engine_ECS_entity_create();
 
 	internal_object_pool.materials[space_ship] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
@@ -55,6 +54,7 @@ int main() {
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
+
 #endif
 
 	while (lite_engine_is_running()) {
