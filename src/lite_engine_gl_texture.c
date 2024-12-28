@@ -4,6 +4,7 @@
 #include "stb_image.h"
 
 GLuint lite_engine_gl_texture_create(const char *imageFile) {
+	debug_log("Loading texture from '%s'", imageFile);
 	/*create texture*/
 	GLuint texture;
 	glGenTextures(1, &texture);
