@@ -3,7 +3,6 @@
 int main() {
 	//lite_engine_use_render_api(LITE_ENGINE_RENDERER_GL);
 	lite_engine_start();
-	lite_engine_gl_set_prefer_window_position(1920 / 2.0, 1080 / 2.0);
 
 #if 0 // copied this code from the end of lite_engine_gl_start()
 	const ui64 light = lite_engine_ECS_entity_create();
