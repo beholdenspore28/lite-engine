@@ -37,7 +37,8 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 			lite_engine_gl_shader_setUniformV3(object_pool.materials[e].shader, "u_cameraPos",
 					object_pool.transforms[lite_engine_gl_get_active_camera()].position);
 
-#if 0
+#if 1
+			const int light = 0;
 			// light uniforms
 			lite_engine_gl_shader_setUniformV3(
 					object_pool.materials[e].shader,

@@ -34,6 +34,11 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
+static const ui64 light  = 0;
+static const ui64 camera = 1;
+static const ui64 cube   = 2;
+
+
 // object lists to keep stuff hot on the cache
 static ui64                  internal_gl_active_camera = 0;
 static object_pool_t         internal_object_pool;
@@ -269,10 +274,6 @@ void lite_engine_gl_start(void) {
 		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
 	};
 
-	const ui64 light  = 0;
-	const ui64 camera = 1;
-	const ui64 cube   = 2;
-
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
 		.rotation = quaternion_identity(),
@@ -292,7 +293,7 @@ void lite_engine_gl_start(void) {
 	};
 
 	internal_object_pool.transforms[camera] = (transform_t) {
-		.position = (vector3_t){ 0.0, 0.0, -10.0 },
+		.position = (vector3_t){ 0.0, 0.0, -30.0 },
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 		.matrix   = matrix4_identity(),
@@ -350,6 +351,10 @@ void lite_engine_gl_render(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	lite_engine_gl_mesh_update(internal_object_pool);
+
+	internal_object_pool.transforms[cube].rotation = quaternion_multiply(
+			internal_object_pool.transforms[cube].rotation,
+			quaternion_from_euler(vector3_up(lite_engine_get_time_delta())));
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();

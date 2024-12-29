@@ -34,7 +34,7 @@ void lite_engine_use_render_api(ui8 api) {
 	}
 }
 
-float lite_engine_gl_get_time_delta(void) {
+double lite_engine_get_time_delta(void) {
 	return internal_engine_context->time_delta;
 }
 
