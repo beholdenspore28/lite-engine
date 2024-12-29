@@ -4,7 +4,9 @@ static ui64        *internal_ECS_data                 = NULL;
 static ui64         internal_ECS_entity_count         = 0;
 static ui64         internal_ECS_entity_capacity      = 1024;
 
-enum { INTERNAL_ECS_ENTITY_GROWTH_FACTOR = 2 };
+enum {
+	INTERNAL_ECS_ENTITY_GROWTH_FACTOR = 2,
+};
 
 ui64 lite_engine_ECS_get_count(void) {
 	return internal_ECS_entity_count;	
