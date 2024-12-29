@@ -43,6 +43,7 @@ void lite_engine_start(void) {
 	debug_log("Rev up those fryers!");
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
+
 	internal_engine_context->renderer      = internal_preferred_api;
 	internal_engine_context->is_running    = 1;
 	internal_engine_context->time_current  = 0;
