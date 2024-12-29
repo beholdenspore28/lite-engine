@@ -298,6 +298,23 @@ void lite_engine_gl_start(void) {
 
 	lite_engine_gl_set_active_camera(camera);
 
+	const ui64 cube = lite_engine_ECS_entity_create();
+
+	internal_object_pool.materials[cube] = (material_t) {
+		.shader = lite_engine_gl_shader_create(
+				"res/shaders/phong_diffuse_vertex.glsl",
+				"res/shaders/phong_diffuse_fragment.glsl"),
+		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
+	};
+
+	internal_object_pool.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	internal_object_pool.meshes[cube].enabled = 1;
+
+	internal_object_pool.transforms[cube] = (transform_t) {
+		.position = vector3_zero(),
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+	};
 }
 
 void lite_engine_gl_render(void) {

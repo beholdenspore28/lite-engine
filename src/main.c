@@ -26,6 +26,8 @@ int main() {
 
 	const ui64 space_ship = lite_engine_ECS_entity_create();
 
+	lite_engine_ECS_component_add(space_ship, LITE_ENGINE_ECS_COMPONENT_TRANSFORM);
+
 	while (lite_engine_is_running()) {
 		lite_engine_update();
 		//lite_engine_stop();
