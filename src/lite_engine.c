@@ -51,8 +51,6 @@ void lite_engine_start(void) {
 	internal_engine_context->time_last     = 0;
 	internal_engine_context->time_FPS      = 0;
 
-	lite_engine_ECS_start();
-
 	switch(internal_preferred_api) {
 		case LITE_ENGINE_RENDERER_GL: {
 			lite_engine_gl_start();
@@ -147,8 +145,6 @@ void lite_engine_update(void) {
 // shut down and free all memory associated with the lite-engine context
 void lite_engine_stop(void) {
 	debug_log("Shutting down...");
-
-	lite_engine_ECS_stop();
 
 	internal_engine_context->is_running = 0;
 

@@ -262,15 +262,17 @@ void lite_engine_gl_start(void) {
 
 	// allocate initial pool of objects
 	internal_object_pool = (object_pool_t) {
-		.materials  = calloc(sizeof(*internal_object_pool.materials),  lite_engine_ECS_get_capacity()),
-		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     lite_engine_ECS_get_capacity()),
-		.transforms = calloc(sizeof(*internal_object_pool.transforms), lite_engine_ECS_get_capacity()),
-		.lights     = calloc(sizeof(*internal_object_pool.lights),     lite_engine_ECS_get_capacity()),
-		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    lite_engine_ECS_get_capacity()),
+		.materials  = calloc(sizeof(*internal_object_pool.materials),  1024),
+		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     1024),
+		.transforms = calloc(sizeof(*internal_object_pool.transforms), 1024),
+		.lights     = calloc(sizeof(*internal_object_pool.lights),     1024),
+		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
 	};
 
-	const ui64 light = lite_engine_ECS_entity_create();
-	const ui64 camera = lite_engine_ECS_entity_create();
+	const ui64 light  = 0;
+	const ui64 camera = 1;
+	const ui64 cube   = 2;
+
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
 		.rotation = quaternion_identity(),
@@ -298,7 +300,6 @@ void lite_engine_gl_start(void) {
 
 	lite_engine_gl_set_active_camera(camera);
 
-	const ui64 cube = lite_engine_ECS_entity_create();
 
 	internal_object_pool.materials[cube] = (material_t) {
 		.shader = lite_engine_gl_shader_create(
