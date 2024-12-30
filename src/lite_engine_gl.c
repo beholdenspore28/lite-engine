@@ -293,7 +293,7 @@ void lite_engine_gl_start(void) {
 	};
 
 	internal_object_pool.transforms[camera] = (transform_t) {
-		.position = (vector3_t){ 0.0, 0.0, -30.0 },
+		.position = (vector3_t){ 0.0, 0.0, -10.0 },
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 		.matrix   = matrix4_identity(),
