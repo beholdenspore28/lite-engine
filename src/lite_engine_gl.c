@@ -263,6 +263,11 @@ void lite_engine_gl_start(void) {
 	glClearColor(0.2, 0.3, 0.4, 1.0);
 }
 
+void lite_engine_gl_transform_rotate(uint64_t entity, quaternion_t rotation) {
+	internal_gl_state.transforms[entity].rotation = quaternion_multiply(
+			internal_gl_state.transforms[entity].rotation, rotation);
+}
+
 void lite_engine_gl_camera_update(void) {
 	{ // projection
 		{

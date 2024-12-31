@@ -23,6 +23,7 @@ void      lite_engine_gl_render                          (void);
 
 GLuint    lite_engine_gl_texture_create                  (const char *imageFile);
 
+void      lite_engine_gl_transform_rotate                (uint64_t entity, quaternion_t rotation);
 void      lite_engine_gl_transform_calculate_matrix      (transform_t *t);
 void      lite_engine_gl_transform_calculate_view_matrix (transform_t *t);
 vector3_t lite_engine_gl_transform_basis_forward         (transform_t t, float magnitude);
