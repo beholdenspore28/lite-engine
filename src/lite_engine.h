@@ -11,6 +11,10 @@ enum {
 	LITE_ENGINE_RENDERER_GL,
 };
 
+enum {
+	LITE_ENGINE_ENTITIES_MAX = 10,
+};
+
 typedef uint8_t  ui8;
 typedef uint16_t ui16;
 typedef uint32_t ui32;
@@ -22,6 +26,12 @@ ui8    lite_engine_is_running     (void);
 void   lite_engine_update         (void);
 void   lite_engine_stop           (void);
 double lite_engine_get_time_delta (void);
+
+void   lite_engine_ECS_update     (void);
+void   lite_engine_component_add  (uint64_t ID,
+	                               uint64_t component_flag);
+ui8    lite_engine_entity_has_component         (uint64_t entity_ID,
+                                   uint64_t component_flag);
 
 ui64   lite_engine_entity_create  (void);
 
