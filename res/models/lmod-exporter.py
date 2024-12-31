@@ -55,11 +55,17 @@ with open(filepath, 'w') as f:
         f.write("vertex_normals:\n")
         for v in mesh.vertices:
             f.write("%.4f\t%.4f\t%.4f\n" % (v.normal.x, v.normal.z, -v.normal.y))
-
+        
+        f.write("vertex_texture_coordinates:\n")
+        uv_layer = mesh.uv_layers.active.data
+        for loop in mesh.loops:
+            uv = uv_layer[loop.index].uv
+            f.write(f"{uv.x:.4f}\t{uv.y:.4f}\n")
+        
         f.write("vertex_indices:\n")
         for loopt in mesh.loop_triangles:
             for v in reversed(loopt.vertices):
                 f.write(f"{v} ")
-
+        
+        
         f.write("\n")
-

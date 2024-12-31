@@ -58,7 +58,7 @@ int main() {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 
 	state.transforms[cube] = (transform_t) {
 		.position = vector3_zero(),
