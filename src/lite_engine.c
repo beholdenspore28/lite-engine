@@ -12,16 +12,6 @@ DEFINE_LIST(ui16)
 DEFINE_LIST(ui32)
 DEFINE_LIST(ui64)
 
-typedef struct {
-	ui8     renderer;
-	ui8     is_running;
-	double  time_current;
-	ui64    frame_current;
-	double  time_delta;
-	double  time_last;
-	double  time_FPS;
-} lite_engine_context_t;
-
 static lite_engine_context_t *internal_engine_context = NULL;
 static ui8                    internal_preferred_api = LITE_ENGINE_RENDERER_GL;
 
@@ -79,7 +69,7 @@ ui8 lite_engine_is_running(void) {
 // returns a copy of lite-engine's internal state.
 // modifying this will not change lite-engine's actual state.
 // pass the modified context to lite_engine_set_context(context) to do so.
-lite_engine_context_t lite_engine_context(void) {
+lite_engine_context_t lite_engine_get_context(void) {
 	return *internal_engine_context;
 }
 
