@@ -34,9 +34,11 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static const ui64 light  = 0;
 static const ui64 camera = 1;
+#if 0
+static const ui64 light  = 0;
 static const ui64 cube   = 2;
+#endif
 
 
 // object lists to keep stuff hot on the cache
@@ -274,6 +276,20 @@ void lite_engine_gl_start(void) {
 		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
 	};
 
+	internal_object_pool.cameras[camera] = (camera_t) {
+		.projection = matrix4_identity(),
+	};
+
+	internal_object_pool.transforms[camera] = (transform_t) {
+		.position = (vector3_t){ 0.0, 0.0, -10.0 },
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+		.matrix   = matrix4_identity(),
+	};
+
+	lite_engine_gl_set_active_camera(camera);
+
+#if 0
 	internal_object_pool.transforms[light] = (transform_t) {
 		.position = { 0.0, 10, -10 },
 		.rotation = quaternion_identity(),
@@ -287,19 +303,6 @@ void lite_engine_gl_start(void) {
 		.linear    = 0.09f,
 		.quadratic = 0.0032f,
 	};
-
-	internal_object_pool.cameras[camera] = (camera_t) {
-		.projection = matrix4_identity(),
-	};
-
-	internal_object_pool.transforms[camera] = (transform_t) {
-		.position = (vector3_t){ 0.0, 0.0, -10.0 },
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-		.matrix   = matrix4_identity(),
-	};
-
-	lite_engine_gl_set_active_camera(camera);
 
 
 	internal_object_pool.materials[cube] = (material_t) {
@@ -317,6 +320,7 @@ void lite_engine_gl_start(void) {
 		.rotation = quaternion_identity(),
 		.scale    = vector3_one(1.0),
 	};
+#endif
 }
 
 void lite_engine_gl_render(void) {
@@ -352,9 +356,11 @@ void lite_engine_gl_render(void) {
 
 	lite_engine_gl_mesh_update(internal_object_pool);
 
+#if 0
 	internal_object_pool.transforms[cube].rotation = quaternion_multiply(
 			internal_object_pool.transforms[cube].rotation,
 			quaternion_from_euler(vector3_up(lite_engine_get_time_delta())));
+#endif
 
 	glfwSwapBuffers(internal_gl_context->window);
 	glfwPollEvents();
