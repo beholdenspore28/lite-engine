@@ -9,8 +9,11 @@ enum { // define component flags
 };
 
 // define component data
-transform_t transforms  [LITE_ENGINE_ENTITIES_MAX];
-mesh_t      meshes      [LITE_ENGINE_ENTITIES_MAX];
+transform_t   transforms    [LITE_ENGINE_ENTITIES_MAX];
+mesh_t        meshes        [LITE_ENGINE_ENTITIES_MAX];
+point_light_t point_lights  [LITE_ENGINE_ENTITIES_MAX];
+material_t    materials     [LITE_ENGINE_ENTITIES_MAX];
+camera_t      cameras       [LITE_ENGINE_ENTITIES_MAX];
 
 int main() {
 	lite_engine_start();
@@ -31,7 +34,7 @@ int main() {
 			if (lite_engine_entity_has_component(ID, LITE_ENGINE_COMPONENT_TRANSFORM)) {
 				transforms[ID].position.x++;
 				transforms[ID].position.y++;
-				printf("ID %lu position { %f, %f }\n", ID, transforms[ID].position.x, transforms[ID].position.y);
+				//printf("ID %lu position { %f, %f }\n", ID, transforms[ID].position.x, transforms[ID].position.y);
 			}
 		}
 		lite_engine_update();

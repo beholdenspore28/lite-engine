@@ -46,18 +46,18 @@ DECLARE_LIST(vertex_t)
 typedef struct {
 	ui8            enabled;
 	ui8            use_wire_frame;
-	ui32         VAO;
-	ui32         VBO;
-	ui32         EBO;
+	ui32           VAO;
+	ui32           VBO;
+	ui32           EBO;
 	list_vertex_t  vertices;
-	list_ui32    indices;
+	list_ui32      indices;
 } mesh_t;
 DECLARE_LIST(mesh_t)
 
 typedef struct {
-	ui32         shader;
-	ui32         diffuseMap;
-	ui32         specularMap;
+	ui32           shader;
+	ui32           diffuseMap;
+	ui32           specularMap;
 } material_t;
 DECLARE_LIST(material_t)
 
@@ -84,19 +84,18 @@ typedef struct {
 	camera_t      *cameras;
 } object_pool_t;
 
-void   lite_engine_start          (void);
-void   lite_engine_use_render_api (ui8 api);
-ui8    lite_engine_is_running     (void);
-void   lite_engine_update         (void);
-void   lite_engine_stop           (void);
-double lite_engine_get_time_delta (void);
+void   lite_engine_start                 (void);
+void   lite_engine_use_render_api        (ui8 api);
+ui8    lite_engine_is_running            (void);
+void   lite_engine_update                (void);
+void   lite_engine_stop                  (void);
+double lite_engine_get_time_delta        (void);
 
-void   lite_engine_ECS_update     (void);
-void   lite_engine_component_add  (uint64_t ID,
-	                               uint64_t component_flag);
-ui8    lite_engine_entity_has_component         (uint64_t entity_ID,
-                                   uint64_t component_flag);
-
-ui64   lite_engine_entity_create  (void);
+void   lite_engine_ECS_update            (void);
+ui64   lite_engine_entity_create         (void);
+void   lite_engine_component_add         (uint64_t ID,
+	                                      uint64_t component_flag);
+ui8    lite_engine_entity_has_component  (uint64_t entity_ID,
+                                          uint64_t component_flag);
 
 #endif

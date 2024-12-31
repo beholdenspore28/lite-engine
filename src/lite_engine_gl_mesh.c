@@ -111,10 +111,10 @@ mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_ui32 indices) {
 			GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.length, indices.array,
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32) * indices.length, indices.array,
 			GL_STATIC_DRAW);
 
-	GLuint vertStride = sizeof(vertex_t); // how many bytes per vertex?
+	ui32 vertStride = sizeof(vertex_t); // how many bytes per vertex?
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertStride,
@@ -190,7 +190,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 
 			state = STATE_INDICES;
 
-			GLuint index;
+			ui32 index;
 			int num_tokens = sscanf(c, "%u", &index);
 			if (num_tokens != 1) {
 				debug_error("Failed to read vertex_indices at '%s'", file_path);
@@ -199,7 +199,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 			while(*c != ' ' && *c != '\0') { c++; } // skip the rest of the number
 
 			//debug_log("%u ", index);
-			list_GLuint_add(&indices, index);
+			list_ui32_add(&indices, index);
 		}
 
 		if (strcmp(token, "vertex_texture_coordinates:") == 0 || state == STATE_TEX_COORD) {
@@ -281,5 +281,5 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 
 void lite_engine_gl_mesh_free(mesh_t *mesh) {
 	list_vertex_t_free(&mesh->vertices);
-	list_GLuint_free(&mesh->indices);
+	list_ui32_free(&mesh->indices);
 }
