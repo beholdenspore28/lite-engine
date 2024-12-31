@@ -67,8 +67,6 @@ int main() {
 	};
 
 	while (lite_engine_is_running()) {
-		state.transforms[cube].position.x+= lite_engine_get_context().time_delta;
-		//printf("ID %lu position { %f, %f }\n", ID, transforms[ID].position.x, transforms[ID].position.y);
 		lite_engine_update();
 	}
 
