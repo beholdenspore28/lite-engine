@@ -15,11 +15,11 @@ int main() {
 	lite_engine_start();
 
 	lite_engine_gl_state_t state = (lite_engine_gl_state_t) {
-		.transforms   = calloc(sizeof(transform_t),   LITE_ENGINE_ENTITIES_MAX),
-		.meshes       = calloc(sizeof(mesh_t),        LITE_ENGINE_ENTITIES_MAX),
-		.lights       = calloc(sizeof(light_t),       LITE_ENGINE_ENTITIES_MAX),
-		.materials    = calloc(sizeof(material_t),    LITE_ENGINE_ENTITIES_MAX),
-		.cameras      = calloc(sizeof(camera_t),      LITE_ENGINE_ENTITIES_MAX),
+		.transforms   = calloc(sizeof(transform_t), LITE_ENGINE_ENTITIES_MAX),
+		.meshes       = calloc(sizeof(mesh_t),      LITE_ENGINE_ENTITIES_MAX),
+		.lights       = calloc(sizeof(light_t),     LITE_ENGINE_ENTITIES_MAX),
+		.materials    = calloc(sizeof(material_t),  LITE_ENGINE_ENTITIES_MAX),
+		.cameras      = calloc(sizeof(camera_t),    LITE_ENGINE_ENTITIES_MAX),
 	};
 	lite_engine_gl_set_state(state);
 
@@ -61,7 +61,7 @@ int main() {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 	state.meshes[cube].enabled = 1;
 
 	state.transforms[cube] = (transform_t) {
