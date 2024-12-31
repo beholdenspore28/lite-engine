@@ -7,6 +7,11 @@
 
 #include <time.h>
 
+DEFINE_LIST(ui8)
+DEFINE_LIST(ui16)
+DEFINE_LIST(ui32)
+DEFINE_LIST(ui64)
+
 typedef struct {
 	ui8     renderer;
 	ui8     is_running;

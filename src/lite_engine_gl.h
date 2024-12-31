@@ -23,7 +23,7 @@ vector3_t lite_engine_gl_transform_basis_back            (transform_t t, float m
 vector3_t lite_engine_gl_transform_basis_down            (transform_t t, float magnitude);
 vector3_t lite_engine_gl_transform_basis_left            (transform_t t, float magnitude);
 
-mesh_t    lite_engine_gl_mesh_alloc                      (list_vertex_t vertices, list_GLuint indices);
+mesh_t    lite_engine_gl_mesh_alloc                      (list_vertex_t vertices, list_ui32 indices);
 mesh_t    lite_engine_gl_mesh_lmod_alloc                 (const char* file_path);
 void      lite_engine_gl_mesh_free                       (mesh_t *mesh);
 void      lite_engine_gl_mesh_update                     (object_pool_t object_pool);

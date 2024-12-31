@@ -94,7 +94,7 @@ void lite_engine_gl_mesh_update (object_pool_t object_pool) {
 	glUseProgram(0);
 }
 
-mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {
+mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_ui32 indices) {
 	mesh_t m   = {0};
 	m.enabled  = 1;
 	m.vertices = vertices;
@@ -151,7 +151,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {
 	list_vector3_t positions  = list_vector3_t_alloc();
 	list_vector3_t normals    = list_vector3_t_alloc();
 	list_vector2_t tex_coords = list_vector2_t_alloc();
-	list_GLuint indices       = list_GLuint_alloc();
+	list_ui32 indices       = list_ui32_alloc();
 
 	enum {
 		STATE_INITIAL = -1,
