@@ -67,8 +67,9 @@ int main() {
 	};
 
 	while (lite_engine_is_running()) {
-		lite_engine_gl_transform_rotate(cube,
-				quaternion_from_euler(vector3_up(lite_engine_get_time_delta())));
+		quaternion_t rot = quaternion_from_euler(vector3_up(lite_engine_get_time_delta()));
+		lite_engine_gl_transform_rotate(cube, rot);
+
 		lite_engine_update();
 	}
 
