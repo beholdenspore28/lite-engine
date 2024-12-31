@@ -33,8 +33,8 @@ typedef struct {
 	float          quadratic;
 	vector3_t      diffuse;
 	vector3_t      specular;
-} point_light_t;
-DECLARE_LIST(point_light_t)
+} light_t;
+DECLARE_LIST(light_t)
 
 typedef struct {
 	vector3_t      position;
@@ -75,14 +75,6 @@ typedef struct {
 	float          lastY;
 } camera_t;
 DECLARE_LIST(camera_t)
-
-typedef struct {
-	material_t    *materials;
-	mesh_t        *meshes;
-	transform_t   *transforms;
-	point_light_t *lights;
-	camera_t      *cameras;
-} object_pool_t;
 
 void   lite_engine_start                 (void);
 void   lite_engine_use_render_api        (ui8 api);

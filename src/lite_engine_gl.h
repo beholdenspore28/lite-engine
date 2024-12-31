@@ -11,7 +11,7 @@ DECLARE_LIST(GLuint)
 typedef struct {
 	transform_t   *transforms;
 	mesh_t        *meshes;
-	point_light_t *point_lights;
+	light_t       *lights;
 	material_t    *materials;
 	camera_t      *cameras;
 }lite_engine_gl_state_t;
@@ -35,7 +35,7 @@ vector3_t lite_engine_gl_transform_basis_left            (transform_t t, float m
 mesh_t    lite_engine_gl_mesh_alloc                      (list_vertex_t vertices, list_ui32 indices);
 mesh_t    lite_engine_gl_mesh_lmod_alloc                 (const char* file_path);
 void      lite_engine_gl_mesh_free                       (mesh_t *mesh);
-void      lite_engine_gl_mesh_update                     (object_pool_t object_pool);
+void      lite_engine_gl_mesh_update                     (lite_engine_gl_state_t state);
 
 GLuint    lite_engine_gl_shader_create                   (const char *vertex_shader_file_path,
                                                           const char *fragment_shader_file_path);

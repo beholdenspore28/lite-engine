@@ -17,18 +17,58 @@ int main() {
 	lite_engine_gl_state_t state = (lite_engine_gl_state_t) {
 		.transforms   = calloc(sizeof(transform_t),   LITE_ENGINE_ENTITIES_MAX),
 		.meshes       = calloc(sizeof(mesh_t),        LITE_ENGINE_ENTITIES_MAX),
-		.point_lights = calloc(sizeof(point_light_t), LITE_ENGINE_ENTITIES_MAX),
+		.lights       = calloc(sizeof(light_t),       LITE_ENGINE_ENTITIES_MAX),
 		.materials    = calloc(sizeof(material_t),    LITE_ENGINE_ENTITIES_MAX),
 		.cameras      = calloc(sizeof(camera_t),      LITE_ENGINE_ENTITIES_MAX),
 	};
 	lite_engine_gl_set_state(state);
 
-	uint64_t cube  = lite_engine_entity_create();
+	const ui64 light = lite_engine_entity_create();
+	state.transforms[light] = (transform_t) {
+		.position = { 0.0, 10, -10 },
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+	};
 
-	lite_engine_component_add(cube,
-			LITE_ENGINE_COMPONENT_TRANSFORM |
-			LITE_ENGINE_COMPONENT_MESH |
-			LITE_ENGINE_COMPONENT_MATERIAL);
+	state.lights[light] = (light_t) {
+		.diffuse   = vector3_one(0.8f),
+		.specular  = vector3_one(1.0f),
+		.constant  = 1.0f,
+		.linear    = 0.09f,
+		.quadratic = 0.0032f,
+	};
+
+	const ui64 camera = lite_engine_entity_create();
+	state.cameras[camera] = (camera_t) {
+		.projection = matrix4_identity(),
+	};
+
+	state.transforms[camera] = (transform_t) {
+		.position = (vector3_t){ 0.0, 0.0, -10.0 },
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+		.matrix   = matrix4_identity(),
+	};
+
+	lite_engine_gl_set_active_camera(camera);
+
+
+	const ui64 cube = lite_engine_entity_create();
+	state.materials[cube] = (material_t) {
+		.shader = lite_engine_gl_shader_create(
+				"res/shaders/phong_diffuse_vertex.glsl",
+				"res/shaders/phong_diffuse_fragment.glsl"),
+		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
+	};
+
+	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
+	state.meshes[cube].enabled = 1;
+
+	state.transforms[cube] = (transform_t) {
+		.position = vector3_zero(),
+		.rotation = quaternion_identity(),
+		.scale    = vector3_one(1.0),
+	};
 
 	while (lite_engine_is_running()) {
 		for(uint64_t ID = 0; ID < LITE_ENGINE_ENTITIES_MAX; ID++) {

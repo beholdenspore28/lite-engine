@@ -36,12 +36,6 @@ static ui16  internal_prefer_window_position_y    = 0;
 static ui8   internal_prefer_window_always_on_top = 0;
 static ui8   internal_prefer_window_fullscreen    = 0;
 
-static const ui64 camera = 1;
-#if 0
-static const ui64 light  = 0;
-static const ui64 cube   = 2;
-#endif
-
 ui64 lite_engine_gl_get_active_camera(void) {
 	return internal_gl_active_camera;
 }
@@ -304,7 +298,7 @@ void lite_engine_gl_render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//lite_engine_gl_mesh_update();
+	lite_engine_gl_mesh_update(internal_gl_state);
 
 #if 0
 	internal_object_pool.transforms[cube].rotation = quaternion_multiply(
