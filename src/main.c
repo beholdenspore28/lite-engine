@@ -18,22 +18,6 @@ enum {
 position positions  [LITE_ENGINE_ENTITIES_MAX];
 velocity velocities [LITE_ENGINE_ENTITIES_MAX];
 
-void lite_engine_entity_update(void) {
-	for(uint64_t ID = 0; ID < LITE_ENGINE_ENTITIES_MAX; ID++) {
-		//printf("ID %lu exists\n", ID);
-		if (lite_engine_entity_has_component(ID, LITE_ENGINE_COMPONENT_VELOCITY)) {
-			velocities[ID].x++; 
-			velocities[ID].y++; 
-			printf("ID %lu position { %f, %f }\n", ID, positions[ID].x, positions[ID].y);
-		}
-		if (lite_engine_entity_has_component(ID, LITE_ENGINE_COMPONENT_POSITION)) {
-			positions[ID].x += velocities[ID].x;
-			positions[ID].y += velocities[ID].y;
-			printf("ID %lu position { %f, %f }\n", ID, positions[ID].x, positions[ID].y);
-		}
-	}
-}
-
 int main() {
 	lite_engine_start();
 
@@ -50,6 +34,19 @@ int main() {
 
 
 	while (lite_engine_is_running()) {
+		for(uint64_t ID = 0; ID < LITE_ENGINE_ENTITIES_MAX; ID++) {
+			//printf("ID %lu exists\n", ID);
+			if (lite_engine_entity_has_component(ID, LITE_ENGINE_COMPONENT_VELOCITY)) {
+				velocities[ID].x++; 
+				velocities[ID].y++; 
+				printf("ID %lu position { %f, %f }\n", ID, positions[ID].x, positions[ID].y);
+			}
+			if (lite_engine_entity_has_component(ID, LITE_ENGINE_COMPONENT_POSITION)) {
+				positions[ID].x += velocities[ID].x;
+				positions[ID].y += velocities[ID].y;
+				printf("ID %lu position { %f, %f }\n", ID, positions[ID].x, positions[ID].y);
+			}
+		}
 		lite_engine_update();
 	}
 
