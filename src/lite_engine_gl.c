@@ -24,7 +24,9 @@ typedef struct {
 	ui8         window_fullscreen;
 } opengl_context_t;
 
-static opengl_context_t *internal_gl_context = NULL;
+static opengl_context_t *     internal_gl_context = NULL;
+static ui64                   internal_gl_active_camera = 0;
+static lite_engine_gl_state_t internal_gl_state = {0};
 
 static char *internal_prefer_window_title         = "Game Window";
 static ui16  internal_prefer_window_size_x        = 640;
@@ -40,13 +42,12 @@ static const ui64 light  = 0;
 static const ui64 cube   = 2;
 #endif
 
-
-// object lists to keep stuff hot on the cache
-static ui64                  internal_gl_active_camera = 0;
-static object_pool_t         internal_object_pool;
-
 ui64 lite_engine_gl_get_active_camera(void) {
 	return internal_gl_active_camera;
+}
+
+void lite_engine_gl_set_state(lite_engine_gl_state_t state) {
+	internal_gl_state = state;
 }
 
 void lite_engine_gl_set_prefer_window_title(char *title) {
@@ -266,69 +267,9 @@ void lite_engine_gl_start(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.2, 0.3, 0.4, 1.0);
-
-	// allocate initial pool of objects
-	internal_object_pool = (object_pool_t) {
-		.materials  = calloc(sizeof(*internal_object_pool.materials),  1024),
-		.meshes     = calloc(sizeof(*internal_object_pool.meshes),     1024),
-		.transforms = calloc(sizeof(*internal_object_pool.transforms), 1024),
-		.lights     = calloc(sizeof(*internal_object_pool.lights),     1024),
-		.cameras    = calloc(sizeof(*internal_object_pool.cameras),    1024),
-	};
-
-	internal_object_pool.cameras[camera] = (camera_t) {
-		.projection = matrix4_identity(),
-	};
-
-	internal_object_pool.transforms[camera] = (transform_t) {
-		.position = (vector3_t){ 0.0, 0.0, -10.0 },
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-		.matrix   = matrix4_identity(),
-	};
-
-	lite_engine_gl_set_active_camera(camera);
-
-#if 0
-	internal_object_pool.transforms[light] = (transform_t) {
-		.position = { 0.0, 10, -10 },
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-	};
-
-	internal_object_pool.lights[light] = (point_light_t) {
-		.diffuse   = vector3_one(0.8f),
-		.specular  = vector3_one(1.0f),
-		.constant  = 1.0f,
-		.linear    = 0.09f,
-		.quadratic = 0.0032f,
-	};
-
-
-	internal_object_pool.materials[cube] = (material_t) {
-		.shader = lite_engine_gl_shader_create(
-				"res/shaders/phong_diffuse_vertex.glsl",
-				"res/shaders/phong_diffuse_fragment.glsl"),
-		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
-	};
-
-	internal_object_pool.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
-	internal_object_pool.meshes[cube].enabled = 1;
-
-	internal_object_pool.transforms[cube] = (transform_t) {
-		.position = vector3_zero(),
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
-	};
-#endif
 }
 
-void lite_engine_gl_render(void) {
-#if 1 // debugging input to exit
-	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
-		lite_engine_stop();
-#endif
-
+void lite_engine_gl_camera_update(void) {
 	{ // projection
 		{
 			int window_size_x;
@@ -344,17 +285,26 @@ void lite_engine_gl_render(void) {
 
 		float aspect = (float)internal_gl_context->window_size_x /
 			(float)internal_gl_context->window_size_y;
-		internal_object_pool.cameras[internal_gl_active_camera].projection =
+		internal_gl_state.cameras[internal_gl_active_camera].projection =
 			matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-		internal_object_pool.transforms[internal_gl_active_camera].matrix = 
+		internal_gl_state.transforms[internal_gl_active_camera].matrix = 
 			matrix4_identity();
 		lite_engine_gl_transform_calculate_view_matrix(
-				&internal_object_pool.transforms[internal_gl_active_camera]);
+				&internal_gl_state.transforms[internal_gl_active_camera]);
 	}
+}
+
+void lite_engine_gl_render(void) {
+#if 1 // debugging input to exit
+	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
+		lite_engine_stop();
+#endif
+
+	lite_engine_gl_camera_update();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	lite_engine_gl_mesh_update(internal_object_pool);
+	//lite_engine_gl_mesh_update();
 
 #if 0
 	internal_object_pool.transforms[cube].rotation = quaternion_multiply(

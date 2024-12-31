@@ -8,6 +8,15 @@
 
 DECLARE_LIST(GLuint)
 
+typedef struct {
+	transform_t   *transforms;
+	mesh_t        *meshes;
+	point_light_t *point_lights;
+	material_t    *materials;
+	camera_t      *cameras;
+}lite_engine_gl_state_t;
+
+void      lite_engine_gl_set_state                       (lite_engine_gl_state_t state);
 void      lite_engine_gl_start                           (void);
 void      lite_engine_gl_stop                            (void);
 void      lite_engine_gl_render                          (void);
