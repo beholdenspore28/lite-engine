@@ -67,6 +67,8 @@ int main() {
 	};
 
 	while (lite_engine_is_running()) {
+		state.transforms[cube].rotation = quaternion_multiply(state.transforms[cube].rotation,
+				quaternion_from_euler(vector3_up(lite_engine_get_time_delta())));
 		lite_engine_update();
 	}
 
