@@ -42,7 +42,7 @@ int main() {
 	};
 
 	state.transforms[camera] = (transform_t) {
-		.position   = (vector3_t){ 0.0, 0.0, -30.0 },
+		.position   = (vector3_t){ 0.0, 0.0, -10.0 },
 		.rotation   = quaternion_identity(),
 		.scale      = vector3_one(1.0),
 		.matrix     = matrix4_identity(),
@@ -58,7 +58,7 @@ int main() {
 		.diffuseMap = lite_engine_gl_texture_create("res/textures/test.png"),
 	};
 
-	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/cube.lmod");
 
 	state.transforms[cube] = (transform_t) {
 		.position = vector3_zero(),
