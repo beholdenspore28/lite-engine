@@ -26,7 +26,7 @@ void lite_engine_component_add(uint64_t ID, uint64_t component_flag) {
   entities[ID].component_flags |= component_flag;
 }
 
-bool lite_engine_entity_has_component(uint64_t entity_ID,
+ui8 lite_engine_entity_has_component(uint64_t entity_ID,
 				      uint64_t component_flag) {
   return entities[entity_ID].component_flags & component_flag;
 }

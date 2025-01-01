@@ -51,6 +51,11 @@ int main() {
   lite_engine_gl_set_active_camera(camera);
 
   const ui64 cube	= lite_engine_entity_create();
+  lite_engine_component_add(cube,
+		  LITE_ENGINE_COMPONENT_TRANSFORM |
+		  LITE_ENGINE_COMPONENT_MESH |
+		  LITE_ENGINE_COMPONENT_MATERIAL);
+
   state.materials[cube] = (material_t){
       .shader = lite_engine_gl_shader_create(
 	  "res/shaders/phong_diffuse_vertex.glsl",
@@ -68,11 +73,17 @@ int main() {
   };
 
   while (lite_engine_is_running()) {
-    quaternion_t rot =
-	quaternion_from_euler(vector3_up(lite_engine_get_time_delta()));
-    lite_engine_gl_transform_rotate(cube, rot);
+    //quaternion_t rot =
+	//quaternion_from_euler(vector3_up(lite_engine_get_time_delta()));
+    //lite_engine_gl_transform_rotate(cube, rot);
 
     lite_engine_update();
+	for(uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
+		if (lite_engine_entity_has_component(e, LITE_ENGINE_COMPONENT_TRANSFORM)) {
+			state.transforms[e].position.x = sin(lite_engine_get_context().time_current);
+		}
+	}
+
   }
 
   return 0;
