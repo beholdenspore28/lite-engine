@@ -6,9 +6,7 @@ void lite_engine_gl_mesh_update(lite_engine_gl_state_t state) {
 	glEnable(GL_CULL_FACE);
 
 	for (ui64 e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
-		if (state.meshes[e].enabled == 0) {
-			continue;
-		}
+		if (state.meshes[e].enabled == 0) { continue; }
 
 		if (state.meshes[e].use_wire_frame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -215,9 +213,11 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 				    file_path);
 				assert(0);
 			}
+
+			// skip the rest of the number
 			while (*c != ' ' && *c != '\0') {
 				c++;
-			} // skip the rest of the number
+			}
 
 			// debug_log("%u ", index);
 			list_ui32_add(&indices, index);
@@ -303,10 +303,8 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (size_t i = 0; i < positions.length; i++) {
 		vertex_t vertex = {0};
-		if (positions.length > 0)
-			vertex.position = positions.array[i];
-		if (normals.length > 0)
-			vertex.normal = normals.array[i];
+		if (positions.length > 0) vertex.position = positions.array[i];
+		if (normals.length > 0) vertex.normal = normals.array[i];
 		if (tex_coords.length > 0)
 			vertex.texCoord = tex_coords.array[i];
 		list_vertex_t_add(&vertices, vertex);

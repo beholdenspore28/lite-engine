@@ -82,24 +82,16 @@ void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 	printf("Debug message (%d) %s\n", id, message);
 
 	switch (source) {
-	case GL_DEBUG_SOURCE_API:
-		printf("Source: API");
-		break;
+	case GL_DEBUG_SOURCE_API: printf("Source: API"); break;
 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
 		printf("Source: Window System");
 		break;
 	case GL_DEBUG_SOURCE_SHADER_COMPILER:
 		printf("Source: Shader Compiler");
 		break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:
-		printf("Source: Third Party");
-		break;
-	case GL_DEBUG_SOURCE_APPLICATION:
-		printf("Source: Application");
-		break;
-	case GL_DEBUG_SOURCE_OTHER:
-		printf("Source: Other");
-		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY: printf("Source: Third Party"); break;
+	case GL_DEBUG_SOURCE_APPLICATION: printf("Source: Application"); break;
+	case GL_DEBUG_SOURCE_OTHER: printf("Source: Other"); break;
 	}
 	printf("\n");
 
@@ -188,9 +180,7 @@ void lite_engine_gl_start(void) {
 	internal_gl_context->window_fullscreen =
 	    internal_prefer_window_fullscreen;
 
-	if (!glfwInit()) {
-		debug_error("Failed to initialize GLFW");
-	}
+	if (!glfwInit()) { debug_error("Failed to initialize GLFW"); }
 
 	glfwSetErrorCallback(error_callback);
 
@@ -238,9 +228,7 @@ void lite_engine_gl_start(void) {
 
 	glfwSwapInterval(0);
 
-	if (!gladLoadGL()) {
-		debug_error("Failed to initialize GLAD");
-	}
+	if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
 
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
