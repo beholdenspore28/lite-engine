@@ -9,11 +9,11 @@
 DECLARE_LIST(GLuint)
 
 typedef struct {
-  transform_t *transforms;
-  mesh_t      *meshes;
-  light_t     *lights;
-  material_t  *materials;
-  camera_t    *cameras;
+	transform_t *transforms;
+	mesh_t	    *meshes;
+	light_t	    *lights;
+	material_t  *materials;
+	camera_t    *cameras;
 } lite_engine_gl_state_t;
 
 void lite_engine_gl_set_state(lite_engine_gl_state_t state);
