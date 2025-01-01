@@ -178,9 +178,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 		if (isspace(*c)) {
 			continue;
 		} else if (*c == '#') {
-			while (*c != '\n' && *c != '\0') {
-				c++;
-			}
+			while (*c != '\n' && *c != '\0') { c++; }
 			continue;
 		}
 
@@ -215,9 +213,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 			}
 
 			// skip the rest of the number
-			while (*c != ' ' && *c != '\0') {
-				c++;
-			}
+			while (*c != ' ' && *c != '\0') { c++; }
 
 			// debug_log("%u ", index);
 			list_ui32_add(&indices, index);
@@ -244,9 +240,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 			list_vector2_t_add(&tex_coords, tex_coord);
 			// vector2_print(tex_coords.array[tex_coords.length-1],
 			// "tex coord");
-			while (*c != '\n' && *c != '\0') {
-				c++;
-			}
+			while (*c != '\n' && *c != '\0') { c++; }
 		}
 
 		if (strcmp(token, "vertex_normals:") == 0 ||
@@ -268,9 +262,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 
 			// vector3_print(normal, "normal");
 			list_vector3_t_add(&normals, normal);
-			while (*c != '\n' && *c != '\0') {
-				c++;
-			}
+			while (*c != '\n' && *c != '\0') { c++; }
 		}
 
 		if (strcmp(token, "vertex_positions:") == 0 ||
@@ -292,9 +284,7 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 
 			// vector3_print(position, "position");
 			list_vector3_t_add(&positions, position);
-			while (*c != '\n' && *c != '\0') {
-				c++;
-			}
+			while (*c != '\n' && *c != '\0') { c++; }
 		}
 	}
 
