@@ -81,8 +81,6 @@ int main() {
 		for (uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
 			if (lite_engine_entity_has_component(
 				e, LITE_ENGINE_COMPONENT_TRANSFORM)) {
-				// state.transforms[e].position.x =
-				// sin(lite_engine_get_context().time_current);
 			}
 		}
 	}
