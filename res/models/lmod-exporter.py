@@ -60,7 +60,7 @@ with open(filepath, 'w') as f:
         if mesh.uv_layers.active:
             f.write("vertex_texture_coordinates:\n")
             for loop in reversed(mesh.loops):
-                uv = uv_layer[loop.index-1].uv
+                uv = uv_layer[loop.index].uv
                 f.write(f"{uv.x:.4f}\t{uv.y:.4f}\n")
         else:
             f.write("vertex_texture_coordinates:\n")

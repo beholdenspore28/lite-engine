@@ -60,7 +60,7 @@ int main() {
 		"res/shaders/phong_diffuse_vertex.glsl",
 		"res/shaders/phong_diffuse_fragment.glsl"),
 	    .diffuseMap =
-		lite_engine_gl_texture_create("res/textures/test.png"),
+		lite_engine_gl_texture_create("res/textures/lite-engine-icon.png"),
 	};
 
 	state.meshes[cube] =
