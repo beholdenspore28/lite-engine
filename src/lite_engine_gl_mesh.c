@@ -249,8 +249,8 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 #endif
 
 			list_vector2_t_add(&tex_coords, tex_coord[2]);
-			list_vector2_t_add(&tex_coords, tex_coord[0]);
 			list_vector2_t_add(&tex_coords, tex_coord[1]);
+			list_vector2_t_add(&tex_coords, tex_coord[0]);
 
 			while (*c != '\n' && *c != '\0') { c++; }
 			c++;
