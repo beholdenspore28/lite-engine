@@ -73,11 +73,12 @@ int main() {
 	};
 
 	while (lite_engine_is_running()) {
-		//quaternion_t rot = quaternion_from_euler(
-		//    vector3_one(lite_engine_get_time_delta()));
-		//lite_engine_gl_transform_rotate(cube, rot);
+		quaternion_t rot = quaternion_from_euler(
+		    vector3_one(lite_engine_get_time_delta()*0.1));
+		lite_engine_gl_transform_rotate(cube, rot);
 
 		lite_engine_update();
+
 		for (uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
 			if (lite_engine_entity_has_component(
 				e, LITE_ENGINE_COMPONENT_TRANSFORM)) {

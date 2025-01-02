@@ -248,7 +248,7 @@ void lite_engine_gl_start(void) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClearColor(0.2, 0.3, 0.4, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
 void lite_engine_gl_transform_rotate(uint64_t entity, quaternion_t rotation) {
