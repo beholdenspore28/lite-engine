@@ -68,14 +68,14 @@ int main() {
 
 	state.transforms[cube] = (transform_t){
 	    .position = vector3_zero(),
-	    .rotation = quaternion_from_euler(vector3_up(PI)),
+	    .rotation = quaternion_identity(),
 	    .scale    = vector3_one(1.0),
 	};
 
 	while (lite_engine_is_running()) {
-		quaternion_t rot = quaternion_from_euler(
-		    vector3_one(lite_engine_get_time_delta()));
-		lite_engine_gl_transform_rotate(cube, rot);
+		//quaternion_t rot = quaternion_from_euler(
+		//    vector3_one(lite_engine_get_time_delta()));
+		//lite_engine_gl_transform_rotate(cube, rot);
 
 		lite_engine_update();
 		for (uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {

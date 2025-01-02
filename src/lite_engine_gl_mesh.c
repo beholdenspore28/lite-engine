@@ -44,7 +44,7 @@ void lite_engine_gl_mesh_update(lite_engine_gl_state_t state) {
 			    state.transforms[lite_engine_gl_get_active_camera()]
 				.position);
 
-#if 1
+#if 0
 			const int light = 0;
 			// light uniforms
 			lite_engine_gl_shader_setUniformV3(
@@ -248,9 +248,9 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 					tex_coord[2].x, tex_coord[2].y);
 #endif
 
+			list_vector2_t_add(&tex_coords, tex_coord[2]);
 			list_vector2_t_add(&tex_coords, tex_coord[0]);
 			list_vector2_t_add(&tex_coords, tex_coord[1]);
-			list_vector2_t_add(&tex_coords, tex_coord[2]);
 
 			while (*c != '\n' && *c != '\0') { c++; }
 			c++;
@@ -306,7 +306,8 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 
 	file_buffer_free(fb);
 
-	debug_log("pos: %zu norm: %zu tex: %zu", positions.length, normals.length, tex_coords.length );
+	debug_log("pos: %zu norm: %zu tex: %zu",
+			positions.length, normals.length, tex_coords.length );
 
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (size_t i = 0; i < positions.length; i++) {
