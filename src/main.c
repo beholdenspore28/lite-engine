@@ -42,7 +42,7 @@ int main() {
 	};
 
 	state.transforms[camera] = (transform_t){
-	    .position = (vector3_t){0.0, 0.0, -2.0},
+	    .position = (vector3_t){0.0, 0.0, -5.0},
 	    .rotation = quaternion_identity(),
 	    .scale    = vector3_one(1.0),
 	    .matrix   = matrix4_identity(),
@@ -74,7 +74,7 @@ int main() {
 
 	while (lite_engine_is_running()) {
 		quaternion_t rot = quaternion_from_euler(
-		    vector3_up(lite_engine_get_time_delta()));
+		    vector3_one(lite_engine_get_time_delta()));
 		lite_engine_gl_transform_rotate(cube, rot);
 
 		lite_engine_update();
