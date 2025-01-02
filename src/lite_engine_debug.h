@@ -13,7 +13,7 @@
 
 #define debug_log(...)                                                         \
 	{                                                                      \
-		printf(ANSI_COLOR_BLUE "[LITE_ENGINE_LOG]\t" __VA_ARGS__);     \
+		printf(ANSI_COLOR_CYAN "[LITE_ENGINE_LOG]\t" __VA_ARGS__);     \
 		printf("\n" ANSI_COLOR_RESET);                                 \
 	}
 
