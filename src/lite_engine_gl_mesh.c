@@ -227,8 +227,11 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 			state = STATE_TEX_COORD;
 
 			vector2_t tex_coord = {0};
-			int	  num_tokens =
-			    sscanf(c, "%f %f", &tex_coord.x, &tex_coord.y);
+
+			int num_tokens =
+			    sscanf(c, "%f %f\n",
+						&tex_coord.x, &tex_coord.y);
+			
 			if (num_tokens != 2) {
 				debug_error(
 				    "Failed to read vertex_texture_coordinates "
@@ -237,9 +240,11 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 				assert(0);
 			}
 
+			debug_log("%f %f",
+					tex_coord.x, tex_coord.y);
+
 			list_vector2_t_add(&tex_coords, tex_coord);
-			// vector2_print(tex_coords.array[tex_coords.length-1],
-			// "tex coord");
+
 			while (*c != '\n' && *c != '\0') { c++; }
 		}
 
@@ -289,6 +294,8 @@ mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {
 	}
 
 	file_buffer_free(fb);
+
+	debug_log("pos: %zu norm: %zu tex: %zu", positions.length, normals.length, tex_coords.length );
 
 	list_vertex_t vertices = list_vertex_t_alloc();
 	for (size_t i = 0; i < positions.length; i++) {
