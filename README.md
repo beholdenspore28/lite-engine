@@ -2,6 +2,21 @@
 
 ![cube_preview](./doc/img/cube_preview.png)
 
+# The mission.
+I created Lite-Engine with the purpose of providing a light-weight, extendable,
+free and open source game engine for anyone and everyone. At the heart of the project
+is the notion that anyone should be able to make a game for free with no strings
+attached.
+
+# Features
+Lite engine is under development and should not be used for production projects yet.
+That being said, here is a (mostly) comprehensive list of its current features.
+
+    Minimal dependencies.
+
+# My current goals:
+My next big step is skeletal animation.
+
 # Building on Linux
 Ensure you have installed GLFW3 using your package manager of choice before you continue.
 For example:
