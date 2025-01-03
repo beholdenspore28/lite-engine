@@ -3,6 +3,15 @@ for general build instructions, see the makefile located in the same directory a
 
 ![cube_preview](./doc/img/cube_preview.png)
 
+# Building on Linux
+ensure you have installed GLFW3 using your package manager of choice before you continue.
+
+to build the demo, open a terminal and navigate to the lite-engine folder.
+run this command to build the engine:
+```
+$ make -Bj linux
+```
+
 # Building on WSL2-Ubuntu on Windows 11 (2025)
 ```
 git clone --recursive https://github.com/beholdenspore28/lite-engine.git
@@ -12,6 +21,3 @@ sudo apt-get install libglfw3
 sudo apt-get install libglfw3-dev
 make
 ```
-
-you should see a window with a 3d cube spinning in it when make occurs. Hit `ESC` to exit
-![cube_make](./doc/img/cube_make.jpg)
