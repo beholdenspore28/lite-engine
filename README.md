@@ -1,6 +1,8 @@
 # ⚠️ Lite-Engine is under development and should not be used for production projects yet. ⚠️
 for general build instructions, see the makefile located in the same directory as this file.
 
+![cube](./doc/img/cube_preview.jpg)
+
 # Building on WSL2-Ubuntu on Windows 11 (2025)
 ```
 git clone --recursive https://github.com/beholdenspore28/lite-engine.git
