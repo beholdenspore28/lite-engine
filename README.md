@@ -1,7 +1,7 @@
 # ⚠️ Lite-Engine is under development and should not be used for production projects yet. ⚠️
 for general build instructions, see the makefile located in the same directory as this file.
 
-![cube](./doc/img/cube_preview.jpg)
+![cube_preview](./doc/img/cube_preview.jpg)
 
 # Building on WSL2-Ubuntu on Windows 11 (2025)
 ```
@@ -14,4 +14,4 @@ make
 ```
 
 you should see a window with a 3d cube spinning in it when make occurs. Hit `ESC` to exit
-![cube](./doc/img/cube_make.jpg)
+![cube_make](./doc/img/cube_make.jpg)
