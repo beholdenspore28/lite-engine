@@ -2,10 +2,13 @@
 #| Lite-Engine build system                                                  |#
 #|                                                                           |#
 #| To build a linux binary:                                                  |#
-#|    run: make -Bj linux                                                    |#
+#|    run: make -B linux                                                    |#
+#|                                                                           |#
+#| To build a FreeBSD binary:                                                |#
+#|    run: make -B free_bsd                                                 |#
 #|                                                                           |#
 #| To build an Apple MacOS binary                                            |#
-#|    run: make -Bj macos                                                    |#
+#|    run: make -B macos                                                    |#
 #|                                                                           |#
 #| If the engine is built successfully, executables/binaries are stored in   |# 
 #| the build directory                                                       |#
