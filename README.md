@@ -4,13 +4,15 @@
 
 # Building on Linux
 Ensure you have installed GLFW3 using your package manager of choice before you continue.
-
+For example:
+```
+$ sudo apt install libglfw3 libglfw3-dev
+```
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
 $ make -Bj linux
 ```
-
 # Building on FreeBSD
 Ensure you have installed GLFW3 using pkg install before you continue.
 
@@ -19,7 +21,6 @@ Run this command to build the engine:
 ```
 $ make -Bj free_bsd
 ```
-
 # Building on WSL2-Ubuntu on Windows 11 (2025)
 ```
 git clone --recursive https://github.com/beholdenspore28/lite-engine.git
