@@ -3,12 +3,21 @@
 ![cube_preview](./doc/img/cube_preview.png)
 
 # Building on Linux
-ensure you have installed GLFW3 using your package manager of choice before you continue.
+Ensure you have installed GLFW3 using your package manager of choice before you continue.
 
-to build the demo, open a terminal and navigate to the lite-engine folder.
-run this command to build the engine:
+To build the demo, open a terminal and navigate to the lite-engine folder.
+Run this command to build the engine:
 ```
 $ make -Bj linux
+```
+
+# Building on FreeBSD
+Ensure you have installed GLFW3 using pkg install before you continue.
+
+To build the demo, open a terminal and navigate to the lite-engine folder.
+Run this command to build the engine:
+```
+$ make -Bj free_bsd
 ```
 
 # Building on WSL2-Ubuntu on Windows 11 (2025)
