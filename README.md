@@ -17,7 +17,10 @@ LICENSE file
 Lite engine is under development and should not be used for production projects yet.
 That being said, here is a (mostly) comprehensive list of its current features.
 
-    Minimal dependencies.
+- Minimal dependencies.
+- Simple build system using make
+- Verbose and strict naming conventions.
+    All functions are named using full english words. No abreviations or shorthand
 
 # My current goals:
 My next big step is skeletal animation.
