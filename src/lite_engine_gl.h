@@ -9,6 +9,55 @@
 DECLARE_LIST(GLuint)
 
 typedef struct {
+	float	  constant;
+	float	  linear;
+	float	  quadratic;
+	vector3_t diffuse;
+	vector3_t specular;
+} light_t;
+DECLARE_LIST(light_t)
+
+typedef struct {
+	vector3_t position;
+	vector2_t texCoord;
+	vector3_t normal;
+} vertex_t;
+DECLARE_LIST(vertex_t)
+
+typedef struct {
+	ui8	      enabled;
+	ui8	      use_wire_frame;
+	ui32	      VAO;
+	ui32	      VBO;
+	ui32	      EBO;
+	list_vertex_t vertices;
+	list_ui32     indices;
+} mesh_t;
+DECLARE_LIST(mesh_t)
+
+typedef struct {
+	ui32 shader;
+	ui32 diffuseMap;
+	ui32 specularMap;
+} material_t;
+DECLARE_LIST(material_t)
+
+typedef struct {
+	matrix4_t    matrix;
+	vector3_t    position;
+	quaternion_t rotation;
+	vector3_t    scale;
+} transform_t;
+DECLARE_LIST(transform_t)
+
+typedef struct {
+	matrix4_t projection;
+	float	  lastX;
+	float	  lastY;
+} camera_t;
+DECLARE_LIST(camera_t)
+
+typedef struct {
 	transform_t *transforms;
 	mesh_t	    *meshes;
 	light_t	    *lights;
