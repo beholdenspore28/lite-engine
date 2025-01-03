@@ -18,7 +18,7 @@
 	}
 
 #define debug_warn(...)\
-	{                                                                      \
+	{\
 		printf(ANSI_COLOR_YELLOW\
 		       "[LITE_ENGINE_WARNING]\t" __VA_ARGS__);\
 		printf("\n" ANSI_COLOR_RESET);\
