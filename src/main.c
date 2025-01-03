@@ -59,8 +59,8 @@ int main() {
 	    .shader = lite_engine_gl_shader_create(
 		"res/shaders/phong_diffuse_vertex.glsl",
 		"res/shaders/phong_diffuse_fragment.glsl"),
-	    .diffuseMap =
-		lite_engine_gl_texture_create("res/textures/lite-engine-icon.png"),
+	    .diffuseMap = lite_engine_gl_texture_create(
+		"res/textures/lite-engine-icon.png"),
 	};
 
 	state.meshes[cube] =
@@ -74,15 +74,15 @@ int main() {
 
 	while (lite_engine_is_running()) {
 		quaternion_t rot = quaternion_from_euler(
-		    vector3_one(lite_engine_get_time_delta()*0.1));
-		state.transforms[cube].rotation = quaternion_multiply(state.transforms[cube].rotation, rot);
+		    vector3_one(lite_engine_get_time_delta() * 0.1));
+		state.transforms[cube].rotation =
+		    quaternion_multiply(state.transforms[cube].rotation, rot);
 
 		lite_engine_update();
 
 		for (uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
 			if (lite_engine_entity_has_component(
-				e, LITE_ENGINE_COMPONENT_TRANSFORM)) {
-			}
+				e, LITE_ENGINE_COMPONENT_TRANSFORM)) {}
 		}
 	}
 
