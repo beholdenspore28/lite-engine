@@ -13,20 +13,20 @@
 
 #define debug_log(...)\
 	{\
-		printf(ANSI_COLOR_CYAN "[LITE_ENGINE_LOG]\t" __VA_ARGS__);\
+		printf(ANSI_COLOR_CYAN "[LITE_ENGINE_LOG] " __VA_ARGS__);\
 		printf("\n" ANSI_COLOR_RESET);\
 	}
 
 #define debug_warn(...)\
 	{\
 		printf(ANSI_COLOR_YELLOW\
-		       "[LITE_ENGINE_WARNING]\t" __VA_ARGS__);\
+		       "[LITE_ENGINE_WARNING] " __VA_ARGS__);\
 		printf("\n" ANSI_COLOR_RESET);\
 	}
 
 #define debug_error(...)\
 	{\
-		printf(ANSI_COLOR_RED "[LITE_ENGINE_ERROR]\t" __VA_ARGS__);\
+		printf(ANSI_COLOR_RED "[LITE_ENGINE_ERROR] " __VA_ARGS__);\
 		printf("\n" ANSI_COLOR_RESET);\
 	}
 
