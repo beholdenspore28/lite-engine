@@ -8,6 +8,11 @@ free and open source game engine for anyone and everyone. At the heart of the pr
 is the notion that anyone should be able to make a game for free with no strings
 attached.
 
+The engine is licensed under the MIT license. I chose the MIT license 
+because it is extremely permissive. You can do pretty much whatever you want with it.
+Please read the provided copy of the MIT license carefuly. It is located in the
+LICENSE file
+
 # Features
 Lite engine is under development and should not be used for production projects yet.
 That being said, here is a (mostly) comprehensive list of its current features.
