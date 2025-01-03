@@ -75,7 +75,7 @@ int main() {
 	while (lite_engine_is_running()) {
 		quaternion_t rot = quaternion_from_euler(
 		    vector3_one(lite_engine_get_time_delta()*0.1));
-		lite_engine_gl_transform_rotate(cube, rot);
+		state.transforms[cube].rotation = quaternion_multiply(state.transforms[cube].rotation, rot);
 
 		lite_engine_update();
 

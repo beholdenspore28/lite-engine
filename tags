@@ -9,18 +9,23 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	//
-ANSI_COLOR_BLUE	src/lite_engine_debug.h	/^#define ANSI_COLOR_BLUE /;"	d
-ANSI_COLOR_CYAN	src/lite_engine_debug.h	/^#define ANSI_COLOR_CYAN /;"	d
+ANSI_COLOR_BLUE	src/lite_engine_debug.h	/^#define ANSI_COLOR_BLUE	/;"	d
+ANSI_COLOR_CYAN	src/lite_engine_debug.h	/^#define ANSI_COLOR_CYAN	/;"	d
 ANSI_COLOR_GREEN	src/lite_engine_debug.h	/^#define ANSI_COLOR_GREEN /;"	d
 ANSI_COLOR_MAGENTA	src/lite_engine_debug.h	/^#define ANSI_COLOR_MAGENTA /;"	d
-ANSI_COLOR_RED	src/lite_engine_debug.h	/^#define ANSI_COLOR_RED /;"	d
+ANSI_COLOR_RED	src/lite_engine_debug.h	/^#define ANSI_COLOR_RED	/;"	d
 ANSI_COLOR_RESET	src/lite_engine_debug.h	/^#define ANSI_COLOR_RESET /;"	d
 ANSI_COLOR_YELLOW	src/lite_engine_debug.h	/^#define ANSI_COLOR_YELLOW /;"	d
 BLIB_IMPLEMENTATION	src/lite_engine.c	/^#define BLIB_IMPLEMENTATION$/;"	d	file:
 DEFINE_LIST	src/lite_engine_gl_transform.c	/^DEFINE_LIST(transform_t)$/;"	f
-EBO	src/lite_engine_gl.h	/^	GLuint         EBO;$/;"	m	struct:__anonbd1939870308	typeref:typename:GLuint
+EBO	src/lite_engine.h	/^	ui32	      EBO;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:ui32
 GLFW_INCLUDE_NONE	src/lite_engine_gl.c	/^#define GLFW_INCLUDE_NONE$/;"	d	file:
-INTERNAL_ECS_ENTITY_GROWTH_FACTOR	src/lite_engine_ECS.c	/^enum { INTERNAL_ECS_ENTITY_GROWTH_FACTOR = 2 };$/;"	e	enum:__anon5dc3440a0103	file:
+LITE_ENGINE_COMPONENT_CAMERA	src/main.c	/^	LITE_ENGINE_COMPONENT_CAMERA	= 2 << 3,$/;"	e	enum:__anon6a96e1720103	file:
+LITE_ENGINE_COMPONENT_LIGHT	src/main.c	/^	LITE_ENGINE_COMPONENT_LIGHT	= 2 << 1,$/;"	e	enum:__anon6a96e1720103	file:
+LITE_ENGINE_COMPONENT_MATERIAL	src/main.c	/^	LITE_ENGINE_COMPONENT_MATERIAL	= 2 << 2,$/;"	e	enum:__anon6a96e1720103	file:
+LITE_ENGINE_COMPONENT_MESH	src/main.c	/^	LITE_ENGINE_COMPONENT_MESH	= 2,$/;"	e	enum:__anon6a96e1720103	file:
+LITE_ENGINE_COMPONENT_TRANSFORM	src/main.c	/^	LITE_ENGINE_COMPONENT_TRANSFORM = 1,$/;"	e	enum:__anon6a96e1720103	file:
+LITE_ENGINE_ENTITIES_MAX	src/lite_engine.h	/^	LITE_ENGINE_ENTITIES_MAX = 10,$/;"	e	enum:__anonf5e1ef950203
 LITE_ENGINE_GL_H	src/lite_engine_gl.h	/^#define LITE_ENGINE_GL_H$/;"	d
 LITE_ENGINE_H	src/lite_engine.h	/^#define LITE_ENGINE_H$/;"	d
 LITE_ENGINE_LOG_H	src/lite_engine_debug.h	/^#define LITE_ENGINE_LOG_H$/;"	d
@@ -32,71 +37,75 @@ STATE_NORMAL	src/lite_engine_gl_mesh.c	/^		STATE_NORMAL,$/;"	e	enum:lite_engine_
 STATE_POSITION	src/lite_engine_gl_mesh.c	/^		STATE_POSITION,$/;"	e	enum:lite_engine_gl_mesh_lmod_alloc::__anond4a12d2e0103	file:
 STATE_TEX_COORD	src/lite_engine_gl_mesh.c	/^		STATE_TEX_COORD,$/;"	e	enum:lite_engine_gl_mesh_lmod_alloc::__anond4a12d2e0103	file:
 STB_IMAGE_IMPLEMENTATION	src/lite_engine_gl_texture.c	/^#define STB_IMAGE_IMPLEMENTATION$/;"	d	file:
-VAO	src/lite_engine_gl.h	/^	GLuint         VAO;$/;"	m	struct:__anonbd1939870308	typeref:typename:GLuint
-VBO	src/lite_engine_gl.h	/^	GLuint         VBO;$/;"	m	struct:__anonbd1939870308	typeref:typename:GLuint
-__anon5dc3440a0103	src/lite_engine_ECS.c	/^enum { INTERNAL_ECS_ENTITY_GROWTH_FACTOR = 2 };$/;"	g	file:
+VAO	src/lite_engine.h	/^	ui32	      VAO;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:ui32
+VBO	src/lite_engine.h	/^	ui32	      VBO;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:ui32
+__anon5dc3440a0108	src/lite_engine_ECS.c	/^typedef struct {$/;"	s	file:
+__anon6a96e1720103	src/main.c	/^enum { \/\/ define component flags$/;"	g	file:
 __anonbd1939820108	src/lite_engine_gl.c	/^typedef struct {$/;"	s	file:
 __anonbd1939870108	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870208	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870308	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870408	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870508	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870608	src/lite_engine_gl.h	/^typedef struct {$/;"	s
-__anonbd1939870708	src/lite_engine_gl.h	/^typedef struct {$/;"	s
 __anond4a12d2e0103	src/lite_engine_gl_mesh.c	/^	enum {$/;"	g	function:lite_engine_gl_mesh_lmod_alloc	file:
-__anonf5e1ef900108	src/lite_engine.c	/^typedef struct {$/;"	s	file:
 __anonf5e1ef950103	src/lite_engine.h	/^enum {$/;"	g
-camera_t	src/lite_engine_gl.h	/^} camera_t;$/;"	t	typeref:struct:__anonbd1939870608
-cameras	src/lite_engine_gl.h	/^	camera_t      *cameras;$/;"	m	struct:__anonbd1939870708	typeref:typename:camera_t *
-constant	src/lite_engine_gl.h	/^	float          constant;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
+__anonf5e1ef950203	src/lite_engine.h	/^enum {$/;"	g
+__anonf5e1ef950308	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950408	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950508	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950608	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950708	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950808	src/lite_engine.h	/^typedef struct {$/;"	s
+__anonf5e1ef950908	src/lite_engine.h	/^typedef struct {$/;"	s
+camera_t	src/lite_engine.h	/^} camera_t;$/;"	t	typeref:struct:__anonf5e1ef950808
+cameras	src/lite_engine_gl.h	/^	camera_t    *cameras;$/;"	m	struct:__anonbd1939870108	typeref:typename:camera_t *
+component_flags	src/lite_engine_ECS.c	/^	uint64_t component_flags;$/;"	m	struct:__anon5dc3440a0108	typeref:typename:uint64_t	file:
+constant	src/lite_engine.h	/^	float	  constant;$/;"	m	struct:__anonf5e1ef950308	typeref:typename:float
 debug_error	src/lite_engine_debug.h	/^#define debug_error(/;"	d
 debug_log	src/lite_engine_debug.h	/^#define debug_log(/;"	d
 debug_test	src/lite_engine_debug.h	/^#define debug_test(/;"	d
 debug_warn	src/lite_engine_debug.h	/^#define debug_warn(/;"	d
-diffuse	src/lite_engine_gl.h	/^	vector3_t      diffuse;$/;"	m	struct:__anonbd1939870108	typeref:typename:vector3_t
-diffuseMap	src/lite_engine_gl.h	/^	GLuint         diffuseMap;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
-enabled	src/lite_engine_gl.h	/^	ui8            enabled;$/;"	m	struct:__anonbd1939870308	typeref:typename:ui8
+diffuse	src/lite_engine.h	/^	vector3_t diffuse;$/;"	m	struct:__anonf5e1ef950308	typeref:typename:vector3_t
+diffuseMap	src/lite_engine.h	/^	ui32 diffuseMap;$/;"	m	struct:__anonf5e1ef950608	typeref:typename:ui32
+enabled	src/lite_engine.h	/^	ui8	      enabled;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:ui8
+entities	src/lite_engine_ECS.c	/^entity_t entities[LITE_ENGINE_ENTITIES_MAX] = {0};$/;"	v	typeref:typename:entity_t[]
+entity_destroy	src/lite_engine_ECS.c	/^void entity_destroy(entity_t e) { e.is_destroyed = true; }$/;"	f	typeref:typename:void
+entity_t	src/lite_engine_ECS.c	/^} entity_t;$/;"	t	typeref:struct:__anon5dc3440a0108	file:
 error_callback	src/lite_engine_gl.c	/^void error_callback(const int error, const char *description) {$/;"	f	typeref:typename:void
-frame_current	src/lite_engine.c	/^	ui64    frame_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui64	file:
-framebuffer_size_callback	src/lite_engine_gl.c	/^void framebuffer_size_callback($/;"	f	typeref:typename:void
+frame_current	src/lite_engine.h	/^	ui64   frame_current;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:ui64
+framebuffer_size_callback	src/lite_engine_gl.c	/^void framebuffer_size_callback(GLFWwindow *window, const int width,$/;"	f	typeref:typename:void
 glDebugOutput	src/lite_engine_gl.c	/^void APIENTRY glDebugOutput(const GLenum source, const GLenum type,$/;"	f	typeref:typename:void APIENTRY
-indices	src/lite_engine_gl.h	/^	list_GLuint    indices;$/;"	m	struct:__anonbd1939870308	typeref:typename:list_GLuint
-internal_ECS_data	src/lite_engine_ECS.c	/^static ui64        *internal_ECS_data                 = NULL;$/;"	v	typeref:typename:ui64 *	file:
-internal_ECS_entity_capacity	src/lite_engine_ECS.c	/^static ui64         internal_ECS_entity_capacity      = 1024;$/;"	v	typeref:typename:ui64	file:
-internal_ECS_entity_count	src/lite_engine_ECS.c	/^static ui64         internal_ECS_entity_count         = 0;$/;"	v	typeref:typename:ui64	file:
-internal_engine_context	src/lite_engine.c	/^static lite_engine_context_t *internal_engine_context = NULL;$/;"	v	typeref:typename:lite_engine_context_t *	file:
-internal_gl_active_camera	src/lite_engine_gl.c	/^static ui64                  internal_gl_active_camera = 0;$/;"	v	typeref:typename:ui64	file:
-internal_gl_context	src/lite_engine_gl.c	/^static opengl_context_t *internal_gl_context = NULL;$/;"	v	typeref:typename:opengl_context_t *	file:
-internal_object_pool	src/lite_engine_gl.c	/^static object_pool_t         internal_object_pool;$/;"	v	typeref:typename:object_pool_t	file:
+indices	src/lite_engine.h	/^	list_ui32     indices;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:list_ui32
+internal_gl_active_camera	src/lite_engine_gl.c	/^static ui64		      internal_gl_active_camera = 0;$/;"	v	typeref:typename:ui64	file:
+internal_gl_context	src/lite_engine_gl.c	/^static opengl_context_t	     *internal_gl_context	= NULL;$/;"	v	typeref:typename:opengl_context_t *	file:
+internal_gl_state	src/lite_engine_gl.c	/^static lite_engine_gl_state_t internal_gl_state		= {0};$/;"	v	typeref:typename:lite_engine_gl_state_t	file:
 internal_prefer_window_always_on_top	src/lite_engine_gl.c	/^static ui8   internal_prefer_window_always_on_top = 0;$/;"	v	typeref:typename:ui8	file:
-internal_prefer_window_fullscreen	src/lite_engine_gl.c	/^static ui8   internal_prefer_window_fullscreen    = 0;$/;"	v	typeref:typename:ui8	file:
-internal_prefer_window_position_x	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_position_x    = 0;$/;"	v	typeref:typename:ui16	file:
-internal_prefer_window_position_y	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_position_y    = 0;$/;"	v	typeref:typename:ui16	file:
-internal_prefer_window_size_x	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_size_x        = 640;$/;"	v	typeref:typename:ui16	file:
-internal_prefer_window_size_y	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_size_y        = 480;$/;"	v	typeref:typename:ui16	file:
-internal_prefer_window_title	src/lite_engine_gl.c	/^static char *internal_prefer_window_title         = "Game Window";$/;"	v	typeref:typename:char *	file:
-internal_preferred_api	src/lite_engine.c	/^static ui8                    internal_preferred_api = LITE_ENGINE_RENDERER_GL;$/;"	v	typeref:typename:ui8	file:
+internal_prefer_window_fullscreen	src/lite_engine_gl.c	/^static ui8   internal_prefer_window_fullscreen	  = 0;$/;"	v	typeref:typename:ui8	file:
+internal_prefer_window_position_x	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_position_x	  = 0;$/;"	v	typeref:typename:ui16	file:
+internal_prefer_window_position_y	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_position_y	  = 0;$/;"	v	typeref:typename:ui16	file:
+internal_prefer_window_size_x	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_size_x	  = 640;$/;"	v	typeref:typename:ui16	file:
+internal_prefer_window_size_y	src/lite_engine_gl.c	/^static ui16  internal_prefer_window_size_y	  = 480;$/;"	v	typeref:typename:ui16	file:
+internal_prefer_window_title	src/lite_engine_gl.c	/^static char *internal_prefer_window_title	  = "Game Window";$/;"	v	typeref:typename:char *	file:
+internal_preferred_api	src/lite_engine.c	/^static ui8		      internal_preferred_api  = LITE_ENGINE_RENDERER_GL;$/;"	v	typeref:typename:ui8	file:
 internal_shader_compile	src/lite_engine_gl_shader.c	/^static GLuint internal_shader_compile(GLuint type, const char *source) {$/;"	f	typeref:typename:GLuint	file:
 internal_time_update	src/lite_engine.c	/^void internal_time_update(void) { \/\/ update time$/;"	f	typeref:typename:void
-is_running	src/lite_engine.c	/^	ui8     is_running;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
+is_destroyed	src/lite_engine_ECS.c	/^	bool	 is_destroyed;$/;"	m	struct:__anon5dc3440a0108	typeref:typename:bool	file:
+is_enabled	src/lite_engine_ECS.c	/^	bool	 is_enabled;$/;"	m	struct:__anon5dc3440a0108	typeref:typename:bool	file:
+is_running	src/lite_engine.h	/^	ui8    is_running;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:ui8
 key_callback	src/lite_engine_gl.c	/^void key_callback(GLFWwindow *window, const int key, const int scancode,$/;"	f	typeref:typename:void
-lastX	src/lite_engine_gl.h	/^	float          lastX;$/;"	m	struct:__anonbd1939870608	typeref:typename:float
-lastY	src/lite_engine_gl.h	/^	float          lastY;$/;"	m	struct:__anonbd1939870608	typeref:typename:float
-lights	src/lite_engine_gl.h	/^	point_light_t *lights;$/;"	m	struct:__anonbd1939870708	typeref:typename:point_light_t *
-linear	src/lite_engine_gl.h	/^	float          linear;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
-lite_engine_ECS_entity_create	src/lite_engine_ECS.c	/^ui64 lite_engine_ECS_entity_create(void) {$/;"	f	typeref:typename:ui64
-lite_engine_ECS_get_capacity	src/lite_engine_ECS.c	/^ui64 lite_engine_ECS_get_capacity(void) {$/;"	f	typeref:typename:ui64
-lite_engine_ECS_get_count	src/lite_engine_ECS.c	/^ui64 lite_engine_ECS_get_count(void) {$/;"	f	typeref:typename:ui64
-lite_engine_ECS_start	src/lite_engine_ECS.c	/^void lite_engine_ECS_start(void) {$/;"	f	typeref:typename:void
-lite_engine_ECS_stop	src/lite_engine_ECS.c	/^void lite_engine_ECS_stop(void) {$/;"	f	typeref:typename:void
-lite_engine_context	src/lite_engine.c	/^lite_engine_context_t lite_engine_context(void) {$/;"	f	typeref:typename:lite_engine_context_t
-lite_engine_context_t	src/lite_engine.c	/^} lite_engine_context_t;$/;"	t	typeref:struct:__anonf5e1ef900108	file:
+lastX	src/lite_engine.h	/^	float	  lastX;$/;"	m	struct:__anonf5e1ef950808	typeref:typename:float
+lastY	src/lite_engine.h	/^	float	  lastY;$/;"	m	struct:__anonf5e1ef950808	typeref:typename:float
+light_t	src/lite_engine.h	/^} light_t;$/;"	t	typeref:struct:__anonf5e1ef950308
+lights	src/lite_engine_gl.h	/^	light_t	    *lights;$/;"	m	struct:__anonbd1939870108	typeref:typename:light_t *
+linear	src/lite_engine.h	/^	float	  linear;$/;"	m	struct:__anonf5e1ef950308	typeref:typename:float
+lite_engine_component_add	src/lite_engine_ECS.c	/^void lite_engine_component_add(uint64_t ID, uint64_t component_flag) {$/;"	f	typeref:typename:void
+lite_engine_context_t	src/lite_engine.h	/^} lite_engine_context_t;$/;"	t	typeref:struct:__anonf5e1ef950908
+lite_engine_entity_create	src/lite_engine_ECS.c	/^uint64_t lite_engine_entity_create(void) {$/;"	f	typeref:typename:uint64_t
+lite_engine_entity_has_component	src/lite_engine_ECS.c	/^ui8 lite_engine_entity_has_component(uint64_t entity_ID,$/;"	f	typeref:typename:ui8
+lite_engine_get_context	src/lite_engine.c	/^lite_engine_context_t lite_engine_get_context(void) {$/;"	f	typeref:typename:lite_engine_context_t
+lite_engine_get_time_delta	src/lite_engine.c	/^double lite_engine_get_time_delta(void) {$/;"	f	typeref:typename:double
+lite_engine_gl_camera_update	src/lite_engine_gl.c	/^void lite_engine_gl_camera_update(void) {$/;"	f	typeref:typename:void
 lite_engine_gl_get_active_camera	src/lite_engine_gl.c	/^ui64 lite_engine_gl_get_active_camera(void) {$/;"	f	typeref:typename:ui64
-lite_engine_gl_get_time_delta	src/lite_engine.c	/^float lite_engine_gl_get_time_delta(void) {$/;"	f	typeref:typename:float
-lite_engine_gl_mesh_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_GLuint indices) {$/;"	f	typeref:typename:mesh_t
+lite_engine_gl_mesh_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_alloc(list_vertex_t vertices, list_ui32 indices) {$/;"	f	typeref:typename:mesh_t
 lite_engine_gl_mesh_free	src/lite_engine_gl_mesh.c	/^void lite_engine_gl_mesh_free(mesh_t *mesh) {$/;"	f	typeref:typename:void
-lite_engine_gl_mesh_lmod_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_lmod_alloc(const char* file_path) {$/;"	f	typeref:typename:mesh_t
-lite_engine_gl_mesh_update	src/lite_engine_gl_mesh.c	/^void lite_engine_gl_mesh_update (object_pool_t object_pool) {$/;"	f	typeref:typename:void
+lite_engine_gl_mesh_lmod_alloc	src/lite_engine_gl_mesh.c	/^mesh_t lite_engine_gl_mesh_lmod_alloc(const char *file_path) {$/;"	f	typeref:typename:mesh_t
+lite_engine_gl_mesh_update	src/lite_engine_gl_mesh.c	/^void lite_engine_gl_mesh_update(lite_engine_gl_state_t state) {$/;"	f	typeref:typename:void
 lite_engine_gl_render	src/lite_engine_gl.c	/^void lite_engine_gl_render(void) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_active_camera	src/lite_engine_gl.c	/^void lite_engine_gl_set_active_camera(ui64 camera) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_prefer_window_always_on_top	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_always_on_top(ui8 always_on_top) {$/;"	f	typeref:typename:void
@@ -104,67 +113,68 @@ lite_engine_gl_set_prefer_window_fullscreen	src/lite_engine_gl.c	/^void lite_eng
 lite_engine_gl_set_prefer_window_position	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_position(ui16 pos_x, ui16 pos_y) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_prefer_window_size	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_size(ui16 size_x, ui16 size_y) {$/;"	f	typeref:typename:void
 lite_engine_gl_set_prefer_window_title	src/lite_engine_gl.c	/^void lite_engine_gl_set_prefer_window_title(char *title) {$/;"	f	typeref:typename:void
-lite_engine_gl_shader_create	src/lite_engine_gl_shader.c	/^GLuint lite_engine_gl_shader_create($/;"	f	typeref:typename:GLuint
-lite_engine_gl_shader_setUniformFloat	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformFloat(GLuint shader, const char *uniformName, GLfloat f) {$/;"	f	typeref:typename:void
-lite_engine_gl_shader_setUniformInt	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformInt(GLuint shader, const char *uniformName, GLuint i) {$/;"	f	typeref:typename:void
-lite_engine_gl_shader_setUniformM4	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformM4(GLuint shader, const char *uniformName, matrix4_t *m) {$/;"	f	typeref:typename:void
-lite_engine_gl_shader_setUniformV3	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformV3(GLuint shader, const char *uniformName, vector3_t v) {$/;"	f	typeref:typename:void
-lite_engine_gl_shader_setUniformV4	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformV4(GLuint shader, const char *uniformName, vector4_t v) {$/;"	f	typeref:typename:void
+lite_engine_gl_set_state	src/lite_engine_gl.c	/^void lite_engine_gl_set_state(lite_engine_gl_state_t state) {$/;"	f	typeref:typename:void
+lite_engine_gl_shader_create	src/lite_engine_gl_shader.c	/^GLuint lite_engine_gl_shader_create(const char *vertex_shader_file_path,$/;"	f	typeref:typename:GLuint
+lite_engine_gl_shader_setUniformFloat	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformFloat(GLuint      shader,$/;"	f	typeref:typename:void
+lite_engine_gl_shader_setUniformInt	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformInt(GLuint shader, const char *uniformName,$/;"	f	typeref:typename:void
+lite_engine_gl_shader_setUniformM4	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformM4(GLuint shader, const char *uniformName,$/;"	f	typeref:typename:void
+lite_engine_gl_shader_setUniformV3	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformV3(GLuint shader, const char *uniformName,$/;"	f	typeref:typename:void
+lite_engine_gl_shader_setUniformV4	src/lite_engine_gl_shader.c	/^void lite_engine_gl_shader_setUniformV4(GLuint shader, const char *uniformName,$/;"	f	typeref:typename:void
 lite_engine_gl_start	src/lite_engine_gl.c	/^void lite_engine_gl_start(void) {$/;"	f	typeref:typename:void
-lite_engine_gl_stop	src/lite_engine_gl.c	/^void lite_engine_gl_stop(void) {$/;"	f	typeref:typename:void
+lite_engine_gl_state_t	src/lite_engine_gl.h	/^} lite_engine_gl_state_t;$/;"	t	typeref:struct:__anonbd1939870108
+lite_engine_gl_stop	src/lite_engine_gl.c	/^void lite_engine_gl_stop(void) {}$/;"	f	typeref:typename:void
 lite_engine_gl_texture_create	src/lite_engine_gl_texture.c	/^GLuint lite_engine_gl_texture_create(const char *imageFile) {$/;"	f	typeref:typename:GLuint
 lite_engine_gl_transform_calculate_view_matrix	src/lite_engine_gl_transform.c	/^void lite_engine_gl_transform_calculate_view_matrix(transform_t *t) {$/;"	f	typeref:typename:void
-lite_engine_is_running	src/lite_engine.c	/^ui8 lite_engine_is_running(void) {$/;"	f	typeref:typename:ui8
+lite_engine_gl_transform_rotate	src/lite_engine_gl.c	/^void lite_engine_gl_transform_rotate(uint64_t entity, quaternion_t rotation) {$/;"	f	typeref:typename:void
+lite_engine_is_running	src/lite_engine.c	/^ui8 lite_engine_is_running(void) { return internal_engine_context->is_running; }$/;"	f	typeref:typename:ui8
 lite_engine_set_context	src/lite_engine.c	/^void lite_engine_set_context(lite_engine_context_t *context) {$/;"	f	typeref:typename:void
 lite_engine_start	src/lite_engine.c	/^void lite_engine_start(void) {$/;"	f	typeref:typename:void
 lite_engine_stop	src/lite_engine.c	/^void lite_engine_stop(void) {$/;"	f	typeref:typename:void
 lite_engine_update	src/lite_engine.c	/^void lite_engine_update(void) {$/;"	f	typeref:typename:void
 lite_engine_use_render_api	src/lite_engine.c	/^void lite_engine_use_render_api(ui8 api) {$/;"	f	typeref:typename:void
 main	src/main.c	/^int main() {$/;"	f	typeref:typename:int
-material_t	src/lite_engine_gl.h	/^} material_t;$/;"	t	typeref:struct:__anonbd1939870408
-materials	src/lite_engine_gl.h	/^	material_t    *materials;$/;"	m	struct:__anonbd1939870708	typeref:typename:material_t *
-matrix	src/lite_engine_gl.h	/^  matrix4_t        matrix;$/;"	m	struct:__anonbd1939870508	typeref:typename:matrix4_t
-mesh_t	src/lite_engine_gl.h	/^} mesh_t;$/;"	t	typeref:struct:__anonbd1939870308
-meshes	src/lite_engine_gl.h	/^	mesh_t        *meshes;$/;"	m	struct:__anonbd1939870708	typeref:typename:mesh_t *
-normal	src/lite_engine_gl.h	/^	vector3_t      normal;$/;"	m	struct:__anonbd1939870208	typeref:typename:vector3_t
-object_pool_t	src/lite_engine_gl.h	/^} object_pool_t;$/;"	t	typeref:struct:__anonbd1939870708
+material_t	src/lite_engine.h	/^} material_t;$/;"	t	typeref:struct:__anonf5e1ef950608
+materials	src/lite_engine_gl.h	/^	material_t  *materials;$/;"	m	struct:__anonbd1939870108	typeref:typename:material_t *
+matrix	src/lite_engine.h	/^	matrix4_t    matrix;$/;"	m	struct:__anonf5e1ef950708	typeref:typename:matrix4_t
+mesh_t	src/lite_engine.h	/^} mesh_t;$/;"	t	typeref:struct:__anonf5e1ef950508
+meshes	src/lite_engine_gl.h	/^	mesh_t	    *meshes;$/;"	m	struct:__anonbd1939870108	typeref:typename:mesh_t *
+normal	src/lite_engine.h	/^	vector3_t normal;$/;"	m	struct:__anonf5e1ef950408	typeref:typename:vector3_t
 opengl_context_t	src/lite_engine_gl.c	/^} opengl_context_t;$/;"	t	typeref:struct:__anonbd1939820108	file:
-point_light_t	src/lite_engine_gl.h	/^} point_light_t;$/;"	t	typeref:struct:__anonbd1939870108
-position	src/lite_engine_gl.h	/^	vector3_t      position;$/;"	m	struct:__anonbd1939870208	typeref:typename:vector3_t
-position	src/lite_engine_gl.h	/^  vector3_t        position;$/;"	m	struct:__anonbd1939870508	typeref:typename:vector3_t
-projection	src/lite_engine_gl.h	/^	matrix4_t      projection;$/;"	m	struct:__anonbd1939870608	typeref:typename:matrix4_t
-quadratic	src/lite_engine_gl.h	/^	float          quadratic;$/;"	m	struct:__anonbd1939870108	typeref:typename:float
-renderer	src/lite_engine.c	/^	ui8     renderer;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:ui8	file:
-rotation	src/lite_engine_gl.h	/^  quaternion_t     rotation;$/;"	m	struct:__anonbd1939870508	typeref:typename:quaternion_t
-scale	src/lite_engine_gl.h	/^  vector3_t        scale;$/;"	m	struct:__anonbd1939870508	typeref:typename:vector3_t
-shader	src/lite_engine_gl.h	/^	GLuint         shader;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
-specular	src/lite_engine_gl.h	/^	vector3_t      specular;$/;"	m	struct:__anonbd1939870108	typeref:typename:vector3_t
-specularMap	src/lite_engine_gl.h	/^	GLuint         specularMap;$/;"	m	struct:__anonbd1939870408	typeref:typename:GLuint
-texCoord	src/lite_engine_gl.h	/^	vector2_t      texCoord;$/;"	m	struct:__anonbd1939870208	typeref:typename:vector2_t
-time_FPS	src/lite_engine.c	/^	double  time_FPS;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
-time_current	src/lite_engine.c	/^	double  time_current;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
-time_delta	src/lite_engine.c	/^	double  time_delta;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
-time_last	src/lite_engine.c	/^	double  time_last;$/;"	m	struct:__anonf5e1ef900108	typeref:typename:double	file:
+position	src/lite_engine.h	/^	vector3_t    position;$/;"	m	struct:__anonf5e1ef950708	typeref:typename:vector3_t
+position	src/lite_engine.h	/^	vector3_t position;$/;"	m	struct:__anonf5e1ef950408	typeref:typename:vector3_t
+projection	src/lite_engine.h	/^	matrix4_t projection;$/;"	m	struct:__anonf5e1ef950808	typeref:typename:matrix4_t
+quadratic	src/lite_engine.h	/^	float	  quadratic;$/;"	m	struct:__anonf5e1ef950308	typeref:typename:float
+renderer	src/lite_engine.h	/^	ui8    renderer;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:ui8
+rotation	src/lite_engine.h	/^	quaternion_t rotation;$/;"	m	struct:__anonf5e1ef950708	typeref:typename:quaternion_t
+scale	src/lite_engine.h	/^	vector3_t    scale;$/;"	m	struct:__anonf5e1ef950708	typeref:typename:vector3_t
+shader	src/lite_engine.h	/^	ui32 shader;$/;"	m	struct:__anonf5e1ef950608	typeref:typename:ui32
+specular	src/lite_engine.h	/^	vector3_t specular;$/;"	m	struct:__anonf5e1ef950308	typeref:typename:vector3_t
+specularMap	src/lite_engine.h	/^	ui32 specularMap;$/;"	m	struct:__anonf5e1ef950608	typeref:typename:ui32
+texCoord	src/lite_engine.h	/^	vector2_t texCoord;$/;"	m	struct:__anonf5e1ef950408	typeref:typename:vector2_t
+time_FPS	src/lite_engine.h	/^	double time_FPS;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:double
+time_current	src/lite_engine.h	/^	double time_current;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:double
+time_delta	src/lite_engine.h	/^	double time_delta;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:double
+time_last	src/lite_engine.h	/^	double time_last;$/;"	m	struct:__anonf5e1ef950908	typeref:typename:double
 transform_basis_back	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_back(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_down	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_down(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_forward	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_forward(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_left	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_left(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_right	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_right(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
 transform_basis_up	src/lite_engine_gl_transform.c	/^vector3_t transform_basis_up(transform_t t, float magnitude) {$/;"	f	typeref:typename:vector3_t
-transform_t	src/lite_engine_gl.h	/^} transform_t;$/;"	t	typeref:struct:__anonbd1939870508
-transforms	src/lite_engine_gl.h	/^	transform_t   *transforms;$/;"	m	struct:__anonbd1939870708	typeref:typename:transform_t *
+transform_t	src/lite_engine.h	/^} transform_t;$/;"	t	typeref:struct:__anonf5e1ef950708
+transforms	src/lite_engine_gl.h	/^	transform_t *transforms;$/;"	m	struct:__anonbd1939870108	typeref:typename:transform_t *
 ui16	src/lite_engine.h	/^typedef uint16_t ui16;$/;"	t	typeref:typename:uint16_t
 ui32	src/lite_engine.h	/^typedef uint32_t ui32;$/;"	t	typeref:typename:uint32_t
 ui64	src/lite_engine.h	/^typedef uint64_t ui64;$/;"	t	typeref:typename:uint64_t
-ui8	src/lite_engine.h	/^typedef uint8_t  ui8;$/;"	t	typeref:typename:uint8_t
-use_wire_frame	src/lite_engine_gl.h	/^	ui8            use_wire_frame;$/;"	m	struct:__anonbd1939870308	typeref:typename:ui8
-vertex_t	src/lite_engine_gl.h	/^} vertex_t;$/;"	t	typeref:struct:__anonbd1939870208
-vertices	src/lite_engine_gl.h	/^	list_vertex_t  vertices;$/;"	m	struct:__anonbd1939870308	typeref:typename:list_vertex_t
+ui8	src/lite_engine.h	/^typedef uint8_t	 ui8;$/;"	t	typeref:typename:uint8_t
+use_wire_frame	src/lite_engine.h	/^	ui8	      use_wire_frame;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:ui8
+vertex_t	src/lite_engine.h	/^} vertex_t;$/;"	t	typeref:struct:__anonf5e1ef950408
+vertices	src/lite_engine.h	/^	list_vertex_t vertices;$/;"	m	struct:__anonf5e1ef950508	typeref:typename:list_vertex_t
 window	src/lite_engine_gl.c	/^	GLFWwindow *window;$/;"	m	struct:__anonbd1939820108	typeref:typename:GLFWwindow *	file:
-window_always_on_top	src/lite_engine_gl.c	/^	ui8         window_always_on_top;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui8	file:
-window_fullscreen	src/lite_engine_gl.c	/^	ui8         window_fullscreen;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui8	file:
-window_position_x	src/lite_engine_gl.c	/^	ui16        window_position_x;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
-window_position_y	src/lite_engine_gl.c	/^	ui16        window_position_y;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
-window_size_x	src/lite_engine_gl.c	/^	ui16        window_size_x;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
-window_size_y	src/lite_engine_gl.c	/^	ui16        window_size_y;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
-window_title	src/lite_engine_gl.c	/^	char       *window_title;	$/;"	m	struct:__anonbd1939820108	typeref:typename:char *	file:
+window_always_on_top	src/lite_engine_gl.c	/^	ui8	    window_always_on_top;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui8	file:
+window_fullscreen	src/lite_engine_gl.c	/^	ui8	    window_fullscreen;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui8	file:
+window_position_x	src/lite_engine_gl.c	/^	ui16	    window_position_x;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
+window_position_y	src/lite_engine_gl.c	/^	ui16	    window_position_y;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
+window_size_x	src/lite_engine_gl.c	/^	ui16	    window_size_x;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
+window_size_y	src/lite_engine_gl.c	/^	ui16	    window_size_y;$/;"	m	struct:__anonbd1939820108	typeref:typename:ui16	file:
+window_title	src/lite_engine_gl.c	/^	char	   *window_title;$/;"	m	struct:__anonbd1939820108	typeref:typename:char *	file:
