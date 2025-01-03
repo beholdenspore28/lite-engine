@@ -31,12 +31,12 @@ That being said, here is a (mostly) comprehensive list of its current features.
 Ensure you have installed GLFW3 using your package manager of choice before you continue.
 For example:
 ```
-$ sudo apt install libglfw3 libglfw3-dev
+sudo apt install libglfw3 libglfw3-dev
 ```
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
-$ make -Bj linux
+make -Bj linux
 ```
 # Building on FreeBSD
 Ensure you have installed GLFW3 using pkg install before you continue.
@@ -44,7 +44,7 @@ Ensure you have installed GLFW3 using pkg install before you continue.
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
-$ make -Bj free_bsd
+make -Bj free_bsd
 ```
 # Building on WSL2-Ubuntu on Windows 11 (2025)
 ```
