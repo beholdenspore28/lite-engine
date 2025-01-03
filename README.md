@@ -25,7 +25,8 @@ That being said, here is a (mostly) comprehensive list of its current features.
   Vulkan and DirectX12 APIs are planned for future versions.
 
 # My current goals:
-My next big step is skeletal animation.
+- Xorg, Wayland, and Win32 platform layers to ditch GLFW dependency.
+- support for skeletal animation using the lmod file format.
 
 # Building on Linux
 Ensure you have installed GLFW3 using your package manager of choice before you continue.
