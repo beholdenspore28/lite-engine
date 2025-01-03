@@ -21,6 +21,8 @@ That being said, here is a (mostly) comprehensive list of its current features.
 - Simple build system using make
 - Verbose and strict naming conventions.
     All functions are named using full english words. No abreviations or shorthand
+- Your choice of rendering API. You can choose to use OpenGL, or implement your own.
+  Vulkan and DirectX12 APIs are planned for future versions.
 
 # My current goals:
 My next big step is skeletal animation.
