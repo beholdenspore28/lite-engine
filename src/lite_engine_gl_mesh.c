@@ -48,7 +48,7 @@ void lite_engine_gl_mesh_update(lite_engine_gl_state_t state) {
 					state.transforms[lite_engine_gl_get_active_camera()]
 					.position);
 
-#if 0
+#if 1
 			const int light = 0;
 			// light uniforms
 			lite_engine_gl_shader_setUniformV3(
