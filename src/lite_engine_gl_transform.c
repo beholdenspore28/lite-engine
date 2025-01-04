@@ -3,20 +3,19 @@
 DEFINE_LIST(transform_t)
 
 void lite_engine_gl_transform_calculate_matrix(transform_t *t) {
-	matrix4_t translation = matrix4_translate(t->position);
-	matrix4_t rotation    = quaternion_to_matrix4(t->rotation);
-	matrix4_t scale	      = matrix4_scale(t->scale);
-	t->matrix	      = matrix4_multiply(rotation, translation);
-	t->matrix	      = matrix4_multiply(scale, t->matrix);
+	matrix4_t translation	= matrix4_translate	(t->position);
+	matrix4_t rotation	= quaternion_to_matrix4	(t->rotation);
+	matrix4_t scale		= matrix4_scale		(t->scale);
+	t->matrix		= matrix4_multiply	(rotation, translation);
+	t->matrix		= matrix4_multiply	(scale, t->matrix);
 }
 
 void lite_engine_gl_transform_calculate_view_matrix(transform_t *t) {
-	matrix4_t translation = matrix4_translate(vector3_negate(t->position));
-	matrix4_t rotation =
-	    quaternion_to_matrix4(quaternion_conjugate(t->rotation));
-	matrix4_t scale = matrix4_scale(t->scale);
-	t->matrix	= matrix4_multiply(translation, rotation);
-	t->matrix	= matrix4_multiply(scale, t->matrix);
+	matrix4_t translation	= matrix4_translate	(vector3_negate(t->position));
+	matrix4_t rotation	= quaternion_to_matrix4	(quaternion_conjugate(t->rotation));
+	matrix4_t scale		= matrix4_scale		(t->scale);
+	t->matrix		= matrix4_multiply	(translation, rotation);
+	t->matrix		= matrix4_multiply	(scale, t->matrix);
 }
 
 vector3_t transform_basis_forward(transform_t t, float magnitude) {
