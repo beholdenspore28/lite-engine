@@ -3,8 +3,8 @@
 
 enum { // define component flags
 	LITE_ENGINE_COMPONENT_TRANSFORM = 1,
-	LITE_ENGINE_COMPONENT_MESH	= 2,
-	LITE_ENGINE_COMPONENT_LIGHT	= 2 << 1,
+	LITE_ENGINE_COMPONENT_MESH	    = 2,
+	LITE_ENGINE_COMPONENT_LIGHT	    = 2 << 1,
 	LITE_ENGINE_COMPONENT_MATERIAL	= 2 << 2,
 	LITE_ENGINE_COMPONENT_CAMERA	= 2 << 3,
 };
@@ -14,8 +14,8 @@ int main() {
 
 	lite_engine_gl_state_t state = (lite_engine_gl_state_t){
 	    .transforms = calloc(sizeof(transform_t), LITE_ENGINE_ENTITIES_MAX),
-	    .meshes	= calloc(sizeof(mesh_t), LITE_ENGINE_ENTITIES_MAX),
-	    .lights	= calloc(sizeof(light_t), LITE_ENGINE_ENTITIES_MAX),
+	    .meshes	    = calloc(sizeof(mesh_t), LITE_ENGINE_ENTITIES_MAX),
+	    .lights	    = calloc(sizeof(light_t), LITE_ENGINE_ENTITIES_MAX),
 	    .materials	= calloc(sizeof(material_t), LITE_ENGINE_ENTITIES_MAX),
 	    .cameras	= calloc(sizeof(camera_t), LITE_ENGINE_ENTITIES_MAX),
 	};
