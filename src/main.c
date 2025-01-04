@@ -10,6 +10,7 @@ enum { // define component flags
 };
 
 int main() {
+	lite_engine_gl_set_prefer_window_size(1920/2-4, 1080/2);
 	lite_engine_start();
 
 	lite_engine_gl_state_t state = (lite_engine_gl_state_t){
@@ -65,7 +66,6 @@ int main() {
 	};
 
 	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
-	state.meshes[cube].use_wire_frame = true;
 
 	state.transforms[cube] = (transform_t){
 		.position	= vector3_zero(),
