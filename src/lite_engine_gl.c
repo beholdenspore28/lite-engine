@@ -15,26 +15,26 @@ DEFINE_LIST(vertex_t)
 
 typedef struct {
 	GLFWwindow *window;
-	char	   *window_title;
-	ui16	    window_size_x;
-	ui16	    window_size_y;
-	ui16	    window_position_x;
-	ui16	    window_position_y;
-	ui8	    window_always_on_top;
-	ui8	    window_fullscreen;
+	char	*window_title;
+	ui16	window_size_x;
+	ui16	window_size_y;
+	ui16	window_position_x;
+	ui16	window_position_y;
+	ui8	window_always_on_top;
+	ui8	window_fullscreen;
 } opengl_context_t;
 
-static opengl_context_t	     *internal_gl_context	= NULL;
-static ui64		      internal_gl_active_camera = 0;
+static opengl_context_t	*internal_gl_context		= NULL;
+static ui64		internal_gl_active_camera	= 0;
 static lite_engine_gl_state_t internal_gl_state		= {0};
 
-static char *internal_prefer_window_title	  = "Game Window";
-static ui16  internal_prefer_window_size_x	  = 640;
-static ui16  internal_prefer_window_size_y	  = 480;
-static ui16  internal_prefer_window_position_x	  = 0;
-static ui16  internal_prefer_window_position_y	  = 0;
-static ui8   internal_prefer_window_always_on_top = 0;
-static ui8   internal_prefer_window_fullscreen	  = 0;
+static char	*internal_prefer_window_title		= "Game Window";
+static ui16	internal_prefer_window_size_x		= 640;
+static ui16	internal_prefer_window_size_y		= 480;
+static ui16	internal_prefer_window_position_x	= 0;
+static ui16	internal_prefer_window_position_y	= 0;
+static ui8	internal_prefer_window_always_on_top	= 0;
+static ui8	internal_prefer_window_fullscreen	= 0;
 
 ui64 lite_engine_gl_get_active_camera(void) {
 	return internal_gl_active_camera;
@@ -66,10 +66,11 @@ void lite_engine_gl_set_prefer_window_fullscreen(ui8 fullscreen) {
 	internal_prefer_window_fullscreen = fullscreen;
 }
 
-void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
-			    const unsigned int id, const GLenum severity,
-			    const GLsizei length, const char *message,
-			    const void *userParam) {
+void APIENTRY glDebugOutput(
+		const GLenum source, const GLenum type,
+		const unsigned int id, const GLenum severity,
+		const GLsizei length, const char *message,
+		const void *userParam) {
 	(void)length;
 	(void)userParam;
 
@@ -143,19 +144,27 @@ void APIENTRY glDebugOutput(const GLenum source, const GLenum type,
 	printf("\n\n");
 }
 
-void error_callback(const int error, const char *description) {
+void error_callback(
+		const int error,
+		const char *description) {
 	(void)error;
 	debug_error("%s", description);
 }
 
-void framebuffer_size_callback(GLFWwindow *window, const int width,
-			       const int height) {
+void framebuffer_size_callback(
+		GLFWwindow *window,
+		const int width,
+		const int height) {
 	(void)window;
 	glViewport(0, 0, width, height);
 }
 
-void key_callback(GLFWwindow *window, const int key, const int scancode,
-		  const int action, const int mods) {
+void key_callback(
+		GLFWwindow *window,
+		const int key,
+		const int scancode,
+		const int action,
+		const int mods) {
 	(void)scancode;
 	(void)mods;
 
@@ -168,17 +177,13 @@ void lite_engine_gl_start(void) {
 	debug_log("initializing OpenGL renderer.");
 
 	internal_gl_context = calloc(sizeof(*internal_gl_context), 1);
-	internal_gl_context->window_title  = internal_prefer_window_title;
-	internal_gl_context->window_size_x = internal_prefer_window_size_x;
-	internal_gl_context->window_size_y = internal_prefer_window_size_y;
-	internal_gl_context->window_position_x =
-	    internal_prefer_window_position_x;
-	internal_gl_context->window_position_y =
-	    internal_prefer_window_position_y;
-	internal_gl_context->window_always_on_top =
-	    internal_prefer_window_always_on_top;
-	internal_gl_context->window_fullscreen =
-	    internal_prefer_window_fullscreen;
+	internal_gl_context->window_title		= internal_prefer_window_title;
+	internal_gl_context->window_size_x		= internal_prefer_window_size_x;
+	internal_gl_context->window_size_y		= internal_prefer_window_size_y;
+	internal_gl_context->window_position_x		= internal_prefer_window_position_x;
+	internal_gl_context->window_position_y		= internal_prefer_window_position_y;
+	internal_gl_context->window_always_on_top	= internal_prefer_window_always_on_top;
+	internal_gl_context->window_fullscreen		= internal_prefer_window_fullscreen;
 
 	if (!glfwInit()) { debug_error("Failed to initialize GLFW"); }
 
@@ -196,15 +201,15 @@ void lite_engine_gl_start(void) {
 
 	if (internal_gl_context->window_fullscreen) {
 		internal_gl_context->window =
-		    glfwCreateWindow(internal_gl_context->window_size_x,
-				     internal_gl_context->window_size_y,
-				     internal_gl_context->window_title,
-				     glfwGetPrimaryMonitor(), NULL);
+			glfwCreateWindow(internal_gl_context->window_size_x,
+					internal_gl_context->window_size_y,
+					internal_gl_context->window_title,
+					glfwGetPrimaryMonitor(), NULL);
 	} else {
 		internal_gl_context->window = glfwCreateWindow(
-		    internal_gl_context->window_size_x,
-		    internal_gl_context->window_size_y,
-		    internal_gl_context->window_title, NULL, NULL);
+				internal_gl_context->window_size_x,
+				internal_gl_context->window_size_y,
+				internal_gl_context->window_title, NULL, NULL);
 	}
 
 	glfwDefaultWindowHints();
@@ -220,11 +225,9 @@ void lite_engine_gl_start(void) {
 	glfwMakeContextCurrent(internal_gl_context->window);
 
 	glfwSetKeyCallback(internal_gl_context->window, key_callback);
-	glfwSetFramebufferSizeCallback(internal_gl_context->window,
-				       framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(internal_gl_context->window, framebuffer_size_callback);
 
-	// glfwSetInputMode(internal_gl_context->window,
-	//		GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetInputMode(internal_gl_context->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSwapInterval(0);
 
@@ -238,8 +241,7 @@ void lite_engine_gl_start(void) {
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(glDebugOutput, NULL);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
-				      0, NULL, GL_TRUE);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	}
 
 	glEnable(GL_CULL_FACE);
@@ -256,22 +258,16 @@ void lite_engine_gl_camera_update(void) {
 		{
 			int window_size_x;
 			int window_size_y;
-			glfwGetWindowSize(internal_gl_context->window,
-					  &window_size_x, &window_size_y);
+			glfwGetWindowSize(internal_gl_context->window, &window_size_x, &window_size_y);
 
 			internal_gl_context->window_size_x = window_size_x;
 			internal_gl_context->window_size_y = window_size_y;
 		}
 
-		float aspect = (float)internal_gl_context->window_size_x /
-			       (float)internal_gl_context->window_size_y;
-		internal_gl_state.cameras[internal_gl_active_camera]
-		    .projection =
-		    matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-		internal_gl_state.transforms[internal_gl_active_camera].matrix =
-		    matrix4_identity();
-		lite_engine_gl_transform_calculate_view_matrix(
-		    &internal_gl_state.transforms[internal_gl_active_camera]);
+		float aspect = (float)internal_gl_context->window_size_x / (float)internal_gl_context->window_size_y;
+		internal_gl_state.cameras[internal_gl_active_camera].projection = matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
+		internal_gl_state.transforms[internal_gl_active_camera].matrix = matrix4_identity();
+		lite_engine_gl_transform_calculate_view_matrix(&internal_gl_state.transforms[internal_gl_active_camera]);
 	}
 }
 

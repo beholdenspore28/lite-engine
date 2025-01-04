@@ -13,7 +13,8 @@ DEFINE_LIST(ui32)
 DEFINE_LIST(ui64)
 
 static lite_engine_context_t *internal_engine_context = NULL;
-static ui8		      internal_preferred_api  = LITE_ENGINE_RENDERER_GL;
+
+static ui8 internal_preferred_api = LITE_ENGINE_RENDERER_GL;
 
 void lite_engine_use_render_api(ui8 api) {
 	switch (api) {
@@ -39,13 +40,13 @@ void lite_engine_start(void) {
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
 
-	internal_engine_context->renderer      = internal_preferred_api;
-	internal_engine_context->is_running    = 1;
-	internal_engine_context->time_current  = 0;
-	internal_engine_context->frame_current = 0;
-	internal_engine_context->time_delta    = 0;
-	internal_engine_context->time_last     = 0;
-	internal_engine_context->time_FPS      = 0;
+	internal_engine_context->renderer	= internal_preferred_api;
+	internal_engine_context->is_running	= 1;
+	internal_engine_context->time_current	= 0;
+	internal_engine_context->frame_current	= 0;
+	internal_engine_context->time_delta	= 0;
+	internal_engine_context->time_last	= 0;
+	internal_engine_context->time_FPS	= 0;
 
 	switch (internal_preferred_api) {
 	case LITE_ENGINE_RENDERER_GL: {
@@ -55,8 +56,9 @@ void lite_engine_start(void) {
 		debug_warn("no renderer set");
 	} break;
 	default: {
-		debug_error("Invalid render API. Enumeration does not "
-			    "represent a valid API");
+		debug_error (
+				"Invalid render API. Enumeration does not "
+				"represent a valid API");
 	} break;
 	}
 
@@ -80,9 +82,9 @@ lite_engine_context_t lite_engine_get_context(void) {
 void lite_engine_set_context(lite_engine_context_t *context) {
 	if (internal_engine_context != NULL) {
 		debug_warn(
-		    "Modifying lite-engine's internal context while the "
-		    "engine is running is usually ill advised. remove this "
-		    "message if you don't care. you have been warned.");
+			"Modifying lite-engine's internal context while the "
+			"engine is running is usually ill advised. remove this "
+			"message if you don't care. you have been warned.");
 
 		free(internal_engine_context);
 	}
@@ -95,26 +97,19 @@ void internal_time_update(void) { // update time
 		debug_error("failed to get time spec.");
 		exit(0);
 	}
-	internal_engine_context->time_current =
-	    spec.tv_sec + spec.tv_nsec * 1e-9;
-
-	internal_engine_context->time_delta =
-	    internal_engine_context->time_current -
-	    internal_engine_context->time_last;
-	internal_engine_context->time_last =
-	    internal_engine_context->time_current;
-
-	internal_engine_context->time_FPS =
-	    1 / internal_engine_context->time_delta;
+	internal_engine_context->time_current = spec.tv_sec + spec.tv_nsec * 1e-9;
+	internal_engine_context->time_delta = internal_engine_context->time_current - internal_engine_context->time_last;
+	internal_engine_context->time_last = internal_engine_context->time_current;
+	internal_engine_context->time_FPS = 1 / internal_engine_context->time_delta;
 	internal_engine_context->frame_current++;
 
-#if 0  // log time
+#if 0 // log time
 	debug_log( "\n"
-		"time_current:  %lf\n"  
-		"frame_current: %lu\n"  
-		"time_delta:    %lf\n"   
-		"time_last:     %lf\n"   
-		"time_FPS:      %lf",   
+		"time_current:	%lf\n"
+		"frame_current:	%lu\n"
+		"time_delta:	%lf\n"
+		"time_last:	%lf\n"
+		"time_FPS:	%lf",
 		internal_engine_context->time_current,
 		internal_engine_context->frame_current,
 		internal_engine_context->time_delta,
@@ -134,8 +129,9 @@ void lite_engine_update(void) {
 	case LITE_ENGINE_RENDERER_NONE: {
 	} break;
 	default: {
-		debug_error("Invalid render API. Enumeration does not "
-			    "represent a valid API");
+		debug_error(
+				"Invalid render API. Enumeration does not "
+				"represent a valid API");
 	} break;
 	}
 

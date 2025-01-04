@@ -23,9 +23,9 @@ int main() {
 
 	const ui64 light = lite_engine_entity_create();
 	state.transforms[light]	= (transform_t){
-		.position = {0.0, 10, -10},
-		.rotation = quaternion_identity(),
-		.scale    = vector3_one(1.0),
+		.position	= {0.0, 10, -10},
+		.rotation	= quaternion_identity(),
+		.scale		= vector3_one(1.0),
 	};
 
 	state.lights[light] = (light_t){
