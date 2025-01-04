@@ -200,11 +200,10 @@ void lite_engine_gl_start(void) {
 	}
 
 	if (internal_gl_context->window_fullscreen) {
-		internal_gl_context->window =
-			glfwCreateWindow(internal_gl_context->window_size_x,
-					internal_gl_context->window_size_y,
-					internal_gl_context->window_title,
-					glfwGetPrimaryMonitor(), NULL);
+		internal_gl_context->window = glfwCreateWindow(internal_gl_context->window_size_x,
+				internal_gl_context->window_size_y,
+				internal_gl_context->window_title,
+				glfwGetPrimaryMonitor(), NULL);
 	} else {
 		internal_gl_context->window = glfwCreateWindow(
 				internal_gl_context->window_size_x,
@@ -220,16 +219,12 @@ void lite_engine_gl_start(void) {
 			 internal_gl_context->window_position_x,
 			 internal_gl_context->window_position_y);
 
-	glfwShowWindow(internal_gl_context->window);
-
-	glfwMakeContextCurrent(internal_gl_context->window);
-
-	glfwSetKeyCallback(internal_gl_context->window, key_callback);
-	glfwSetFramebufferSizeCallback(internal_gl_context->window, framebuffer_size_callback);
-
-	// glfwSetInputMode(internal_gl_context->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	glfwSwapInterval(0);
+	glfwMakeContextCurrent		(internal_gl_context->window);
+	glfwSetKeyCallback		(internal_gl_context->window, key_callback);
+	glfwSetFramebufferSizeCallback	(internal_gl_context->window, framebuffer_size_callback);
+	// glfwSetInputMode		(internal_gl_context->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSwapInterval		(0);
+	glfwShowWindow			(internal_gl_context->window);
 
 	if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
 
@@ -273,24 +268,16 @@ void lite_engine_gl_camera_update(void) {
 
 void lite_engine_gl_render(void) {
 #if 1 // debugging input to exit
-	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE))
+	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE)) {
 		lite_engine_stop();
+	}
 #endif
+	lite_engine_gl_camera_update	();
+	lite_engine_gl_mesh_update	(internal_gl_state);
 
-	lite_engine_gl_camera_update();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	lite_engine_gl_mesh_update(internal_gl_state);
-
-#if 0
-	internal_object_pool.transforms[cube].rotation = quaternion_multiply(
-			internal_object_pool.transforms[cube].rotation,
-			quaternion_from_euler(vector3_up(lite_engine_get_time_delta())));
-#endif
-
-	glfwSwapBuffers(internal_gl_context->window);
-	glfwPollEvents();
+	glfwSwapBuffers	(internal_gl_context->window);
+	glfwPollEvents	();
+	glClear		(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void lite_engine_gl_set_active_camera(ui64 camera) {
