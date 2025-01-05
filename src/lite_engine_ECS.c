@@ -12,9 +12,11 @@ typedef struct {
 entity_t entities[LITE_ENGINE_ENTITIES_MAX] = {0};
 
 uint64_t lite_engine_entity_create(void) {
+
 	for (int ID = 0; ID < LITE_ENGINE_ENTITIES_MAX; ID++) {
 		if (entities[ID].is_enabled == false) {
 			entities[ID].is_enabled = true;
+			debug_log("Creating entity with ID %d.", ID);
 			return ID;
 		}
 	}

@@ -28,6 +28,7 @@
 
 import bpy
 import bmesh
+import struct
 from bpy import context
 
 selectedObjects = context.selected_objects
@@ -44,6 +45,22 @@ with open(filepath, 'w') as f:
         bmesh.ops.triangulate(bm, faces=bm.faces)
         bm.to_mesh(mesh)
         bm.free()
+
+#        for face in mesh.polygons:
+#            for vert, loop in zip(face.vertices, face.loop_indices):
+
+#                f.write("vertex_normals:\n")
+#                for item in mesh.vertices[vert].normal:
+#                    f.write(struct.pack("f", item))
+
+#                f.write("vertex_positions:\n")
+#                for item in mesh.vertices[vert].co:
+#                    f.write(struct.pack("f", item))
+
+#                f.write("vertex_texture_coordinates:\n")
+#                for itme in (mesh.uv_layers.active.data[loop].uv \
+#                if mesh.uv_layers is not None else (0.0, 0.0)):
+#                    f.write(struct.pack("f", item))
 
         f.write("mesh: %s\n" % mesh.name)
 

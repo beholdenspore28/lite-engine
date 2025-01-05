@@ -10,7 +10,14 @@ enum { // define component flags
 };
 
 int main() {
-	lite_engine_gl_set_prefer_window_size(1920/2-4, 1080/2);
+	{
+		const int window_scale_divisor = 3;
+		lite_engine_gl_set_prefer_window_position(
+				1920, 1080);
+		lite_engine_gl_set_prefer_window_size(
+				1920/window_scale_divisor,
+				1080/window_scale_divisor);
+	}
 	lite_engine_start();
 
 	lite_engine_gl_state_t state = (lite_engine_gl_state_t){
@@ -37,7 +44,7 @@ int main() {
 		.quadratic	= 0.0032f,
 	};
 
-	const ui64 camera= lite_engine_entity_create();
+	const ui64 camera = lite_engine_entity_create();
 	state.cameras[camera] = (camera_t){
 		.projection	= matrix4_identity(),
 	};
@@ -51,38 +58,56 @@ int main() {
 
 	lite_engine_gl_set_active_camera(camera);
 
-	const ui64 cube = lite_engine_entity_create();
-	lite_engine_component_add(cube,
-			COMPONENT_TRANSFORM |
-			COMPONENT_MESH |
-			COMPONENT_MATERIAL);
+	ui32 shader = lite_engine_gl_shader_create(
+			"res/shaders/phong_diffuse_vertex.glsl",
+			"res/shaders/phong_diffuse_fragment.glsl");
 
-	state.materials[cube] = (material_t){
-		.shader = lite_engine_gl_shader_create(
-				"res/shaders/phong_diffuse_vertex.glsl",
-				"res/shaders/phong_diffuse_fragment.glsl"),
-		.diffuseMap = lite_engine_gl_texture_create(
-				"res/textures/lite-engine-icon.png"),
-	};
+	ui32 texture = lite_engine_gl_texture_create(
+			"res/textures/lite-engine-icon.png");
 
-	state.meshes[cube] = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	mesh_t mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
 
-	state.transforms[cube] = (transform_t){
-		.position	= vector3_zero(),
-		.rotation	= quaternion_identity(),
-		.scale		= vector3_one(1.0),
-	};
+	list_ui64 cubes = list_ui64_alloc();
+
+	int size = 10;
+	int step = 5;
+	for(int i = -size; i <= size; i+= step) {
+		for(int j = -size; j <= size; j+= step) {
+			for(int k = -size; k <= size; k+= step) {
+				ui64 cube = lite_engine_entity_create();
+				list_ui64_add(&cubes, cube); 
+
+				lite_engine_component_add(cube,
+						COMPONENT_TRANSFORM |
+						COMPONENT_MESH |
+						COMPONENT_MATERIAL);
+
+				state.materials[cube] = (material_t){
+					.shader = shader,
+					.diffuseMap = texture,
+				};
+
+				state.meshes[cube] = mesh; 
+
+				state.transforms[cube] = (transform_t){
+					.position	= (vector3_t) { i, j, 20 + k },
+					.rotation	= quaternion_identity(),
+					.scale		= vector3_one(1.0),
+				};
+			}
+		}
+	}
 
 	while (lite_engine_is_running()) {
-		quaternion_t rot = quaternion_from_euler(vector3_one(lite_engine_get_time_delta() * 0.1));
-		state.transforms[cube].rotation = quaternion_multiply(state.transforms[cube].rotation, rot);
-
 		lite_engine_update();
 
-		for (uint64_t e = 0; e < LITE_ENGINE_ENTITIES_MAX; e++) {
-			if (lite_engine_entity_has_component(e, COMPONENT_TRANSFORM)) {
+		for (uint64_t cube = 0; cube < cubes.length; cube++) {
+			quaternion_t rot = quaternion_from_euler(vector3_one(
+					lite_engine_get_time_delta() * 0.1));
 
-			}
+			state.transforms[cubes.array[cube]].rotation = quaternion_multiply(
+					state.transforms[cubes.array[cube]].rotation,
+					rot);
 		}
 	}
 

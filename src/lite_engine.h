@@ -14,7 +14,7 @@ enum {
 };
 
 enum {
-	LITE_ENGINE_ENTITIES_MAX = 10,
+	LITE_ENGINE_ENTITIES_MAX = 1000,
 };
 
 typedef uint8_t	 ui8;
