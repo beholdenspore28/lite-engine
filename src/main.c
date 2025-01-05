@@ -69,7 +69,7 @@ int main() {
 
 	list_ui64 cubes = list_ui64_alloc();
 
-	int size = 10;
+	int size = 20;
 	int step = 5;
 	for(int i = -size; i <= size; i+= step) {
 		for(int j = -size; j <= size; j+= step) {
@@ -83,8 +83,8 @@ int main() {
 						COMPONENT_MATERIAL);
 
 				state.materials[cube] = (material_t){
-					.shader = shader,
-					.diffuseMap = texture,
+					.shader		= shader,
+					.diffuseMap	= texture,
 				};
 
 				state.meshes[cube] = mesh; 
