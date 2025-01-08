@@ -23,12 +23,12 @@ SOURCE := src/*.c
 OBJECT := build/*.o
 INCLUDE := -Isrc -Idep
 C = clang
-
+E = emcc
 # CLANG BUILD
 CLANG_CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
 CLANG_CFLAGS_RELEASE := -03 -flto
 CLANG_CFLAGS_:= ${CLANG_CFLAGS_DEBUG}
-
+E_FLAGS := -s USE_GLFW=3 -lglfw -s FULL_ES2=1
 # LINUX BUILD
 
 LIBS_LINUX := -lglfw -lGL -lm -lrt
@@ -36,8 +36,10 @@ LIBS_LINUX := -lglfw -lGL -lm -lrt
 linux: build_directory glad 
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/lite_engine_linux
 	./build/lite_engine_linux
-
-
+#https://emscripten.org/docs/compiling/Dynamic-Linking.html#runtime-dynamic-linking-with-dlopen
+web: build_directory web-glad
+	emcc ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/web-lite_engine_linux.html ${E_FLAGS}
+	python3 -m http.server 3000 
 # FREE_BSD BUILD
 LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lglfw -lGL -lm -lrt
 
@@ -53,7 +55,9 @@ free_bsd: build_directory glad
 #
 #macos_glad:
 #	${C} -c dep/glad.c -o build/glad.o -Idep
-
+web-glad: 
+#	 this builds:
+	${E} -c dep/glad.c -o build/glad.wasm -Idep ${E_FLAGS}
 glad:
 	${C} -c dep/glad.c -o build/glad.o -Idep
 
