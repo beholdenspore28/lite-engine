@@ -24,22 +24,23 @@ OBJECT := build/*.o
 INCLUDE := -Isrc -Idep
 C = clang
 
-# CLANG BUILD
-CLANG_CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
-CLANG_CFLAGS_RELEASE := -03 -flto
-CLANG_CFLAGS_:= ${CLANG_CFLAGS_DEBUG}
+CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
+CFLAGS_RELEASE := -03 -flto
+CFLAGS_:= ${CFLAGS_DEBUG}
 
 # LINUX BUILD
 LIBS_LINUX := -lglfw -lGL -lm -lrt
 
 linux: build_directory glad 
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/lite_engine_linux
+	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CFLAGS} -o build/lite_engine_linux
 	./build/lite_engine_linux
 
-LIBS_MINGW := -Lbuild -lglfw3 -lopengl32
+# Windows MINGW BUILD
+MINGW_C := gcc
+MINGW_LIBS := -Lbuild -lglfw3 -lopengl32
 
 mingw: build_directory glad
-	${MINGW_C} ${SOURCE} $OBJECT} ${INCLUDE} ${LIBS_MINGW} ${CFLAGS} -o build/lite_engine_mingw
+	${MINGW_C} ${SOURCE} ${OBJECT} ${INCLUDE} ${MINGW_LIBS} ${CFLAGS} -o build/lite_engine_mingw
 	./build/lite_engine_mingw
 
 
@@ -47,13 +48,13 @@ mingw: build_directory glad
 LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lglfw -lGL -lm -lrt
 
 free_bsd: build_directory glad 
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_FREE_BSD} ${CLANG_CFLAGS} -o build/lite_engine_free_bsd
+	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_FREE_BSD} ${CFLAGS} -o build/lite_engine_free_bsd
 	./build/lite_engine_free_bsd
 
 #LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
 #
 #macos: build_directory glad
-#	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CLANG_CFLAGS} -o build/lite_engine_macos
+#	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CFLAGS} -o build/lite_engine_macos
 #	./build/lite_engine_macos
 #
 #macos_glad:
