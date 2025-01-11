@@ -22,7 +22,7 @@
 SOURCE := src/*.c
 OBJECT := build/*.o
 INCLUDE := -Isrc -Idep
-C = clang
+C = gcc
 
 CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
 CFLAGS_RELEASE := -03 -flto
@@ -35,14 +35,12 @@ linux: build_directory glad
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CFLAGS} -o build/lite_engine_linux
 	./build/lite_engine_linux
 
-# Windows MINGW BUILD
-MINGW_C := gcc
+# WINDOWS MINGW BUILD
 MINGW_LIBS := -Lbuild -lglfw3 -lopengl32
 
 mingw: build_directory glad
-	${MINGW_C} ${SOURCE} ${OBJECT} ${INCLUDE} ${MINGW_LIBS} ${CFLAGS} -o build/lite_engine_mingw
+	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${MINGW_LIBS} ${CFLAGS} -o build/lite_engine_mingw
 	./build/lite_engine_mingw
-
 
 # FREE_BSD BUILD
 LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lglfw -lGL -lm -lrt
