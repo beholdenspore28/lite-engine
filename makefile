@@ -30,12 +30,17 @@ CLANG_CFLAGS_RELEASE := -03 -flto
 CLANG_CFLAGS_:= ${CLANG_CFLAGS_DEBUG}
 
 # LINUX BUILD
-
 LIBS_LINUX := -lglfw -lGL -lm -lrt
 
 linux: build_directory glad 
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CLANG_CFLAGS} -o build/lite_engine_linux
 	./build/lite_engine_linux
+
+LIBS_MINGW := -Lbuild -lglfw3 -lopengl32
+
+mingw: build_directory glad
+	${MINGW_C} ${SOURCE} $OBJECT} ${INCLUDE} ${LIBS_MINGW} ${CFLAGS} -o build/lite_engine_mingw
+	./build/lite_engine_mingw
 
 
 # FREE_BSD BUILD
