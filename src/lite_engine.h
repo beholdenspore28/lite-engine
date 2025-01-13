@@ -3,7 +3,8 @@
 
 #include "blib/blib.h"
 #include "blib/blib_math3d.h"
-#include "blib/blib_debug.h"
+#define BLIB_LOG_STRING "LITE_ENGINE"
+#include "blib/blib_log.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
