@@ -26,19 +26,12 @@ CFLAGS_DEBUG	:= -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99
 CFLAGS_RELEASE	:= -03 -flto
 CFLAGS		?= ${CFLAGS_DEBUG}
 
-# LINUX BUILD
-LIBS_LINUX := -lm -lrt -lX11
+# LINUX X11 BUILD
+LIBS_X11 := -lm -lrt -lX11
 
-linux: build_directory glx 
-	${C} ${SRC} ${OBJ} ${INC} ${LIBS_LINUX} ${CFLAGS} ${OUT}_linux
-	./build/lite_engine_linux
-
-# WINDOWS MINGW BUILD
-WINDOWS_MINGW_LIBS := -Lbuild -lopengl32
-
-windows_mingw: build_directory wgl
-	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw.exe
-	./build/lite_engine_windows_mingw.exe
+X11: build_directory glx 
+	${C} ${SRC} ${OBJ} ${INC} ${LIBS_X11} ${CFLAGS} ${OUT}_x11
+	./build/lite_engine_x11
 
 # FREE_BSD BUILD
 # TODO free bsd build may not require linking to -lGL
@@ -52,9 +45,17 @@ glx:
 	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
 	${C} -c dep/glad/src/glx.c -o build/glx.o ${INC}
 
+# WINDOWS MINGW BUILD
+WINDOWS_MINGW_LIBS := -Lbuild -lopengl32
+
+windows_mingw: build_directory wgl
+	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw.exe
+	./build/lite_engine_windows_mingw.exe
+
 wgl:
 	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
 	${C} -c dep/glad/src/wgl.c -o build/wgl.o ${INC}
+
 
 build_directory:
 	mkdir -p build
