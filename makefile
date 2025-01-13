@@ -27,7 +27,7 @@ CFLAGS_RELEASE	:= -03 -flto
 CFLAGS		?= ${CFLAGS_DEBUG}
 
 # LINUX BUILD
-LIBS_LINUX := -lGL -lm -lrt
+LIBS_LINUX := -lm -lrt
 
 linux: build_directory glx 
 	${C} ${SRC} ${OBJ} ${INC} ${LIBS_LINUX} ${CFLAGS} ${OUT}_linux
@@ -41,6 +41,7 @@ windows_mingw: build_directory wgl
 	./build/lite_engine_windows_mingw.exe
 
 # FREE_BSD BUILD
+# TODO free bsd build may not require linking to -lGL
 FREE_BSD_LIBS := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
 
 free_bsd: build_directory glx 
