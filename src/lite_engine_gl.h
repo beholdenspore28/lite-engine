@@ -3,7 +3,7 @@
 
 #include "blib/blib_file.h"
 #include "blib/blib_math3d.h"
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "lite_engine.h"
 
 DECLARE_LIST(GLuint)

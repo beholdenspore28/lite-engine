@@ -1,7 +1,7 @@
 #include "lite_engine_gl.h"
 #include "lite_engine.h"
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 #include "blib/blib.h"
 #include "blib/blib_file.h"

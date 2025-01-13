@@ -2,13 +2,10 @@
 #| Lite-Engine build system                                                  |#
 #|                                                                           |#
 #| To build a linux binary:                                                  |#
-#|    run: make -B linux                                                    |#
+#|    run: make -B linux                                                     |#
 #|                                                                           |#
 #| To build a FreeBSD binary:                                                |#
-#|    run: make -B free_bsd                                                 |#
-#|                                                                           |#
-#| To build an Apple MacOS binary                                            |#
-#|    run: make -B macos                                                    |#
+#|    run: make -B free_bsd                                                  |#
 #|                                                                           |#
 #| If the engine is built successfully, executables/binaries are stored in   |# 
 #| the build directory                                                       |#
@@ -19,47 +16,44 @@
 #|                                                                           |#
 ###############################################################################
 
-SOURCE := src/*.c
-OBJECT := build/*.o
-INCLUDE := -Isrc -Idep
-C = gcc
+OUT	:= -o lite_engine
+SRC	:= src/*.c
+OBJ	:= build/*.o
+INC	:= -Isrc -Idep -Idep/glad/include
+C	:= gcc
 
-CFLAGS_DEBUG := -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99 -ferror-limit=15
-CFLAGS_RELEASE := -03 -flto
-CFLAGS_:= ${CFLAGS_DEBUG}
+CFLAGS_DEBUG	:= -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99
+CFLAGS_RELEASE	:= -03 -flto
+CFLAGS		?= ${CFLAGS_DEBUG}
 
 # LINUX BUILD
 LIBS_LINUX := -lGL -lm -lrt
 
-linux: build_directory glad 
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CFLAGS} -o build/lite_engine_linux
+linux: build_directory glx 
+	${C} ${SRC} ${OBJ} ${INC} ${LIBS_LINUX} ${CFLAGS} ${OUT}_linux
 	./build/lite_engine_linux
 
 # WINDOWS MINGW BUILD
-MINGW_LIBS := -Lbuild -lopengl32
+WINDOWS_MINGW_LIBS := -Lbuild -lopengl32
 
-mingw: build_directory glad
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${MINGW_LIBS} ${CFLAGS} -o build/lite_engine_mingw
-	./build/lite_engine_mingw
+windows_mingw: build_directory wgl
+	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw
+	./build/lite_engine_windows_mingw.exe
 
 # FREE_BSD BUILD
-LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
+FREE_BSD_LIBS := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
 
-free_bsd: build_directory glad 
-	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_FREE_BSD} ${CFLAGS} -o build/lite_engine_free_bsd
+free_bsd: build_directory glx 
+	${C} ${SRC} ${OBJ} ${INC} ${FREE_BSD_LIBS} ${CFLAGS} ${OUT}_free_bsd
 	./build/lite_engine_free_bsd
 
-#LIBS_MACOS := -lm -framework Cocoa -framework IOKit -framework OpenGL
-#
-#macos: build_directory glad
-#	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CFLAGS} -o build/lite_engine_macos
-#	./build/lite_engine_macos
-#
-#macos_glad:
-#	${C} -c dep/glad.c -o build/glad.o -Idep
+glx:
+	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
+	${C} -c dep/glad/src/glx.c -o build/glx.o ${INC}
 
-glad:
-	${C} -c dep/glad.c -o build/glad.o -Idep
+wgl:
+	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
+	${C} -c dep/glad/src/wgl.c -o build/wgl.o ${INC}
 
 build_directory:
 	mkdir -p build
