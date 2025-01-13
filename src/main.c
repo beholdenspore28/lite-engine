@@ -67,9 +67,11 @@ int main() {
 
 	int size = 20;
 	int step = 5;
+
 	for(int i = -size; i <= size; i+= step) {
 		for(int j = -size; j <= size; j+= step) {
 			for(int k = -size; k <= size; k+= step) {
+
 				ui64 cube = lite_engine_entity_create();
 				list_ui64_add(&cubes, cube); 
 
