@@ -9,26 +9,40 @@
 #include <time.h>
 
 static lite_engine_context_t *internal_engine_context = NULL;
-static x_data_t			*internal_x_data;
 
 double lite_engine_get_time_delta(void) {
 	return internal_engine_context->time_delta;
 }
 
+void lite_engine__viewport_size_callback(
+		const unsigned int width,
+		const unsigned int height) {
+	lgl_viewport_set(width, height);
+}
+
 // initializes lite-engine. call this to rev up those fryers!
-void lite_engine_start(void) {
+lite_engine_context_t *lite_engine_start(void) {
 	debug_log("Rev up those fryers!");
 
-	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
+	lite_engine_context_t *engine = calloc(sizeof(*engine), 1);
+	engine->is_running	= 1;
+	engine->time_current	= 0;
+	engine->frame_current	= 0;
+	engine->time_delta	= 0;
+	engine->time_last	= 0;
+	engine->time_FPS	= 0;
+	engine->platform_data = x_start("Game Window", 640, 480);
 
-	internal_engine_context->is_running	= 1;
-	internal_engine_context->time_current	= 0;
-	internal_engine_context->frame_current	= 0;
-	internal_engine_context->time_delta	= 0;
-	internal_engine_context->time_last	= 0;
-	internal_engine_context->time_FPS	= 0;
+	x_data_t *x = (x_data_t*)engine->platform_data;
+
+	x->viewport_size_callback = lite_engine__viewport_size_callback;
+
+	glClearColor(0.2, 0.3, 0.4, 1.0);
+	glEnable(GL_DEPTH_TEST);
 
 	debug_log("Startup completed successfuly");
+
+	return engine;
 }
 
 int lite_engine_is_running(void) { return internal_engine_context->is_running; }
@@ -89,4 +103,20 @@ void lite_engine_stop(void) {
 	debug_log("Shutting down...");
 	internal_engine_context->is_running = 0;
 	debug_log("Shutdown complete");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void viewport_size_callback(
+		const unsigned int width,
+		const unsigned int height) {
+	lgl_viewport_set(width, height);
+}
+
+void engine_end_frame(lite_engine_context_t *engine) {
+	x_end_frame((x_data_t*)engine->platform_data);
+}
+
+void engine_stop(lite_engine_context_t *engine) {
+	engine->is_running = 0;
 }

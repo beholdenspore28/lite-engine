@@ -2,18 +2,8 @@
 #include "platform_x11.h"
 #include "lgl.h"
 
-void viewport_size_callback(
-		const unsigned int width,
-		const unsigned int height) {
-	lgl_viewport_set(width, height);
-}
-
 int main() {
-	x_data_t *internal_x_data = x_start("Game Window", 640, 480);
-	internal_x_data->viewport_size_callback = viewport_size_callback;
-
-	glClearColor(0.2, 0.3, 0.4, 1.0);
-	glEnable(GL_DEPTH_TEST);
+	lite_engine_context_t *engine = lite_engine_start();
 
 	lgl_render_data_t data = lgl_cube_alloc();
 	data.position_z = 2;
@@ -25,15 +15,15 @@ int main() {
 	data.diffuseMap = lgl_texture_alloc("res/textures/lite-engine-icon.png");
 
 	double time = 0;
-	while (internal_x_data->running) {
+	while (engine->is_running) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		data.position_x = sinf(time);
 		lgl_draw(1, &data);
-		x_end_frame(internal_x_data);
+		engine_end_frame(engine);
 		time += 0.05;
 	}
 
-	x_stop(internal_x_data);
+	engine_stop(engine);
 
 	return 0;
 }
