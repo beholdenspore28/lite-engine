@@ -206,17 +206,10 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		glBindTexture(GL_TEXTURE_2D, data[i].specularMap);
 
 		// other material properties
-		//lite_engine_gl_shader_setUniformInt(
-		//		state.materials[e].shader, "u_material.diffuse", 0);
-		//lite_engine_gl_shader_setUniformInt(
-		//		state.materials[e].shader, "u_material.specular",
-		//		1);
-		//lite_engine_gl_shader_setUniformFloat(
-		//		state.materials[e].shader, "u_material.shininess",
-		//		32.0f);
-		//lite_engine_gl_shader_setUniformV3(
-		//		state.materials[e].shader, "u_ambientLight",
-		//		vector3_one(0.4));
+		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"),   0);
+		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"),  1);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 32.0f);
+		glUniform3f(glGetUniformLocation(data[i].shader, "u_ambientLight"),       0.4, 0.4, 0.4);
 
 		glBindVertexArray(data[i].VAO);
 		glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);

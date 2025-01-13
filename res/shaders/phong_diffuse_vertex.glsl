@@ -8,13 +8,11 @@ out vec2 texCoord;
 out vec3 normal;
 out vec3 fragPos;
 
-uniform mat4 u_modelMatrix;
-uniform mat4 u_viewMatrix;
-uniform mat4 u_projectionMatrix;
+uniform mat4 u_mvp;
 
 void main(){
-	gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(aPos, 1.0);
+	gl_Position = u_mvp * vec4(aPos, 1.0);
 	texCoord = aTexCoord;
-	normal = mat3(transpose(inverse(u_modelMatrix))) * aNormal; //TODO this is EXPENSIVE! do it on the cpu instead
-	fragPos = vec3(u_modelMatrix * vec4(aPos, 1.0));
+	normal = mat3(transpose(inverse(u_mvp))) * aNormal; //TODO this is EXPENSIVE! do it on the cpu instead
+	fragPos = vec3(u_mvp * vec4(aPos, 1.0));
 } 
