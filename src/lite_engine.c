@@ -31,7 +31,7 @@ lite_engine_context_t *lite_engine_start(void) {
 	engine->time_delta	= 0;
 	engine->time_last	= 0;
 	engine->time_FPS	= 0;
-	engine->platform_data = x_start("Game Window", 640, 480);
+	engine->platform_data	= x_start("Game Window", 640, 480);
 
 	x_data_t *x = (x_data_t*)engine->platform_data;
 
