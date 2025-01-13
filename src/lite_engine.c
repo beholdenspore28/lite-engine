@@ -1,5 +1,6 @@
 #include "lite_engine.h"
-#include "lite_engine_gl.h"
+#include "platform_x11.h"
+#include "lgl.h"
 
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_file.h"
@@ -7,28 +8,7 @@
 
 #include <time.h>
 
-DEFINE_LIST(ui8)
-DEFINE_LIST(ui16)
-DEFINE_LIST(ui32)
-DEFINE_LIST(ui64)
-
 static lite_engine_context_t *internal_engine_context = NULL;
-
-static ui8 internal_preferred_api = LITE_ENGINE_RENDERER_GL;
-
-void lite_engine_use_render_api(ui8 api) {
-	switch (api) {
-	case LITE_ENGINE_RENDERER_GL: {
-		internal_preferred_api = LITE_ENGINE_RENDERER_GL;
-	} break;
-	case LITE_ENGINE_RENDERER_NONE: {
-		internal_preferred_api = LITE_ENGINE_RENDERER_NONE;
-	} break;
-	default: {
-		internal_preferred_api = LITE_ENGINE_RENDERER_NONE;
-	} break;
-	}
-}
 
 double lite_engine_get_time_delta(void) {
 	return internal_engine_context->time_delta;
@@ -40,7 +20,6 @@ void lite_engine_start(void) {
 
 	internal_engine_context = calloc(sizeof(*internal_engine_context), 1);
 
-	internal_engine_context->renderer	= internal_preferred_api;
 	internal_engine_context->is_running	= 1;
 	internal_engine_context->time_current	= 0;
 	internal_engine_context->frame_current	= 0;
@@ -48,24 +27,12 @@ void lite_engine_start(void) {
 	internal_engine_context->time_last	= 0;
 	internal_engine_context->time_FPS	= 0;
 
-	switch (internal_preferred_api) {
-	case LITE_ENGINE_RENDERER_GL: {
-		lgl_start();
-	} break;
-	case LITE_ENGINE_RENDERER_NONE: {
-		debug_warn("no renderer set");
-	} break;
-	default: {
-		debug_error (
-				"Invalid render API. Enumeration does not "
-				"represent a valid API");
-	} break;
-	}
+	x_start("Game Window", 640, 480);
 
 	debug_log("Startup completed successfuly");
 }
 
-ui8 lite_engine_is_running(void) { return internal_engine_context->is_running; }
+int lite_engine_is_running(void) { return internal_engine_context->is_running; }
 
 // returns a copy of lite-engine's internal state.
 // modifying this will not change lite-engine's actual state.
@@ -122,37 +89,12 @@ void internal_time_update(void) { // update time
 void lite_engine_update(void) {
 	// debug_log("running");
 
-	switch (internal_engine_context->renderer) {
-	case LITE_ENGINE_RENDERER_GL: {
-		lgl_render();
-	} break;
-	case LITE_ENGINE_RENDERER_NONE: {
-	} break;
-	default: {
-		debug_error(
-				"Invalid render API. Enumeration does not "
-				"represent a valid API");
-	} break;
-	}
-
 	internal_time_update();
 }
 
 // shut down and free all memory associated with the lite-engine context
 void lite_engine_stop(void) {
 	debug_log("Shutting down...");
-
 	internal_engine_context->is_running = 0;
-
-	switch (internal_engine_context->renderer) {
-	case LITE_ENGINE_RENDERER_GL: {
-		lgl_stop();
-	} break;
-	case LITE_ENGINE_RENDERER_NONE: {
-	} break;
-	default: {
-	} break;
-	}
-
 	debug_log("Shutdown complete");
 }
