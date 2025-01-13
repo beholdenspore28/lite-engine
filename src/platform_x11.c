@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void viewport_size_callback(
+void x__viewport_size_callback(
 		const unsigned int width,
 		const unsigned int height) {
 
@@ -14,7 +14,7 @@ x_data_t *x_start(const char *window_title,
 		unsigned int window_height) {
 
 	x_data_t *x = malloc(sizeof(*x));
-	x->viewport_size_callback = viewport_size_callback;
+	x->viewport_size_callback = x__viewport_size_callback;
 
 	x->display = XOpenDisplay(NULL);
 

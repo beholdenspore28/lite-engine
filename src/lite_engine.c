@@ -14,6 +14,12 @@ double lite_engine_get_time_delta(void) {
 	return internal_engine_context->time_delta;
 }
 
+void viewport_size_callback(
+		const unsigned int width,
+		const unsigned int height) {
+	lgl_viewport_set(width, height);
+}
+
 // initializes lite-engine. call this to rev up those fryers!
 void lite_engine_start(void) {
 	debug_log("Rev up those fryers!");
@@ -27,7 +33,10 @@ void lite_engine_start(void) {
 	internal_engine_context->time_last	= 0;
 	internal_engine_context->time_FPS	= 0;
 
-	x_start("Game Window", 640, 480);
+	x_data_t *x = x_start("Game Window", 640, 480);
+	x->viewport_size_callback = viewport_size_callback;
+	glClearColor(0.2, 0.3, 0.4, 1.0);
+	glEnable(GL_DEPTH_TEST);
 
 	debug_log("Startup completed successfuly");
 }
