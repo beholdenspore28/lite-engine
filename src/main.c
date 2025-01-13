@@ -10,10 +10,6 @@ enum { // define component flags
 };
 
 int main() {
-	{
-		lgl_set_prefer_window_position(1920, 1080);
-		lgl_set_prefer_window_size(1920.0/2.2, 1080);
-	}
 	lite_engine_start();
 
 	lgl_state_t state = (lgl_state_t){

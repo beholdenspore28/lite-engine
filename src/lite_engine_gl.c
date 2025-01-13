@@ -2,6 +2,7 @@
 #include "lite_engine.h"
 
 #include "glad/gl.h"
+#include "platform_x11.h"
 
 #include "blib/blib.h"
 #include "blib/blib_file.h"
@@ -10,6 +11,8 @@
 DEFINE_LIST(GLuint)
 DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
+
+static x_data_t *internal_x_data = NULL;
 
 typedef struct {
 	char	*window_title;
@@ -155,6 +158,10 @@ void lgl_start(void) {
 	lgl__context->window_always_on_top	= lgl__prefer_window_always_on_top;
 	lgl__context->window_fullscreen		= lgl__prefer_window_fullscreen;
 
+	internal_x_data = x_start("Game Window",
+			lgl__context->window_size_x,
+			lgl__context->window_size_y);
+
 	//assert(lgl__context->window != NULL);
 
 	//if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
@@ -180,13 +187,15 @@ void lgl_start(void) {
 }
 
 void lgl_render(void) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	lgl_mesh_update	(lgl__state);
-
-	glClear		(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	x_end_frame(internal_x_data);
 }
 
 void lgl_set_active_camera(ui64 camera) {
 	lgl__active_camera = camera;
 }
 
-void lgl_stop(void) {}
+void lgl_stop(void) {
+	x_stop(internal_x_data);
+}
