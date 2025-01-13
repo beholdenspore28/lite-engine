@@ -16,42 +16,23 @@ provided copy of the MIT license carefuly. It is located in the LICENSE file
 Lite engine is under development and should not be used for production projects yet.
 That being said, here is a (mostly) comprehensive list of its current features.
 
+- Basic 3D renderer using OpenGL 4.6. (It's easy to change the OpenGL version)
 - Minimal dependencies.
 - Simple build system using make
 - Verbose and strict naming conventions.
     All functions are named using full english words. No abreviations or shorthand
-- Your choice of rendering API. You can choose to use OpenGL, or implement your own.
-  Vulkan and DirectX12 APIs are planned for future versions.
+- An extreme emphasis on modularity. Lite-Engine is intentionally light-weight to 
+    enable easy modification.
 
 # My current goals:
-- Xorg, Wayland, and Win32 platform layers to ditch GLFW dependency.
+- Wayland, and Win32 platform layers.
 - support for skeletal animation using the lmod file format.
 
 # Building on Linux
-Ensure you have installed GLFW3 using your package manager of choice before you continue.
-For example:
-```
-sudo apt install libglfw3 libglfw3-dev
-```
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
 make -Bj linux
 ```
-# Building on FreeBSD
-Ensure you have installed GLFW3 using pkg install before you continue.
-
-To build the demo, open a terminal and navigate to the lite-engine folder.
-Run this command to build the engine:
-```
-make -Bj free_bsd
-```
-# Building on WSL2-Ubuntu on Windows 11 (2025)
-```
-git clone --recursive https://github.com/beholdenspore28/lite-engine.git
-cd lite-engine/
-sudo apt install make clang
-sudo apt-get install libglfw3
-sudo apt-get install libglfw3-dev
-make
-```
+At the moment, it is not possible to build lite-engine on a platform that does not use
+the X Window System. This will be fixed soon. VERY soon.
