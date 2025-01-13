@@ -126,8 +126,6 @@ void x_end_frame(x_data_t *x) {
 
 		switch (x->event.type) {
 			case KeyPress: {
-				//x->running = 0; // to kill on key press
-				return;
 			} break;
 
 			case Expose: {

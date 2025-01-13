@@ -6,7 +6,6 @@
 #include <glad/glx.h>
 
 typedef struct {
-	int			running;
 	int			screen;
 	Display			*display;
 	Window			root;
