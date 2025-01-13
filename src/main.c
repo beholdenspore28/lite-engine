@@ -11,19 +11,19 @@ enum { // define component flags
 
 int main() {
 	{
-		lite_engine_gl_set_prefer_window_position(1920, 1080);
-		lite_engine_gl_set_prefer_window_size(1920.0/2.2, 1080);
+		lgl_set_prefer_window_position(1920, 1080);
+		lgl_set_prefer_window_size(1920.0/2.2, 1080);
 	}
 	lite_engine_start();
 
-	lite_engine_gl_state_t state = (lite_engine_gl_state_t){
+	lgl_state_t state = (lgl_state_t){
 		.transforms	= calloc(sizeof(transform_t),	LITE_ENGINE_ENTITIES_MAX),
 		.meshes		= calloc(sizeof(mesh_t),	LITE_ENGINE_ENTITIES_MAX),
 		.lights		= calloc(sizeof(light_t),	LITE_ENGINE_ENTITIES_MAX),
 		.materials	= calloc(sizeof(material_t),	LITE_ENGINE_ENTITIES_MAX),
 		.cameras	= calloc(sizeof(camera_t),	LITE_ENGINE_ENTITIES_MAX),
 	};
-	lite_engine_gl_set_state(state);
+	lgl_set_state(state);
 
 	const ui64 light = lite_engine_entity_create();
 	state.transforms[light]	= (transform_t){
@@ -52,16 +52,16 @@ int main() {
 		.matrix		= matrix4_identity(),
 	};
 
-	lite_engine_gl_set_active_camera(camera);
+	lgl_set_active_camera(camera);
 
-	ui32 shader = lite_engine_gl_shader_create(
+	ui32 shader = lgl_shader_create(
 			"res/shaders/phong_diffuse_vertex.glsl",
 			"res/shaders/phong_diffuse_fragment.glsl");
 
-	ui32 texture = lite_engine_gl_texture_create(
+	ui32 texture = lgl_texture_create(
 			"res/textures/lite-engine-icon.png");
 
-	mesh_t mesh = lite_engine_gl_mesh_lmod_alloc("res/models/untitled.lmod");
+	mesh_t mesh = lgl_mesh_lmod_alloc("res/models/untitled.lmod");
 
 	list_ui64 cubes = list_ui64_alloc();
 

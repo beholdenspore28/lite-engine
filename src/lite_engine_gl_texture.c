@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GLuint lite_engine_gl_texture_create(const char *imageFile) {
+GLuint lgl_texture_create(const char *imageFile) {
 	debug_log("Loading texture from '%s'", imageFile);
 
 	/*create texture*/

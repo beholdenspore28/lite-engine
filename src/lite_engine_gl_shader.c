@@ -38,7 +38,7 @@ static GLuint internal_shader_compile(
 	return shader;
 }
 
-GLuint lite_engine_gl_shader_create(
+GLuint lgl_shader_create(
 		const char *vertex_shader_file_path,
 		const char *fragment_shader_file_path) {
 	debug_log("Loading shaders from '%s' and '%s'", vertex_shader_file_path, fragment_shader_file_path);
@@ -88,7 +88,7 @@ GLuint lite_engine_gl_shader_create(
 	return program;
 }
 
-void lite_engine_gl_shader_setUniformInt(
+void lgl_shader_setUniformInt(
 		GLuint	shader,
 		const	char *uniformName,
 		GLuint	i) {
@@ -96,7 +96,7 @@ void lite_engine_gl_shader_setUniformInt(
 	glUniform1i(UniformLocation, i);
 }
 
-void lite_engine_gl_shader_setUniformFloat(
+void lgl_shader_setUniformFloat(
 		GLuint	shader,
 		const	char *uniformName,
 		GLfloat	f) {
@@ -104,7 +104,7 @@ void lite_engine_gl_shader_setUniformFloat(
 	glUniform1f(UniformLocation, f);
 }
 
-void lite_engine_gl_shader_setUniformV3(
+void lgl_shader_setUniformV3(
 		GLuint		shader,
 		const		char *uniformName,
 		vector3_t	v) {
@@ -112,7 +112,7 @@ void lite_engine_gl_shader_setUniformV3(
 	glUniform3f(UniformLocation, v.x, v.y, v.z);
 }
 
-void lite_engine_gl_shader_setUniformV4(
+void lgl_shader_setUniformV4(
 		GLuint		shader,
 		const		char *uniformName,
 		vector4_t	v) {
@@ -120,7 +120,7 @@ void lite_engine_gl_shader_setUniformV4(
 	glUniform4f(UniformLocation, v.x, v.y, v.z, v.w);
 }
 
-void lite_engine_gl_shader_setUniformM4(
+void lgl_shader_setUniformM4(
 		GLuint		shader,
 		const		char *uniformName,
 		matrix4_t	*m) {

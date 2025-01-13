@@ -16,7 +16,7 @@
 #|                                                                           |#
 ###############################################################################
 
-OUT	:= -o lite_engine
+OUT	:= -o build/lite_engine
 SRC	:= src/*.c
 OBJ	:= build/*.o
 INC	:= -Isrc -Idep -Idep/glad/include
@@ -27,7 +27,7 @@ CFLAGS_RELEASE	:= -03 -flto
 CFLAGS		?= ${CFLAGS_DEBUG}
 
 # LINUX BUILD
-LIBS_LINUX := -lm -lrt
+LIBS_LINUX := -lm -lrt -lX11
 
 linux: build_directory glx 
 	${C} ${SRC} ${OBJ} ${INC} ${LIBS_LINUX} ${CFLAGS} ${OUT}_linux
