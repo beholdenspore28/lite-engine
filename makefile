@@ -37,7 +37,7 @@ linux: build_directory glx
 WINDOWS_MINGW_LIBS := -Lbuild -lopengl32
 
 windows_mingw: build_directory wgl
-	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw
+	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw.exe
 	./build/lite_engine_windows_mingw.exe
 
 # FREE_BSD BUILD
