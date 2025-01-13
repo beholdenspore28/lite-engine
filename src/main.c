@@ -2,11 +2,11 @@
 #include "lite_engine_gl.h"
 
 enum { // define component flags
-	COMPONENT_TRANSFORM	= 1,
-	COMPONENT_MESH		= 2,
-	COMPONENT_LIGHT		= 2 << 1,
-	COMPONENT_MATERIAL	= 2 << 2,
-	COMPONENT_CAMERA	= 2 << 3,
+	COMPONENT_TRANSFORM	= 1 << 0,
+	COMPONENT_MESH		= 1 << 1,
+	COMPONENT_LIGHT		= 1 << 2,
+	COMPONENT_MATERIAL	= 1 << 3,
+	COMPONENT_CAMERA	= 1 << 4,
 };
 
 int main() {
