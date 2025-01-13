@@ -28,11 +28,11 @@ That being said, here is a (mostly) comprehensive list of its current features.
 - Wayland, and Win32 platform layers.
 - support for skeletal animation using the lmod file format.
 
-# Building on Linux
+# Building on Linux (X11)
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
-make -Bj linux
+make -Bj X11
 ```
 At the moment, it is not possible to build lite-engine on a platform that does not use
 the X Window System. This will be fixed soon. VERY soon.
