@@ -20,18 +20,7 @@ extern "C" {
 #include <math.h>
 
 #include "stb_image.h"
-
-#ifndef LGL_LOG_FUNC
-#define LGL_LOG_FUNC(...)	printf(__VA_ARGS__);
-#endif
-
-#ifndef LGL_WARN_FUNC
-#define LGL_WARN_FUNC(...)	printf(__VA_ARGS__);
-#endif
-
-#ifndef LGL_ERROR_FUNC
-#define LGL_ERROR_FUNC(...)	printf(__VA_ARGS__);
-#endif
+#include "blib/blib_log.h"
 
 typedef struct {
 	float	x;

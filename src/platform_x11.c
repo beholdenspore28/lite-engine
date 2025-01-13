@@ -1,4 +1,5 @@
 #include "platform_x11.h"
+#include "blib/blib_log.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -19,7 +20,7 @@ x_data_t *x_start(const char *window_title,
 	x->display = XOpenDisplay(NULL);
 
 	if(x->display == NULL) {
-		printf("\n\tcannot connect to X server\n\n");
+		debug_error("cannot connect to X server");
 		exit(0);
 	}
 	
@@ -52,17 +53,17 @@ x_data_t *x_start(const char *window_title,
 	XMapWindow(x->display, x->window);
 	XStoreName(x->display, x->window, window_title);
 	if (!x->window) {
-		fprintf(stderr, "\n\tfailed to create X window\n");
+		debug_error("failed to create X window");
 		exit(0);
 	}
 
 	int glx_version = gladLoaderLoadGLX(x->display, x->screen);
 	if (!glx_version) {
-		fprintf(stderr, "failed to load GLX");
+		debug_error("failed to load GLX");
 		exit(0);
 	}
 
-	printf("Loaded GLX %d.%d\n", GLAD_VERSION_MAJOR(glx_version), GLAD_VERSION_MINOR(glx_version));
+	debug_log("Loaded GLX %d.%d", GLAD_VERSION_MAJOR(glx_version), GLAD_VERSION_MINOR(glx_version));
 
 	GLint visual_attributes[] = {
 		GLX_RENDER_TYPE,	GLX_RGBA_BIT,
@@ -91,7 +92,7 @@ x_data_t *x_start(const char *window_title,
 			x->display, fb_config[0], NULL, 1, context_attributes);	
 
 	if (!x->glx_context) {
-		fprintf(stderr, "failed to create OpenGL context");
+		debug_error("failed to create OpenGL context");
 		exit(0);
 	}
 
@@ -99,10 +100,10 @@ x_data_t *x_start(const char *window_title,
 	
 	int gl_version = gladLoaderLoadGL();
 	if (!gl_version) {
-		fprintf(stderr, "failed to load OpenGL functions\n");
+		debug_error("failed to load OpenGL functions");
 		exit(0);
 	}
-	printf("Loaded GL %d.%d\n", GLAD_VERSION_MAJOR(gl_version), GLAD_VERSION_MINOR(gl_version));
+	debug_log("loaded OpenGL %d.%d", GLAD_VERSION_MAJOR(gl_version), GLAD_VERSION_MINOR(gl_version));
 
 	XWindowAttributes gwa;
 	XGetWindowAttributes(x->display, x->window, &gwa);

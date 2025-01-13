@@ -1,9 +1,5 @@
 #include "lite_engine.h"
 #include "platform_x11.h"
-
-#define LGL_LOG_FUNC(...)	debug_log(__VA_ARGS__);
-#define LGL_WARN_FUNC(...)	debug_log(__VA_ARGS__);
-#define LGL_ERROR_FUNC(...)	debug_log(__VA_ARGS__);
 #include "lgl.h"
 
 int main() {
