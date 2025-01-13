@@ -1,9 +1,7 @@
 #include "lite_engine_gl.h"
 #include "lite_engine.h"
 
-#define GLFW_INCLUDE_NONE
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
 
 #include "blib/blib.h"
 #include "blib/blib_file.h"
@@ -14,7 +12,6 @@ DEFINE_LIST(mesh_t)
 DEFINE_LIST(vertex_t)
 
 typedef struct {
-	GLFWwindow *window;
 	char	*window_title;
 	ui16	window_size_x;
 	ui16	window_size_y;
@@ -144,35 +141,6 @@ void APIENTRY glDebugOutput(
 	printf("\n\n");
 }
 
-void error_callback(
-		const int error,
-		const char *description) {
-	(void)error;
-	debug_error("%s", description);
-}
-
-void framebuffer_size_callback(
-		GLFWwindow *window,
-		const int width,
-		const int height) {
-	(void)window;
-	glViewport(0, 0, width, height);
-}
-
-void key_callback(
-		GLFWwindow *window,
-		const int key,
-		const int scancode,
-		const int action,
-		const int mods) {
-	(void)scancode;
-	(void)mods;
-
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	}
-}
-
 void lite_engine_gl_start(void) {
 	debug_log("initializing OpenGL renderer.");
 
@@ -185,46 +153,7 @@ void lite_engine_gl_start(void) {
 	internal_gl_context->window_always_on_top	= internal_prefer_window_always_on_top;
 	internal_gl_context->window_fullscreen		= internal_prefer_window_fullscreen;
 
-	if (!glfwInit()) { debug_error("Failed to initialize GLFW"); }
-
-	glfwSetErrorCallback(error_callback);
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-	if (internal_gl_context->window_always_on_top) {
-		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-	}
-
-	if (internal_gl_context->window_fullscreen) {
-		internal_gl_context->window = glfwCreateWindow(internal_gl_context->window_size_x,
-				internal_gl_context->window_size_y,
-				internal_gl_context->window_title,
-				glfwGetPrimaryMonitor(), NULL);
-	} else {
-		internal_gl_context->window = glfwCreateWindow(
-				internal_gl_context->window_size_x,
-				internal_gl_context->window_size_y,
-				internal_gl_context->window_title, NULL, NULL);
-	}
-
-	glfwDefaultWindowHints();
-
 	assert(internal_gl_context->window != NULL);
-
-	glfwSetWindowPos(internal_gl_context->window,
-			 internal_gl_context->window_position_x,
-			 internal_gl_context->window_position_y);
-
-	glfwMakeContextCurrent		(internal_gl_context->window);
-	glfwSetKeyCallback		(internal_gl_context->window, key_callback);
-	glfwSetFramebufferSizeCallback	(internal_gl_context->window, framebuffer_size_callback);
-	// glfwSetInputMode		(internal_gl_context->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSwapInterval		(0);
-	glfwShowWindow			(internal_gl_context->window);
 
 	if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
 
@@ -248,35 +177,12 @@ void lite_engine_gl_start(void) {
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
-void lite_engine_gl_camera_update(void) {
-	{ // projection
-		{
-			int window_size_x;
-			int window_size_y;
-			glfwGetWindowSize(internal_gl_context->window, &window_size_x, &window_size_y);
-
-			internal_gl_context->window_size_x = window_size_x;
-			internal_gl_context->window_size_y = window_size_y;
-		}
-
-		float aspect = (float)internal_gl_context->window_size_x / (float)internal_gl_context->window_size_y;
-		internal_gl_state.cameras[internal_gl_active_camera].projection = matrix4_perspective(deg2rad(60), aspect, 0.0001f, 1000.0f);
-		internal_gl_state.transforms[internal_gl_active_camera].matrix = matrix4_identity();
-		lite_engine_gl_transform_calculate_view_matrix(&internal_gl_state.transforms[internal_gl_active_camera]);
-	}
-}
-
 void lite_engine_gl_render(void) {
-#if 1 // debugging input to exit
-	if (glfwGetKey(internal_gl_context->window, GLFW_KEY_ESCAPE)) {
-		lite_engine_stop();
-	}
-#endif
 	lite_engine_gl_camera_update	();
 	lite_engine_gl_mesh_update	(internal_gl_state);
 
-	glfwSwapBuffers	(internal_gl_context->window);
-	glfwPollEvents	();
+	//glfwSwapBuffers	(internal_gl_context->window);
+	//glfwPollEvents	();
 	glClear		(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

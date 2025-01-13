@@ -29,27 +29,27 @@ CFLAGS_RELEASE := -03 -flto
 CFLAGS_:= ${CFLAGS_DEBUG}
 
 # LINUX BUILD
-LIBS_LINUX := -lglfw -lGL -lm -lrt
+LIBS_LINUX := -lGL -lm -lrt
 
 linux: build_directory glad 
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_LINUX} ${CFLAGS} -o build/lite_engine_linux
 	./build/lite_engine_linux
 
 # WINDOWS MINGW BUILD
-MINGW_LIBS := -Lbuild -lglfw3 -lopengl32
+MINGW_LIBS := -Lbuild -lopengl32
 
 mingw: build_directory glad
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${MINGW_LIBS} ${CFLAGS} -o build/lite_engine_mingw
 	./build/lite_engine_mingw
 
 # FREE_BSD BUILD
-LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lglfw -lGL -lm -lrt
+LIBS_FREE_BSD := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
 
 free_bsd: build_directory glad 
 	${C} ${SOURCE} ${OBJECT} ${INCLUDE} ${LIBS_FREE_BSD} ${CFLAGS} -o build/lite_engine_free_bsd
 	./build/lite_engine_free_bsd
 
-#LIBS_MACOS := -lglfw -lm -framework Cocoa -framework IOKit -framework OpenGL
+#LIBS_MACOS := -lm -framework Cocoa -framework IOKit -framework OpenGL
 #
 #macos: build_directory glad
 #	${C} ${SOURCE} ${INCLUDE} ${LIBS_MACOS} ${CFLAGS} -o build/lite_engine_macos
