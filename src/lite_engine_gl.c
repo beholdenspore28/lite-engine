@@ -63,6 +63,7 @@ void lite_engine_gl_set_prefer_window_fullscreen(ui8 fullscreen) {
 	internal_prefer_window_fullscreen = fullscreen;
 }
 
+/*
 void APIENTRY glDebugOutput(
 		const GLenum source, const GLenum type,
 		const unsigned int id, const GLenum severity,
@@ -140,6 +141,7 @@ void APIENTRY glDebugOutput(
 	}
 	printf("\n\n");
 }
+*/
 
 void lite_engine_gl_start(void) {
 	debug_log("initializing OpenGL renderer.");
@@ -153,20 +155,20 @@ void lite_engine_gl_start(void) {
 	internal_gl_context->window_always_on_top	= internal_prefer_window_always_on_top;
 	internal_gl_context->window_fullscreen		= internal_prefer_window_fullscreen;
 
-	assert(internal_gl_context->window != NULL);
+	//assert(internal_gl_context->window != NULL);
 
-	if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
+	//if (!gladLoadGL()) { debug_error("Failed to initialize GLAD"); }
 
-	int flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
-		debug_error("Failed to set debug context flag");
-	} else {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, NULL);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-	}
+	//int flags;
+	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	//if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT)) {
+	//	debug_error("Failed to set debug context flag");
+	//} else {
+	//	glEnable(GL_DEBUG_OUTPUT);
+	//	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//	glDebugMessageCallback(glDebugOutput, NULL);
+	//	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+	//}
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -178,11 +180,8 @@ void lite_engine_gl_start(void) {
 }
 
 void lite_engine_gl_render(void) {
-	lite_engine_gl_camera_update	();
 	lite_engine_gl_mesh_update	(internal_gl_state);
 
-	//glfwSwapBuffers	(internal_gl_context->window);
-	//glfwPollEvents	();
 	glClear		(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
