@@ -9,15 +9,10 @@
 #include <time.h>
 
 static lite_engine_context_t *internal_engine_context = NULL;
+static x_data_t			*internal_x_data;
 
 double lite_engine_get_time_delta(void) {
 	return internal_engine_context->time_delta;
-}
-
-void viewport_size_callback(
-		const unsigned int width,
-		const unsigned int height) {
-	lgl_viewport_set(width, height);
 }
 
 // initializes lite-engine. call this to rev up those fryers!
@@ -32,11 +27,6 @@ void lite_engine_start(void) {
 	internal_engine_context->time_delta	= 0;
 	internal_engine_context->time_last	= 0;
 	internal_engine_context->time_FPS	= 0;
-
-	x_data_t *x = x_start("Game Window", 640, 480);
-	x->viewport_size_callback = viewport_size_callback;
-	glClearColor(0.2, 0.3, 0.4, 1.0);
-	glEnable(GL_DEPTH_TEST);
 
 	debug_log("Startup completed successfuly");
 }
@@ -92,13 +82,6 @@ void internal_time_update(void) { // update time
 		internal_engine_context->time_last,
 		internal_engine_context->time_FPS);
 #endif // log time
-}
-
-// update the internal lite-engine state
-void lite_engine_update(void) {
-	// debug_log("running");
-
-	internal_time_update();
 }
 
 // shut down and free all memory associated with the lite-engine context
