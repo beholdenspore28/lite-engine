@@ -11,11 +11,8 @@ enum { // define component flags
 
 int main() {
 	{
-		lite_engine_gl_set_prefer_window_position(
-				1920, 1080);
-		lite_engine_gl_set_prefer_window_size(
-				1920.0/2.2,
-				1080);
+		lite_engine_gl_set_prefer_window_position(1920, 1080);
+		lite_engine_gl_set_prefer_window_size(1920.0/2.2, 1080);
 	}
 	lite_engine_start();
 
