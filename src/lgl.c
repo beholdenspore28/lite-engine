@@ -61,7 +61,7 @@ void lgl_perspective(
 }
 
 GLuint lgl_texture_alloc(const char *imageFile) {
-	fprintf(stderr, "Loading texture from '%s'\n", imageFile);
+	LGL_LOG_FUNC("Loading texture from '%s'\n", imageFile);
 
 	/*create texture*/
 	GLuint texture;
@@ -94,7 +94,7 @@ GLuint lgl_texture_alloc(const char *imageFile) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 	} else {
-		fprintf(stderr, "Failed to load texture from '%s'\n", imageFile);
+		LGL_ERROR_FUNC("Failed to load texture from '%s'\n", imageFile);
 	}
 
 	/*cleanup*/
@@ -106,9 +106,7 @@ GLuint lgl_texture_alloc(const char *imageFile) {
 GLuint lgl_shader_compile(const char *file_path, GLenum type) {
 	file_buffer fb = file_buffer_alloc(file_path);
 	if (fb.error) {
-		fprintf(stderr,
-			"failed to read shader from '%s'\n",
-			file_path);
+		LGL_ERROR_FUNC("failed to read shader from '%s'\n", file_path);
 	}
 
 	const char* shader_source = fb.text;
@@ -126,7 +124,7 @@ GLuint lgl_shader_compile(const char *file_path, GLenum type) {
 
 	if(!success) {
 		glGetShaderInfoLog	(shader, 512, NULL, infoLog);
-		printf			("Error shader compilation failed:\n%s\n", infoLog);
+		LGL_ERROR_FUNC		("Error shader compilation failed:\n%s", infoLog);
 	}
 
 	return shader;

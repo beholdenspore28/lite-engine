@@ -99,24 +99,13 @@ void internal_time_update(void) { // update time
 }
 
 // shut down and free all memory associated with the lite-engine context
-void lite_engine_stop(void) {
+void lite_engine_stop(lite_engine_context_t *engine) {
 	debug_log("Shutting down...");
-	internal_engine_context->is_running = 0;
+	engine->is_running = 0;
 	debug_log("Shutdown complete");
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void viewport_size_callback(
-		const unsigned int width,
-		const unsigned int height) {
-	lgl_viewport_set(width, height);
-}
-
-void engine_end_frame(lite_engine_context_t *engine) {
+void lite_engine_end_frame(lite_engine_context_t *engine) {
 	x_end_frame((x_data_t*)engine->platform_data);
 }
 
-void engine_stop(lite_engine_context_t *engine) {
-	engine->is_running = 0;
-}
