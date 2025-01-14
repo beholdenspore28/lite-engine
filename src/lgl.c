@@ -176,6 +176,7 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			0.0,	0.0,	1.0,	0.0,
 			0.0,	0.0,	0.0,	1.0,
 		};
+
 		const float aspect = lgl__viewport_width / lgl__viewport_height;
 		lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
@@ -192,11 +193,11 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			0.0,	0.0,	1.0,	0.0,
 			0.0,	0.0,	0.0,	1.0,
 		};
+
 		lgl__mat4_multiply(mvp, model, projection);
 
 		GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
 		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
-
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
