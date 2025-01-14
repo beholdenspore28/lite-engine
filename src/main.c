@@ -12,13 +12,11 @@ int main() {
 	cube.diffuseMap		= lgl_texture_alloc	("res/textures/lite-engine-icon.png");
 	cube.position_z		= 2;
 
-	double time = 0;
 	while (engine->is_running) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		cube.position_x = sinf(time);
+		cube.position_x = sin(engine->time_current);
 		lgl_draw(1, &cube);
 		lite_engine_end_frame(engine);
-		time += 0.05;
 	}
 
 	lite_engine_free(engine);
