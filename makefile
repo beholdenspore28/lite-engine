@@ -22,39 +22,44 @@ OBJ	:= build/*.o
 INC	:= -Isrc -Idep -Idep/glad/include
 C	:= gcc
 
-CFLAGS_DEBUG	:= -g3 -fsanitize=address -Wall -Wextra -Wpedantic -std=gnu99
-CFLAGS_RELEASE	:= -03 -flto
-CFLAGS		?= ${CFLAGS_DEBUG}
+CFLAGS_DEBUG	:= -g3 -fsanitize=address
+CFLAGS_RELEASE	:= -O3 -flto
+CFLAGS		?= -Wall -Wextra -Wpedantic -std=gnu99 ${CFLAGS_DEBUG}
+
+VALGRIND	:= valgrind	--leak-check=full\
+				--show-leak-kinds=all\
+				--track-origins=yes\
+				--verbose\
 
 # LINUX X11 BUILD
 LIBS_X11 := -lm -lrt -lX11
 
 X11: build_directory glx 
-	${C} ${SRC} ${OBJ} ${INC} ${LIBS_X11} ${CFLAGS} ${OUT}_x11
-	./build/lite_engine_x11
+	${C} ${SRC} ${OBJ} ${INC} ${LIBS_X11} ${CFLAGS} ${OUT}
+	./build/lite_engine
 
 # FREE_BSD BUILD
 # TODO free bsd build may not require linking to -lGL
 FREE_BSD_LIBS := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
 
 free_bsd: build_directory glx 
-	${C} ${SRC} ${OBJ} ${INC} ${FREE_BSD_LIBS} ${CFLAGS} ${OUT}_free_bsd
-	./build/lite_engine_free_bsd
+	${C} ${SRC} ${OBJ} ${INC} ${FREE_BSD_LIBS} ${CFLAGS} ${OUT}
+	./build/lite_engine
 
 glx:
-	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
-	${C} -c dep/glad/src/glx.c -o build/glx.o ${INC}
+	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC} ${CFLAGS}
+	${C} -c dep/glad/src/glx.c -o build/glx.o ${INC} ${CFLAGS}
 
 # WINDOWS MINGW BUILD
 WINDOWS_MINGW_LIBS := -Lbuild -lopengl32
 
 windows_mingw: build_directory wgl
-	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}_windows_mingw.exe
-	./build/lite_engine_windows_mingw.exe
+	${C} ${SRC} ${OBJ} ${INC} ${WINDOWS_MINGW_LIBS} ${CFLAGS} ${OUT}
+	./build/lite_engine
 
 wgl:
-	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC}
-	${C} -c dep/glad/src/wgl.c -o build/wgl.o ${INC}
+	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC} ${CFLAGS}
+	${C} -c dep/glad/src/wgl.c -o build/wgl.o ${INC} ${CFLAGS}
 
 
 build_directory:

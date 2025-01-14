@@ -91,6 +91,8 @@ x_data_t *x_start(const char *window_title,
 	x->glx_context = glXCreateContextAttribsARB(
 			x->display, fb_config[0], NULL, 1, context_attributes);	
 
+	XFree(fb_config);
+
 	if (!x->glx_context) {
 		debug_error("failed to create OpenGL context");
 		exit(0);

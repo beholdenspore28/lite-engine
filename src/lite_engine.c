@@ -63,9 +63,11 @@ void lite_engine__time_update(lite_engine_context_t *engine) { // update time
 }
 
 // shut down and free all memory associated with the lite-engine context
-void lite_engine_stop(lite_engine_context_t *engine) {
+void lite_engine_free(lite_engine_context_t *engine) {
 	debug_log("Shutting down...");
 	engine->is_running = 0;
+	x_stop((x_data_t*)engine->platform_data);
+	free(engine);
 	debug_log("Shutdown complete");
 }
 

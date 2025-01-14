@@ -21,5 +21,7 @@ int main() {
 		time += 0.05;
 	}
 
+	lite_engine_free(engine);
+
 	return 0;
 }

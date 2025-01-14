@@ -21,6 +21,6 @@ typedef struct {
 lite_engine_context_t *	lite_engine_start	(void);
 int			lite_engine_is_running	(void);
 void			lite_engine_end_frame	(lite_engine_context_t *engine);
-void			lite_engine_stop	(lite_engine_context_t *engine);
+void			lite_engine_free	(lite_engine_context_t *engine);
 
 #endif
