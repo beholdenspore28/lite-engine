@@ -47,7 +47,7 @@ void lite_engine__time_update(lite_engine_context_t *engine) { // update time
 	engine->time_FPS	= 1 / engine->time_delta;
 	engine->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
 	debug_log( "\n"
 		"time_current:	%lf\n"
 		"frame_current:	%lu\n"
