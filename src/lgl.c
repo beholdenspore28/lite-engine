@@ -233,9 +233,9 @@ lgl_render_data_t lgl_quad_alloc(void) {
 	quad.vertices		= quad_vertices;
 	quad.vertex_count	= quad_vertices_count;
 
-	quad.scale	= (lgl_3f) {1.0, 1.0, 1.0};
-	quad.position	= (lgl_3f) {0.0, 0.0, 0.0};
-	quad.rotation	= (lgl_4f) {0.0, 0.0, 0.0, 1.0};
+	quad.scale	= (lgl_3f_t) {1.0, 1.0, 1.0};
+	quad.position	= (lgl_3f_t) {0.0, 0.0, 0.0};
+	quad.rotation	= (lgl_4f_t) {0.0, 0.0, 0.0, 1.0};
 
 	lgl__buffer_vertex_array(&quad);
 	return quad;

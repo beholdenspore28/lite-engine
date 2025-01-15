@@ -25,24 +25,24 @@ extern "C" {
 typedef struct {
 	float		x;
 	float		y;
-} lgl_2f;
+} lgl_2f_t;
 
 typedef struct {
 	float		x;
 	float		y;
 	float		z;
-} lgl_3f;
+} lgl_3f_t;
 
 typedef struct {
 	float		x;
 	float		y;
 	float		z;
 	float		w;
-} lgl_4f;
+} lgl_4f_t;
 
 typedef struct {
-	lgl_3f		position;
-	lgl_2f		texture_coordinates;
+	lgl_3f_t	position;
+	lgl_2f_t	texture_coordinates;
 } lgl_vertex_t;
 
 typedef struct {
@@ -50,9 +50,9 @@ typedef struct {
 	GLuint		VBO;
 	lgl_vertex_t	*vertices;
 	size_t		vertex_count;
-	lgl_3f		position;
-	lgl_3f		scale;
-	lgl_4f		rotation;
+	lgl_3f_t	position;
+	lgl_3f_t	scale;
+	lgl_4f_t	rotation;
 	GLuint		shader;
 	GLuint		diffuseMap;
 	GLuint		specularMap;
