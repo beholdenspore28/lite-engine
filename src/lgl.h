@@ -23,11 +23,26 @@ extern "C" {
 #include "blib/blib_log.h"
 
 typedef struct {
-	float	x;
-	float	y;
-	float	z;
-	float	u;
-	float	v;
+	float		x;
+	float		y;
+} lgl_2f;
+
+typedef struct {
+	float		x;
+	float		y;
+	float		z;
+} lgl_3f;
+
+typedef struct {
+	float		x;
+	float		y;
+	float		z;
+	float		w;
+} lgl_4f;
+
+typedef struct {
+	lgl_3f		position;
+	lgl_2f		texture_coordinates;
 } lgl_vertex_t;
 
 typedef struct {
@@ -35,20 +50,20 @@ typedef struct {
 	GLuint		VBO;
 	lgl_vertex_t	*vertices;
 	size_t		vertex_count;
-	float		position_x, position_y, position_z;
-	float		scale_x, scale_y, scale_z;
-	float		rotation_i, rotation_j, rotation_k, rotation_r;
+	lgl_3f		position;
+	lgl_3f		scale;
+	lgl_4f		rotation;
 	GLuint		shader;
 	GLuint		diffuseMap;
 	GLuint		specularMap;
 } lgl_render_data_t;
 
-void			lgl_viewport_set(const float width, const float height);
-void			lgl_draw(size_t data_length, lgl_render_data_t *data);
-void			lgl_buffer_vertex_array(lgl_render_data_t *data);
+void			lgl_viewport_set	(const float width, const float height);
+void			lgl_draw		(size_t data_length, lgl_render_data_t *data);
+void			lgl_buffer_vertex_array	(lgl_render_data_t *data);
 
-GLuint			lgl_shader_compile(const char *file_path, GLenum type);
-GLuint			lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
+GLuint			lgl_shader_compile	(const char *file_path, GLenum type);
+GLuint			lgl_shader_link		(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_render_data_t	lgl_quad_alloc(void);
 lgl_render_data_t	lgl_cube_alloc(void);

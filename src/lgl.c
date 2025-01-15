@@ -156,11 +156,11 @@ void lgl__buffer_vertex_array (lgl_render_data_t *data) {
 
 	glVertexAttribPointer(
 			0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
-			(void*)offsetof(lgl_vertex_t, x));
+			(void*)offsetof(lgl_vertex_t, position));
 
 	glVertexAttribPointer(
 			1, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
-			(void*)offsetof(lgl_vertex_t, u));
+			(void*)offsetof(lgl_vertex_t, texture_coordinates));
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -181,10 +181,10 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
 		GLfloat model[16] = {
-			data[i].scale_x,    0.0,                0.0,                0.0,
-			0.0,                data[i].scale_y,    0.0,                0.0,
-			0.0,                0.0,                data[i].scale_z,    0.0,
-			data[i].position_x, data[i].position_y, data[i].position_z, 1.0,
+			data[i].scale.x,    0.0,                0.0,                0.0,
+			0.0,                data[i].scale.y,    0.0,                0.0,
+			0.0,                0.0,                data[i].scale.z,    0.0,
+			data[i].position.x, data[i].position.y, data[i].position.z, 1.0,
 		};
 
 		GLfloat mvp[16] = {
@@ -222,27 +222,20 @@ lgl_render_data_t lgl_quad_alloc(void) {
 
 	enum { quad_vertices_count = 6 };
 	lgl_vertex_t quad_vertices[quad_vertices_count] = { 
-		{ .x = -0.5, .y= -0.5, .z= 0.0, .u = 0.0, .v = 0.0 },
-		{ .x =  0.5, .y= -0.5, .z= 0.0, .u = 1.0, .v = 0.0 },
-		{ .x =  0.5, .y=  0.5, .z= 0.0, .u = 1.0, .v = 1.0 },
-		{ .x = -0.5, .y=  0.5, .z= 0.0, .u = 0.0, .v = 1.0 },
-		{ .x = -0.5, .y= -0.5, .z= 0.0, .u = 0.0, .v = 0.0 },
-		{ .x =  0.5, .y=  0.5, .z= 0.0, .u = 1.0, .v = 1.0 },
+		{ .position = { -0.5, -0.5, 0.0 }, .texture_coordinates = { 0.0, 0.0 } },
+		{ .position = {  0.5, -0.5, 0.0 }, .texture_coordinates = { 1.0, 0.0 } },
+		{ .position = {  0.5,  0.5, 0.0 }, .texture_coordinates = { 1.0, 1.0 } },
+		{ .position = { -0.5,  0.5, 0.0 }, .texture_coordinates = { 0.0, 1.0 } },
+		{ .position = { -0.5, -0.5, 0.0 }, .texture_coordinates = { 0.0, 0.0 } },
+		{ .position = {  0.5,  0.5, 0.0 }, .texture_coordinates = { 1.0, 1.0 } },
 	};
 
 	quad.vertices		= quad_vertices;
 	quad.vertex_count	= quad_vertices_count;
 
-	quad.scale_x = 1.0;
-	quad.scale_y = 1.0;
-	quad.scale_z = 1.0;
-	quad.position_x = 0.0;
-	quad.position_y = 0.0;
-	quad.position_z = 0.0;
-	quad.rotation_i = 0.0;
-	quad.rotation_j = 0.0;
-	quad.rotation_k = 0.0;
-	quad.rotation_r = 1.0;
+	quad.scale	= (lgl_3f) {1.0, 1.0, 1.0};
+	quad.position	= (lgl_3f) {0.0, 0.0, 0.0};
+	quad.rotation	= (lgl_4f) {0.0, 0.0, 0.0, 1.0};
 
 	lgl__buffer_vertex_array(&quad);
 	return quad;
@@ -253,57 +246,57 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
 	enum { cube_vertices_count = 36 };
 	lgl_vertex_t cube_vertices[cube_vertices_count] = { 
-		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 0.0 },
-		{ .x =  0.5, .y = -0.5, .z = -0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x =  0.5, .y =  0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x = -0.5, .y =  0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 0.0 },
-       		{ .x = -0.5, .y = -0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x =  0.5, .y = -0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 1.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 1.0 },
-       		{ .x = -0.5, .y =  0.5, .z =  0.5, .u = 0.0, .v = 1.0 },
-       		{ .x = -0.5, .y = -0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x = -0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x = -0.5, .y =  0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x = -0.5, .y = -0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x = -0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x =  0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x =  0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x =  0.5, .y = -0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x =  0.5, .y = -0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x =  0.5, .y = -0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y = -0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x = -0.5, .y = -0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x = -0.5, .y = -0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x = -0.5, .y =  0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
-       		{ .x =  0.5, .y =  0.5, .z = -0.5, .u = 1.0, .v = 1.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x =  0.5, .y =  0.5, .z =  0.5, .u = 1.0, .v = 0.0 },
-       		{ .x = -0.5, .y =  0.5, .z =  0.5, .u = 0.0, .v = 0.0 },
-       		{ .x = -0.5, .y =  0.5, .z = -0.5, .u = 0.0, .v = 1.0 },
+		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
+       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
+       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
 	};
 
 	cube.vertices		= cube_vertices;
 	cube.vertex_count	= cube_vertices_count;
 
-	cube.scale_x = 1.0;
-	cube.scale_y = 1.0;
-	cube.scale_z = 1.0;
-	cube.position_x = 0.0;
-	cube.position_y = 0.0;
-	cube.position_z = 0.0;
-	cube.rotation_i = 0.0;
-	cube.rotation_j = 0.0;
-	cube.rotation_k = 0.0;
-	cube.rotation_r = 1.0;
+	cube.scale.x = 1.0;
+	cube.scale.y = 1.0;
+	cube.scale.z = 1.0;
+	cube.position.x = 0.0;
+	cube.position.y = 0.0;
+	cube.position.z = 0.0;
+	cube.rotation.x = 0.0;
+	cube.rotation.y = 0.0;
+	cube.rotation.z = 0.0;
+	cube.rotation.y = 1.0;
 
 	lgl__buffer_vertex_array(&cube);
 	return cube;
