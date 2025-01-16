@@ -58,21 +58,21 @@ typedef struct {
 	GLuint		specularMap;
 } lgl_render_data_t;
 
-void			lgl_viewport_set	(const float width, const float height);
-void			lgl_draw		(size_t data_length, lgl_render_data_t *data);
-void			lgl_buffer_vertex_array	(lgl_render_data_t *data);
+void	lgl_viewport_set	(const float width, const float height);
+void	lgl_draw		(size_t data_length, lgl_render_data_t *data);
+void	lgl_buffer_vertex_array	(lgl_render_data_t *data);
 
-GLuint			lgl_shader_compile	(const char *file_path, GLenum type);
-GLuint			lgl_shader_link		(GLuint vertex_shader, GLuint fragment_shader);
+GLuint	lgl_shader_compile	(const char *file_path, GLenum type);
+GLuint	lgl_shader_link		(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t	lgl_quad_alloc(void);
-lgl_render_data_t	lgl_cube_alloc(void);
+lgl_render_data_t lgl_quad_alloc(void);
+lgl_render_data_t lgl_cube_alloc(void);
 
-void			lgl_perspective(float *mat,
-					const float fov,
-					const float aspect,
-					const float near,
-					const float far);
+void lgl_perspective(float *mat,
+		const float fov,
+		const float aspect,
+		const float near,
+		const float far);
 
 GLuint lgl_texture_alloc(const char *imageFile);
 
