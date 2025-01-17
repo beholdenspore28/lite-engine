@@ -312,12 +312,12 @@ lgl_render_data_t lgl_quad_alloc(void) {
 
 	enum { quad_vertices_count = 6 };
 	lgl_vertex_t quad_vertices[quad_vertices_count] = { 
-		{ .position = { -0.5, -0.5, 0.0 }, .texture_coordinates = { 0.0, 0.0 } },
-		{ .position = {  0.5, -0.5, 0.0 }, .texture_coordinates = { 1.0, 0.0 } },
-		{ .position = {  0.5,  0.5, 0.0 }, .texture_coordinates = { 1.0, 1.0 } },
-		{ .position = { -0.5,  0.5, 0.0 }, .texture_coordinates = { 0.0, 1.0 } },
-		{ .position = { -0.5, -0.5, 0.0 }, .texture_coordinates = { 0.0, 0.0 } },
-		{ .position = {  0.5,  0.5, 0.0 }, .texture_coordinates = { 1.0, 1.0 } },
+		{ { -0.5, -0.5, 0.0 }, { -0.5, -0.5, 0.0 }, { 0.0, 0.0 } },
+		{ {  0.5, -0.5, 0.0 }, {  0.5, -0.5, 0.0 }, { 1.0, 0.0 } },
+		{ {  0.5,  0.5, 0.0 }, {  0.5,  0.5, 0.0 }, { 1.0, 1.0 } },
+		{ { -0.5,  0.5, 0.0 }, { -0.5,  0.5, 0.0 }, { 0.0, 1.0 } },
+		{ { -0.5, -0.5, 0.0 }, { -0.5, -0.5, 0.0 }, { 0.0, 0.0 } },
+		{ {  0.5,  0.5, 0.0 }, {  0.5,  0.5, 0.0 }, { 1.0, 1.0 } },
 	};
 
 	quad.vertices		= quad_vertices;
