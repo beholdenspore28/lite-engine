@@ -222,6 +222,14 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, data[i].specular_map);
 
+		glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_offset"),
+				data[i].texture_offset.x,
+				data[i].texture_offset.y);
+
+		glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_scale"),
+				data[i].texture_scale.x,
+				data[i].texture_scale.y);
+
 		// other material properties
 		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);
 		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"), 1);
@@ -301,10 +309,11 @@ lgl_render_data_t lgl_quad_alloc(void) {
 
 	quad.vertices		= quad_vertices;
 	quad.vertex_count	= quad_vertices_count;
-
-	quad.scale	= (lgl_3f_t) {1.0, 1.0, 1.0};
-	quad.position	= (lgl_3f_t) {0.0, 0.0, 0.0};
-	quad.rotation	= (lgl_4f_t) {0.0, 0.0, 0.0, 1.0};
+	quad.scale		= lgl_3f_one(1.0);
+	quad.position		= lgl_3f_zero();
+	quad.rotation		= lgl_4f_zero();
+	quad.texture_offset	= lgl_2f_zero();
+	quad.texture_scale	= lgl_2f_one(1.0);
 
 	lgl__buffer_vertex_array(&quad);
 	return quad;
@@ -367,17 +376,11 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
 	cube.vertices		= cube_vertices;
 	cube.vertex_count	= cube_vertices_count;
-
-	cube.scale.x = 1.0;
-	cube.scale.y = 1.0;
-	cube.scale.z = 1.0;
-	cube.position.x = 0.0;
-	cube.position.y = 0.0;
-	cube.position.z = 0.0;
-	cube.rotation.x = 0.0;
-	cube.rotation.y = 0.0;
-	cube.rotation.z = 0.0;
-	cube.rotation.y = 1.0;
+	cube.scale		= lgl_3f_one(1.0);
+	cube.position		= lgl_3f_zero();
+	cube.rotation		= lgl_4f_zero();
+	cube.texture_offset	= lgl_2f_zero();
+	cube.texture_scale	= lgl_2f_one(1.0);
 
 	lgl__buffer_vertex_array(&cube);
 	return cube;

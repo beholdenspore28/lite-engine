@@ -22,6 +22,7 @@ int main() {
 	floor.diffuse_map = lgl_texture_alloc("res/textures/test.png");
 	floor.position.y = -1;
 	floor.scale = (lgl_3f_t) {100, 1, 100};
+	floor.texture_scale = lgl_2f_one(10.0);
 
 	lgl_render_data_t cube = lgl_cube_alloc();
 

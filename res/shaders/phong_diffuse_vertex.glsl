@@ -8,11 +8,13 @@ out vec2 v_tex_coord;
 out vec3 v_normal;
 out vec3 v_fragment_position;
 
+uniform vec2 u_texture_offset;
+uniform vec2 u_texture_scale;
 uniform mat4 u_mvp;
 
 void main(){
 	v_fragment_position = vec3(u_mvp * vec4(a_position, 1.0));
-	v_tex_coord = a_tex_coord;
+	v_tex_coord = (a_tex_coord * u_texture_scale) + u_texture_offset;
 
 	//TODO this is EXPENSIVE! do it on the cpu instead
 	v_normal = mat3(transpose(inverse(u_mvp))) * a_normal;
