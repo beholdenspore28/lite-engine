@@ -26,7 +26,7 @@ lite_engine_context_t *lite_engine_start(void) {
 
 	x->viewport_size_callback = lite_engine__viewport_size_callback;
 
-	glClearColor(0.2, 0.3, 0.4, 1.0);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 
 	debug_log("Startup completed successfuly");

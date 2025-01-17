@@ -209,10 +209,91 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		glBindTexture(GL_TEXTURE_2D, data[i].specularMap);
 
 		// other material properties
-		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"),   0);
-		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"),  1);
+		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);
+		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"), 1);
 		glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 32.0f);
-		glUniform3f(glGetUniformLocation(data[i].shader, "u_ambientLight"),       0.4, 0.4, 0.4);
+
+		glUniform3f(
+			glGetUniformLocation(data[i].shader, "u_ambientLight"), 
+			0.2,
+			0.2,
+			0.2);
+
+		lgl_light_t light = (lgl_light_t) {
+			.type		= 0,
+			.position	= {0},
+			.direction	= {0},
+			.cut_off	= 0.0,
+			.outer_cut_off	= 0.0,
+			.constant	= 0.0,
+			.linear		= 0.0,
+			.quadratic	= 0.0,
+			.diffuse	= {0},
+			.specular	= {0},
+		};
+
+		// lighting uniforms
+		glUniform1i(
+				glGetUniformLocation( data[i].shader,
+					"point_light.type"),
+				light.type);
+
+		glUniform3f(
+				glGetUniformLocation( data[i].shader,
+					"point_light.position"),
+				light.position.y,
+				light.position.x,
+				light.position.z);
+
+		glUniform3f(
+				glGetUniformLocation(
+					data[i].shader,
+					"point_light.direction"),
+				light.direction.x,
+				light.direction.y,
+				light.direction.z);
+
+		glUniform1f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.cut_off"),
+				light.cut_off);
+
+		glUniform1f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.outer_cut_off"),
+				light.outer_cut_off);
+ 
+		glUniform1f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.constant"),
+				light.constant);
+ 
+		glUniform1f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.linear"),
+				light.linear);
+
+
+		glUniform1f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.quadratic"),
+				light.quadratic);
+
+
+
+		glUniform3f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.diffuse"),
+				light.diffuse.x,
+				light.diffuse.y,
+				light.diffuse.z);
+
+		glUniform3f(
+				glGetUniformLocation(data[i].shader,
+					"point_light.specular"),
+				light.specular.x,
+				light.specular.y,
+				light.specular.z);
 
 		glBindVertexArray(data[i].VAO);
 		glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);

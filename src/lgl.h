@@ -58,6 +58,10 @@ typedef struct {
 	lgl_3f_t	specular;
 } lgl_light_t;
 
+// TODO perhaps some sort of spatial partitioning to help with
+// supporting more lights (just an idea)
+enum { LGL_MAX_LIGHTS = 8 };
+
 typedef struct {
 	GLuint		VAO;
 	GLuint		VBO;
