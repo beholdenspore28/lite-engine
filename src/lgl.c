@@ -105,7 +105,7 @@ GLuint lgl_texture_alloc(const char *imageFile) {
 
 GLuint lgl_shader_compile(const char *file_path, GLenum type) {
 	file_buffer fb = file_buffer_alloc(file_path);
-	if (fb.error) {
+	if (fb.error) { // error check
 		debug_error("failed to read shader from '%s'\n", file_path);
 	}
 
@@ -117,14 +117,16 @@ GLuint lgl_shader_compile(const char *file_path, GLenum type) {
 
 	file_buffer_free(fb);
 
-	int	success;
-	char	infoLog[512];
+	{ // error check
+		int	success;
+		char	infoLog[512];
 
-	glGetShaderiv	(shader, GL_COMPILE_STATUS, &success);
+		glGetShaderiv	(shader, GL_COMPILE_STATUS, &success);
 
-	if(!success) {
-		glGetShaderInfoLog	(shader, 512, NULL, infoLog);
-		debug_error		("Error shader compilation failed:\n%s", infoLog);
+		if(!success) {
+			glGetShaderInfoLog	(shader, 512, NULL, infoLog);
+			debug_error		("Error shader compilation failed:\n%s", infoLog);
+		}
 	}
 
 	return shader;
