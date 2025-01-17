@@ -68,8 +68,8 @@ typedef struct {
 	lgl_3f_t	scale;
 	lgl_4f_t	rotation;
 	GLuint		shader;
-	GLuint		diffuseMap;
-	GLuint		specularMap;
+	GLuint		diffuse_map;
+	GLuint		specular_map;
 	lgl_light_t	*lights;
 } lgl_render_data_t;
 

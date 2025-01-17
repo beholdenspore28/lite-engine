@@ -70,7 +70,7 @@ void lgl_perspective(
 }
 
 GLuint lgl_texture_alloc(const char *imageFile) {
-	debug_log("Loading texture from '%s'\n", imageFile);
+	debug_log("Loading texture from '%s'", imageFile);
 
 	/*create texture*/
 	GLuint texture;
@@ -217,10 +217,10 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
 		// textures
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, data[i].diffuseMap);
+		glBindTexture(GL_TEXTURE_2D, data[i].diffuse_map);
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, data[i].specularMap);
+		glBindTexture(GL_TEXTURE_2D, data[i].specular_map);
 
 		// other material properties
 		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);

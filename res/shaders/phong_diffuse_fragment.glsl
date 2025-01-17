@@ -38,7 +38,8 @@ vec3 lightDirectional(light_t light, vec3 normal, vec3 viewDir) {
 
 	// specular shading
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0),u_material.shininess);
+	vec3 halfWay = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfWay), 0.0),u_material.shininess);
 
 	// combine results
 	vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, v_tex_coord));
@@ -55,7 +56,8 @@ vec3 lightPoint(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
 	// specular shading
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
+	vec3 halfWay = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfWay), 0.0), u_material.shininess);
 
 	// attenuation
 	float distance = length(light.position - fragPos);
@@ -78,7 +80,8 @@ vec3 lightPointInfiniteRange(light_t light, vec3 normal, vec3 fragPos, vec3 view
 
 	// specular shading
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
+	vec3 halfWay = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfWay), 0.0), u_material.shininess);
 
 	// combine results
 	vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, v_tex_coord));
@@ -95,7 +98,8 @@ vec3 lightSpot(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
 	// specular shading
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
+	vec3 halfWay = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfWay), 0.0), u_material.shininess);
 
 	// attenuation
 	float distance = length(light.position - fragPos);
