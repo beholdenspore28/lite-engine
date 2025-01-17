@@ -161,11 +161,16 @@ void lgl__buffer_vertex_array (lgl_render_data_t *data) {
 			(void*)offsetof(lgl_vertex_t, position));
 
 	glVertexAttribPointer(
-			1, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
+			1, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
+			(void*)offsetof(lgl_vertex_t, normal));
+
+	glVertexAttribPointer(
+			2, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
 			(void*)offsetof(lgl_vertex_t, texture_coordinates));
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 }
 
 void lgl_draw(size_t data_length, lgl_render_data_t *data) {
@@ -221,26 +226,26 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
 		lgl_light_t light = (lgl_light_t) {
 			.type		= 0,
-			.position	= {0},
-			.direction	= {0},
-			.cut_off	= 0.0,
-			.outer_cut_off	= 0.0,
-			.constant	= 0.0,
-			.linear		= 0.0,
-			.quadratic	= 0.0,
-			.diffuse	= {0},
-			.specular	= {0},
+			.position	= {0.0, 5.0 -5.0},
+			.direction	= {0.0, 0.0, 1.0},
+			.cut_off	= cos(12.5),
+			.outer_cut_off	= cos(15.0),
+			.constant	= 1.0f,
+			.linear		= 0.09f,
+			.quadratic	= 0.032f,
+			.diffuse	= {0.8, 0.8, 0.8},
+			.specular	= {1.0, 1.0, 1.0},
 		};
 
 		// lighting uniforms
 		glUniform1i(
 				glGetUniformLocation( data[i].shader,
-					"point_light.type"),
+					"u_light.type"),
 				light.type);
 
 		glUniform3f(
 				glGetUniformLocation( data[i].shader,
-					"point_light.position"),
+					"u_light.position"),
 				light.position.y,
 				light.position.x,
 				light.position.z);
@@ -248,55 +253,57 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		glUniform3f(
 				glGetUniformLocation(
 					data[i].shader,
-					"point_light.direction"),
+					"u_light.direction"),
 				light.direction.x,
 				light.direction.y,
 				light.direction.z);
 
 		glUniform1f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.cut_off"),
+					"u_light.cut_off"),
 				light.cut_off);
 
 		glUniform1f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.outer_cut_off"),
+					"u_light.outer_cut_off"),
 				light.outer_cut_off);
  
 		glUniform1f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.constant"),
+					"u_light.constant"),
 				light.constant);
  
 		glUniform1f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.linear"),
+					"u_light.linear"),
 				light.linear);
 
 
 		glUniform1f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.quadratic"),
+					"u_light.quadratic"),
 				light.quadratic);
 
 
 
 		glUniform3f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.diffuse"),
+					"u_light.diffuse"),
 				light.diffuse.x,
 				light.diffuse.y,
 				light.diffuse.z);
 
 		glUniform3f(
 				glGetUniformLocation(data[i].shader,
-					"point_light.specular"),
+					"u_light.specular"),
 				light.specular.x,
 				light.specular.y,
 				light.specular.z);
 
 		glBindVertexArray(data[i].VAO);
 		glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);
+
+		glUseProgram(0);
 	}
 }
 
@@ -329,42 +336,43 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
 	enum { cube_vertices_count = 36 };
 	lgl_vertex_t cube_vertices[cube_vertices_count] = { 
-		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = {  0.5, -0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5, -0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = { -0.5, -0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = { -0.5, -0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
-       		{ .position = {  0.5,  0.5, -0.5 }, .texture_coordinates = { 1.0, 1.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = {  0.5,  0.5,  0.5 }, .texture_coordinates = { 1.0, 0.0 } },
-       		{ .position = { -0.5,  0.5,  0.5 }, .texture_coordinates = { 0.0, 0.0 } },
-       		{ .position = { -0.5,  0.5, -0.5 }, .texture_coordinates = { 0.0, 1.0 } },
+		//position              //normal              //tex coord
+		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 0.0 } },
+		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 0.0 } },
+       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 1.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 1.0 } },
+       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 0.0, 1.0 } },
+       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
+       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
+       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 0.0, 0.0 } },
+       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
 	};
 
 	cube.vertices		= cube_vertices;

@@ -42,6 +42,7 @@ typedef struct {
 
 typedef struct {
 	lgl_3f_t	position;
+	lgl_3f_t	normal;
 	lgl_2f_t	texture_coordinates;
 } lgl_vertex_t;
 
@@ -57,10 +58,6 @@ typedef struct {
 	lgl_3f_t	diffuse;
 	lgl_3f_t	specular;
 } lgl_light_t;
-
-// TODO perhaps some sort of spatial partitioning to help with
-// supporting more lights (just an idea)
-enum { LGL_MAX_LIGHTS = 8 };
 
 typedef struct {
 	GLuint		VAO;
