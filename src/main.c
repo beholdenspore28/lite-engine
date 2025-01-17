@@ -45,12 +45,14 @@ int main() {
 
 	while (engine->is_running) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		objects[FLOOR]	.texture_offset.x	+= engine->time_delta;
 		objects[FLOOR]	.texture_offset.x	= loop(objects[FLOOR].texture_offset.x, 1);
 		objects[CUBE]	.position.x		= sin(engine->time_current);
 		objects[CUBE]	.position.y		= cos(engine->time_current)+1;
-		lgl_draw(2, objects);
-		lite_engine_end_frame(engine);
+
+		lgl_draw		(2, objects);
+		lite_engine_end_frame	(engine);
 	}
 
 	lite_engine_free(engine);
