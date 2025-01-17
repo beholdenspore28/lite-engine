@@ -7,6 +7,15 @@
 static float lgl__viewport_width = 640;
 static float lgl__viewport_height = 480;
 
+static const float
+	LGL__LEFT	= -0.5,
+	LGL__RIGHT	=  0.5,
+	LGL__UP		=  0.5,
+	LGL__DOWN	= -0.5,
+	LGL__FORWARD	=  0.5,
+	LGL__BACK	= -0.5;
+
+
 void lgl_viewport_set(const float width, const float height) {
 	lgl__viewport_width	= width;
 	lgl__viewport_height	= height;
@@ -238,67 +247,35 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		};
 
 		// lighting uniforms
-		glUniform1i(
-				glGetUniformLocation( data[i].shader,
-					"u_light.type"),
-				light.type);
+		glUniform1i(glGetUniformLocation( data[i].shader, "u_light.type"),
+			       light.type);
 
-		glUniform3f(
-				glGetUniformLocation( data[i].shader,
-					"u_light.position"),
-				light.position.y,
-				light.position.x,
-				light.position.z);
+		glUniform3f(glGetUniformLocation( data[i].shader, "u_light.position"),
+			       light.position.y, light.position.x, light.position.z);
 
-		glUniform3f(
-				glGetUniformLocation(
-					data[i].shader,
-					"u_light.direction"),
-				light.direction.x,
-				light.direction.y,
-				light.direction.z);
+		glUniform3f(glGetUniformLocation( data[i].shader, "u_light.direction"),
+			       light.direction.x, light.direction.y, light.direction.z);
 
-		glUniform1f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.cut_off"),
-				light.cut_off);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.cut_off"),
+			       light.cut_off);
 
-		glUniform1f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.outer_cut_off"),
-				light.outer_cut_off);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.outer_cut_off"),
+			       light.outer_cut_off);
  
-		glUniform1f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.constant"),
-				light.constant);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.constant"),
+			       light.constant);
  
-		glUniform1f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.linear"),
-				light.linear);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.linear"),
+			       light.linear);
 
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.quadratic"),
+			       light.quadratic);
 
-		glUniform1f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.quadratic"),
-				light.quadratic);
+		glUniform3f(glGetUniformLocation(data[i].shader, "u_light.diffuse"),
+			       light.diffuse.x, light.diffuse.y, light.diffuse.z);
 
-
-
-		glUniform3f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.diffuse"),
-				light.diffuse.x,
-				light.diffuse.y,
-				light.diffuse.z);
-
-		glUniform3f(
-				glGetUniformLocation(data[i].shader,
-					"u_light.specular"),
-				light.specular.x,
-				light.specular.y,
-				light.specular.z);
+		glUniform3f(glGetUniformLocation(data[i].shader, "u_light.specular"),
+				light.specular.x, light.specular.y, light.specular.z);
 
 		glBindVertexArray(data[i].VAO);
 		glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);
@@ -312,12 +289,14 @@ lgl_render_data_t lgl_quad_alloc(void) {
 
 	enum { quad_vertices_count = 6 };
 	lgl_vertex_t quad_vertices[quad_vertices_count] = { 
-		{ { -0.5, -0.5, 0.0 }, { -0.5, -0.5, 0.0 }, { 0.0, 0.0 } },
-		{ {  0.5, -0.5, 0.0 }, {  0.5, -0.5, 0.0 }, { 1.0, 0.0 } },
-		{ {  0.5,  0.5, 0.0 }, {  0.5,  0.5, 0.0 }, { 1.0, 1.0 } },
-		{ { -0.5,  0.5, 0.0 }, { -0.5,  0.5, 0.0 }, { 0.0, 1.0 } },
-		{ { -0.5, -0.5, 0.0 }, { -0.5, -0.5, 0.0 }, { 0.0, 0.0 } },
-		{ {  0.5,  0.5, 0.0 }, {  0.5,  0.5, 0.0 }, { 1.0, 1.0 } },
+		//position                        //normal          //tex coord
+		{ { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+		{ { LGL__RIGHT, LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+		{ { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+
+		{ { LGL__LEFT,  LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+		{ { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+		{ { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
 	};
 
 	quad.vertices		= quad_vertices;
@@ -336,43 +315,54 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
 	enum { cube_vertices_count = 36 };
 	lgl_vertex_t cube_vertices[cube_vertices_count] = { 
-		//position              //normal              //tex coord
-		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 0.0 } },
-		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 0.0 } },
-       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 1.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 1.0 } },
-       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 0.0, 1.0 } },
-       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ {  0.5, -0.5, -0.5 }, {  0.5, -0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5, -0.5,  0.5 }, {  0.5, -0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ { -0.5, -0.5,  0.5 }, { -0.5, -0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ { -0.5, -0.5, -0.5 }, { -0.5, -0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
-       		{ {  0.5,  0.5, -0.5 }, {  0.5,  0.5, -0.5 }, { 1.0, 1.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ {  0.5,  0.5,  0.5 }, {  0.5,  0.5,  0.5 }, { 1.0, 0.0 } },
-       		{ { -0.5,  0.5,  0.5 }, { -0.5,  0.5,  0.5 }, { 0.0, 0.0 } },
-       		{ { -0.5,  0.5, -0.5 }, { -0.5,  0.5, -0.5 }, { 0.0, 1.0 } },
+		//position                                 //normal             //tex coord
+		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 0.0 } },
+		{ { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 1.0 } },
+
+       		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 0.0 } },
+
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_left(1.0),    { 1.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
+
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_left(1.0),    { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
+
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_right(1.0),   { 1.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_right(1.0),   { 0.0, 1.0 } },
+
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_right(1.0),   { 0.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_right(1.0),   { 0.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
+
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 1.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
+
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+
+       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 1.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 1.0, 0.0 } },
+
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 1.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
 	};
 
 	cube.vertices		= cube_vertices;

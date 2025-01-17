@@ -91,6 +91,32 @@ void lgl_perspective(float *mat,
 
 GLuint lgl_texture_alloc(const char *imageFile);
 
+static inline lgl_2f_t lgl_2f_zero    (void)    { return (lgl_2f_t){ 0.0f,  0.0f }; }
+static inline lgl_2f_t lgl_2f_one     (float s) { return (lgl_2f_t){ s,     s    }; }
+static inline lgl_2f_t lgl_2f_up      (float s) { return (lgl_2f_t){ 0.0f,  s    }; }
+static inline lgl_2f_t lgl_2f_down    (float s) { return (lgl_2f_t){ 0.0f, -s    }; }
+static inline lgl_2f_t lgl_2f_right   (float s) { return (lgl_2f_t){ s,     0.0f }; }
+static inline lgl_2f_t lgl_2f_left    (float s) { return (lgl_2f_t){-s,     0.0f }; }
+
+static inline lgl_3f_t lgl_3f_zero    (void)    { return (lgl_3f_t){ 0.0f,  0.0f, 0.0f  }; }
+static inline lgl_3f_t lgl_3f_one     (float s) { return (lgl_3f_t){ s,     s,     s    }; }
+static inline lgl_3f_t lgl_3f_up      (float s) { return (lgl_3f_t){ 0.0f,  s,     0.0f }; }
+static inline lgl_3f_t lgl_3f_down    (float s) { return (lgl_3f_t){ 0.0f, -s,     0.0f }; }
+static inline lgl_3f_t lgl_3f_right   (float s) { return (lgl_3f_t){ s,     0.0f,  0.0f }; }
+static inline lgl_3f_t lgl_3f_left    (float s) { return (lgl_3f_t){-s,     0.0f,  0.0f }; }
+static inline lgl_3f_t lgl_3f_forward (float s) { return (lgl_3f_t){ 0.0f,  0.0f,  s    }; }
+static inline lgl_3f_t lgl_3f_back    (float s) { return (lgl_3f_t){ 0.0f,  0.0f, -s    }; }
+
+static inline lgl_4f_t lgl_4f_zero    (void)    { return (lgl_4f_t){ 0.0f,  0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t lgl_4f_one     (float s) { return (lgl_4f_t){ s,     s,     s,    1.0f }; }
+static inline lgl_4f_t lgl_4f_up      (float s) { return (lgl_4f_t){ 0.0f,  s,     0.0f, 1.0f }; }
+static inline lgl_4f_t lgl_4f_down    (float s) { return (lgl_4f_t){ 0.0f, -s,     0.0f, 1.0f }; }
+static inline lgl_4f_t lgl_4f_right   (float s) { return (lgl_4f_t){ s,     0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t lgl_4f_left    (float s) { return (lgl_4f_t){-s,     0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t lgl_4f_forward (float s) { return (lgl_4f_t){ 0.0f,  0.0f,  s,    1.0f }; }
+static inline lgl_4f_t lgl_4f_back    (float s) { return (lgl_4f_t){ 0.0f,  0.0f, -s,    1.0f }; }
+
+
 #ifdef __cplusplus
 }
 #endif // ifdef __cplusplus
