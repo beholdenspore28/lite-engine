@@ -1,3 +1,5 @@
+![banner](./doc/img/lite-engine-banner.png)
+
 # ⚠️ Lite-Engine is under development and should not be used for production projects yet. ⚠️
 
 ![cube_preview](./doc/img/cube_preview.png)
