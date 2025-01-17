@@ -1,16 +1,16 @@
 #version 410 core
 
 struct light_t {
-	int	type;
-	vec3	position;
-	vec3	direction;
-	float	cutOff;
-	float	outerCutOff;
-	float	constant;
-	float	linear;
-	float	quadratic;
-	vec3	diffuse;
-	vec3	specular;
+	int		type;
+	vec3		position;
+	vec3		direction;
+	float		cut_off;
+	float		outer_cut_off;
+	float		constant;
+	float		linear;
+	float		quadratic;
+	vec3		diffuse;
+	vec3		specular;
 };
 
 struct Material {
@@ -103,8 +103,8 @@ vec3 lightSpot(light_t light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
 	// intensity
 	float theta = dot(lightDir, normalize(light.direction)); 
-	float epsilon = light.cutOff - light.outerCutOff;
-	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+	float epsilon = light.cut_off - light.outer_cut_off;
+	float intensity = clamp((theta - light.outer_cut_off) / epsilon, 0.0, 1.0);
 
 	// combine results
 	vec3 ambient = u_ambientLight * vec3(texture(u_material.diffuse, v_tex_coord));

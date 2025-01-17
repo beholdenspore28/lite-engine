@@ -46,6 +46,19 @@ typedef struct {
 } lgl_vertex_t;
 
 typedef struct {
+	int		type;
+	lgl_3f_t	position;
+	lgl_3f_t	direction;
+	float		cut_off;
+	float		outer_cut_off;
+	float		constant;
+	float		linear;
+	float		quadratic;
+	lgl_3f_t	diffuse;
+	lgl_3f_t	specular;
+} lgl_light_t;
+
+typedef struct {
 	GLuint		VAO;
 	GLuint		VBO;
 	lgl_vertex_t	*vertices;
@@ -56,6 +69,7 @@ typedef struct {
 	GLuint		shader;
 	GLuint		diffuseMap;
 	GLuint		specularMap;
+	lgl_light_t	*lights;
 } lgl_render_data_t;
 
 void	lgl_viewport_set	(const float width, const float height);
