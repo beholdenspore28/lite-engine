@@ -5,7 +5,8 @@
 int main() {
 	lite_engine_context_t *engine = lite_engine_start();
 
-	lgl_render_data_t objects[1024] = {0};
+	lgl_render_data_t objects [1024] = {0};
+	lgl_light_t       lights  [8]    = {0};
 
 	enum {
 		FLOOR,
@@ -21,12 +22,12 @@ int main() {
 				"res/shaders/phong_diffuse_fragment.glsl",
 				GL_FRAGMENT_SHADER);
 
-		objects[FLOOR].shader		= lgl_shader_link(vertex_shader, fragment_shader);
-		objects[FLOOR].diffuse_map	= lgl_texture_alloc("res/textures/wood1.jpg");
-		objects[FLOOR].specular_map	= lgl_texture_alloc("res/textures/default_specular.png");
-		objects[FLOOR].position.y	= -1;
-		objects[FLOOR].scale		= (lgl_3f_t) {10, 1, 10};
-		objects[FLOOR].texture_scale	= lgl_2f_one(10.0);
+		objects[FLOOR].shader        = lgl_shader_link(vertex_shader, fragment_shader);
+		objects[FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/wood1.jpg");
+		objects[FLOOR].specular_map  = lgl_texture_alloc("res/textures/default_specular.png");
+		objects[FLOOR].position.y    = -1;
+		objects[FLOOR].scale	     = (lgl_3f_t) {10, 1, 10};
+		objects[FLOOR].texture_scale = lgl_2f_one(10.0);
 	}
 
 	objects[CUBE] = lgl_cube_alloc(); {
@@ -38,20 +39,21 @@ int main() {
 				"res/shaders/phong_diffuse_fragment.glsl",
 				GL_FRAGMENT_SHADER);
 
-		objects[CUBE]	.shader		= lgl_shader_link(vertex_shader, fragment_shader);
-		objects[CUBE]	.diffuse_map	= lgl_texture_alloc("res/textures/lite-engine-cube.png");
-		objects[CUBE]	.position.z	= 2;
+		objects[CUBE].shader      = lgl_shader_link(vertex_shader, fragment_shader);
+		objects[CUBE].diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+		objects[CUBE].position.z  = 2;
 	}
 
 	while (engine->is_running) {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		{ // update
+			objects[CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
+		}
 
-		objects[FLOOR]	.texture_offset.x	+= engine->time_delta;
-		objects[FLOOR]	.texture_offset.x	= loop(objects[FLOOR].texture_offset.x, 1);
-		objects[CUBE]	.position.y		= cos(engine->time_current)*0.2 + 0.5;
-
-		lgl_draw		(2, objects);
-		lite_engine_end_frame	(engine);
+		{ // draw
+			lgl_draw		(2, objects);
+			lite_engine_end_frame	(engine);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 	}
 
 	lite_engine_free(engine);
