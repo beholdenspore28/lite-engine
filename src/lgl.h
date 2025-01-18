@@ -23,74 +23,74 @@ extern "C" {
 #include "blib/blib_log.h"
 
 typedef struct {
-	float		x;
-	float		y;
+  float          x;
+  float          y;
 } lgl_2f_t;
 
 typedef struct {
-	float		x;
-	float		y;
-	float		z;
+  float          x;
+  float          y;
+  float          z;
 } lgl_3f_t;
 
 typedef struct {
-	float		x;
-	float		y;
-	float		z;
-	float		w;
+  float          x;
+  float          y;
+  float          z;
+  float          w;
 } lgl_4f_t;
 
 typedef struct {
-	lgl_3f_t	position;
-	lgl_3f_t	normal;
-	lgl_2f_t	texture_coordinates;
+  lgl_3f_t       position;
+  lgl_3f_t       normal;
+  lgl_2f_t       texture_coordinates;
 } lgl_vertex_t;
 
 typedef struct {
-	int		type;
-	lgl_3f_t	position;
-	lgl_3f_t	direction;
-	float		cut_off;
-	float		outer_cut_off;
-	float		constant;
-	float		linear;
-	float		quadratic;
-	lgl_3f_t	diffuse;
-	lgl_3f_t	specular;
+  int            type;
+  lgl_3f_t       position;
+  lgl_3f_t       direction;
+  float          cut_off;
+  float          outer_cut_off;
+  float          constant;
+  float          linear;
+  float          quadratic;
+  lgl_3f_t       diffuse;
+  lgl_3f_t       specular;
 } lgl_light_t;
 
 typedef struct {
-	GLuint		VAO;
-	GLuint		VBO;
-	lgl_vertex_t	*vertices;
-	size_t		vertex_count;
-	lgl_3f_t	position;
-	lgl_3f_t	scale;
-	lgl_4f_t	rotation;
-	GLuint		shader;
-	GLuint		diffuse_map;
-	GLuint		specular_map;
-	lgl_2f_t	texture_offset;
-	lgl_2f_t	texture_scale;
-	GLuint		lights_count;
-	lgl_light_t	*lights;
+  GLuint         VAO;
+  GLuint         VBO;
+  lgl_vertex_t  *vertices;
+  size_t         vertex_count;
+  lgl_3f_t       position;
+  lgl_3f_t       scale;
+  lgl_4f_t       rotation;
+  GLuint         shader;
+  GLuint         diffuse_map;
+  GLuint         specular_map;
+  lgl_2f_t       texture_offset;
+  lgl_2f_t       texture_scale;
+  GLuint         lights_count;
+  lgl_light_t   *lights;
 } lgl_render_data_t;
 
-void	lgl_viewport_set	(const float width, const float height);
-void	lgl_draw		(size_t data_length, lgl_render_data_t *data);
-void	lgl_buffer_vertex_array	(lgl_render_data_t *data);
+void  lgl_viewport_set        (const float width, const float height);
+void  lgl_draw                (size_t data_length, lgl_render_data_t *data);
+void  lgl_buffer_vertex_array (lgl_render_data_t *data);
 
-GLuint	lgl_shader_compile	(const char *file_path, GLenum type);
-GLuint	lgl_shader_link		(GLuint vertex_shader, GLuint fragment_shader);
+GLuint  lgl_shader_compile    (const char *file_path, GLenum type);
+GLuint  lgl_shader_link       (GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_render_data_t lgl_quad_alloc(void);
 lgl_render_data_t lgl_cube_alloc(void);
 
-void lgl_perspective(float *mat,
-		const float fov,
-		const float aspect,
-		const float near,
-		const float far);
+void lgl_perspective          (float *mat,
+                               const float fov,
+                               const float aspect,
+                               const float near,
+                               const float far);
 
 GLuint lgl_texture_alloc(const char *imageFile);
 
