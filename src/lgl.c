@@ -237,9 +237,9 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
 		glUniform3f(
 			glGetUniformLocation(data[i].shader, "u_ambientLight"), 
-			0.2,
-			0.2,
-			0.2);
+			0.0,
+			0.0,
+			0.0);
 
 		lgl_light_t light = (lgl_light_t) {
 			.type		= 0,
@@ -251,7 +251,7 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			.linear		= 0.09f,
 			.quadratic	= 0.032f,
 			.diffuse	= lgl_3f_one(0.8),
-			.specular	= lgl_3f_one(0.5),
+			.specular	= lgl_3f_one(0.6),
 		};
 
 		// lighting uniforms

@@ -124,7 +124,7 @@ void main() {
 	vec3 norm = normalize(v_normal);
 	vec3 viewDir = normalize(u_cameraPos - v_fragment_position);
 
-	vec3 light = lightPointInfiniteRange(u_light, norm, v_fragment_position, viewDir);
+	vec3 light = lightPoint(u_light, norm, v_fragment_position, viewDir);
 
 	fragColor = vec4(light, 1.0);
 }
