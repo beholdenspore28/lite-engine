@@ -72,6 +72,7 @@ typedef struct {
 	GLuint		specular_map;
 	lgl_2f_t	texture_offset;
 	lgl_2f_t	texture_scale;
+	GLuint		lights_count;
 	lgl_light_t	*lights;
 } lgl_render_data_t;
 

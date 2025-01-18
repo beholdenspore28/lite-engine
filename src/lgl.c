@@ -237,53 +237,55 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
 		glUniform3f(
 			glGetUniformLocation(data[i].shader, "u_ambientLight"), 
-			0.0,
-			0.0,
-			0.0);
+			0.4,
+			0.4,
+			0.4);
 
-		lgl_light_t light = (lgl_light_t) {
-			.type		= 0,
-			.position	= {0.0, 5.0 -5.0},
-			.direction	= {0.0, 0.0, 1.0},
-			.cut_off	= cos(12.5),
-			.outer_cut_off	= cos(15.0),
-			.constant	= 1.0f,
-			.linear		= 0.09f,
-			.quadratic	= 0.032f,
-			.diffuse	= lgl_3f_one(0.8),
-			.specular	= lgl_3f_one(0.6),
-		};
+		debug_log("%d light count:", data[i].lights_count);
 
 		// lighting uniforms
-		glUniform1i(glGetUniformLocation( data[i].shader, "u_light.type"),
-			       light.type);
+		for(GLuint light = 0; light < 1; light++) {
+			glUniform1ui(glGetUniformLocation(data[i].shader, "u_lights_count"),
+					data[i].lights_count);
 
-		glUniform3f(glGetUniformLocation( data[i].shader, "u_light.position"),
-			       light.position.y, light.position.x, light.position.z);
+			glUniform1i(glGetUniformLocation(data[i].shader, "u_lights[0].type"),
+					data[i].lights[light].type);
 
-		glUniform3f(glGetUniformLocation( data[i].shader, "u_light.direction"),
-			       light.direction.x, light.direction.y, light.direction.z);
+			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].position"),
+					data[i].lights[light].position.y,
+					data[i].lights[light].position.x,
+					data[i].lights[light].position.z);
 
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.cut_off"),
-			       light.cut_off);
+			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].direction"),
+					data[i].lights[light].direction.x,
+					data[i].lights[light].direction.y,
+					data[i].lights[light].direction.z);
 
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.outer_cut_off"),
-			       light.outer_cut_off);
- 
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.constant"),
-			       light.constant);
- 
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.linear"),
-			       light.linear);
+			glUniform1f(glGetUniformLocation(data[i].shader, "u_lights[0].cut_off"),
+					data[i].lights[light].cut_off);
 
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_light.quadratic"),
-			       light.quadratic);
+			glUniform1f(glGetUniformLocation(data[i].shader, "u_lights[0].outer_cut_off"),
+					data[i].lights[light].outer_cut_off);
 
-		glUniform3f(glGetUniformLocation(data[i].shader, "u_light.diffuse"),
-			       light.diffuse.x, light.diffuse.y, light.diffuse.z);
+			glUniform1f(glGetUniformLocation(data[i].shader, "u_lights[0].constant"),
+					data[i].lights[light].constant);
 
-		glUniform3f(glGetUniformLocation(data[i].shader, "u_light.specular"),
-				light.specular.x, light.specular.y, light.specular.z);
+			glUniform1f(glGetUniformLocation(data[i].shader, "u_lights[0].linear"),
+					data[i].lights[light].linear);
+
+			glUniform1f(glGetUniformLocation(data[i].shader, "u_lights[0].quadratic"),
+					data[i].lights[light].quadratic);
+
+			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].diffuse"),
+					data[i].lights[light].diffuse.x,
+					data[i].lights[light].diffuse.y,
+					data[i].lights[light].diffuse.z);
+
+			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].specular"),
+					data[i].lights[light].specular.x,
+					data[i].lights[light].specular.y,
+					data[i].lights[light].specular.z);
+		}
 
 		glBindVertexArray(data[i].VAO);
 		glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);

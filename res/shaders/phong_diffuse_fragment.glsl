@@ -28,7 +28,11 @@ out vec4	fragColor;
 uniform		vec3 u_cameraPos;
 uniform		Material u_material;
 uniform		vec3 u_ambientLight;
-uniform		light_t u_light;
+
+#define		LIGHTS_MAX 32
+
+uniform		uint u_lights_count;
+uniform		light_t u_lights[LIGHTS_MAX];
 
 vec3 lightDirectional(light_t light, vec3 normal, vec3 viewDir) {
 	vec3 lightDir = normalize(-light.direction);
@@ -124,7 +128,11 @@ void main() {
 	vec3 norm = normalize(v_normal);
 	vec3 viewDir = normalize(u_cameraPos - v_fragment_position);
 
-	vec3 light = lightPoint(u_light, norm, v_fragment_position, viewDir);
+	vec3 light = vec3(0,0,0);
+	for(int i = 0; i < u_lights_count; i++) {
+		if (i >= LIGHTS_MAX) { break; };
+		light += lightPoint(u_lights[i], norm, v_fragment_position, viewDir);
+	}
 
 	fragColor = vec4(light, 1.0);
 }
