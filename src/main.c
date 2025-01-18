@@ -5,6 +5,8 @@
 int main() {
 	lite_engine_context_t *engine = lite_engine_start();
 
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
 	lgl_render_data_t objects[1024] = {0};
 
 	enum {
@@ -22,10 +24,10 @@ int main() {
 				GL_FRAGMENT_SHADER);
 
 		objects[FLOOR].shader		= lgl_shader_link(vertex_shader, fragment_shader);
-		objects[FLOOR].diffuse_map	= lgl_texture_alloc("res/textures/test.png");
-		objects[FLOOR].specular_map	= lgl_texture_alloc("res/textures/test.png");
+		objects[FLOOR].diffuse_map	= lgl_texture_alloc("res/textures/wood1.jpg");
+		objects[FLOOR].specular_map	= lgl_texture_alloc("res/textures/default_specular.png");
 		objects[FLOOR].position.y	= -1;
-		objects[FLOOR].scale		= (lgl_3f_t) {100, 1, 100};
+		objects[FLOOR].scale		= (lgl_3f_t) {10, 1, 10};
 		objects[FLOOR].texture_scale	= lgl_2f_one(10.0);
 	}
 
