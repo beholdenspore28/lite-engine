@@ -7,6 +7,7 @@ int main() {
 
   enum {
     LIGHTS_POINT_0,
+    //LIGHTS_POINT_1,
     LIGHTS_COUNT, // this should ALWAYS be at the end of the enum
   };
 
@@ -20,31 +21,32 @@ int main() {
   lgl_light_t       lights  [LIGHTS_COUNT]  = {0};
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
-	  .type           = 0,
-	  .position       = {0.0, 5.0 -5.0},
-	  .direction      = {0.0, 0.0, 1.0},
-	  .cut_off        = cos(12.5),
-	  .outer_cut_off  = cos(15.0),
-	  .constant       = 1.0f,
-	  .linear         = 0.09f,
-	  .quadratic      = 0.032f,
-	  .diffuse        = lgl_3f_one(0.8),
-	  .specular       = lgl_3f_one(0.6),
+    .type           = 0,
+    .position       = {0.0, 5.0 -5.0},
+    .direction      = {0.0, 0.0, 1.0},
+    .cut_off        = cos(12.5),
+    .outer_cut_off  = cos(15.0),
+    .constant       = 1.0f,
+    .linear         = 0.09f,
+    .quadratic      = 0.032f,
+    .diffuse        = (lgl_3f_t){1.0, 0.0, 0.0},
+    .specular       = lgl_3f_one(0.6),
   };
 
-
-  //lights[LIGHTS_POINT_1] = (lgl_light_t) {
-  //        .type           = 0,
-  //        .position       = {5.0, 5.0 -5.0},
-  //        .direction      = {0.0, 0.0, 1.0},
-  //        .cut_off        = cos(12.5),
-  //        .outer_cut_off  = cos(15.0),
-  //        .constant       = 1.0f,
-  //        .linear         = 0.09f,
-  //        .quadratic      = 0.032f,
-  //        .diffuse        = lgl_3f_one(0.8),
-  //        .specular       = lgl_3f_one(0.6),
-  //};
+  // TODO in order for multiple lights to work, (in a sane way)
+  // you have to put them in a uniform buffer object
+//  lights[LIGHTS_POINT_1] = (lgl_light_t) {
+//    .type           = 0,
+//    .position       = {5.0, 5.0 -5.0},
+//    .direction      = {0.0, 0.0, 1.0},
+//    .cut_off        = cos(12.5),
+//    .outer_cut_off  = cos(15.0),
+//    .constant       = 1.0f,
+//    .linear         = 0.09f,
+//    .quadratic      = 0.032f,
+//    .diffuse        = (lgl_3f_t){1.0, 0.0, 0.0},
+//    .specular       = lgl_3f_one(0.6),
+//  };
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
     GLuint vertex_shader = lgl_shader_compile(
@@ -87,7 +89,7 @@ int main() {
 
   while (engine->is_running) {
     { // update
-      //objects[OBJECTS_CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
+      objects[OBJECTS_CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
       lights[LIGHTS_POINT_0].position.x = cos(engine->time_current);
     }
 
