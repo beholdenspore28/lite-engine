@@ -5,8 +5,6 @@
 int main() {
 	lite_engine_context_t *engine = lite_engine_start();
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
-
 	lgl_render_data_t objects[1024] = {0};
 
 	enum {
@@ -41,7 +39,7 @@ int main() {
 				GL_FRAGMENT_SHADER);
 
 		objects[CUBE]	.shader		= lgl_shader_link(vertex_shader, fragment_shader);
-		objects[CUBE]	.diffuse_map	= lgl_texture_alloc("res/textures/lite-engine-icon.png");
+		objects[CUBE]	.diffuse_map	= lgl_texture_alloc("res/textures/lite-engine-cube.png");
 		objects[CUBE]	.position.z	= 2;
 	}
 
@@ -50,8 +48,7 @@ int main() {
 
 		objects[FLOOR]	.texture_offset.x	+= engine->time_delta;
 		objects[FLOOR]	.texture_offset.x	= loop(objects[FLOOR].texture_offset.x, 1);
-		objects[CUBE]	.position.x		= sin(engine->time_current);
-		objects[CUBE]	.position.y		= cos(engine->time_current)+1;
+		objects[CUBE]	.position.y		= cos(engine->time_current)*0.2 + 0.5;
 
 		lgl_draw		(2, objects);
 		lite_engine_end_frame	(engine);

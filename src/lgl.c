@@ -233,7 +233,7 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		// other material properties
 		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);
 		glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"), 1);
-		glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 32.0f);
+		glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 8.0f);
 
 		glUniform3f(
 			glGetUniformLocation(data[i].shader, "u_ambientLight"), 
@@ -250,8 +250,8 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			.constant	= 1.0f,
 			.linear		= 0.09f,
 			.quadratic	= 0.032f,
-			.diffuse	= {0.8, 0.8, 0.8},
-			.specular	= {1.0, 1.0, 1.0},
+			.diffuse	= lgl_3f_one(0.8),
+			.specular	= lgl_3f_one(0.5),
 		};
 
 		// lighting uniforms
@@ -333,21 +333,21 @@ lgl_render_data_t lgl_cube_alloc(void) {
        		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 1.0 } },
        		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 0.0 } },
 
-       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
        		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-
-       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
        		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
 
-       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
-       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_left(1.0),    { 1.0, 1.0 } },
-       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
 
        		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
-       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_left(1.0),    { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_left(1.0),    { 1.0, 1.0 } },
        		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
+
+       		{ { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_left(1.0),    { 0.0, 0.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
 
        		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
        		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_right(1.0),   { 1.0, 1.0 } },
@@ -357,13 +357,13 @@ lgl_render_data_t lgl_cube_alloc(void) {
        		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_right(1.0),   { 0.0, 0.0 } },
        		{ { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
 
-       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
        		{ { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 1.0, 1.0 } },
-       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
-
-       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
-       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 0.0, 0.0 } },
        		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+       		{ { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 0.0, 0.0 } },
+       		{ { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
 
        		{ { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
        		{ { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 1.0, 1.0 } },
