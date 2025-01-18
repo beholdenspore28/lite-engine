@@ -241,7 +241,7 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			0.4,
 			0.4);
 
-		debug_log("%d light count:", data[i].lights_count);
+		//debug_log("%d light count:", data[i].lights_count);
 
 		// lighting uniforms
 		for(GLuint light = 0; light < 1; light++) {
@@ -252,8 +252,8 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 					data[i].lights[light].type);
 
 			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].position"),
-					data[i].lights[light].position.y,
 					data[i].lights[light].position.x,
+					data[i].lights[light].position.y,
 					data[i].lights[light].position.z);
 
 			glUniform3f(glGetUniformLocation(data[i].shader, "u_lights[0].direction"),
