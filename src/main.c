@@ -88,9 +88,10 @@ int main() {
     }
 
     { // draw
-      lgl_draw    (2, objects);
-      lite_engine_end_frame  (engine);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      lgl_draw              (2, objects);
+      lite_engine_end_frame (engine);
+      glClear               (GL_COLOR_BUFFER_BIT |
+                             GL_DEPTH_BUFFER_BIT);
     }
   }
 
