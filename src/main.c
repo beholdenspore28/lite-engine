@@ -74,6 +74,7 @@ int main() {
     objects[OBJECTS_CUBE].position.z     = 2;
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
+    objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_WIREFRAME;
   }
 
   while(engine->is_running) {

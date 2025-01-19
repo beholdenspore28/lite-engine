@@ -59,6 +59,12 @@ typedef struct {
   lgl_3f_t       specular;
 } lgl_light_t;
 
+enum {
+  LGL_FLAG_ENABLED       = 1 << 0, // if not enabled, the renderer will draw this object
+  LGL_FLAG_USE_STENCIL   = 1 << 1,
+  LGL_FLAG_USE_WIREFRAME = 1 << 2,
+};
+
 typedef struct {
   GLuint         VAO;
   GLuint         VBO;
@@ -74,6 +80,7 @@ typedef struct {
   lgl_2f_t       texture_scale;
   GLuint         lights_count;
   lgl_light_t   *lights;
+  GLint          render_flags;
 } lgl_render_data_t;
 
 void  lgl_viewport_set        (const float width, const float height);

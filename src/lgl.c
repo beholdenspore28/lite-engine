@@ -184,7 +184,32 @@ void lgl__buffer_vertex_array (lgl_render_data_t *data) {
 
 void lgl_draw(size_t data_length, lgl_render_data_t *data) {
   for(size_t i = 0; i < data_length; i++) {
+
     glUseProgram(data[i].shader);
+
+#if 1 // log render flags
+    debug_log(" ");
+    printf("FLAGS AT data[%lu] { ", i);
+    for(size_t j = 0; j < sizeof(data[i].render_flags)*8; j++) {
+      size_t flag = (data[i].render_flags & (1 << j));
+      printf("%u ", flag ? 1 : 0 );
+    }
+    printf("}\n");
+#endif
+
+    if ((data[i].render_flags & LGL_FLAG_ENABLED) == 0) {
+      continue;
+    }
+
+    if (data[i].render_flags & LGL_FLAG_USE_WIREFRAME) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+
+    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
+
+    }
 
     GLfloat projection[16] = {
       1.0,  0.0,  0.0,  0.0,
@@ -347,6 +372,8 @@ lgl_render_data_t lgl_quad_alloc(void) {
   quad.texture_offset  = lgl_2f_zero();
   quad.texture_scale   = lgl_2f_one(1.0);
 
+  quad.render_flags    = LGL_FLAG_ENABLED;
+
   lgl__buffer_vertex_array(&quad);
   return quad;
 }
@@ -415,6 +442,8 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
   cube.texture_offset = lgl_2f_zero();
   cube.texture_scale  = lgl_2f_one(1.0);
+
+  cube.render_flags   = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(&cube);
   return cube;
