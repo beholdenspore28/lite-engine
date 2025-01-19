@@ -50,7 +50,7 @@ int main() {
     GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_diffuse_fragment.glsl", GL_FRAGMENT_SHADER);
     objects[OBJECTS_FLOOR].shader = lgl_shader_link(vertex_shader, fragment_shader);
 
-    objects[OBJECTS_FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/wood1.jpg");
+    objects[OBJECTS_FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/test.png");
     objects[OBJECTS_FLOOR].specular_map  = lgl_texture_alloc("res/textures/default_specular.png");
     objects[OBJECTS_FLOOR].texture_scale = lgl_2f_one(10.0);
 
