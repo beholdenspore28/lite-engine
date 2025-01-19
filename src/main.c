@@ -56,8 +56,8 @@ int main() {
 
     objects[OBJECTS_FLOOR].position.y    = -1;
     objects[OBJECTS_FLOOR].scale         = (lgl_3f_t) {10, 1, 10};
-    objects[OBJECTS_FLOOR].lights_count = LIGHTS_COUNT;
-    objects[OBJECTS_FLOOR].lights = lights;
+    objects[OBJECTS_FLOOR].lights_count  = LIGHTS_COUNT;
+    objects[OBJECTS_FLOOR].lights        = lights;
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
@@ -72,8 +72,8 @@ int main() {
     objects[OBJECTS_CUBE].shader         = lgl_shader_link(vertex_shader, fragment_shader);
     objects[OBJECTS_CUBE].diffuse_map    = lgl_texture_alloc("res/textures/lite-engine-cube.png");
     objects[OBJECTS_CUBE].position.z     = 2;
-    objects[OBJECTS_CUBE].lights_count = LIGHTS_COUNT;
-    objects[OBJECTS_CUBE].lights = lights;
+    objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
+    objects[OBJECTS_CUBE].lights         = lights;
   }
 
   while(engine->is_running) {
