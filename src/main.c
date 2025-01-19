@@ -41,7 +41,7 @@ int main() {
     .constant       = 1.0f,
     .linear         = 0.09f,
     .quadratic      = 0.032f,
-    .diffuse        = (lgl_3f_t){1.0, 0.0, 0.0},
+    .diffuse        = (lgl_3f_t){0.0, 0.0, 1.0},
     .specular       = lgl_3f_one(0.6),
   };
 
@@ -81,7 +81,10 @@ int main() {
       objects[OBJECTS_CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
 
       lights[LIGHTS_POINT_0].position.x = sin(engine->time_current);
+      lights[LIGHTS_POINT_0].position.z = cos(engine->time_current);
+
       lights[LIGHTS_POINT_1].position.x = cos(engine->time_current);
+      lights[LIGHTS_POINT_1].position.z = sin(engine->time_current);
     }
 
     { // draw
