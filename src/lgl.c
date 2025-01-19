@@ -236,10 +236,10 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
     glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 8.0f);
 
     glUniform3f(
-      glGetUniformLocation(data[i].shader, "u_ambientLight"), 
-      0.4,
-      0.4,
-      0.4);
+      glGetUniformLocation(data[i].shader, "u_ambient_light"), 
+      0.2,
+      0.2,
+      0.2);
 
     // lighting uniforms
     for(GLuint light = 0; light < data[i].lights_count; light++) {
