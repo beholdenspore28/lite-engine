@@ -49,25 +49,19 @@ int main() {
 //  };
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/phong_diffuse_vertex.glsl",
-        GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_diffuse_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
+    GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_diffuse_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_diffuse_fragment.glsl", GL_FRAGMENT_SHADER);
     objects[OBJECTS_FLOOR].shader = lgl_shader_link(vertex_shader, fragment_shader);
 
-    objects[OBJECTS_FLOOR].diffuse_map    = lgl_texture_alloc("res/textures/wood1.jpg");
-    objects[OBJECTS_FLOOR].specular_map   = lgl_texture_alloc("res/textures/default_specular.png");
-    objects[OBJECTS_FLOOR].texture_scale  = lgl_2f_one(10.0);
+    objects[OBJECTS_FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/wood1.jpg");
+    objects[OBJECTS_FLOOR].specular_map  = lgl_texture_alloc("res/textures/default_specular.png");
+    objects[OBJECTS_FLOOR].texture_scale = lgl_2f_one(10.0);
 
-    objects[OBJECTS_FLOOR].position.y     = -1;
-    objects[OBJECTS_FLOOR].scale          = (lgl_3f_t) {10, 1, 10};
+    objects[OBJECTS_FLOOR].position.y    = -1;
+    objects[OBJECTS_FLOOR].scale         = (lgl_3f_t) {10, 1, 10};
 
-    objects[OBJECTS_FLOOR].lights_count   = LIGHTS_COUNT;
-    objects[OBJECTS_FLOOR].lights         = lights;
+    objects[OBJECTS_FLOOR].lights_count  = LIGHTS_COUNT;
+    objects[OBJECTS_FLOOR].lights        = lights;
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
@@ -79,9 +73,9 @@ int main() {
         "res/shaders/phong_diffuse_fragment.glsl",
         GL_FRAGMENT_SHADER);
 
-    objects[OBJECTS_CUBE].shader      = lgl_shader_link(vertex_shader, fragment_shader);
-    objects[OBJECTS_CUBE].diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
-    objects[OBJECTS_CUBE].position.z  = 2;
+    objects[OBJECTS_CUBE].shader         = lgl_shader_link(vertex_shader, fragment_shader);
+    objects[OBJECTS_CUBE].diffuse_map    = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+    objects[OBJECTS_CUBE].position.z     = 2;
 
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
