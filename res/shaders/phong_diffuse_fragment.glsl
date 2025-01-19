@@ -23,7 +23,7 @@ in vec3      v_fragment_position;
 in vec3      v_normal;
 in vec2      v_tex_coord;
 
-out vec4     fragColor;
+out vec4     frag_color;
 
 uniform      vec3     u_cameraPos;
 uniform      Material u_material;
@@ -134,5 +134,5 @@ void main() {
     light += lightPoint(u_lights[i], norm, v_fragment_position, viewDir);
   }
 
-  fragColor = vec4(light, 1.0);
+  frag_color = vec4(light, 1.0);
 }
