@@ -243,76 +243,76 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
     // lighting uniforms
     for(GLuint light = 0; light < data[i].lights_count; light++) {
-	    glUniform1ui(glGetUniformLocation(data[i].shader, "u_lights_count"),
-			    data[i].lights_count);
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type", light);
-		    glUniform1i(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].type);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position", light);
-		    glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].position.x,
-				    data[i].lights[light].position.y,
-				    data[i].lights[light].position.z);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction", light);
-		    glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].direction.x,
-				    data[i].lights[light].direction.y,
-				    data[i].lights[light].direction.z);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off", light);
-		    glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].cut_off);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].outer_cut_off", light);
-		    glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].outer_cut_off);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].constant", light);
-		    glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].constant);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].linear", light);
-		    glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].linear);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].quadratic", light);
-		    glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].quadratic);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].diffuse", light);
-		    glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].diffuse.x,
-				    data[i].lights[light].diffuse.y,
-				    data[i].lights[light].diffuse.z);
-	    }
-	    {
-		    char uniform_name[64] = {0};
-		    snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].specular", light);
-		    glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
-				    data[i].lights[light].specular.x,
-				    data[i].lights[light].specular.y,
-				    data[i].lights[light].specular.z);
-	    }
+      glUniform1ui(glGetUniformLocation(data[i].shader, "u_lights_count"),
+          data[i].lights_count);
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type", light);
+        glUniform1i(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].type);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position", light);
+        glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].position.x,
+            data[i].lights[light].position.y,
+            data[i].lights[light].position.z);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction", light);
+        glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].direction.x,
+            data[i].lights[light].direction.y,
+            data[i].lights[light].direction.z);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off", light);
+        glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].cut_off);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].outer_cut_off", light);
+        glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].outer_cut_off);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].constant", light);
+        glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].constant);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].linear", light);
+        glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].linear);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].quadratic", light);
+        glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].quadratic);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].diffuse", light);
+        glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].diffuse.x,
+            data[i].lights[light].diffuse.y,
+            data[i].lights[light].diffuse.z);
+      }
+      {
+        char uniform_name[64] = {0};
+        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].specular", light);
+        glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
+            data[i].lights[light].specular.x,
+            data[i].lights[light].specular.y,
+            data[i].lights[light].specular.z);
+      }
     }
 
     glBindVertexArray(data[i].VAO);
