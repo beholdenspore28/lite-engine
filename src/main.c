@@ -2,38 +2,6 @@
 #include "platform_x11.h"
 #include "lgl.h"
 
-void lgl_outline(
-    const size_t data_length,
-    lgl_render_data_t *data,
-    GLuint outline_shader){
-  for(size_t i = 0; i < data_length; i++) { 
-    if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
-      debug_warn("object[%lu] is not set to use the stencil buffer, but you are trying to outline it.", i);
-    }
-    glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask (0x00);
-
-    GLuint shader_tmp = data[i].shader;
-
-    glUseProgram(outline_shader);
-
-    data[i].shader = outline_shader;
-
-    glUniform4f(glGetUniformLocation(outline_shader, "u_color"),
-        0.0, 1.0, 0.5, 1.0);
-
-    lgl_3f_t scale_tmp = data[i].scale;
-    data[i].scale.x *= 1.01;
-    data[i].scale.y *= 1.01;
-    data[i].scale.z *= 1.01;
-
-    lgl_draw(1, &data[i]);
-
-    data[i].scale  = scale_tmp;
-    data[i].shader = shader_tmp;
-  }
-}
-
 int main() {
   lite_engine_context_t *engine = lite_engine_start();
 
