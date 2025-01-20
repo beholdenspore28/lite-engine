@@ -27,9 +27,13 @@ lite_engine_context_t *lite_engine_start(void) {
   x->viewport_size_callback = lite_engine__viewport_size_callback;
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
   glStencilFunc (GL_ALWAYS, 1, 0xFF);

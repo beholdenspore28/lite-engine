@@ -71,7 +71,7 @@ int main() {
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
     objects[OBJECTS_CUBE].shader         = shader_phong;
     objects[OBJECTS_CUBE].diffuse_map    = lgl_texture_alloc("res/textures/lite-engine-cube.png");
-    objects[OBJECTS_CUBE].position.z     = 2;
+    objects[OBJECTS_CUBE].position.z     = 1;
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
     objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
