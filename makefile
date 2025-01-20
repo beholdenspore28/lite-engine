@@ -16,20 +16,27 @@
 #|                                                                           |#
 ###############################################################################
 
-OUT	:= -o build/lite_engine
-SRC	:= src/*.c
-OBJ	:= build/*.o
-INC	:= -Isrc -Idep -Idep/glad/include
-C	:= gcc
+SRC	            :=  src/*.c
+OBJ	            :=  build/*.o
+INC	            := -Isrc -Idep -Idep/glad/include
+OUT	            := -o build/lite_engine
 
-CFLAGS_DEBUG	:= -g3 -fsanitize=address
+C	              :=  gcc
+
+CFLAGS_DEBUG	  := -g3 -fsanitize=address
 CFLAGS_RELEASE	:= -O3 -flto
-CFLAGS		?= -Wall -Wextra -Wpedantic -std=gnu99 ${CFLAGS_DEBUG}
 
-VALGRIND	:= valgrind	--leak-check=full\
-				--show-leak-kinds=all\
-				--track-origins=yes\
-				--verbose\
+CFLAGS		      ?= -Wall        \
+								-Wextra         \
+								-Wpedantic      \
+								-Werror         \
+								-std=gnu99      \
+								${CFLAGS_DEBUG} \
+
+VALGRIND		    := valgrind	--leak-check=full \
+						    --show-leak-kinds=all         \
+						    --track-origins=yes           \
+						    --verbose                     \
 
 # LINUX X11 BUILD
 LIBS_X11 := -lm -lrt -lX11
