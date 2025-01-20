@@ -111,12 +111,12 @@ GLuint shader_phong = 0; {
         objects[OBJECTS_CUBE].shader = shader_solid;
 
         glUniform4f(glGetUniformLocation(shader_solid, "u_color"),
-            1.0, 0.0, 0.0, 1.0);
+            0.0, 1.0, 0.5, 1.0);
 
         lgl_3f_t scale_tmp = objects[OBJECTS_CUBE].scale;
-        objects[OBJECTS_CUBE].scale.x *= 1.05;
-        objects[OBJECTS_CUBE].scale.y *= 1.05;
-        objects[OBJECTS_CUBE].scale.z *= 1.05;
+        objects[OBJECTS_CUBE].scale.x *= 1.01;
+        objects[OBJECTS_CUBE].scale.y *= 1.01;
+        objects[OBJECTS_CUBE].scale.z *= 1.01;
 
         lgl_draw(1, &objects[OBJECTS_CUBE]);
 
