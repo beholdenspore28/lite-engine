@@ -15,7 +15,6 @@ static const float
   LGL__FORWARD  =  0.5,
   LGL__BACK  = -0.5;
 
-
 void lgl_viewport_set(const float width, const float height) {
   lgl__viewport_width  = width;
   lgl__viewport_height  = height;
