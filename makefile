@@ -68,6 +68,5 @@ wgl:
 	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC} ${CFLAGS}
 	${C} -c dep/glad/src/wgl.c -o build/wgl.o ${INC} ${CFLAGS}
 
-
 build_directory:
 	mkdir -p build
