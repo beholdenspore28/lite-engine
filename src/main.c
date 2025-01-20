@@ -5,6 +5,9 @@
 int main() {
   lite_engine_context_t *engine = lite_engine_start();
 
+  glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilFunc (GL_ALWAYS, 1, 0xFF);
+
   enum {
     LIGHTS_POINT_0,
     LIGHTS_POINT_1,
@@ -72,6 +75,7 @@ GLuint shader_phong = 0; {
     objects[OBJECTS_CUBE].position.z     = 2;
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
+    objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
   }
 
   while(engine->is_running) {
@@ -92,13 +96,7 @@ GLuint shader_phong = 0; {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      { // draw objects
-        glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc (GL_ALWAYS, 1, 0xFF);
-        glStencilMask (0x00);
-
-        lgl_draw      (OBJECTS_COUNT, objects);
-      }
+      lgl_draw(OBJECTS_COUNT, objects);
 
       { // draw outlines
         glStencilFunc (GL_NOTEQUAL, 1, 0xFF);

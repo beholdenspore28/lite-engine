@@ -208,6 +208,12 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
+    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
+      glStencilMask(0xFF);
+    } else {
+      glStencilMask(0x00);
+    }
+
     GLfloat projection[16] = {
       1.0,  0.0,  0.0,  0.0,
       0.0,  1.0,  0.0,  0.0,
@@ -337,12 +343,6 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
       }
     }
 
-    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
-      glStencilMask(0xFF);
-    } else {
-      glStencilMask(0x00);
-    }
-
     glBindVertexArray(data[i].VAO);
     glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);
     glUseProgram(0);
@@ -446,8 +446,7 @@ lgl_render_data_t lgl_cube_alloc(void) {
   cube.texture_offset = lgl_2f_zero();
   cube.texture_scale  = lgl_2f_one(1.0);
 
-  cube.render_flags   = LGL_FLAG_ENABLED |
-                        LGL_FLAG_USE_STENCIL;
+  cube.render_flags   = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(&cube);
   return cube;
