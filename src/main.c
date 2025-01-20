@@ -2,11 +2,40 @@
 #include "platform_x11.h"
 #include "lgl.h"
 
+void lgl_outline(
+    const size_t data_length,
+    lgl_render_data_t *data,
+    GLuint outline_shader){
+  for(size_t i = 0; i < data_length; i++) { 
+    if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
+      debug_warn("object[%lu] is not set to use the stencil buffer, but you are trying to outline it.", i);
+    }
+    glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask (0x00);
+
+    GLuint shader_tmp = data[i].shader;
+
+    glUseProgram(outline_shader);
+
+    data[i].shader = outline_shader;
+
+    glUniform4f(glGetUniformLocation(outline_shader, "u_color"),
+        0.0, 1.0, 0.5, 1.0);
+
+    lgl_3f_t scale_tmp = data[i].scale;
+    data[i].scale.x *= 1.01;
+    data[i].scale.y *= 1.01;
+    data[i].scale.z *= 1.01;
+
+    lgl_draw(1, &data[i]);
+
+    data[i].scale  = scale_tmp;
+    data[i].shader = shader_tmp;
+  }
+}
+
 int main() {
   lite_engine_context_t *engine = lite_engine_start();
-
-  glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
-  glStencilFunc (GL_ALWAYS, 1, 0xFF);
 
   enum {
     LIGHTS_POINT_0,
@@ -24,7 +53,7 @@ int main() {
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
     .type           = 0,
-    .position       = {0.0, 5.0 -5.0},
+      .position       = {0.0, 5.0 -5.0},
     .direction      = {0.0, 0.0, 1.0},
     .cut_off        = cos(12.5),
     .outer_cut_off  = cos(15.0),
@@ -98,29 +127,7 @@ GLuint shader_phong = 0; {
 
       lgl_draw(OBJECTS_COUNT, objects);
 
-      { // draw outlines
-        glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask (0x00);
-
-        GLuint shader_tmp = objects[OBJECTS_CUBE].shader;
-
-        glUseProgram(shader_solid);
-
-        objects[OBJECTS_CUBE].shader = shader_solid;
-
-        glUniform4f(glGetUniformLocation(shader_solid, "u_color"),
-            0.0, 1.0, 0.5, 1.0);
-
-        lgl_3f_t scale_tmp = objects[OBJECTS_CUBE].scale;
-        objects[OBJECTS_CUBE].scale.x *= 1.01;
-        objects[OBJECTS_CUBE].scale.y *= 1.01;
-        objects[OBJECTS_CUBE].scale.z *= 1.01;
-
-        lgl_draw(1, &objects[OBJECTS_CUBE]);
-
-        objects[OBJECTS_CUBE].scale  = scale_tmp;
-        objects[OBJECTS_CUBE].shader = shader_tmp;
-      }
+      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid);
 
       lite_engine_end_frame(engine);
     }

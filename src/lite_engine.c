@@ -31,6 +31,9 @@ lite_engine_context_t *lite_engine_start(void) {
   glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
 
+  glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilFunc (GL_ALWAYS, 1, 0xFF);
+
   debug_log("Startup completed successfuly");
 
   return engine;
