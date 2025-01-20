@@ -87,7 +87,8 @@ void  lgl_viewport_set        (const float width, const float height);
 
 void lgl_outline              (const size_t       data_length,
                                lgl_render_data_t *data,
-                               const GLuint       outline_shader);
+                               const GLuint       outline_shader,
+                               const float        thickness);
 
 void  lgl_draw                (size_t data_length, lgl_render_data_t *data);
 void  lgl_buffer_vertex_array (lgl_render_data_t *data);

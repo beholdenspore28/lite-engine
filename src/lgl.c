@@ -186,7 +186,8 @@ void lgl__buffer_vertex_array (lgl_render_data_t *data) {
 void lgl_outline(
     const size_t       data_length,
     lgl_render_data_t *data,
-    const GLuint             outline_shader){
+    const GLuint       outline_shader,
+    const float        thickness){
   for(size_t i = 0; i < data_length; i++) { 
     if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
       debug_warn("object[%lu] is not set to use the stencil buffer, but you are trying to outline it.", i);
@@ -204,9 +205,9 @@ void lgl_outline(
         0.0, 1.0, 0.5, 1.0);
 
     lgl_3f_t scale_tmp = data[i].scale;
-    data[i].scale.x *= 1.01;
-    data[i].scale.y *= 1.01;
-    data[i].scale.z *= 1.01;
+    data[i].scale.x *= (1+thickness);
+    data[i].scale.y *= (1+thickness);
+    data[i].scale.z *= (1+thickness);
 
     lgl_draw(1, &data[i]);
 

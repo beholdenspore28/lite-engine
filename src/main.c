@@ -44,11 +44,13 @@ int main() {
     .diffuse        = (lgl_3f_t){0.0, 0.0, 1.0},
     .specular       = lgl_3f_one(0.6),
   };
-GLuint shader_phong = 0; {
+
+  GLuint shader_phong = 0; {
     GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
     shader_phong    = lgl_shader_link(vertex_shader, fragment_shader);
   }
+
   GLuint shader_solid = 0; {
     GLuint vertex_shader   = lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile("res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
@@ -56,7 +58,7 @@ GLuint shader_phong = 0; {
   }
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
-    objects[OBJECTS_FLOOR].shader = shader_phong;
+    objects[OBJECTS_FLOOR].shader        = shader_phong;
     objects[OBJECTS_FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/test.png");
     objects[OBJECTS_FLOOR].specular_map  = lgl_texture_alloc("res/textures/default_specular.png");
     objects[OBJECTS_FLOOR].texture_scale = lgl_2f_one(10.0);
@@ -87,7 +89,6 @@ GLuint shader_phong = 0; {
     }
 
     { // draw
-      
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
@@ -95,7 +96,7 @@ GLuint shader_phong = 0; {
 
       lgl_draw(OBJECTS_COUNT, objects);
 
-      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid);
+      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
 
       lite_engine_end_frame(engine);
     }
