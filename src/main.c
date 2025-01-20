@@ -95,7 +95,6 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(OBJECTS_COUNT, objects);
-
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
 
       lite_engine_end_frame(engine);
