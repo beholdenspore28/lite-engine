@@ -28,6 +28,7 @@ lite_engine_context_t *lite_engine_start(void) {
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
 
   debug_log("Startup completed successfuly");

@@ -44,16 +44,22 @@ int main() {
     .diffuse        = (lgl_3f_t){0.0, 0.0, 1.0},
     .specular       = lgl_3f_one(0.6),
   };
+GLuint shader_phong = 0; {
+    GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
+    shader_phong    = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+  GLuint shader_solid = 0; {
+    GLuint vertex_shader   = lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile("res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
+    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
+  }
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
-    GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_diffuse_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_diffuse_fragment.glsl", GL_FRAGMENT_SHADER);
-    objects[OBJECTS_FLOOR].shader = lgl_shader_link(vertex_shader, fragment_shader);
-
+    objects[OBJECTS_FLOOR].shader = shader_phong;
     objects[OBJECTS_FLOOR].diffuse_map   = lgl_texture_alloc("res/textures/test.png");
     objects[OBJECTS_FLOOR].specular_map  = lgl_texture_alloc("res/textures/default_specular.png");
     objects[OBJECTS_FLOOR].texture_scale = lgl_2f_one(10.0);
-
     objects[OBJECTS_FLOOR].position.y    = -1;
     objects[OBJECTS_FLOOR].scale         = (lgl_3f_t) {10, 1, 10};
     objects[OBJECTS_FLOOR].lights_count  = LIGHTS_COUNT;
@@ -61,20 +67,11 @@ int main() {
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/phong_diffuse_vertex.glsl",
-        GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_diffuse_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
-    objects[OBJECTS_CUBE].shader         = lgl_shader_link(vertex_shader, fragment_shader);
+    objects[OBJECTS_CUBE].shader         = shader_phong;
     objects[OBJECTS_CUBE].diffuse_map    = lgl_texture_alloc("res/textures/lite-engine-cube.png");
     objects[OBJECTS_CUBE].position.z     = 2;
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
-    objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_WIREFRAME;
   }
 
   while(engine->is_running) {
@@ -89,10 +86,45 @@ int main() {
     }
 
     { // draw
-      lgl_draw              (2, objects);
-      lite_engine_end_frame (engine);
-      glClear               (GL_COLOR_BUFFER_BIT |
-                             GL_DEPTH_BUFFER_BIT);
+      
+      glClear(
+          GL_COLOR_BUFFER_BIT |
+          GL_DEPTH_BUFFER_BIT |
+          GL_STENCIL_BUFFER_BIT);
+
+      { // draw objects
+        glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc (GL_ALWAYS, 1, 0xFF);
+        glStencilMask (0x00);
+
+        lgl_draw      (OBJECTS_COUNT, objects);
+      }
+
+      { // draw outlines
+        glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask (0x00);
+
+        GLuint shader_tmp = objects[OBJECTS_CUBE].shader;
+
+        glUseProgram(shader_solid);
+
+        objects[OBJECTS_CUBE].shader = shader_solid;
+
+        glUniform4f(glGetUniformLocation(shader_solid, "u_color"),
+            1.0, 0.0, 0.0, 1.0);
+
+        lgl_3f_t scale_tmp = objects[OBJECTS_CUBE].scale;
+        objects[OBJECTS_CUBE].scale.x *= 1.05;
+        objects[OBJECTS_CUBE].scale.y *= 1.05;
+        objects[OBJECTS_CUBE].scale.z *= 1.05;
+
+        lgl_draw(1, &objects[OBJECTS_CUBE]);
+
+        objects[OBJECTS_CUBE].scale  = scale_tmp;
+        objects[OBJECTS_CUBE].shader = shader_tmp;
+      }
+
+      lite_engine_end_frame(engine);
     }
   }
 

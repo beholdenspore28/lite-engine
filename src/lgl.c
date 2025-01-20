@@ -113,6 +113,7 @@ GLuint lgl_texture_alloc(const char *imageFile) {
 }
 
 GLuint lgl_shader_compile(const char *file_path, GLenum type) {
+  debug_log("compiling shader from '%s'", file_path);
   file_buffer fb = file_buffer_alloc(file_path);
   if (fb.error) { // error check
     debug_error("failed to read shader from '%s'\n", file_path);
@@ -187,7 +188,7 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 
     glUseProgram(data[i].shader);
 
-#if 1 // log render flags
+#if 0 // log render flags
     debug_log(" ");
     printf("FLAGS AT data[%lu] { ", i);
     for(size_t j = 0; j < sizeof(data[i].render_flags)*8; j++) {
@@ -206,10 +207,6 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
 		} else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
-
-    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
-
-    }
 
     GLfloat projection[16] = {
       1.0,  0.0,  0.0,  0.0,
@@ -340,10 +337,16 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
       }
     }
 
+    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
+      glStencilMask(0xFF);
+    } else {
+      glStencilMask(0x00);
+    }
+
     glBindVertexArray(data[i].VAO);
     glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);
-
     glUseProgram(0);
+
   }
 }
 
@@ -443,7 +446,8 @@ lgl_render_data_t lgl_cube_alloc(void) {
   cube.texture_offset = lgl_2f_zero();
   cube.texture_scale  = lgl_2f_one(1.0);
 
-  cube.render_flags   = LGL_FLAG_ENABLED;
+  cube.render_flags   = LGL_FLAG_ENABLED |
+                        LGL_FLAG_USE_STENCIL;
 
   lgl__buffer_vertex_array(&cube);
   return cube;
