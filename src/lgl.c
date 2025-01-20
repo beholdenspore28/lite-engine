@@ -236,10 +236,10 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
     }
 
     if (data[i].render_flags & LGL_FLAG_USE_WIREFRAME) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		} else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
       glStencilMask(0xFF);

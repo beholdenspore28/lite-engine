@@ -21,7 +21,7 @@ int main() {
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
     .type           = 0,
-      .position       = {0.0, 5.0 -5.0},
+    .position       = {0.0, 5.0 -5.0},
     .direction      = {0.0, 0.0, 1.0},
     .cut_off        = cos(12.5),
     .outer_cut_off  = cos(15.0),
