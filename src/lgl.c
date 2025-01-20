@@ -8,15 +8,15 @@ static float lgl__viewport_width = 640;
 static float lgl__viewport_height = 480;
 
 static const float
-  LGL__LEFT  = -0.5,
-  LGL__RIGHT  =  0.5,
-  LGL__UP    =  0.5,
-  LGL__DOWN  = -0.5,
-  LGL__FORWARD  =  0.5,
-  LGL__BACK  = -0.5;
+  LGL__LEFT    = -0.5,
+  LGL__RIGHT   =  0.5,
+  LGL__UP      =  0.5,
+  LGL__DOWN    = -0.5,
+  LGL__FORWARD =  0.5,
+  LGL__BACK    = -0.5;
 
 void lgl_viewport_set(const float width, const float height) {
-  lgl__viewport_width  = width;
+  lgl__viewport_width   = width;
   lgl__viewport_height  = height;
   glViewport(0, 0, width, height);
 }
@@ -50,7 +50,7 @@ static inline void lgl__mat4_multiply(
   result[13] = a[12] * b[ 1] + a[13] * b[ 5] + a[14] * b[ 9] + a[15] * b[13];
   result[14] = a[12] * b[ 2] + a[13] * b[ 6] + a[14] * b[10] + a[15] * b[14];
   result[15] = a[12] * b[ 3] + a[13] * b[ 7] + a[14] * b[11] + a[15] * b[15];
-}   
+}
 
 void lgl_perspective(
     float *mat,
@@ -61,8 +61,8 @@ void lgl_perspective(
 
   const float cotan = (1.0 / tanf(fov * 0.5));
   
-  mat[0]  = (cotan / aspect);
-  mat[5]  = cotan;
+  mat[ 0]  = (cotan / aspect);
+  mat[ 5]  = cotan;
   mat[10]  = -((near + far) / (near - far));
   mat[11]  = 1.0f;
   mat[14]  = ((2.0 * near * far) / (near - far));
