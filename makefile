@@ -21,7 +21,7 @@ OBJ	            :=  build/*.o
 INC	            := -Isrc -Idep -Idep/glad/include
 OUT	            := -o build/lite_engine
 
-C	              :=  gcc
+C	              :=  clang
 
 CFLAGS_DEBUG	  := -g3 -fsanitize=address
 CFLAGS_RELEASE	:= -O3 -flto
@@ -30,7 +30,7 @@ CFLAGS		      ?= -Wall        \
 								-Wextra         \
 								-Wpedantic      \
 								-Werror         \
-								-std=gnu99      \
+								-std=gnu99        \
 								${CFLAGS_DEBUG} \
 
 VALGRIND		    := valgrind	--leak-check=full \
