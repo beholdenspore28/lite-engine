@@ -83,7 +83,6 @@ int main() {
 
       lights[LIGHTS_POINT_0].position.x = sin(engine->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(engine->time_current);
-
       lights[LIGHTS_POINT_1].position.x = cos(engine->time_current);
       lights[LIGHTS_POINT_1].position.z = sin(engine->time_current);
     }
