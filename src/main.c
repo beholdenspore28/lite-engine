@@ -21,7 +21,7 @@ int main() {
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
     .type           = 0,
-    .position       = {0.0, 5.0, -5.0},
+    .position       = {0.0, 1.0, -5.0},
     .direction      = {0.0, 0.0, 1.0},
     .cut_off        = cos(12.5),
     .outer_cut_off  = cos(15.0),
@@ -34,7 +34,7 @@ int main() {
 
   lights[LIGHTS_POINT_1] = (lgl_light_t) {
     .type           = 0,
-    .position       = {0.0, 5.0, -5.0},
+    .position       = {0.0, 1.0, -5.0},
     .direction      = {0.0, 0.0, 1.0},
     .cut_off        = cos(12.5),
     .outer_cut_off  = cos(15.0),
@@ -76,19 +76,28 @@ int main() {
     objects[OBJECTS_CUBE].lights         = lights;
     objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
   }
-
+  
   GLuint fbo;
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+
+#if 0 // attach texture to framebuffer
   GLuint texture;
-  glGenTextures  (1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glGenTextures             (1, &texture);
+  glBindTexture             (GL_TEXTURE_2D, texture);
+  glTexImage2D              (GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+#else // alternatively, attach a render buffer
+  GLuint rbo;
+  glGenRenderbuffers        (1, &rbo);
+  glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
+  glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+#endif
 
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     debug_error("frame buffer is incomplete"); 
@@ -118,7 +127,7 @@ int main() {
     }
   }
 
-  glDeleteFramebuffers(1, &fbo);
+//  glDeleteFramebuffers(1, &fbo);
 
   lite_engine_free(engine);
 
