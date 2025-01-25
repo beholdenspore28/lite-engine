@@ -76,42 +76,41 @@ int main() {
     objects[OBJECTS_CUBE].lights         = lights;
     objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
   }
-  
-  GLuint fbo; {
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+  GLuint framebuffer;
+  glGenFramebuffers(1, &framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 
-    GLuint framebuffer_color_texture;
-    glGenTextures             (1, &framebuffer_color_texture);
-    glBindTexture             (GL_TEXTURE_2D, framebuffer_color_texture);
-    glTexImage2D              (GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, framebuffer_color_texture);
+  GLuint framebuffer_color_texture;
+  glGenTextures             (1, &framebuffer_color_texture);
+  glBindTexture             (GL_TEXTURE_2D, framebuffer_color_texture);
+  glTexImage2D              (GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, framebuffer_color_texture);
 
-    glFramebufferTexture2D(
-        GL_FRAMEBUFFER,
-        GL_COLOR_ATTACHMENT0,
-        GL_TEXTURE_2D,
-        framebuffer_color_texture,
-        0);
+  glFramebufferTexture2D(
+      GL_FRAMEBUFFER,
+      GL_COLOR_ATTACHMENT0,
+      GL_TEXTURE_2D,
+      framebuffer_color_texture,
+      0);
 
-    GLuint rbo;
-    glGenRenderbuffers        (1, &rbo);
-    glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-    glBindRenderbuffer        (GL_RENDERBUFFER, 0);
+  GLuint rbo;
+  glGenRenderbuffers        (1, &rbo);
+  glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
+  glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+  glBindRenderbuffer        (GL_RENDERBUFFER, 0);
 
-    glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      debug_error("frame buffer is incomplete"); 
-      exit(0);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    debug_error("frame buffer is incomplete"); 
+    exit(0);
   }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   while(engine->is_running) {
     { // update
@@ -136,7 +135,7 @@ int main() {
     }
   }
 
-//  glDeleteFramebuffers(1, &fbo);
+  glDeleteFramebuffers(1, &framebuffer);
 
   lite_engine_free(engine);
 
