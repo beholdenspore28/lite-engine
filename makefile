@@ -30,7 +30,7 @@ CFLAGS		      ?= -Wall        \
 								-Wextra         \
 								-Wpedantic      \
 								-Werror         \
-								-std=gnu99        \
+								-std=gnu99      \
 								${CFLAGS_DEBUG} \
 
 VALGRIND		    := valgrind	--leak-check=full \

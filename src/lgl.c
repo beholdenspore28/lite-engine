@@ -394,13 +394,13 @@ lgl_frame_t lgl_frame_alloc(void) {
   enum { frame_vertices_count = 6 };
   lgl_vertex_t frame_vertices[frame_vertices_count] = { 
     //position                        //normal          //tex coord
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
 
-    { { LGL__LEFT,  LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__LEFT*2,  LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
   };
 
   frame.vertices        = frame_vertices;
@@ -439,11 +439,7 @@ void lgl_frame_draw(const lgl_frame_t *frame) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
-  if (frame->render_flags & LGL_FLAG_USE_STENCIL) {
-    glStencilMask(0xFF);
-  } else {
-    glStencilMask(0x00);
-  }
+  glStencilMask(0xFF);
 
   // textures
   glActiveTexture(GL_TEXTURE0);
