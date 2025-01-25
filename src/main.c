@@ -113,8 +113,6 @@ int main() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 
-
-
   while(engine->is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
