@@ -48,13 +48,19 @@ int main() {
   GLuint shader_phong = 0; {
     GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
-    shader_phong    = lgl_shader_link(vertex_shader, fragment_shader);
+    shader_phong           = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
+  GLuint shader_frame = 0; {
+    GLuint vertex_shader   = lgl_shader_compile("res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile("res/shaders/frame_buffer_texture_fragment.glsl", GL_FRAGMENT_SHADER);
+    shader_frame           = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   GLuint shader_solid = 0; {
     GLuint vertex_shader   = lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile("res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
-    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
+    shader_solid           = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
@@ -77,12 +83,12 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
   }
 
-  GLuint framebuffer; {
+  GLuint framebuffer,
+         framebuffer_color_texture; {
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 
-    GLuint framebuffer_color_texture;
     glGenTextures             (1, &framebuffer_color_texture);
     glBindTexture             (GL_TEXTURE_2D, framebuffer_color_texture);
     glTexImage2D              (GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -114,13 +120,8 @@ int main() {
   }
 
   lgl_frame_t frame = lgl_frame_alloc(); {
-  //GLuint         VAO;
-  //GLuint         VBO;
-  //lgl_vertex_t  *vertices;
-  //size_t         vertex_count;
-  //GLuint         shader;
-  //GLuint         diffuse_map;
-  //GLint          render_flags;
+    frame.shader      = shader_frame;
+    frame.diffuse_map = framebuffer_color_texture;
   }
 
   while(engine->is_running) {
@@ -143,7 +144,7 @@ int main() {
       lgl_draw(OBJECTS_COUNT, objects);
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
 
-      lite_engine_end_frame(engine);
+      //lite_engine_end_frame(engine);
     }
 
     { // draw pass 2
@@ -159,7 +160,7 @@ int main() {
     }
   }
 
-  //glDeleteFramebuffers(1, &framebuffer);
+  glDeleteFramebuffers(1, &framebuffer);
 
   lite_engine_free(engine);
 
