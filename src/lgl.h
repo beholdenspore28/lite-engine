@@ -83,6 +83,16 @@ typedef struct {
   GLint          render_flags;
 } lgl_render_data_t;
 
+typedef struct {
+  GLuint         VAO;
+  GLuint         VBO;
+  lgl_vertex_t  *vertices;
+  size_t         vertex_count;
+  GLuint         shader;
+  GLuint         diffuse_map;
+  GLint          render_flags;
+} lgl_frame_t;
+
 void  lgl_viewport_set        (const float width, const float height);
 
 void lgl_outline              (const size_t       data_length,
@@ -90,14 +100,16 @@ void lgl_outline              (const size_t       data_length,
                                const GLuint       outline_shader,
                                const float        thickness);
 
-void  lgl_draw                (size_t data_length, lgl_render_data_t *data);
+void  lgl_draw                (const size_t data_length, const lgl_render_data_t *data);
+void  lgl_frame_draw          (const lgl_frame_t *frame);
 void  lgl_buffer_vertex_array (lgl_render_data_t *data);
 
 GLuint  lgl_shader_compile    (const char *file_path, GLenum type);
 GLuint  lgl_shader_link       (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t lgl_quad_alloc(void);
-lgl_render_data_t lgl_cube_alloc(void);
+lgl_frame_t       lgl_frame_alloc (void);
+lgl_render_data_t lgl_quad_alloc  (void);
+lgl_render_data_t lgl_cube_alloc  (void);
 
 void lgl_perspective          (float *mat,
                                const float fov,

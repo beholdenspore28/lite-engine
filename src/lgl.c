@@ -153,16 +153,20 @@ GLuint lgl_shader_link (GLuint vertex_shader, GLuint fragment_shader) {
   return shader;
 }
 
-void lgl__buffer_vertex_array (lgl_render_data_t *data) {
-  glGenVertexArrays(1, &data->VAO);
-  glBindVertexArray(data->VAO);
+void lgl__buffer_vertex_array (
+    GLuint       *VAO,
+    GLuint       *VBO,
+    GLuint        vertex_count,
+    lgl_vertex_t *vertices) {
+  glGenVertexArrays(1, VAO);
+  glBindVertexArray(*VAO);
 
-  glGenBuffers(1, &data->VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, data->VBO);
+  glGenBuffers(1, VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-  glBufferData(  GL_ARRAY_BUFFER, 
-      data->vertex_count*sizeof(lgl_vertex_t), 
-      data->vertices, 
+  glBufferData(GL_ARRAY_BUFFER, 
+      vertex_count*sizeof(lgl_vertex_t), 
+      vertices, 
       GL_STATIC_DRAW);
 
   glVertexAttribPointer(
@@ -215,7 +219,9 @@ void lgl_outline(
   }
 }
 
-void lgl_draw(size_t data_length, lgl_render_data_t *data) {
+void lgl_draw(
+    const size_t             data_length,
+    const lgl_render_data_t *data) {
   for(size_t i = 0; i < data_length; i++) {
 
     glUseProgram(data[i].shader);
@@ -382,6 +388,74 @@ void lgl_draw(size_t data_length, lgl_render_data_t *data) {
   }
 }
 
+lgl_frame_t lgl_frame_alloc(void) {
+  lgl_frame_t frame = {0};
+
+  enum { frame_vertices_count = 6 };
+  lgl_vertex_t frame_vertices[frame_vertices_count] = { 
+    //position                        //normal          //tex coord
+    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+
+    { { LGL__LEFT,  LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+  };
+
+  frame.vertices        = frame_vertices;
+  frame.vertex_count    = frame_vertices_count;
+  frame.render_flags    = LGL_FLAG_ENABLED;
+
+  lgl__buffer_vertex_array(
+      &frame.VAO,
+      &frame.VBO,
+      frame.vertex_count,
+      frame.vertices);
+  return frame;
+}
+
+void lgl_frame_draw(const lgl_frame_t *frame) {
+
+  glUseProgram(frame->shader);
+
+#if 0 // log render flags
+  debug_log(" ");
+  printf("FLAGS AT data[%lu] { ", i);
+  for(size_t j = 0; j < sizeof(frame->render_flags)*8; j++) {
+    size_t flag = (frame->render_flags & (1 << j));
+    printf("%u ", flag ? 1 : 0 );
+  }
+  printf("}\n");
+#endif
+
+  if ((frame->render_flags & LGL_FLAG_ENABLED) == 0) {
+    return;
+  }
+
+  if (frame->render_flags & LGL_FLAG_USE_WIREFRAME) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  } else {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
+  if (frame->render_flags & LGL_FLAG_USE_STENCIL) {
+    glStencilMask(0xFF);
+  } else {
+    glStencilMask(0x00);
+  }
+
+  // textures
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, frame->diffuse_map);
+
+  glBindVertexArray(frame->VAO);
+  glDrawArrays(GL_TRIANGLES, 0, frame->vertex_count);
+  glUseProgram(0);
+
+}
+
+
 lgl_render_data_t lgl_quad_alloc(void) {
   lgl_render_data_t quad = {0};
 
@@ -409,7 +483,11 @@ lgl_render_data_t lgl_quad_alloc(void) {
 
   quad.render_flags    = LGL_FLAG_ENABLED;
 
-  lgl__buffer_vertex_array(&quad);
+  lgl__buffer_vertex_array(
+      &quad.VAO,
+      &quad.VBO,
+      quad.vertex_count,
+      quad.vertices);
   return quad;
 }
 
@@ -480,6 +558,10 @@ lgl_render_data_t lgl_cube_alloc(void) {
 
   cube.render_flags   = LGL_FLAG_ENABLED;
 
-  lgl__buffer_vertex_array(&cube);
+  lgl__buffer_vertex_array(
+      &cube.VAO,
+      &cube.VBO,
+      cube.vertex_count,
+      cube.vertices);
   return cube;
 }
