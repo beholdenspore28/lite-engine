@@ -125,7 +125,7 @@ int main() {
 
   GLuint
     texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
-    //texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
+    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
     texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
@@ -141,7 +141,7 @@ int main() {
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
     objects[OBJECTS_CUBE].shader         = shader_phong;
-    objects[OBJECTS_CUBE].diffuse_map    = frame.diffuse_map;
+    objects[OBJECTS_CUBE].diffuse_map    = texture_cube;
     objects[OBJECTS_CUBE].position.z     = 1;
     objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         = lights;
