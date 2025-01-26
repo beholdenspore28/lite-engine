@@ -85,16 +85,15 @@ int main() {
 
   GLuint framebuffer,
          framebuffer_color_texture; {
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glGenFramebuffers (1, &framebuffer);
+    glBindFramebuffer (GL_FRAMEBUFFER, framebuffer);
 
-
-    glGenTextures             (1, &framebuffer_color_texture);
-    glBindTexture             (GL_TEXTURE_2D, framebuffer_color_texture);
-    glTexImage2D              (GL_TEXTURE_2D, 0, GL_RGB, 320, 240, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri           (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, framebuffer_color_texture);
+    glGenTextures     (1, &framebuffer_color_texture);
+    glBindTexture     (GL_TEXTURE_2D, framebuffer_color_texture);
+    glTexImage2D      (GL_TEXTURE_2D, 0, GL_RGB, 320, 240, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri   (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri   (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture     (GL_TEXTURE_2D, framebuffer_color_texture);
 
     glFramebufferTexture2D(
         GL_FRAMEBUFFER,
@@ -104,14 +103,14 @@ int main() {
         0);
 
     GLuint rbo;
-    glGenRenderbuffers        (1, &rbo);
-    glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 320, 240);
-    glBindRenderbuffer        (GL_RENDERBUFFER, 0);
+    glGenRenderbuffers          (1, &rbo);
+    glBindRenderbuffer          (GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage       (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 320, 240);
+    glBindRenderbuffer          (GL_RENDERBUFFER, 0);
 
-    glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferRenderbuffer   (GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if(glCheckFramebufferStatus (GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
       debug_error("frame buffer is incomplete"); 
       exit(0);
     }
@@ -143,8 +142,6 @@ int main() {
 
       lgl_draw(OBJECTS_COUNT, objects);
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
-
-      //lite_engine_end_frame(engine);
     }
 
     { // draw pass 2
