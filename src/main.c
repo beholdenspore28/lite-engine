@@ -6,14 +6,26 @@ int main() {
   lite_engine_context_t *engine = lite_engine_start();
 
   GLuint shader_phong = 0; {
-    GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/phong_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/phong_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   GLuint shader_solid = 0; {
-    GLuint vertex_shader = lgl_shader_compile( "res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile( "res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/solid_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/solid_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
 

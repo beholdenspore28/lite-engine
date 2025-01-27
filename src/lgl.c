@@ -394,7 +394,8 @@ lgl_frame_t lgl_frame_alloc(void) {
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer_color_texture, 0);
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+        framebuffer_color_texture, 0);
 
     GLuint rbo;
     glGenRenderbuffers        (1, &rbo);
@@ -413,8 +414,14 @@ lgl_frame_t lgl_frame_alloc(void) {
   }
 
   GLuint shader_frame = 0; {
-    GLuint vertex_shader   = lgl_shader_compile( "res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile( "res/shaders/frame_buffer_texture_fragment.glsl", GL_FRAGMENT_SHADER);
+    GLuint vertex_shader   = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
     shader_frame = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
