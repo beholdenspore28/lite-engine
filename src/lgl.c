@@ -4,9 +4,6 @@
 #include "stb_image.h"
 #include "blib/blib_file.h"
 
-static float lgl__viewport_width = 640;
-static float lgl__viewport_height = 480;
-
 static const float
   LGL__LEFT    = -0.5,
   LGL__RIGHT   =  0.5,
@@ -14,12 +11,6 @@ static const float
   LGL__DOWN    = -0.5,
   LGL__FORWARD =  0.5,
   LGL__BACK    = -0.5;
-
-void lgl_viewport_set(const float width, const float height) {
-  lgl__viewport_width   = width;
-  lgl__viewport_height  = height;
-  glViewport(0, 0, width, height);
-}
 
 /*Multiplies a 4x4 matrix with another 4x4 matrix*/
 static inline void lgl__mat4_multiply(
@@ -261,7 +252,7 @@ void lgl_draw(
       0.0,  0.0,  0.0,  1.0,
     };
 
-    const float aspect = lgl__viewport_width / lgl__viewport_height;
+    const float aspect = data[i].frame->width / data[i].frame->height;
     lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
     GLfloat model[16] = {
@@ -441,6 +432,8 @@ lgl_frame_t lgl_frame_alloc(void) {
     };
 
     frame.frame_buffer    = framebuffer;
+    frame.width           = 640;
+    frame.height          = 480;
     frame.diffuse_map     = framebuffer_color_texture;
     frame.shader          = shader_frame;
     frame.vertices        = frame_vertices;

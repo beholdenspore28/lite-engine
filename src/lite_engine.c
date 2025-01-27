@@ -6,7 +6,7 @@
 void lite_engine__viewport_size_callback(
     const unsigned int width,
     const unsigned int height) {
-  lgl_viewport_set(width, height);
+  glViewport(0, 0, width, height);
 }
 
 // initializes lite-engine. call this to rev up those fryers!

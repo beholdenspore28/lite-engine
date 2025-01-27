@@ -66,6 +66,20 @@ enum {
 };
 
 typedef struct {
+  GLuint         frame_buffer;
+  float          width;
+  float          height;
+  GLuint         VAO;
+  GLuint         VBO;
+  lgl_vertex_t  *vertices;
+  size_t         vertex_count;
+  GLuint         shader;
+  GLuint         diffuse_map;
+  GLint          render_flags;
+} lgl_frame_t;
+
+typedef struct {
+  lgl_frame_t   *frame;
   GLuint         VAO;
   GLuint         VBO;
   lgl_vertex_t  *vertices;
@@ -82,17 +96,6 @@ typedef struct {
   lgl_light_t   *lights;
   GLint          render_flags;
 } lgl_render_data_t;
-
-typedef struct {
-  GLuint         frame_buffer;
-  GLuint         VAO;
-  GLuint         VBO;
-  lgl_vertex_t  *vertices;
-  size_t         vertex_count;
-  GLuint         shader;
-  GLuint         diffuse_map;
-  GLint          render_flags;
-} lgl_frame_t;
 
 void  lgl_viewport_set        (const float width, const float height);
 

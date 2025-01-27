@@ -65,23 +65,25 @@ int main() {
     texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
-    objects[OBJECTS_FLOOR].shader        = shader_phong;
-    objects[OBJECTS_FLOOR].diffuse_map   = texture_diffuse;
-    objects[OBJECTS_FLOOR].specular_map  = texture_specular;
-    objects[OBJECTS_FLOOR].texture_scale = lgl_2f_one(10.0);
+    objects[OBJECTS_FLOOR].shader        =  shader_phong;
+    objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
+    objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
+    objects[OBJECTS_FLOOR].texture_scale =  lgl_2f_one(10.0);
     objects[OBJECTS_FLOOR].position.y    = -1;
-    objects[OBJECTS_FLOOR].scale         = (lgl_3f_t) {10, 1, 10};
-    objects[OBJECTS_FLOOR].lights_count  = LIGHTS_COUNT;
-    objects[OBJECTS_FLOOR].lights        = lights;
+    objects[OBJECTS_FLOOR].scale         =  (lgl_3f_t) {10, 1, 10};
+    objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
+    objects[OBJECTS_FLOOR].lights        =  lights;
+    objects[OBJECTS_FLOOR].frame         = &frame;
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
-    objects[OBJECTS_CUBE].shader         = shader_phong;
-    objects[OBJECTS_CUBE].diffuse_map    = texture_cube;
-    objects[OBJECTS_CUBE].position.z     = 1;
-    objects[OBJECTS_CUBE].lights_count   = LIGHTS_COUNT;
-    objects[OBJECTS_CUBE].lights         = lights;
-    objects[OBJECTS_CUBE].render_flags  |= LGL_FLAG_USE_STENCIL;
+    objects[OBJECTS_CUBE].shader         =  shader_phong;
+    objects[OBJECTS_CUBE].diffuse_map    =  texture_cube;
+    objects[OBJECTS_CUBE].position.z     =  1;
+    objects[OBJECTS_CUBE].lights_count   =  LIGHTS_COUNT;
+    objects[OBJECTS_CUBE].lights         =  lights;
+    objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
+    objects[OBJECTS_CUBE].frame          = &frame;
   }
 
   while(engine->is_running) {
