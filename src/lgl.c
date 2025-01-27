@@ -193,7 +193,9 @@ void lgl_outline(
     const float        thickness){
   for(size_t i = 0; i < data_length; i++) { 
     if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
-      debug_warn("object[%lu] is not set to use the stencil buffer, but you are trying to outline it.", i);
+      debug_warn(
+          "object[%lu] is not set to use the stencil buffer, "
+          "but you are trying to outline it.", i);
     }
     glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
     glStencilMask (0x00);
