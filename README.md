@@ -21,8 +21,8 @@ That being said, here is a (mostly) comprehensive list of its current features.
 - Basic 3D renderer using OpenGL 4.6. (It's easy to change the OpenGL version)
 - Minimal dependencies.
 - Simple build system using make
-- Verbose and strict naming conventions.
-    All functions are named using full english words. No abreviations or shorthand
+- Verbose naming conventions. I have tried to keep the API as clear and explicitly self explanitory
+  as possible
 - An extreme emphasis on modularity. Lite-Engine is intentionally light-weight to 
     enable easy modification.
 

@@ -6,37 +6,20 @@ int main() {
   lite_engine_context_t *engine = lite_engine_start();
 
   GLuint shader_phong = 0; {
-    GLuint vertex_shader   = lgl_shader_compile(
-        "res/shaders/phong_vertex.glsl",
-        GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
+    GLuint vertex_shader   = lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile("res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   GLuint shader_frame = 0; {
-    GLuint vertex_shader   = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_vertex.glsl",
-        GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
+    GLuint vertex_shader   = lgl_shader_compile( "res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile( "res/shaders/frame_buffer_texture_fragment.glsl", GL_FRAGMENT_SHADER);
     shader_frame = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   GLuint shader_solid = 0; {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/solid_vertex.glsl",
-        GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/solid_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
+    GLuint vertex_shader = lgl_shader_compile( "res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile( "res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
@@ -45,20 +28,14 @@ int main() {
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-    glGenTextures(1, &framebuffer_color_texture);
-    glBindTexture(GL_TEXTURE_2D, framebuffer_color_texture);
+    glGenTextures   (1, &framebuffer_color_texture);
+    glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
+    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, 320, 240, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
 
-    glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGB, 320, 240, 0,
-        GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-    glTexParameteri   (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri   (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture     (GL_TEXTURE_2D, framebuffer_color_texture);
-
-    glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-        framebuffer_color_texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer_color_texture, 0);
 
     GLuint rbo;
     glGenRenderbuffers        (1, &rbo);
@@ -66,10 +43,9 @@ int main() {
     glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 320, 240);
     glBindRenderbuffer        (GL_RENDERBUFFER, 0);
 
-    glFramebufferRenderbuffer(
-        GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    if(glCheckFramebufferStatus (GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
       debug_error("frame buffer is incomplete"); 
       exit(0);
     }
