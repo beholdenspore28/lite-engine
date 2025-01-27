@@ -18,6 +18,7 @@ int main() {
   }
 
   lgl_frame_t frame = lgl_frame_alloc();
+  //frame.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   enum {
     LIGHTS_POINT_0,
@@ -99,6 +100,7 @@ int main() {
     { // draw scene
       glBindFramebuffer(GL_FRAMEBUFFER, frame.frame_buffer);  
 
+      glClearColor(0,0,0,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
@@ -111,6 +113,7 @@ int main() {
     { // draw frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
+      glClearColor(1,1,1,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
