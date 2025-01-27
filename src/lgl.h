@@ -84,6 +84,7 @@ typedef struct {
 } lgl_render_data_t;
 
 typedef struct {
+  GLuint         frame_buffer;
   GLuint         VAO;
   GLuint         VBO;
   lgl_vertex_t  *vertices;
