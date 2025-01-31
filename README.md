@@ -19,7 +19,8 @@ Lite engine is under development and should not be used for production projects 
 That being said, here is a (mostly) comprehensive list of its current features.
 
 - Basic 3D renderer using OpenGL 4.6. (It's easy to change the OpenGL version)
-- Minimal dependencies.
+- Minimal dependencies. As of Jan, 1st 2025, the project only depends on a couple libraries.
+  those are blib (my personal general-purpose C lib) and stb_image.h
 - Simple build system using make
 - Verbose naming conventions. I have tried to keep the API as clear and explicitly self explanitory
   as possible
@@ -28,7 +29,7 @@ That being said, here is a (mostly) comprehensive list of its current features.
 
 # My current goals:
 - Wayland, and Win32 platform layers.
-- support for skeletal animation using the lmod file format.
+- Cross platform Keyboard and mouse input
 
 # Building on Linux (X11)
 To build the demo, open a terminal and navigate to the lite-engine folder.
