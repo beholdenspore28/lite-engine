@@ -127,9 +127,9 @@ void x_end_frame(x_data_t *x) {
     XNextEvent(x->display, &x->event);
 
     switch (x->event.type) {
-      case KeyPress:
-          fprintf (stdout, "The %d key was pressed\n", x->event.xkey.keycode);
-      break;
+      case KeyPress: {
+        fprintf (stdout, "The %d key was pressed\n", x->event.xkey.keycode);
+      } break;
 
       case Expose: {
         XGetWindowAttributes(x->display, x->window, &x->window_attributes);
