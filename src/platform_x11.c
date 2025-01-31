@@ -23,7 +23,7 @@ x_data_t *x_start(const char *window_title,
     debug_error("cannot connect to X server");
     exit(0);
   }
-  
+
   x->screen  = DefaultScreen(x->display);
   x->root    = RootWindow(x->display, x->screen);
   x->visual  = DefaultVisual(x->display, x->screen);
@@ -33,14 +33,14 @@ x_data_t *x_start(const char *window_title,
       x->root,
       x->visual,
       AllocNone);
-  
+
   x->attributes.event_mask =
     ExposureMask |
     KeyPressMask |
     KeyReleaseMask;
 
   x->attributes.colormap = x->color_map;
-  
+
   x->window = XCreateWindow(
       x->display,
       x->root,
@@ -99,7 +99,7 @@ x_data_t *x_start(const char *window_title,
   }
 
   glXMakeCurrent(x->display, x->window, x->glx_context);
-  
+
   int gl_version = gladLoaderLoadGL();
   if (!gl_version) {
     debug_error("failed to load OpenGL functions");
@@ -128,14 +128,14 @@ void x_end_frame(x_data_t *x) {
 
     switch (x->event.type) {
       case KeyPress: {
-        fprintf (stdout, "The %d key was pressed\n", x->event.xkey.keycode);
-      } break;
+                       fprintf (stdout, "The %d key was pressed\n", x->event.xkey.keycode);
+                     } break;
 
       case Expose: {
-        XGetWindowAttributes(x->display, x->window, &x->window_attributes);
-        glViewport(0, 0, x->window_attributes.width, x->window_attributes.height);
-        x->viewport_size_callback(x->window_attributes.width, x->window_attributes.height);
-      } break;
+                     XGetWindowAttributes(x->display, x->window, &x->window_attributes);
+                     glViewport(0, 0, x->window_attributes.width, x->window_attributes.height);
+                     x->viewport_size_callback(x->window_attributes.width, x->window_attributes.height);
+                   } break;
     }
   }
   glXSwapBuffers(x->display, x->window);

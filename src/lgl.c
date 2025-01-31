@@ -5,12 +5,12 @@
 #include "blib/blib_file.h"
 
 static const float
-  LGL__LEFT    = -0.5,
-  LGL__RIGHT   =  0.5,
-  LGL__UP      =  0.5,
-  LGL__DOWN    = -0.5,
-  LGL__FORWARD =  0.5,
-  LGL__BACK    = -0.5;
+LGL__LEFT    = -0.5,
+             LGL__RIGHT   =  0.5,
+             LGL__UP      =  0.5,
+             LGL__DOWN    = -0.5,
+             LGL__FORWARD =  0.5,
+             LGL__BACK    = -0.5;
 
 /*Multiplies a 4x4 matrix with another 4x4 matrix*/
 static inline void lgl__mat4_multiply(
@@ -51,7 +51,7 @@ void lgl_perspective(
     const float far) {
 
   const float cotan = (1.0 / tanf(fov * 0.5));
-  
+
   mat[ 0]  = (cotan / aspect);
   mat[ 5]  = cotan;
   mat[10]  = -((near + far) / (near - far));
@@ -295,10 +295,10 @@ void lgl_draw(
     glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 8.0f);
 
     glUniform3f(
-      glGetUniformLocation(data[i].shader, "u_ambient_light"), 
-      0.2,
-      0.2,
-      0.2);
+        glGetUniformLocation(data[i].shader, "u_ambient_light"), 
+        0.2,
+        0.2,
+        0.2);
 
     // lighting uniforms
     for(GLuint light = 0; light < data[i].lights_count; light++) {
@@ -384,34 +384,34 @@ void lgl_draw(
 lgl_frame_t lgl_frame_alloc(void) {
   GLuint framebuffer,
          framebuffer_color_texture; {
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+           glGenFramebuffers(1, &framebuffer);
+           glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-    glGenTextures   (1, &framebuffer_color_texture);
-    glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
-    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
+           glGenTextures   (1, &framebuffer_color_texture);
+           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
+           glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
 
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-        framebuffer_color_texture, 0);
+           glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+               framebuffer_color_texture, 0);
 
-    GLuint rbo;
-    glGenRenderbuffers        (1, &rbo);
-    glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
-    glBindRenderbuffer        (GL_RENDERBUFFER, 0);
+           GLuint rbo;
+           glGenRenderbuffers        (1, &rbo);
+           glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
+           glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
+           glBindRenderbuffer        (GL_RENDERBUFFER, 0);
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+           glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      debug_error("frame buffer is incomplete"); 
-      exit(0);
-    }
+           if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+             debug_error("frame buffer is incomplete"); 
+             exit(0);
+           }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  }
+           glBindFramebuffer(GL_FRAMEBUFFER, 0);
+         }
 
   GLuint shader_frame = 0; {
     GLuint vertex_shader   = lgl_shader_compile(
