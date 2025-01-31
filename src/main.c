@@ -109,7 +109,7 @@ int main() {
       lights[LIGHTS_POINT_1].position.z = sin(engine->time_current);
     }
 
-    { // draw scene
+    { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, frame.frame_buffer);  
 
       glClearColor(0,0,0,1);
@@ -122,7 +122,7 @@ int main() {
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
     }
 
-    { // draw frame
+    { // draw frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
       glClearColor(1,1,1,1);
