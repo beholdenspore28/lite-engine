@@ -53,7 +53,7 @@ lite_engine_context_t *lite_engine_start(void) {
   return engine;
 }
 
-void lite_engine__time_update(lite_engine_context_t *engine) { // update time
+void lite_engine__time_update(lite_engine_context_t *engine) {
   struct timespec spec;
   if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
     debug_error("failed to get time spec.");
