@@ -252,8 +252,12 @@ void lgl_draw(
       0.0,  0.0,  0.0,  1.0,
     };
 
-    const float aspect = data[i].frame->width / data[i].frame->height;
+    debug_log("w %d h %d", data[i].window_width, data[i].window_height);
+
+    const float aspect = (float)data[i].window_width / (float)data[i].window_height;
     lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
+
+    debug_log("aspect %f", aspect);
 
     GLfloat model[16] = {
       data[i].scale.x,    0.0,                0.0,                0.0,
@@ -439,123 +443,122 @@ void lgl_draw(
   }
 }
 
-lgl_frame_t lgl_frame_alloc(void) {
-  GLuint framebuffer,
-         framebuffer_color_texture; {
-           glGenFramebuffers(1, &framebuffer);
-           glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-           glGenTextures   (1, &framebuffer_color_texture);
-           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
-
-           glTexImage2D(
-               GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0,
-               GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
-
-           glFramebufferTexture2D(
-               GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-               framebuffer_color_texture, 0);
-
-           GLuint rbo;
-           glGenRenderbuffers        (1, &rbo);
-           glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
-           glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
-           glBindRenderbuffer        (GL_RENDERBUFFER, 0);
-
-           glFramebufferRenderbuffer(
-               GL_FRAMEBUFFER,
-               GL_DEPTH_STENCIL_ATTACHMENT,
-               GL_RENDERBUFFER,
-               rbo);
-
-           if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-             debug_error("frame buffer is incomplete"); 
-             exit(0);
-           }
-
-           glBindFramebuffer(GL_FRAMEBUFFER, 0);
-         }
-
-  GLuint vertex_shader   = lgl_shader_compile(
-      "res/shaders/frame_buffer_texture_vertex.glsl",
-      GL_VERTEX_SHADER);
-
-  GLuint fragment_shader = lgl_shader_compile(
-      "res/shaders/frame_buffer_texture_fragment.glsl",
-      GL_FRAGMENT_SHADER);
-
-  enum { frame_vertices_count = 6 };
-
-  lgl_vertex_t frame_vertices[frame_vertices_count] = { 
-    //position                        //normal          //tex coord
-    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-
-    { { LGL__LEFT*2,  LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-  };
-
-  lgl_frame_t frame = (lgl_frame_t) {
-    .frame_buffer    = framebuffer,
-    .width           = 640,
-    .height          = 480,
-    .diffuse_map     = framebuffer_color_texture,
-    .shader          = lgl_shader_link(vertex_shader, fragment_shader),
-    .vertices        = frame_vertices,
-    .vertex_count    = frame_vertices_count,
-    .render_flags    = LGL_FLAG_ENABLED,
-  };
-
-  lgl__buffer_vertex_array(
-      &frame.VAO,
-      &frame.VBO,
-      frame.vertex_count,
-      frame.vertices);
-
-  return frame;
-}
-
-void lgl_frame_draw(const lgl_frame_t *frame) {
-
-  glUseProgram(frame->shader);
-
-#if 0 // log render flags
-  debug_log(" ");
-  printf("FLAGS AT data[%lu] { ", i);
-  for(size_t j = 0; j < sizeof(frame->render_flags)*8; j++) {
-    size_t flag = (frame->render_flags & (1 << j));
-    printf("%u ", flag ? 1 : 0 );
-  }
-  printf("}\n");
-#endif
-
-  if ((frame->render_flags & LGL_FLAG_ENABLED) == 0) {
-    return;
-  }
-
-  if (frame->render_flags & LGL_FLAG_USE_WIREFRAME) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  } else {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  }
-
-  glStencilMask(0xFF);
-
-  // textures
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, frame->diffuse_map);
-
-  glBindVertexArray(frame->VAO);
-  glDrawArrays(GL_TRIANGLES, 0, frame->vertex_count);
-  glUseProgram(0);
-}
-
+//lgl_frame_t lgl_frame_alloc(void) {
+//  GLuint framebuffer,
+//         framebuffer_color_texture; {
+//           glGenFramebuffers(1, &framebuffer);
+//           glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+//
+//           glGenTextures   (1, &framebuffer_color_texture);
+//           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
+//
+//           glTexImage2D(
+//               GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0,
+//               GL_RGB, GL_UNSIGNED_BYTE, NULL);
+//
+//           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//           glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//           glBindTexture   (GL_TEXTURE_2D, framebuffer_color_texture);
+//
+//           glFramebufferTexture2D(
+//               GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+//               framebuffer_color_texture, 0);
+//
+//           GLuint rbo;
+//           glGenRenderbuffers        (1, &rbo);
+//           glBindRenderbuffer        (GL_RENDERBUFFER, rbo);
+//           glRenderbufferStorage     (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
+//           glBindRenderbuffer        (GL_RENDERBUFFER, 0);
+//
+//           glFramebufferRenderbuffer(
+//               GL_FRAMEBUFFER,
+//               GL_DEPTH_STENCIL_ATTACHMENT,
+//               GL_RENDERBUFFER,
+//               rbo);
+//
+//           if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+//             debug_error("frame buffer is incomplete"); 
+//             exit(0);
+//           }
+//
+//           glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//         }
+//
+//  GLuint vertex_shader   = lgl_shader_compile(
+//      "res/shaders/frame_buffer_texture_vertex.glsl",
+//      GL_VERTEX_SHADER);
+//
+//  GLuint fragment_shader = lgl_shader_compile(
+//      "res/shaders/frame_buffer_texture_fragment.glsl",
+//      GL_FRAGMENT_SHADER);
+//
+//  enum { frame_vertices_count = 6 };
+//
+//  lgl_vertex_t frame_vertices[frame_vertices_count] = { 
+//    //position                        //normal          //tex coord
+//    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+//    { { LGL__RIGHT*2, LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+//    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+//
+//    { { LGL__LEFT*2,  LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+//    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+//    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+//  };
+//
+//  lgl_frame_t frame = (lgl_frame_t) {
+//    .frame_buffer    = framebuffer,
+//    .width           = 640,
+//    .height          = 480,
+//    .diffuse_map     = framebuffer_color_texture,
+//    .shader          = lgl_shader_link(vertex_shader, fragment_shader),
+//    .vertices        = frame_vertices,
+//    .vertex_count    = frame_vertices_count,
+//    .render_flags    = LGL_FLAG_ENABLED,
+//  };
+//
+//  lgl__buffer_vertex_array(
+//      &frame.VAO,
+//      &frame.VBO,
+//      frame.vertex_count,
+//      frame.vertices);
+//
+//  return frame;
+//}
+//
+//void lgl_frame_draw(const lgl_frame_t *frame) {
+//
+//  glUseProgram(frame->shader);
+//
+//#if 0 // log render flags
+//  debug_log(" ");
+//  printf("FLAGS AT data[%lu] { ", i);
+//  for(size_t j = 0; j < sizeof(frame->render_flags)*8; j++) {
+//    size_t flag = (frame->render_flags & (1 << j));
+//    printf("%u ", flag ? 1 : 0 );
+//  }
+//  printf("}\n");
+//#endif
+//
+//  if ((frame->render_flags & LGL_FLAG_ENABLED) == 0) {
+//    return;
+//  }
+//
+//  if (frame->render_flags & LGL_FLAG_USE_WIREFRAME) {
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//  } else {
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//  }
+//
+//  glStencilMask(0xFF);
+//
+//  // textures
+//  glActiveTexture(GL_TEXTURE0);
+//  glBindTexture(GL_TEXTURE_2D, frame->diffuse_map);
+//
+//  glBindVertexArray(frame->VAO);
+//  glDrawArrays(GL_TRIANGLES, 0, frame->vertex_count);
+//  glUseProgram(0);
+//}
 
 lgl_render_data_t lgl_quad_alloc(void) {
   lgl_render_data_t quad = {0};
@@ -589,6 +592,7 @@ lgl_render_data_t lgl_quad_alloc(void) {
       &quad.VBO,
       quad.vertex_count,
       quad.vertices);
+
   return quad;
 }
 
@@ -664,5 +668,6 @@ lgl_render_data_t lgl_cube_alloc(void) {
       &cube.VBO,
       cube.vertex_count,
       cube.vertices);
+
   return cube;
 }
