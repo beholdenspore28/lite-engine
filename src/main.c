@@ -1,8 +1,17 @@
-#include "lite_engine.h"
 #include "platform.h"
 #include "lgl.h"
 
 #include <time.h>
+
+typedef struct {
+  void      *platform_data;
+  int        is_running;
+  double     time_current;
+  long long  frame_current;
+  double     time_delta;
+  double     time_last;
+  double     time_FPS;
+} lite_engine_context_t;
 
 void lite_engine__viewport_size_callback(
     const unsigned int width,
