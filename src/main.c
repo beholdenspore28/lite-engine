@@ -17,17 +17,17 @@ int main() {
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  //GLuint shader_solid = 0; {
-  //  GLuint vertex_shader = lgl_shader_compile(
-  //      "res/shaders/solid_vertex.glsl",
-  //      GL_VERTEX_SHADER);
+  GLuint shader_solid = 0; {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/solid_vertex.glsl",
+        GL_VERTEX_SHADER);
 
-  //  GLuint fragment_shader = lgl_shader_compile(
-  //      "res/shaders/solid_fragment.glsl",
-  //      GL_FRAGMENT_SHADER);
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/solid_fragment.glsl",
+        GL_FRAGMENT_SHADER);
 
-  //  shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
-  //}
+    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
+  }
 
   enum {
     LIGHTS_POINT_0,
@@ -116,7 +116,7 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(OBJECTS_COUNT, objects);
-      //lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
+      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
       lite_engine_end_frame(engine);
     }
   }
