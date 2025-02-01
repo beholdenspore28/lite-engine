@@ -304,13 +304,25 @@ void lgl_draw(
           data[i].lights_count);
       {
         char uniform_name[64] = {0};
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type", light);
+
+        snprintf(
+            uniform_name,
+            sizeof(uniform_name),
+            "u_lights[%d].type",
+            light);
+
         glUniform1i(glGetUniformLocation(data[i].shader, uniform_name),
             data[i].lights[light].type);
       }
       {
         char uniform_name[64] = {0};
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position", light);
+
+        snprintf(
+            uniform_name,
+            sizeof(uniform_name),
+            "u_lights[%d].position",
+            light);
+
         glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
             data[i].lights[light].position.x,
             data[i].lights[light].position.y,
@@ -318,7 +330,13 @@ void lgl_draw(
       }
       {
         char uniform_name[64] = {0};
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction", light);
+
+        snprintf(
+            uniform_name,
+            sizeof(uniform_name),
+            "u_lights[%d].direction",
+            light);
+        
         glUniform3f(glGetUniformLocation(data[i].shader, uniform_name),
             data[i].lights[light].direction.x,
             data[i].lights[light].direction.y,
@@ -326,7 +344,13 @@ void lgl_draw(
       }
       {
         char uniform_name[64] = {0};
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off", light);
+
+        snprintf(
+            uniform_name,
+            sizeof(uniform_name),
+            "u_lights[%d].cut_off",
+            light);
+
         glUniform1f(glGetUniformLocation(data[i].shader, uniform_name),
             data[i].lights[light].cut_off);
       }
