@@ -1,5 +1,5 @@
-#ifndef PLATFORM_X11_H
-#define PLATFORM_X11_H
+#ifndef PLATFORM_H
+#define PLATFORM_H
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -26,4 +26,4 @@ x_data_t  *x_start(  const char *window_title,
 void    x_stop    (x_data_t *x);
 void    x_end_frame  (x_data_t *x_data);
 
-#endif
+#endif // PLATFORM_H

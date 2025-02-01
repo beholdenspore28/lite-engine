@@ -60,7 +60,7 @@ typedef struct {
 } lgl_light_t;
 
 enum {
-  LGL_FLAG_ENABLED       = 1 << 0, // if not enabled, the renderer will draw this object
+  LGL_FLAG_ENABLED       = 1,
   LGL_FLAG_USE_STENCIL   = 1 << 1,
   LGL_FLAG_USE_WIREFRAME = 1 << 2,
 };

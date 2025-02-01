@@ -1,4 +1,4 @@
-#include "platform_x11.h"
+#include "platform.h"
 #include "blib/blib_log.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,13 +42,14 @@ x_data_t *x_start(const char *window_title,
   x->attributes.colormap = x->color_map;
 
   x->window = XCreateWindow(
-      x->display,
-      x->root,
-      0, 0, window_width, window_height, 0,
-      DefaultDepth(x->display, x->screen),
-      InputOutput,
-      x->visual,
-      CWColormap | CWEventMask, &x->attributes);
+    x->display,
+    x->root,
+    0, 0, window_width, window_height, 0,
+    DefaultDepth(x->display, x->screen),
+    InputOutput,
+    x->visual,
+    CWColormap | CWEventMask, &x->attributes
+  );
 
   XMapWindow(x->display, x->window);
   XStoreName(x->display, x->window, window_title);
@@ -63,7 +64,11 @@ x_data_t *x_start(const char *window_title,
     exit(0);
   }
 
-  debug_log("Loaded GLX %d.%d", GLAD_VERSION_MAJOR(glx_version), GLAD_VERSION_MINOR(glx_version));
+  debug_log(
+    "Loaded GLX %d.%d",
+    GLAD_VERSION_MAJOR(glx_version),
+    GLAD_VERSION_MINOR(glx_version)
+  );
 
   GLint visual_attributes[] = {
     GLX_RENDER_TYPE,     GLX_RGBA_BIT,
@@ -79,7 +84,12 @@ x_data_t *x_start(const char *window_title,
   };
 
   int num_fbc = 0;
-  GLXFBConfig *fb_config = glXChooseFBConfig(x->display, x->screen, visual_attributes, &num_fbc);
+  GLXFBConfig *fb_config = glXChooseFBConfig(
+    x->display,
+    x->screen,
+    visual_attributes,
+    &num_fbc
+  );
 
   GLint context_attributes[] = {
     GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
@@ -89,8 +99,9 @@ x_data_t *x_start(const char *window_title,
   };
 
   x->glx_context = glXCreateContextAttribsARB(
-      x->display, fb_config[0], NULL, 1, context_attributes);
-
+    x->display,fb_config[0], NULL, 1, context_attributes
+  );
+    
   XFree(fb_config);
 
   if (!x->glx_context) {
@@ -105,7 +116,11 @@ x_data_t *x_start(const char *window_title,
     debug_error("failed to load OpenGL functions");
     exit(0);
   }
-  debug_log("loaded OpenGL %d.%d", GLAD_VERSION_MAJOR(gl_version), GLAD_VERSION_MINOR(gl_version));
+  debug_log(
+    "loaded OpenGL %d.%d",
+    GLAD_VERSION_MAJOR(gl_version),
+    GLAD_VERSION_MINOR(gl_version)
+  );
 
   XWindowAttributes gwa;
   XGetWindowAttributes(x->display, x->window, &gwa);
@@ -128,14 +143,17 @@ void x_end_frame(x_data_t *x) {
 
     switch (x->event.type) {
       case KeyPress: {
-                       fprintf (stdout, "The %d key was pressed\n", x->event.xkey.keycode);
-                     } break;
+        fprintf(stdout, "%d key pressed\n", x->event.xkey.keycode);
+      } break;
+      case KeyRelease: {
+        fprintf(stdout, "%d key released\n", x->event.xkey.keycode);
+      } break;
 
       case Expose: {
-                     XGetWindowAttributes(x->display, x->window, &x->window_attributes);
-                     glViewport(0, 0, x->window_attributes.width, x->window_attributes.height);
-                     x->viewport_size_callback(x->window_attributes.width, x->window_attributes.height);
-                   } break;
+        XGetWindowAttributes(x->display, x->window, &x->window_attributes);
+        glViewport(0, 0, x->window_attributes.width, x->window_attributes.height);
+        x->viewport_size_callback(x->window_attributes.width, x->window_attributes.height);
+      } break;
     }
   }
   glXSwapBuffers(x->display, x->window);

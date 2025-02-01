@@ -1,5 +1,5 @@
 #include "lite_engine.h"
-#include "platform_x11.h"
+#include "platform.h"
 #include "lgl.h"
 #include <time.h>
 
