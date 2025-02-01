@@ -10,55 +10,55 @@ void x__viewport_size_callback(
   glViewport(0, 0, width, height);
 }
 
-x_data_t *x_start(const char *window_title,
+x_data_t x_start(const char *window_title,
     unsigned int window_width,
     unsigned int window_height) {
 
-  x_data_t *x = malloc(sizeof(*x));
-  x->viewport_size_callback = x__viewport_size_callback;
+  x_data_t x;
+  x.viewport_size_callback = x__viewport_size_callback;
 
-  x->display = XOpenDisplay(NULL);
+  x.display = XOpenDisplay(NULL);
 
-  if(x->display == NULL) {
+  if(x.display == NULL) {
     debug_error("cannot connect to X server");
     exit(0);
   }
 
-  x->screen  = DefaultScreen(x->display);
-  x->root    = RootWindow(x->display, x->screen);
-  x->visual  = DefaultVisual(x->display, x->screen);
+  x.screen  = DefaultScreen(x.display);
+  x.root    = RootWindow(x.display, x.screen);
+  x.visual  = DefaultVisual(x.display, x.screen);
 
-  x->color_map = XCreateColormap(
-      x->display,
-      x->root,
-      x->visual,
+  x.color_map = XCreateColormap(
+      x.display,
+      x.root,
+      x.visual,
       AllocNone);
 
-  x->attributes.event_mask =
+  x.attributes.event_mask =
     ExposureMask |
     KeyPressMask |
     KeyReleaseMask;
 
-  x->attributes.colormap = x->color_map;
+  x.attributes.colormap = x.color_map;
 
-  x->window = XCreateWindow(
-    x->display,
-    x->root,
+  x.window = XCreateWindow(
+    x.display,
+    x.root,
     0, 0, window_width, window_height, 0,
-    DefaultDepth(x->display, x->screen),
+    DefaultDepth(x.display, x.screen),
     InputOutput,
-    x->visual,
-    CWColormap | CWEventMask, &x->attributes
+    x.visual,
+    CWColormap | CWEventMask, &x.attributes
   );
 
-  XMapWindow(x->display, x->window);
-  XStoreName(x->display, x->window, window_title);
-  if (!x->window) {
+  XMapWindow(x.display, x.window);
+  XStoreName(x.display, x.window, window_title);
+  if (!x.window) {
     debug_error("failed to create X window");
     exit(0);
   }
 
-  int glx_version = gladLoaderLoadGLX(x->display, x->screen);
+  int glx_version = gladLoaderLoadGLX(x.display, x.screen);
   if (!glx_version) {
     debug_error("failed to load GLX");
     exit(0);
@@ -85,8 +85,8 @@ x_data_t *x_start(const char *window_title,
 
   int num_fbc = 0;
   GLXFBConfig *fb_config = glXChooseFBConfig(
-    x->display,
-    x->screen,
+    x.display,
+    x.screen,
     visual_attributes,
     &num_fbc
   );
@@ -98,18 +98,18 @@ x_data_t *x_start(const char *window_title,
     None
   };
 
-  x->glx_context = glXCreateContextAttribsARB(
-    x->display,fb_config[0], NULL, 1, context_attributes
+  x.glx_context = glXCreateContextAttribsARB(
+    x.display,fb_config[0], NULL, 1, context_attributes
   );
     
   XFree(fb_config);
 
-  if (!x->glx_context) {
+  if (!x.glx_context) {
     debug_error("failed to create OpenGL context");
     exit(0);
   }
 
-  glXMakeCurrent(x->display, x->window, x->glx_context);
+  glXMakeCurrent(x.display, x.window, x.glx_context);
 
   int gl_version = gladLoaderLoadGL();
   if (!gl_version) {
@@ -123,7 +123,7 @@ x_data_t *x_start(const char *window_title,
   );
 
   XWindowAttributes gwa;
-  XGetWindowAttributes(x->display, x->window, &gwa);
+  XGetWindowAttributes(x.display, x.window, &gwa);
 
   return x;
 }
@@ -151,7 +151,6 @@ void x_end_frame(x_data_t *x) {
 
       case Expose: {
         XGetWindowAttributes(x->display, x->window, &x->window_attributes);
-        glViewport(0, 0, x->window_attributes.width, x->window_attributes.height);
         x->viewport_size_callback(x->window_attributes.width, x->window_attributes.height);
       } break;
     }

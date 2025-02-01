@@ -252,7 +252,10 @@ void lgl_draw(
       0.0,  0.0,  0.0,  1.0,
     };
 
-    const float aspect = (float)data[i].window_width / (float)data[i].window_height;
+    const float aspect =
+      (float)data[i].context->x_data.window_attributes.width /
+      (float)data[i].context->x_data.window_attributes.height;
+
     lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
     GLfloat model[16] = {

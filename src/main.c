@@ -3,38 +3,27 @@
 
 #include <time.h>
 
-typedef struct {
-  void      *platform_data;
-  int        is_running;
-  double     time_current;
-  long long  frame_current;
-  double     time_delta;
-  double     time_last;
-  double     time_FPS;
-} lite_engine_context_t;
-
-void lite_engine__viewport_size_callback(
+void lgl__viewport_size_callback(
     const unsigned int width,
     const unsigned int height) {
   glViewport(0, 0, width, height);
 }
 
 // initializes lite-engine. call this to rev up those fryers!
-lite_engine_context_t *lite_engine_start(void) {
+lgl_context_t lgl_start(void) {
   debug_log("Rev up those fryers!");
 
-  lite_engine_context_t *engine = calloc(sizeof(*engine), 1);
-  engine->is_running     = 1;
-  engine->time_current   = 0;
-  engine->frame_current  = 0;
-  engine->time_delta     = 0;
-  engine->time_last      = 0;
-  engine->time_FPS       = 0;
-  engine->platform_data  = x_start("Game Window", 640, 480);
+  lgl_context_t context = (lgl_context_t) {
+    .is_running     = 1,
+    .time_current   = 0,
+    .frame_current  = 0,
+    .time_delta     = 0,
+    .time_last      = 0,
+    .time_FPS       = 0,
+    .x_data         = x_start("Game Window", 640, 480),
+  };
 
-  x_data_t *x = (x_data_t*)engine->platform_data;
-
-  x->viewport_size_callback = lite_engine__viewport_size_callback;
+  context.x_data.viewport_size_callback = lgl__viewport_size_callback;
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -50,21 +39,21 @@ lite_engine_context_t *lite_engine_start(void) {
 
   debug_log("Startup completed successfuly");
 
-  return engine;
+  return context;
 }
 
-void lite_engine__time_update(lite_engine_context_t *engine) {
+void lgl__time_update(lgl_context_t *context) {
   struct timespec spec;
   if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
     debug_error("failed to get time spec.");
     exit(0);
   }
 
-  engine->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
-  engine->time_delta    = engine->time_current - engine->time_last;
-  engine->time_last     = engine->time_current;
-  engine->time_FPS      = 1 / engine->time_delta;
-  engine->frame_current++;
+  context->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
+  context->time_delta    = context->time_current - context->time_last;
+  context->time_last     = context->time_current;
+  context->time_FPS      = 1 / context->time_delta;
+  context->frame_current++;
 
 #if 0 // log time
   debug_log( "\n"
@@ -73,33 +62,33 @@ void lite_engine__time_update(lite_engine_context_t *engine) {
     "time_delta:     %lf\n"
     "time_last:      %lf\n"
     "time_FPS:       %lf",
-    engine->time_current,
-    engine->frame_current,
-    engine->time_delta,
-    engine->time_last,
-    engine->time_FPS);
+    context->time_current,
+    context->frame_current,
+    context->time_delta,
+    context->time_last,
+    context->time_FPS);
 #endif // log time
 }
 
 // shut down and free all memory associated with the lite-engine context
-void lite_engine_free(lite_engine_context_t *engine) {
+void lgl_free(lgl_context_t *context) {
   debug_log("Shutting down...");
 
-  engine->is_running = 0;
+  context->is_running = 0;
 
-  x_stop   ((x_data_t*)engine->platform_data);
-  free     (engine);
+  x_stop   (&context->x_data);
+  free     (context);
   debug_log("Shutdown complete");
 }
 
-void lite_engine_end_frame(lite_engine_context_t *engine) {
-  x_end_frame((x_data_t*)engine->platform_data);
-  lite_engine__time_update(engine);
+void lgl_end_frame(lgl_context_t *context) {
+  x_end_frame(&context->x_data);
+  lgl__time_update(context);
 }
 
 
 int main() {
-  lite_engine_context_t *engine = lite_engine_start();
+  lgl_context_t context = lgl_start();
 
   GLuint shader_phong = 0; {
     GLuint vertex_shader = lgl_shader_compile(
@@ -179,8 +168,7 @@ int main() {
     objects[OBJECTS_FLOOR].scale         =  (lgl_3f_t) {10, 1, 10};
     objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
     objects[OBJECTS_FLOOR].lights        =  lights;
-    objects[OBJECTS_FLOOR].window_width  = 640;
-    objects[OBJECTS_FLOOR].window_height = 480;
+    objects[OBJECTS_FLOOR].context       = &context;
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
@@ -190,18 +178,17 @@ int main() {
     objects[OBJECTS_CUBE].lights_count   =  LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         =  lights;
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
-    objects[OBJECTS_CUBE].window_width  = 640;
-    objects[OBJECTS_CUBE].window_height = 480;
+    objects[OBJECTS_CUBE].context        = &context;
   }
 
-  while(engine->is_running) {
+  while(context.is_running) {
     { // update
-      objects[OBJECTS_CUBE].position.y = cos(engine->time_current)*0.2 + 0.5;
+      objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
 
-      lights[LIGHTS_POINT_0].position.x = sin(engine->time_current);
-      lights[LIGHTS_POINT_0].position.z = cos(engine->time_current);
-      lights[LIGHTS_POINT_1].position.x = cos(engine->time_current);
-      lights[LIGHTS_POINT_1].position.z = sin(engine->time_current);
+      lights[LIGHTS_POINT_0].position.x = sin(context.time_current);
+      lights[LIGHTS_POINT_0].position.z = cos(context.time_current);
+      lights[LIGHTS_POINT_1].position.x = cos(context.time_current);
+      lights[LIGHTS_POINT_1].position.z = sin(context.time_current);
     }
 
     { // draw scene to the frame
@@ -213,11 +200,11 @@ int main() {
 
       lgl_draw(OBJECTS_COUNT, objects);
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
-      lite_engine_end_frame(engine);
+      lgl_end_frame(&context);
     }
   }
 
-  lite_engine_free(engine);
+  lgl_free(&context);
 
   return 0;
 }

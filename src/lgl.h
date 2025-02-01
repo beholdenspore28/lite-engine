@@ -15,6 +15,8 @@ extern "C" {
 #include "glad/gl.h"
 #include "glad/glx.h"
 
+#include <platform.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -66,8 +68,17 @@ enum {
 };
 
 typedef struct {
-  GLuint         window_width;
-  GLuint         window_height;
+  x_data_t   x_data;  
+  int        is_running;
+  double     time_current;
+  long long  frame_current;
+  double     time_delta;
+  double     time_last;
+  double     time_FPS;
+} lgl_context_t;
+
+typedef struct {
+  lgl_context_t *context;
   GLuint         VAO;
   GLuint         VBO;
   lgl_vertex_t  *vertices;

@@ -19,7 +19,7 @@ typedef struct {
   void      (*viewport_size_callback) (const unsigned int width, const unsigned int height);
 } x_data_t;
 
-x_data_t  *x_start(  const char *window_title,
+x_data_t  x_start(  const char *window_title,
         unsigned int window_width,
         unsigned int window_height);
 
