@@ -75,7 +75,7 @@ int main() {
     texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(); {
-    objects[OBJECTS_FLOOR].shader        = shader_phong;
+    objects[OBJECTS_FLOOR].shader        =  shader_phong;
     objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
     objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
     objects[OBJECTS_FLOOR].texture_scale =  lgl_2f_one(10.0);
@@ -88,7 +88,7 @@ int main() {
   }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
-    objects[OBJECTS_CUBE].shader        = shader_phong;
+    objects[OBJECTS_CUBE].shader         =  shader_phong;
     objects[OBJECTS_CUBE].diffuse_map    =  texture_cube;
     objects[OBJECTS_CUBE].position.z     =  1;
     objects[OBJECTS_CUBE].lights_count   =  LIGHTS_COUNT;
