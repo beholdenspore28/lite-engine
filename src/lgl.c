@@ -442,7 +442,7 @@ void lgl_draw(
   }
 }
 
-lgl_render_data_t lgl_quad_alloc(void) {
+lgl_render_data_t lgl_quad_alloc(lgl_context_t *context) {
   lgl_render_data_t quad = {0};
 
   enum { quad_vertices_count = 6 };
@@ -456,6 +456,8 @@ lgl_render_data_t lgl_quad_alloc(void) {
     { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
     { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
   };
+
+  quad.context         = context;
 
   quad.vertices        = quad_vertices;
   quad.vertex_count    = quad_vertices_count;
@@ -478,7 +480,7 @@ lgl_render_data_t lgl_quad_alloc(void) {
   return quad;
 }
 
-lgl_render_data_t lgl_cube_alloc(void) {
+lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
   lgl_render_data_t cube = {0};
 
   enum { cube_vertices_count = 36 };
@@ -532,6 +534,8 @@ lgl_render_data_t lgl_cube_alloc(void) {
     { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 0.0, 0.0 } },
     { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
   };
+
+  cube.context        = context;
 
   cube.vertices       = cube_vertices;
   cube.vertex_count   = cube_vertices_count;

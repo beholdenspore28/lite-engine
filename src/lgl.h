@@ -109,8 +109,8 @@ void  lgl_buffer_vertex_array (lgl_render_data_t *data);
 GLuint  lgl_shader_compile    (const char *file_path, GLenum type);
 GLuint  lgl_shader_link       (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t lgl_quad_alloc  (void);
-lgl_render_data_t lgl_cube_alloc  (void);
+lgl_render_data_t lgl_quad_alloc  (lgl_context_t *context);
+lgl_render_data_t lgl_cube_alloc  (lgl_context_t *context);
 
 void lgl_perspective          (float *mat,
                                const float fov,
