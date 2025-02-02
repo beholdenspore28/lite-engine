@@ -1,4 +1,0 @@
-
-[submodule "dep/blib"]
-	path = dep/blib
-	url = https://github.com/beholdenspore28/blib.git
