@@ -176,31 +176,6 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
-  GLuint hdrFBO;
-  glGenFramebuffers(1, &hdrFBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-  GLuint color_buffers[2];
-  glGenTextures(2, color_buffers);
-
-  for(GLuint i = 0; i < 2; i++) {
-    glBindTexture(GL_TEXTURE_2D, color_buffers[i]);
-
-    glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA16F,
-        context.x_data.window_attributes.width,
-        context.x_data.window_attributes.height,
-        0, GL_RGBA, GL_FLOAT, NULL);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
-    glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D,
-        color_buffers[i], 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  }
-
   while(context.is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
@@ -223,8 +198,9 @@ int main() {
 
       lgl_draw(OBJECTS_COUNT, objects);
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
-      lgl_end_frame(&context);
     }
+
+    lgl_end_frame(&context);
   }
 
   lgl_free(&context);
