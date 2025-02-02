@@ -285,8 +285,7 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      lgl__mat4_multiply(model, model, rotation);
-      lgl__mat4_multiply(model, model, translation);
+      lgl__mat4_multiply(model, rotation, translation);
       lgl__mat4_multiply(model, model, scale);
 
       GLfloat mvp[16] = {
@@ -301,7 +300,6 @@ void lgl_draw(
       GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
     }
-
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
