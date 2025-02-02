@@ -207,6 +207,9 @@ int main() {
   while(context.is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
+      objects[OBJECTS_CUBE].rotation = lgl_4f_multiply(
+          objects[OBJECTS_CUBE].rotation,
+          lgl_4f_from_euler((lgl_3f_t) { 0, context.time_delta, 0 }));
 
       lights[LIGHTS_POINT_0].position.x = sin(context.time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context.time_current);

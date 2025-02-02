@@ -229,77 +229,105 @@ void lgl_draw(
     printf("}\n");
 #endif
 
-    if ((data[i].render_flags & LGL_FLAG_ENABLED) == 0) {
-      continue;
+    { // render flags
+      if ((data[i].render_flags & LGL_FLAG_ENABLED) == 0) {
+        continue;
+      }
+
+      if (data[i].render_flags & LGL_FLAG_USE_WIREFRAME) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      }
+
+      if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
+        glStencilMask(0xFF);
+      } else {
+        glStencilMask(0x00);
+      }
     }
 
-    if (data[i].render_flags & LGL_FLAG_USE_WIREFRAME) {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    } else {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    { // MVP
+      GLfloat projection[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
+      };
+
+      const float aspect =
+        (float)data[i].context->x_data.window_attributes.width /
+        (float)data[i].context->x_data.window_attributes.height;
+
+      lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
+
+      GLfloat scale[16] = {
+        data[i].scale.x,    0.0,                0.0,                0.0,
+        0.0,                data[i].scale.y,    0.0,                0.0,
+        0.0,                0.0,                data[i].scale.z,    0.0,
+        0.0,                0.0,                0.0,                1.0,
+      };
+
+      GLfloat translation[16] = {
+        1.0,                0.0,                0.0,                0.0,
+        0.0,                1.0,                0.0,                0.0,
+        0.0,                0.0,                1.0,                0.0,
+        data[i].position.x, data[i].position.y, data[i].position.z, 1.0,
+      };
+
+      GLfloat rotation[16] = {0};
+      lgl_4f_to_mat4(data[i].rotation, rotation);
+
+      GLfloat model[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
+      };
+
+      lgl__mat4_multiply(model, model, rotation);
+      lgl__mat4_multiply(model, model, translation);
+      lgl__mat4_multiply(model, model, scale);
+
+      GLfloat mvp[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
+      };
+
+      lgl__mat4_multiply(mvp, model, projection);
+
+      GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
+      glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
     }
 
-    if (data[i].render_flags & LGL_FLAG_USE_STENCIL) {
-      glStencilMask(0xFF);
-    } else {
-      glStencilMask(0x00);
+
+    { // textures
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, data[i].diffuse_map);
+
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, data[i].specular_map);
+
+      glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_offset"),
+          data[i].texture_offset.x,
+          data[i].texture_offset.y);
+
+      glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_scale"),
+          data[i].texture_scale.x,
+          data[i].texture_scale.y);
     }
 
-    GLfloat projection[16] = {
-      1.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,
-    };
+    { // other material properties
+      glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);
+      glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"), 1);
+      glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 8.0f);
 
-    const float aspect =
-      (float)data[i].context->x_data.window_attributes.width /
-      (float)data[i].context->x_data.window_attributes.height;
-
-    lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
-
-    GLfloat model[16] = {
-      data[i].scale.x,    0.0,                0.0,                0.0,
-      0.0,                data[i].scale.y,    0.0,                0.0,
-      0.0,                0.0,                data[i].scale.z,    0.0,
-      data[i].position.x, data[i].position.y, data[i].position.z, 1.0,
-    };
-
-    GLfloat mvp[16] = {
-      1.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,
-    };
-
-    lgl__mat4_multiply(mvp, model, projection);
-
-    GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
-    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
-
-    // textures
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, data[i].diffuse_map);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, data[i].specular_map);
-
-    glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_offset"),
-        data[i].texture_offset.x,
-        data[i].texture_offset.y);
-
-    glUniform2f(glGetUniformLocation(data[i].shader, "u_texture_scale"),
-        data[i].texture_scale.x,
-        data[i].texture_scale.y);
-
-    // other material properties
-    glUniform1i(glGetUniformLocation(data[i].shader, "u_material.diffuse"), 0);
-    glUniform1i(glGetUniformLocation(data[i].shader, "u_material.specular"), 1);
-    glUniform1f(glGetUniformLocation(data[i].shader, "u_material.shininess"), 8.0f);
-
-    glUniform3f(
-        glGetUniformLocation(data[i].shader, "u_ambient_light"), 
-        0.2, 0.2, 0.2);
+      glUniform3f(
+          glGetUniformLocation(data[i].shader, "u_ambient_light"), 
+          0.2, 0.2, 0.2);
+    }
 
     // lighting uniforms
     for(GLuint light = 0; light < data[i].lights_count; light++) {

@@ -145,6 +145,93 @@ static inline lgl_4f_t lgl_4f_left   (float s) { return (lgl_4f_t){ -s,     0.0f
 static inline lgl_4f_t lgl_4f_forward(float s) { return (lgl_4f_t){  0.0f,  0.0f,  s,    1.0f }; }
 static inline lgl_4f_t lgl_4f_back   (float s) { return (lgl_4f_t){  0.0f,  0.0f, -s,    1.0f }; }
 
+static inline float lgl_4f_magnitude(lgl_4f_t q) {
+	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+}
+
+static inline lgl_4f_t lgl_4f_normalize(lgl_4f_t q) {
+	float mag = lgl_4f_magnitude(q);
+	if (mag == 0) {
+		return lgl_4f_zero();
+	}
+	q.w /= mag;
+	q.x /= mag;
+	q.y /= mag;
+	q.z /= mag;
+	return q;
+}
+
+static inline lgl_4f_t lgl_4f_conjugate(lgl_4f_t q) {
+	return (lgl_4f_t) { 
+		.w = q.w, 
+    .x = -q.x, 
+		.y = -q.y, 
+		.z = -q.z 
+	};
+}
+
+static inline void lgl_4f_print(lgl_4f_t q, const char *label) {
+	printf("\t%12f, %12f, %12f, %12f\t%s\n", q.x, q.y, q.z, q.w, label);
+}
+
+static inline lgl_4f_t lgl_4f_multiply(lgl_4f_t q1, lgl_4f_t q2) {
+	lgl_4f_t ret = {0};
+	ret.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
+	ret.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
+	ret.y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
+	ret.z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
+	return ret;
+}
+
+static inline lgl_4f_t lgl_4f_from_euler(lgl_3f_t eulerAngles) {
+	lgl_4f_t q;
+
+	float cRoll = cosf(eulerAngles.x * 0.5f);
+	float sRoll = sinf(eulerAngles.x * 0.5f);
+	float cPitch = cosf(eulerAngles.y * 0.5f);
+	float sPitch = sinf(eulerAngles.y * 0.5f);
+	float cYaw = cosf(eulerAngles.z * 0.5f);
+	float sYaw = sinf(eulerAngles.z * 0.5f);
+	q.w = cRoll * cPitch * cYaw + sRoll * sPitch * sYaw;
+	q.x = sRoll * cPitch * cYaw - cRoll * sPitch * sYaw;
+	q.y = cRoll * sPitch * cYaw + sRoll * cPitch * sYaw;
+	q.z = cRoll * cPitch * sYaw - sRoll * sPitch * cYaw;
+
+	return q;
+}
+
+static inline float *lgl_4f_to_mat4(lgl_4f_t q, GLfloat *mat) {
+	float xx = q.x * q.x;
+	float xy = q.x * q.y;
+	float xz = q.x * q.z;
+	float xw = q.x * q.w;
+
+	float yy = q.y * q.y;
+	float yz = q.y * q.z;
+	float yw = q.y * q.w;
+
+	float zz = q.z * q.z;
+	float zw = q.z * q.w;
+
+	mat[0]  = 1 - 2 * ( yy + zz );
+	mat[4]  =     2 * ( xy - zw );
+	mat[8]  =     2 * ( xz + yw );
+
+	mat[1]  =     2 * ( xy + zw );
+	mat[5]  = 1 - 2 * ( xx + zz );
+	mat[9]  =     2 * ( yz - xw );
+
+	mat[2]  =     2 * ( xz - yw );
+	mat[6]  =     2 * ( yz + xw );
+	mat[10] = 1 - 2 * ( xx + yy );
+
+	mat[12] = mat[13] = mat[14] = mat[3] = mat[7] = mat[11] = 0;
+	mat[15] = 1;
+
+	return mat;
+}
+
+
 
 #ifdef __cplusplus
 }
