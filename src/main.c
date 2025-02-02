@@ -9,7 +9,6 @@ void lgl__viewport_size_callback(
   glViewport(0, 0, width, height);
 }
 
-// initializes lite-engine. call this to rev up those fryers!
 lgl_context_t lgl_start(void) {
   debug_log("Rev up those fryers!");
 
@@ -70,7 +69,6 @@ void lgl__time_update(lgl_context_t *context) {
 #endif // log time
 }
 
-// shut down and free all memory associated with the lite-engine context
 void lgl_free(lgl_context_t *context) {
   debug_log("Shutting down...");
 
@@ -85,7 +83,6 @@ void lgl_end_frame(lgl_context_t *context) {
   x_end_frame(&context->x_data);
   lgl__time_update(context);
 }
-
 
 int main() {
   lgl_context_t context = lgl_start();
