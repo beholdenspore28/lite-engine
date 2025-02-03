@@ -71,6 +71,11 @@ typedef struct {
   GLuint framebuffer;
   GLuint texture;
   GLuint renderbuffer;
+  GLuint shader;
+  GLuint VAO;
+  GLuint VBO;
+  GLuint vertex_count;
+  GLint  render_flags;
 } lgl_framebuffer_t;
 
 typedef struct {
@@ -103,8 +108,11 @@ typedef struct {
 } lgl_render_data_t;
 
 lgl_context_t lgl_start(void);
-lgl_framebuffer_t lgl_framebuffer_alloc(unsigned int width,
-                                        unsigned int height);
+lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader,
+                                        GLuint width,
+                                        GLuint height);
+void lgl_framebuffer_draw(lgl_framebuffer_t *frame);
+
 void lgl_end_frame(lgl_context_t *context);
 void lgl_free(lgl_context_t *context);
 

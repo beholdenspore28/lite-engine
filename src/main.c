@@ -93,8 +93,6 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
-  lgl_framebuffer_t FBO = lgl_framebuffer_alloc(640, 480);
-
   GLuint shader_framebuffer = 0; {
     GLuint vertex_shader = lgl_shader_compile(
         "res/shaders/frame_buffer_texture_vertex.glsl",
@@ -107,10 +105,7 @@ int main() {
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  lgl_render_data_t frame = lgl_quad_alloc(&context); {
-    frame.shader          =  shader_framebuffer;
-    frame.diffuse_map     =  FBO.texture;
-  }
+  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 640, 480);
 
   while(context.is_running) {
     { // update
@@ -126,7 +121,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, FBO.framebuffer);
+      glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
 
       glClearColor(0,0,0,1);
       glClear(
@@ -134,20 +129,20 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
       lgl_draw(OBJECTS_COUNT, objects);
+      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
     }
 
     {
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      glClearColor(0,0,0,1);
+      glClearColor(1,1,1,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &frame);
+      lgl_framebuffer_draw(&frame);
     }
 
     lgl_end_frame(&context);

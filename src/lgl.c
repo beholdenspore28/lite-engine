@@ -214,6 +214,44 @@ void lgl_outline(
   }
 }
 
+void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
+    glUseProgram(frame->shader);
+
+#if 0 // log render flags
+    debug_log(" ");
+    printf("framebuffer FLAGS { ");
+    for(size_t j = 0; j < sizeof(frame->render_flags)*8; j++) {
+      size_t flag = (frame->render_flags & (1 << j));
+      printf("%u ", flag ? 1 : 0 );
+    }
+    printf("}\n");
+#endif
+
+    { // render flags
+      if ((frame->render_flags & LGL_FLAG_ENABLED) == 0) {
+        return;
+      }
+
+      if (frame->render_flags & LGL_FLAG_USE_WIREFRAME) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      }
+    }
+
+    glStencilMask(0x00);
+
+    { // textures
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, frame->texture);
+      glUniform1i(glGetUniformLocation(frame->shader, "u_diffuse_map"), 0);
+    }
+
+    glBindVertexArray(frame->VAO);
+    glDrawArrays(GL_TRIANGLES, 0, frame->vertex_count);
+    glUseProgram(0);
+}
+
 void lgl_draw(
     const size_t             data_length,
     const lgl_render_data_t *data) {
@@ -668,9 +706,11 @@ void lgl_end_frame(lgl_context_t *context) {
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(
-    unsigned int width,
-    unsigned int height){
+    const GLuint shader,
+    const GLuint width,
+    const GLuint height){
   lgl_framebuffer_t frame = {0};
+
   glGenFramebuffers(1, &frame.framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
 
@@ -680,8 +720,8 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
       frame.texture, 0);
 
@@ -691,6 +731,12 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+  glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER,
+      GL_DEPTH_STENCIL_ATTACHMENT,
+      GL_RENDERBUFFER,
+      frame.renderbuffer);
 
   { // framebuffer error check
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -709,11 +755,38 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
         debug_error("The combination of internal formats of the attached "
             "images voilates an implementation-dependant set of restrictions");
       } break;
-      debug_error("framebuffer is incomplete!");
+      case GL_FRAMEBUFFER_COMPLETE: {
+        debug_log("framebuffer is complete");
+      } break;
+      default: {
+        debug_error("framebuffer is incomplete!");
+      } break;
     }
   }
-
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  enum { frame_vertices_count = 6 };
+  lgl_vertex_t frame_vertices[frame_vertices_count] = { 
+    //position                        //normal          //tex coord
+    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+
+    { { LGL__LEFT*2,  LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
+    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+  };
+
+  frame.vertex_count = frame_vertices_count;
+  frame.shader = shader;
+  frame.render_flags = LGL_FLAG_ENABLED;
+
+  lgl__buffer_vertex_array(
+      &frame.VAO,
+      &frame.VBO,
+      frame.vertex_count,
+      frame_vertices);
+
   return frame;
 }
 
