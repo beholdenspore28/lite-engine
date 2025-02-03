@@ -4,6 +4,8 @@
 #include "stb_image.h"
 #include "blib/blib_file.h"
 
+#include <time.h>
+
 static const float
 LGL__LEFT    = -0.5,
              LGL__RIGHT   =  0.5,
@@ -583,3 +585,135 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
 
   return cube;
 }
+
+void lgl__viewport_size_callback(
+    const unsigned int width,
+    const unsigned int height) {
+  glViewport(0, 0, width, height);
+}
+
+lgl_context_t lgl_start(void) {
+  debug_log("Rev up those fryers!");
+
+  lgl_context_t context = (lgl_context_t) {
+    .is_running     = 1,
+    .time_current   = 0,
+    .frame_current  = 0,
+    .time_delta     = 0,
+    .time_last      = 0,
+    .time_FPS       = 0,
+    .x_data         = x_start("Game Window", 640, 480),
+  };
+
+  context.x_data.viewport_size_callback = lgl__viewport_size_callback;
+
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
+  glEnable(GL_CULL_FACE);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glStencilOp   (GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilFunc (GL_ALWAYS, 1, 0xFF);
+
+  debug_log("Startup completed successfuly");
+
+  return context;
+}
+
+void lgl__time_update(lgl_context_t *context) {
+  struct timespec spec;
+  if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
+    debug_error("failed to get time spec.");
+    exit(0);
+  }
+
+  context->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
+  context->time_delta    = context->time_current - context->time_last;
+  context->time_last     = context->time_current;
+  context->time_FPS      = 1 / context->time_delta;
+  context->frame_current++;
+
+#if 0 // log time
+  debug_log( "\n"
+    "time_current:   %lf\n"
+    "frame_current:  %lu\n"
+    "time_delta:     %lf\n"
+    "time_last:      %lf\n"
+    "time_FPS:       %lf",
+    context->time_current,
+    context->frame_current,
+    context->time_delta,
+    context->time_last,
+    context->time_FPS);
+#endif // log time
+}
+
+void lgl_free(lgl_context_t *context) {
+  debug_log("Shutting down...");
+
+  context->is_running = 0;
+
+  x_stop   (&context->x_data);
+  free     (context);
+  debug_log("Shutdown complete");
+}
+
+void lgl_end_frame(lgl_context_t *context) {
+  x_end_frame(&context->x_data);
+  lgl__time_update(context);
+}
+
+lgl_framebuffer_t lgl_framebuffer_alloc(
+    unsigned int width,
+    unsigned int height){
+  lgl_framebuffer_t frame = {0};
+  glGenFramebuffers(1, &frame.framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
+
+  glGenTextures(1, &frame.texture);
+  glBindTexture(GL_TEXTURE_2D, frame.texture);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      frame.texture, 0);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  glGenRenderbuffers(1, &frame.renderbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+  { // framebuffer error check
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    switch (status) {
+      case 36054: {
+        debug_error("Not all framebuffer attachment points are "
+                    "framebuffer attachment complete");
+      } break;
+      case 36057: {
+        debug_error("Not all attached images have the same width and height");
+      } break;
+      case 36055: {
+        debug_error("No images are attached to the framebuffer");
+      } break;
+      case 36061: {
+        debug_error("The combination of internal formats of the attached "
+            "images voilates an implementation-dependant set of restrictions");
+      } break;
+      debug_error("framebuffer is incomplete!");
+    }
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return frame;
+}
+

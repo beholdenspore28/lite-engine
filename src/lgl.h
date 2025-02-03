@@ -68,6 +68,12 @@ enum {
 };
 
 typedef struct {
+  GLuint framebuffer;
+  GLuint texture;
+  GLuint renderbuffer;
+} lgl_framebuffer_t;
+
+typedef struct {
   x_data_t   x_data;  
   int        is_running;
   double     time_current;
@@ -95,6 +101,12 @@ typedef struct {
   lgl_light_t   *lights;
   GLint          render_flags;
 } lgl_render_data_t;
+
+lgl_context_t lgl_start(void);
+lgl_framebuffer_t lgl_framebuffer_alloc(unsigned int width,
+                                        unsigned int height);
+void lgl_end_frame(lgl_context_t *context);
+void lgl_free(lgl_context_t *context);
 
 void  lgl_viewport_set        (const float width, const float height);
 
