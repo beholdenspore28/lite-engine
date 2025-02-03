@@ -176,6 +176,70 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
+  GLuint FBO;
+  glGenFramebuffers(1, &FBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+  GLuint framebuffer_texture;
+  glGenTextures(1, &framebuffer_texture);
+  glBindTexture(GL_TEXTURE_2D, framebuffer_texture);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      framebuffer_texture, 0);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  GLuint RBO;
+  glGenRenderbuffers(1, &RBO);
+  glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+  { // framebuffer error check
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    switch (status) {
+      case 36054: {
+        debug_error("Not all framebuffer attachment points are "
+                    "framebuffer attachment complete");
+      } break;
+      case 36057: {
+        debug_error("Not all attached images have the same width and height");
+      } break;
+      case 36055: {
+        debug_error("No images are attached to the framebuffer");
+      } break;
+      case 36061: {
+        debug_error("The combination of internal formats of the attached "
+            "images voilates an implementation-dependant set of restrictions");
+      } break;
+      debug_error("framebuffer is incomplete!");
+    }
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  GLuint shader_framebuffer = 0; {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
+    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
+  lgl_render_data_t frame = lgl_quad_alloc(&context); {
+    frame.shader          =  shader_framebuffer;
+    frame.diffuse_map     =  framebuffer_texture;
+  }
+
   while(context.is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
@@ -190,14 +254,28 @@ int main() {
     }
 
     { // draw scene to the frame
+      glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
       glClearColor(0,0,0,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(OBJECTS_COUNT, objects);
       lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.01);
+      lgl_draw(OBJECTS_COUNT, objects);
+    }
+
+    {
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+      glClearColor(0,0,0,1);
+      glClear(
+          GL_COLOR_BUFFER_BIT |
+          GL_DEPTH_BUFFER_BIT |
+          GL_STENCIL_BUFFER_BIT);
+
+      lgl_draw(1, &frame);
     }
 
     lgl_end_frame(&context);
