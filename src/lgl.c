@@ -625,7 +625,14 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
 void lgl__viewport_size_callback(
     const unsigned int width,
     const unsigned int height) {
+
   glViewport(0, 0, width, height);
+
+  glTexImage2D(
+      GL_TEXTURE_2D, 0, GL_RGB, width, height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 }
 
 lgl_context_t lgl_start(void) {
@@ -715,7 +722,10 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glGenTextures(1, &frame.texture);
   glBindTexture(GL_TEXTURE_2D, frame.texture);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(
+      GL_TEXTURE_2D, 0, GL_RGB, width, height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -728,7 +738,6 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glGenRenderbuffers(1, &frame.renderbuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
   glFramebufferRenderbuffer(
       GL_FRAMEBUFFER,
