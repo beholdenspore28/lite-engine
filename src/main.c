@@ -84,6 +84,60 @@ void lgl_end_frame(lgl_context_t *context) {
   lgl__time_update(context);
 }
 
+typedef struct {
+  GLuint framebuffer;
+  GLuint texture;
+  GLuint renderbuffer;
+} lgl_framebuffer_t;
+
+lgl_framebuffer_t lgl_framebuffer_alloc(void){
+  lgl_framebuffer_t frame = {0};
+  glGenFramebuffers(1, &frame.framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
+
+  glGenTextures(1, &frame.texture);
+  glBindTexture(GL_TEXTURE_2D, frame.texture);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      frame.texture, 0);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  glGenRenderbuffers(1, &frame.renderbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+  { // framebuffer error check
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    switch (status) {
+      case 36054: {
+        debug_error("Not all framebuffer attachment points are "
+                    "framebuffer attachment complete");
+      } break;
+      case 36057: {
+        debug_error("Not all attached images have the same width and height");
+      } break;
+      case 36055: {
+        debug_error("No images are attached to the framebuffer");
+      } break;
+      case 36061: {
+        debug_error("The combination of internal formats of the attached "
+            "images voilates an implementation-dependant set of restrictions");
+      } break;
+      debug_error("framebuffer is incomplete!");
+    }
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return frame;
+}
+
 int main() {
   lgl_context_t context = lgl_start();
 
@@ -176,52 +230,7 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
-  GLuint FBO;
-  glGenFramebuffers(1, &FBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-  GLuint framebuffer_texture;
-  glGenTextures(1, &framebuffer_texture);
-  glBindTexture(GL_TEXTURE_2D, framebuffer_texture);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-      framebuffer_texture, 0);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
-
-  GLuint RBO;
-  glGenRenderbuffers(1, &RBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-  { // framebuffer error check
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    switch (status) {
-      case 36054: {
-        debug_error("Not all framebuffer attachment points are "
-                    "framebuffer attachment complete");
-      } break;
-      case 36057: {
-        debug_error("Not all attached images have the same width and height");
-      } break;
-      case 36055: {
-        debug_error("No images are attached to the framebuffer");
-      } break;
-      case 36061: {
-        debug_error("The combination of internal formats of the attached "
-            "images voilates an implementation-dependant set of restrictions");
-      } break;
-      debug_error("framebuffer is incomplete!");
-    }
-  }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  lgl_framebuffer_t FBO = lgl_framebuffer_alloc();
 
   GLuint shader_framebuffer = 0; {
     GLuint vertex_shader = lgl_shader_compile(
@@ -237,7 +246,7 @@ int main() {
 
   lgl_render_data_t frame = lgl_quad_alloc(&context); {
     frame.shader          =  shader_framebuffer;
-    frame.diffuse_map     =  framebuffer_texture;
+    frame.diffuse_map     =  FBO.texture;
   }
 
   while(context.is_running) {
@@ -254,7 +263,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+      glBindFramebuffer(GL_FRAMEBUFFER, FBO.framebuffer);
 
       glClearColor(0,0,0,1);
       glClear(
