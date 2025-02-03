@@ -239,8 +239,6 @@ void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
       }
     }
 
-    glStencilMask(0x00);
-
     { // textures
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, frame->texture);
