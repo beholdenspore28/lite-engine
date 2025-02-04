@@ -733,7 +733,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
       frame.texture, 0);
 
-#if 0
+#if 1
   // COLOR ATTACHMENT 1
   // ------------------
   glGenTextures(1, &frame.texture_2);
@@ -748,6 +748,9 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
       frame.texture_2, 0);
 #endif
+
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, };
+  glDrawBuffers(2, attachments);
 
   glGenRenderbuffers(1, &frame.renderbuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
