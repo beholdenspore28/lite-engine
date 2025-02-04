@@ -70,7 +70,6 @@ enum {
 typedef struct {
   GLuint framebuffer;
   GLuint texture;
-  GLuint texture_2;
   GLuint renderbuffer;
   GLuint shader;
   GLuint VAO;

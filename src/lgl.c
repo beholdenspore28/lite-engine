@@ -241,7 +241,7 @@ void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, frame->texture_2);
+      glBindTexture(GL_TEXTURE_2D, frame->texture);
       glUniform1i(glGetUniformLocation(frame->shader, "u_diffuse_map"), 0);
     }
 
@@ -715,43 +715,30 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
     const GLuint width,
     const GLuint height){
   lgl_framebuffer_t frame = {0};
+
   glGenFramebuffers(1, &frame.framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
 
-  // COLOR ATTACHMENT 0
-  //-------------------
   glGenTextures(1, &frame.texture);
   glBindTexture(GL_TEXTURE_2D, frame.texture);
+
   glTexImage2D(
       GL_TEXTURE_2D, 0, GL_RGB, width, height,
       0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frame.texture, 0);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      frame.texture, 0);
 
-  // COLOR ATTACHMENT 1
-  //-------------------
-  glGenTextures(1, &frame.texture_2);
-  glBindTexture(GL_TEXTURE_2D, frame.texture_2);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-      0, GL_RGBA, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frame.texture_2, 0);
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, };
-  glDrawBuffers(2, attachments);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
-  // RENDERBUFFER
-  //-------------------
   glGenRenderbuffers(1, &frame.renderbuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+
   glFramebufferRenderbuffer(
       GL_FRAMEBUFFER,
       GL_DEPTH_STENCIL_ATTACHMENT,
@@ -783,11 +770,8 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
       } break;
     }
   }
-
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  // FRAMEBUFFER QUAD MESH
-  //----------------------
   enum { frame_vertices_count = 6 };
   lgl_vertex_t frame_vertices[frame_vertices_count] = { 
     //position                        //normal          //tex coord
@@ -800,8 +784,8 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
     { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
   };
 
-  frame.shader = shader;
   frame.vertex_count = frame_vertices_count;
+  frame.shader = shader;
   frame.render_flags = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(

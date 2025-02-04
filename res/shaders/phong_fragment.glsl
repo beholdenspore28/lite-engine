@@ -23,8 +23,7 @@ in vec3      v_fragment_position;
 in vec3      v_normal;
 in vec2      v_tex_coord;
 
-layout (location = 0) out vec4 frag_color;
-layout (location = 1) out vec4 bright_color;
+out vec4     frag_color;
 
 uniform      vec3     u_cameraPos;
 uniform      Material u_material;
@@ -132,11 +131,4 @@ void main() {
   }
 
   frag_color = vec4(light, 1.0);
-
-  float brightness = dot(frag_color.rgb, vec3(0.2126, 0.7152, 0.0722));
-  if (brightness > 1.0) {
-    bright_color = vec4(frag_color.rgb, 1.0);
-  } else {
-    bright_color = vec4(0.0, 0.0, 0.0, 1.0);
-  }
 }
