@@ -16,17 +16,17 @@ int main() {
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  //GLuint shader_solid = 0; {
-  //  GLuint vertex_shader = lgl_shader_compile(
-  //      "res/shaders/solid_vertex.glsl",
-  //      GL_VERTEX_SHADER);
+  GLuint shader_solid = 0; {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/solid_vertex.glsl",
+        GL_VERTEX_SHADER);
 
-  //  GLuint fragment_shader = lgl_shader_compile(
-  //      "res/shaders/solid_fragment.glsl",
-  //      GL_FRAGMENT_SHADER);
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/solid_fragment.glsl",
+        GL_FRAGMENT_SHADER);
 
-  //  shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
-  //}
+    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
+  }
 
   enum {
     LIGHTS_POINT_0,
@@ -107,6 +107,27 @@ int main() {
 
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 640, 480);
 
+  GLuint frame_texture_2 = 0;
+  glGenTextures(1, &frame_texture_2);
+  glBindTexture(GL_TEXTURE_2D, frame_texture_2);
+
+  glTexImage2D(
+      GL_TEXTURE_2D, 0, GL_RGBA16F,
+      context.x_data.window_attributes.width,
+      context.x_data.window_attributes.height,
+      0, GL_RGBA, GL_FLOAT, NULL);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glFramebufferTexture2D(
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frame_texture_2, 0);
+
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, };
+  glDrawBuffers(2, attachments);
+
   while(context.is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
@@ -131,7 +152,7 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(OBJECTS_COUNT, objects);
-      //lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.2);
+      lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.2);
     }
 
     {

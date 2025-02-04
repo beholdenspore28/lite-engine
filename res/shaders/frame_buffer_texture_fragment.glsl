@@ -1,6 +1,7 @@
 #version 410 core
+
 out vec4 FragColor;
-  
+
 in vec2 TexCoords;
 
 uniform sampler2D u_diffuse_map;
@@ -8,10 +9,7 @@ uniform sampler2D u_diffuse_map;
 const float offset = 1.0 / 300.0;
 
 void main() { 
-    //{ // default
-    //  FragColor = texture(u_diffuse_map, TexCoords);
-    //}
-
+#if 0
     //{ // invert color
     //  FragColor = vec4(vec3(1.0 - texture(u_diffuse_map, TexCoords)), 1.0);
     //}
@@ -65,4 +63,7 @@ void main() {
       col += sampleTex[i] * kernel[i];
 
     FragColor = vec4(col, 1.0);
+#else
+    FragColor = vec4(texture(u_diffuse_map, TexCoords));
+#endif
 }
