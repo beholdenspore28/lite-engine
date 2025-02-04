@@ -719,13 +719,13 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glGenFramebuffers(1, &frame.framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
 
+  // COLOR ATTACHMENT 0
+  // ------------------
   glGenTextures(1, &frame.texture);
   glBindTexture(GL_TEXTURE_2D, frame.texture);
-
   glTexImage2D(
       GL_TEXTURE_2D, 0, GL_RGB, width, height,
       0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -733,7 +733,21 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
       frame.texture, 0);
 
-  glBindTexture(GL_TEXTURE_2D, 0);
+#if 0
+  // COLOR ATTACHMENT 1
+  // ------------------
+  glGenTextures(1, &frame.texture_2);
+  glBindTexture(GL_TEXTURE_2D, frame.texture_2);
+  glTexImage2D(
+      GL_TEXTURE_2D, 0, GL_RGB, width, height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
+      frame.texture_2, 0);
+#endif
 
   glGenRenderbuffers(1, &frame.renderbuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
@@ -770,7 +784,6 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
       } break;
     }
   }
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   enum { frame_vertices_count = 6 };
   lgl_vertex_t frame_vertices[frame_vertices_count] = { 
@@ -785,7 +798,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   };
 
   frame.vertex_count = frame_vertices_count;
-  frame.shader = shader;
+  frame.shader       = shader;
   frame.render_flags = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(
