@@ -107,27 +107,6 @@ int main() {
 
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 640, 480);
 
-  GLuint frame_texture_2 = 0;
-  glGenTextures(1, &frame_texture_2);
-  glBindTexture(GL_TEXTURE_2D, frame_texture_2);
-
-  glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGBA16F,
-      context.x_data.window_attributes.width,
-      context.x_data.window_attributes.height,
-      0, GL_RGBA, GL_FLOAT, NULL);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  glFramebufferTexture2D(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frame_texture_2, 0);
-
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, };
-  glDrawBuffers(2, attachments);
-
   while(context.is_running) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
