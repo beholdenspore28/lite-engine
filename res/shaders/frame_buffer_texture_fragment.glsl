@@ -1,8 +1,7 @@
 #version 410 core
-out vec4 FragColor;
-  
-in vec2 TexCoords;
 
+out vec4 fragment_color;
+in vec2 vertex_texture_coordinates;
 uniform sampler2D u_diffuse_map;
 
 const float offset = 1.0 / 300.0;
@@ -58,11 +57,11 @@ void main() {
 
     vec3 sampleTex[9];
     for(int i = 0; i < 9; i++) {
-      sampleTex[i] = vec3(texture(u_diffuse_map, TexCoords.st + offsets[i]));
+      sampleTex[i] = vec3(texture(u_diffuse_map, vertex_texture_coordinates.st + offsets[i]));
     }
     vec3 col = vec3(0);
     for(int i = 0; i < 9; i++)
       col += sampleTex[i] * kernel[i];
 
-    FragColor = vec4(col, 1.0);
+    fragment_color = vec4(col, 1.0);
 }

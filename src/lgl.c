@@ -127,7 +127,8 @@ GLuint lgl_shader_compile(const char *file_path, GLenum type) {
 
     if(!success) {
       glGetShaderInfoLog(shader, 512, NULL, infoLog);
-      debug_error("Error shader compilation failed:\n%s", infoLog);
+      debug_error(
+          "Error shader compilation failed:\n'%s'%s", file_path, infoLog);
     }
   }
 
