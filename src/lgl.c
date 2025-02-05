@@ -241,7 +241,7 @@ void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, frame->texture);
+      glBindTexture(GL_TEXTURE_2D, frame->texture_2);
       glUniform1i(glGetUniformLocation(frame->shader, "u_diffuse_map"), 0);
     }
 
@@ -724,12 +724,12 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glGenTextures(1, &frame.texture);
   glBindTexture(GL_TEXTURE_2D, frame.texture);
   glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGB, width, height,
-      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+      GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+      0, GL_RGBA, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
       frame.texture, 0);
 
@@ -739,12 +739,12 @@ lgl_framebuffer_t lgl_framebuffer_alloc(
   glGenTextures(1, &frame.texture_2);
   glBindTexture(GL_TEXTURE_2D, frame.texture_2);
   glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGB, width, height,
-      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+      GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+      0, GL_RGBA, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
       frame.texture_2, 0);
 #endif
