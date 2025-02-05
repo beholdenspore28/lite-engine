@@ -12,17 +12,14 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "glad/gl.h"
-#include "glad/glx.h"
-
 #include <platform.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "glad/gl.h"
 
 #include "stb_image.h"
 #include "blib/blib_log.h"
+
+#include <stdio.h>
+#include <math.h>
 
 typedef struct {
   float          x;
@@ -61,22 +58,16 @@ typedef struct {
   lgl_3f_t       specular;
 } lgl_light_t;
 
-enum {
-  LGL_FLAG_ENABLED       = 1,
-  LGL_FLAG_USE_STENCIL   = 1 << 1,
-  LGL_FLAG_USE_WIREFRAME = 1 << 2,
-};
-
 typedef struct {
-  GLuint framebuffer;
-  GLuint texture;
-  GLuint texture_2;
-  GLuint renderbuffer;
-  GLuint shader;
-  GLuint VAO;
-  GLuint VBO;
-  GLuint vertex_count;
-  GLint  render_flags;
+  GLuint         framebuffer;
+  GLuint         texture;
+  GLuint         texture_2;
+  GLuint         renderbuffer;
+  GLuint         shader;
+  GLuint         VAO;
+  GLuint         VBO;
+  GLuint         vertex_count;
+  GLint          render_flags;
 } lgl_framebuffer_t;
 
 typedef struct {
@@ -108,63 +99,93 @@ typedef struct {
   GLint          render_flags;
 } lgl_render_data_t;
 
-lgl_context_t lgl_start(void);
-lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader,
-                                        GLuint width,
-                                        GLuint height);
-void lgl_framebuffer_draw(lgl_framebuffer_t *frame);
+enum {
+  LGL_FLAG_ENABLED       = 1,
+  LGL_FLAG_USE_STENCIL   = 1 << 1,
+  LGL_FLAG_USE_WIREFRAME = 1 << 2,
+};
 
+lgl_context_t lgl_start(void);
+
+lgl_framebuffer_t lgl_framebuffer_alloc(
+    GLuint shader,
+    GLuint width,
+    GLuint height);
+
+void lgl_framebuffer_draw(lgl_framebuffer_t *frame);
 void lgl_end_frame(lgl_context_t *context);
 void lgl_free(lgl_context_t *context);
+void  lgl_viewport_set(const float width, const float height);
 
-void  lgl_viewport_set        (const float width, const float height);
+void lgl_outline(
+    const size_t       data_length,
+    lgl_render_data_t *data,
+    const GLuint       outline_shader,
+    const float        thickness);
 
-void lgl_outline              (const size_t       data_length,
-                               lgl_render_data_t *data,
-                               const GLuint       outline_shader,
-                               const float        thickness);
+void lgl_draw(const size_t data_length, const lgl_render_data_t *data);
 
-void  lgl_draw                (const size_t data_length, const lgl_render_data_t *data);
-void  lgl_buffer_vertex_array (lgl_render_data_t *data);
-
-GLuint  lgl_shader_compile    (const char *file_path, GLenum type);
-GLuint  lgl_shader_link       (GLuint vertex_shader, GLuint fragment_shader);
+GLuint  lgl_shader_compile(const char *file_path, GLenum type);
+GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_render_data_t lgl_quad_alloc  (lgl_context_t *context);
 lgl_render_data_t lgl_cube_alloc  (lgl_context_t *context);
 
-void lgl_perspective          (float *mat,
-                               const float fov,
-                               const float aspect,
-                               const float near,
-                               const float far);
+void lgl_perspective(
+    float *mat,
+    const float fov,
+    const float aspect,
+    const float near,
+    const float far);
 
 GLuint lgl_texture_alloc(const char *imageFile);
 
-static inline lgl_2f_t lgl_2f_zero   (void)    { return (lgl_2f_t) {  0.0f,  0.0f}; }
-static inline lgl_2f_t lgl_2f_one    (float s) { return (lgl_2f_t) {  s,     s   }; }
-static inline lgl_2f_t lgl_2f_up     (float s) { return (lgl_2f_t) {  0.0f,  s   }; }
-static inline lgl_2f_t lgl_2f_down   (float s) { return (lgl_2f_t) {  0.0f, -s   }; }
-static inline lgl_2f_t lgl_2f_right  (float s) { return (lgl_2f_t) {  s,     0.0f}; }
-static inline lgl_2f_t lgl_2f_left   (float s) { return (lgl_2f_t) { -s,     0.0f}; }
+static inline lgl_2f_t 
+lgl_2f_zero   (void)    { return (lgl_2f_t) {  0.0f,  0.0f}; }
+static inline lgl_2f_t
+lgl_2f_one    (float s) { return (lgl_2f_t) {  s,     s   }; }
+static inline lgl_2f_t
+lgl_2f_up     (float s) { return (lgl_2f_t) {  0.0f,  s   }; }
+static inline lgl_2f_t
+lgl_2f_down   (float s) { return (lgl_2f_t) {  0.0f, -s   }; }
+static inline lgl_2f_t
+lgl_2f_right  (float s) { return (lgl_2f_t) {  s,     0.0f}; }
+static inline lgl_2f_t 
+lgl_2f_left   (float s) { return (lgl_2f_t) { -s,     0.0f}; }
 
-static inline lgl_3f_t lgl_3f_zero   (void)    { return (lgl_3f_t) {  0.0f,  0.0f, 0.0f  }; }
-static inline lgl_3f_t lgl_3f_one    (float s) { return (lgl_3f_t) {  s,     s,     s    }; }
-static inline lgl_3f_t lgl_3f_up     (float s) { return (lgl_3f_t) {  0.0f,  s,     0.0f }; }
-static inline lgl_3f_t lgl_3f_down   (float s) { return (lgl_3f_t) {  0.0f, -s,     0.0f }; }
-static inline lgl_3f_t lgl_3f_right  (float s) { return (lgl_3f_t) {  s,     0.0f,  0.0f }; }
-static inline lgl_3f_t lgl_3f_left   (float s) { return (lgl_3f_t) { -s,     0.0f,  0.0f }; }
-static inline lgl_3f_t lgl_3f_forward(float s) { return (lgl_3f_t) {  0.0f,  0.0f,  s    }; }
-static inline lgl_3f_t lgl_3f_back   (float s) { return (lgl_3f_t) {  0.0f,  0.0f, -s    }; }
+static inline lgl_3f_t
+lgl_3f_zero   (void)    { return (lgl_3f_t) {  0.0f,  0.0f, 0.0f  }; }
+static inline lgl_3f_t
+lgl_3f_one    (float s) { return (lgl_3f_t) {  s,     s,     s    }; }
+static inline lgl_3f_t
+lgl_3f_up     (float s) { return (lgl_3f_t) {  0.0f,  s,     0.0f }; }
+static inline lgl_3f_t
+lgl_3f_down   (float s) { return (lgl_3f_t) {  0.0f, -s,     0.0f }; }
+static inline lgl_3f_t
+lgl_3f_right  (float s) { return (lgl_3f_t) {  s,     0.0f,  0.0f }; }
+static inline lgl_3f_t
+lgl_3f_left   (float s) { return (lgl_3f_t) { -s,     0.0f,  0.0f }; }
+static inline lgl_3f_t
+lgl_3f_forward(float s) { return (lgl_3f_t) {  0.0f,  0.0f,  s    }; }
+static inline lgl_3f_t
+lgl_3f_back   (float s) { return (lgl_3f_t) {  0.0f,  0.0f, -s    }; }
 
-static inline lgl_4f_t lgl_4f_zero   (void)    { return (lgl_4f_t){  0.0f,  0.0f,  0.0f, 1.0f }; }
-static inline lgl_4f_t lgl_4f_one    (float s) { return (lgl_4f_t){  s,     s,     s,    1.0f }; }
-static inline lgl_4f_t lgl_4f_up     (float s) { return (lgl_4f_t){  0.0f,  s,     0.0f, 1.0f }; }
-static inline lgl_4f_t lgl_4f_down   (float s) { return (lgl_4f_t){  0.0f, -s,     0.0f, 1.0f }; }
-static inline lgl_4f_t lgl_4f_right  (float s) { return (lgl_4f_t){  s,     0.0f,  0.0f, 1.0f }; }
-static inline lgl_4f_t lgl_4f_left   (float s) { return (lgl_4f_t){ -s,     0.0f,  0.0f, 1.0f }; }
-static inline lgl_4f_t lgl_4f_forward(float s) { return (lgl_4f_t){  0.0f,  0.0f,  s,    1.0f }; }
-static inline lgl_4f_t lgl_4f_back   (float s) { return (lgl_4f_t){  0.0f,  0.0f, -s,    1.0f }; }
+static inline lgl_4f_t
+lgl_4f_zero   (void)    { return (lgl_4f_t){  0.0f,  0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t
+lgl_4f_one    (float s) { return (lgl_4f_t){  s,     s,     s,    1.0f }; }
+static inline lgl_4f_t
+lgl_4f_up     (float s) { return (lgl_4f_t){  0.0f,  s,     0.0f, 1.0f }; }
+static inline lgl_4f_t
+lgl_4f_down   (float s) { return (lgl_4f_t){  0.0f, -s,     0.0f, 1.0f }; }
+static inline lgl_4f_t
+lgl_4f_right  (float s) { return (lgl_4f_t){  s,     0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t
+lgl_4f_left   (float s) { return (lgl_4f_t){ -s,     0.0f,  0.0f, 1.0f }; }
+static inline lgl_4f_t
+lgl_4f_forward(float s) { return (lgl_4f_t){  0.0f,  0.0f,  s,    1.0f }; }
+static inline lgl_4f_t
+lgl_4f_back   (float s) { return (lgl_4f_t){  0.0f,  0.0f, -s,    1.0f }; }
 
 static inline float lgl_4f_magnitude(lgl_4f_t q) {
 	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
