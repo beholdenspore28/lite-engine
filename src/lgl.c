@@ -7,12 +7,12 @@
 #include <time.h>
 
 static const float
-LGL__LEFT    = -0.5,
-             LGL__RIGHT   =  0.5,
-             LGL__UP      =  0.5,
-             LGL__DOWN    = -0.5,
-             LGL__FORWARD =  0.5,
-             LGL__BACK    = -0.5;
+             LGL__LEFT    = -1.0,
+             LGL__RIGHT   =  1.0,
+             LGL__UP      =  1.0,
+             LGL__DOWN    = -1.0,
+             LGL__FORWARD =  1.0,
+             LGL__BACK    = -1.0;
 
 /*Multiplies a 4x4 matrix with another 4x4 matrix*/
 static inline void lgl__mat4_multiply(
@@ -215,7 +215,7 @@ void lgl_outline(
   }
 }
 
-void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
+void lgl_framebuffer_draw(lgl_render_data_t *frame) {
     glUseProgram(frame->shader);
 
 #if 0 // log render flags
@@ -242,7 +242,7 @@ void lgl_framebuffer_draw(lgl_framebuffer_t *frame) {
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, frame->texture_2);
+      glBindTexture(GL_TEXTURE_2D, frame->diffuse_map);
       glUniform1i(glGetUniformLocation(frame->shader, "u_diffuse_map"), 0);
     }
 
@@ -709,108 +709,5 @@ void lgl_free(lgl_context_t *context) {
 void lgl_end_frame(lgl_context_t *context) {
   x_end_frame(&context->x_data);
   lgl__time_update(context);
-}
-
-lgl_framebuffer_t lgl_framebuffer_alloc(
-    const GLuint shader,
-    const GLuint width,
-    const GLuint height){
-  lgl_framebuffer_t frame = {0};
-
-  glGenFramebuffers(1, &frame.framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
-
-  // COLOR ATTACHMENT 0
-  // ------------------
-  glGenTextures(1, &frame.texture);
-  glBindTexture(GL_TEXTURE_2D, frame.texture);
-  glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-      0, GL_RGBA, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-      frame.texture, 0);
-
-#if 1
-  // COLOR ATTACHMENT 1
-  // ------------------
-  glGenTextures(1, &frame.texture_2);
-  glBindTexture(GL_TEXTURE_2D, frame.texture_2);
-  glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-      0, GL_RGBA, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
-      frame.texture_2, 0);
-#endif
-
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, };
-  glDrawBuffers(2, attachments);
-
-  glGenRenderbuffers(1, &frame.renderbuffer);
-  glBindRenderbuffer(GL_RENDERBUFFER, frame.renderbuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-
-  glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER,
-      GL_DEPTH_STENCIL_ATTACHMENT,
-      GL_RENDERBUFFER,
-      frame.renderbuffer);
-
-  { // framebuffer error check
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    switch (status) {
-      case 36054: {
-        debug_error("Not all framebuffer attachment points are "
-                    "framebuffer attachment complete");
-      } break;
-      case 36057: {
-        debug_error("Not all attached images have the same width and height");
-      } break;
-      case 36055: {
-        debug_error("No images are attached to the framebuffer");
-      } break;
-      case 36061: {
-        debug_error("The combination of internal formats of the attached "
-            "images voilates an implementation-dependant set of restrictions");
-      } break;
-      case GL_FRAMEBUFFER_COMPLETE: {
-        debug_log("framebuffer is complete");
-      } break;
-      default: {
-        debug_error("framebuffer is incomplete!");
-      } break;
-    }
-  }
-
-  enum { frame_vertices_count = 6 };
-  lgl_vertex_t frame_vertices[frame_vertices_count] = { 
-    //position                        //normal          //tex coord
-    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-
-    { { LGL__LEFT*2,  LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__LEFT*2,  LGL__DOWN*2, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT*2, LGL__UP*2,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-  };
-
-  frame.vertex_count = frame_vertices_count;
-  frame.shader       = shader;
-  frame.render_flags = LGL_FLAG_ENABLED;
-
-  lgl__buffer_vertex_array(
-      &frame.VAO,
-      &frame.VBO,
-      frame.vertex_count,
-      frame_vertices);
-
-  return frame;
 }
 

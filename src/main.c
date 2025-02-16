@@ -105,7 +105,35 @@ int main() {
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 640, 480);
+  // set up floating point framebuffer to render scene to
+  unsigned int hdrFBO;
+  glGenFramebuffers(1, &hdrFBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+  unsigned int colorBuffers[2];
+  glGenTextures(2, colorBuffers);
+  for (unsigned int i = 0; i < 2; i++)
+  {
+    glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGBA16F, 640, 480, 0, GL_RGBA, GL_FLOAT, NULL
+        );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach texture to framebuffer
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0
+        );
+  }
+
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
+
+  lgl_render_data_t quad = lgl_cube_alloc(&context); {
+    quad.shader        =  shader_framebuffer;
+    quad.diffuse_map   =  colorBuffers[1];
+  }
 
   while(context.is_running) {
     { // update
@@ -122,7 +150,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, frame.framebuffer);
+      glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
       glClearColor(0.5,0,0.5,1);
       glClear(
@@ -142,7 +170,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_framebuffer_draw(&frame);
+      lgl_draw(1, &quad);
     }
 
     lgl_end_frame(&context);

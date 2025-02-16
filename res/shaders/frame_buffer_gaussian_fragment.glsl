@@ -13,7 +13,6 @@ uniform float weight[5] = float[] (0.227027,
 void main() {
   // gets size of single texel
   vec2 tex_offset = 1.0 / textureSize(image, 0); 
-
   // current fragment's contribution
   vec3 result = texture(image, vertex_texture_coordinates).rgb * weight[0]; 
   if(horizontal) {
