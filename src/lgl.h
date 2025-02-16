@@ -93,7 +93,7 @@ enum {
   LGL_FLAG_USE_WIREFRAME = 1 << 2,
 };
 
-lgl_context_t lgl_start(void);
+lgl_context_t *lgl_start(void);
 
 void lgl_framebuffer_draw(lgl_render_data_t *frame);
 void lgl_end_frame(lgl_context_t *context);

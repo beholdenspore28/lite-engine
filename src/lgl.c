@@ -636,20 +636,19 @@ void lgl__viewport_size_callback(
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 }
 
-lgl_context_t lgl_start(void) {
+lgl_context_t *lgl_start(void) {
   debug_log("Rev up those fryers!");
 
-  lgl_context_t context = (lgl_context_t) {
-    .is_running     = 1,
-    .time_current   = 0,
-    .frame_current  = 0,
-    .time_delta     = 0,
-    .time_last      = 0,
-    .time_FPS       = 0,
-    .x_data         = x_start("Game Window", 640, 480),
-  };
+  lgl_context_t *context = malloc(sizeof(*context));
 
-  context.x_data.viewport_size_callback = lgl__viewport_size_callback;
+  context->is_running     = 1,
+  context->time_current   = 0,
+  context->frame_current  = 0,
+  context->time_delta     = 0,
+  context->time_last      = 0,
+  context->time_FPS       = 0,
+  context->x_data         = x_start("Game Window", 640, 480),
+  context->x_data.viewport_size_callback = lgl__viewport_size_callback;
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -681,10 +680,10 @@ void lgl__time_update(lgl_context_t *context) {
   context->time_FPS      = 1 / context->time_delta;
   context->frame_current++;
 
-#if 0 // log time
+#if 1 // log time
   debug_log( "\n"
     "time_current:   %lf\n"
-    "frame_current:  %lu\n"
+    "frame_current:  %llu\n"
     "time_delta:     %lf\n"
     "time_last:      %lf\n"
     "time_FPS:       %lf",

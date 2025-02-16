@@ -2,7 +2,7 @@
 #include "lgl.h"
 
 int main() {
-  lgl_context_t context = lgl_start();
+  lgl_context_t *context = lgl_start();
 
   GLuint shader_phong = 0; {
     GLuint vertex_shader = lgl_shader_compile(
@@ -15,18 +15,6 @@ int main() {
 
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
-
-  //GLuint shader_solid = 0; {
-  //  GLuint vertex_shader = lgl_shader_compile(
-  //      "res/shaders/solid_vertex.glsl",
-  //      GL_VERTEX_SHADER);
-  //
-  //  GLuint fragment_shader = lgl_shader_compile(
-  //      "res/shaders/solid_fragment.glsl",
-  //      GL_FRAGMENT_SHADER);
-  //
-  //  shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
-  //}
 
   enum {
     LIGHTS_POINT_0,
@@ -73,7 +61,7 @@ int main() {
     texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
     texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
 
-  objects[OBJECTS_FLOOR] = lgl_cube_alloc(&context); {
+  objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
     objects[OBJECTS_FLOOR].shader        =  shader_phong;
     objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
     objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
@@ -84,7 +72,7 @@ int main() {
     objects[OBJECTS_FLOOR].lights        =  lights;
   }
 
-  objects[OBJECTS_CUBE] = lgl_cube_alloc(&context); {
+  objects[OBJECTS_CUBE] = lgl_cube_alloc(context); {
     objects[OBJECTS_CUBE].shader         =  shader_phong;
     objects[OBJECTS_CUBE].diffuse_map    =  texture_cube;
     objects[OBJECTS_CUBE].position.z     =  1;
@@ -130,23 +118,26 @@ int main() {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  lgl_render_data_t quad = lgl_cube_alloc(&context); {
-    quad.shader        =  shader_framebuffer;
-    quad.diffuse_map   =  colorBuffers[0];
+  lgl_render_data_t framebuffer_quad = lgl_cube_alloc(context); {
+    framebuffer_quad.shader        =  shader_framebuffer;
+    framebuffer_quad.diffuse_map   =  colorBuffers[0];
   }
 
-  while(context.is_running) {
+  while(context->is_running) {
     { // update
-      objects[OBJECTS_CUBE].position.y = cos(context.time_current)*0.2 + 0.5;
+      objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
       objects[OBJECTS_CUBE].rotation = lgl_4f_multiply(
           objects[OBJECTS_CUBE].rotation,
-          lgl_4f_from_euler((lgl_3f_t) { 0, context.time_delta, 0 }));
-      objects[OBJECTS_FLOOR].texture_offset.y += context.time_delta;
+          lgl_4f_from_euler((lgl_3f_t) { 0, context->time_delta, 0 }));
+      objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
 
-      lights[LIGHTS_POINT_0].position.x = sin(context.time_current);
-      lights[LIGHTS_POINT_0].position.z = cos(context.time_current);
-      lights[LIGHTS_POINT_1].position.x = cos(context.time_current);
-      lights[LIGHTS_POINT_1].position.z = sin(context.time_current);
+      debug_log("TEX OFF x %f", objects[OBJECTS_FLOOR].texture_offset.x);
+      debug_log("TEX OFF Y %f", objects[OBJECTS_FLOOR].texture_offset.y);
+
+      lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
+      lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
+      lights[LIGHTS_POINT_1].position.x = cos(context->time_current);
+      lights[LIGHTS_POINT_1].position.z = sin(context->time_current);
     }
 
     { // draw scene to the frame
@@ -159,7 +150,6 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(OBJECTS_COUNT, objects);
-      //lgl_outline(1, &objects[OBJECTS_CUBE], shader_solid, 0.1);
     }
 
     {
@@ -170,13 +160,13 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &quad);
+      lgl_draw(1, &framebuffer_quad);
     }
 
-    lgl_end_frame(&context);
+    lgl_end_frame(context);
   }
 
-  lgl_free(&context);
+  lgl_free(context);
 
   return 0;
 }
