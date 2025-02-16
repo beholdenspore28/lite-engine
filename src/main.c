@@ -78,8 +78,8 @@ int main() {
     objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
     objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
     objects[OBJECTS_FLOOR].texture_scale =  lgl_2f_one(10.0);
-    objects[OBJECTS_FLOOR].position.y    = -1;
-    objects[OBJECTS_FLOOR].scale         =  (lgl_3f_t) {10, 1, 10};
+    objects[OBJECTS_FLOOR].position.y    = -2;
+    objects[OBJECTS_FLOOR].scale         =  (lgl_3f_t) {5, 0.5, 5};
     objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
     objects[OBJECTS_FLOOR].lights        =  lights;
   }
@@ -132,7 +132,7 @@ int main() {
 
   lgl_render_data_t quad = lgl_cube_alloc(&context); {
     quad.shader        =  shader_framebuffer;
-    quad.diffuse_map   =  colorBuffers[1];
+    quad.diffuse_map   =  colorBuffers[0];
   }
 
   while(context.is_running) {

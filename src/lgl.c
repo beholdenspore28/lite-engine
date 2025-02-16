@@ -605,7 +605,7 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
   cube.vertices       = cube_vertices;
   cube.vertex_count   = cube_vertices_count;
 
-  cube.scale          = lgl_3f_one(1.0);
+  cube.scale          = lgl_3f_one(0.5);
   cube.position       = lgl_3f_zero();
   cube.rotation       = lgl_4f_zero();
 
