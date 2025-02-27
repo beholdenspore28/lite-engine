@@ -47,11 +47,16 @@ X11: build_directory glx
 
 # FREE_BSD BUILD
 # TODO free bsd build may not require linking to -lGL
-FREE_BSD_LIBS := -L/usr/local/lib -I/usr/local/include -lGL -lm -lrt
+FREE_BSD_LIBS := -L/usr/local/lib
+FREE_BSD_INC  := -I/usr/local/include
 
-free_bsd: build_directory glx 
-	${C} ${SRC} ${OBJ} ${INC} ${FREE_BSD_LIBS} ${CFLAGS} ${OUT}
+free_bsd: build_directory free_bsd_glx 
+	${C} ${SRC} ${OBJ} ${INC} ${FREE_BSD_INC} ${FREE_BSD_LIBS} ${LIBS_X11} ${CFLAGS} ${OUT}
 	./build/lite_engine
+
+free_bsd_glx:
+	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC} ${CFLAGS}
+	${C} -c dep/glad/src/glx.c -o build/glx.o ${INC} ${FREE_BSD_INC} ${CFLAGS}
 
 glx:
 	${C} -c dep/glad/src/gl.c  -o build/gl.o  ${INC} ${CFLAGS}

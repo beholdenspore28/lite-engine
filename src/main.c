@@ -131,9 +131,6 @@ int main() {
           lgl_4f_from_euler((lgl_3f_t) { 0, context->time_delta, 0 }));
       objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
 
-      debug_log("TEX OFF x %f", objects[OBJECTS_FLOOR].texture_offset.x);
-      debug_log("TEX OFF Y %f", objects[OBJECTS_FLOOR].texture_offset.y);
-
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
       lights[LIGHTS_POINT_1].position.x = cos(context->time_current);

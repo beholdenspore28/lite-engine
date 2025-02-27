@@ -680,7 +680,7 @@ void lgl__time_update(lgl_context_t *context) {
   context->time_FPS      = 1 / context->time_delta;
   context->frame_current++;
 
-#if 1 // log time
+#if 0 // log time
   debug_log( "\n"
     "time_current:   %lf\n"
     "frame_current:  %llu\n"

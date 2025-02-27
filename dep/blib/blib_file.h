@@ -40,7 +40,7 @@ extern "C" {
 typedef struct {
 	size_t length;
 	char *text;
-	int error : 1;
+	int error;
 } file_buffer;
 
 static inline file_buffer file_buffer_alloc(const char *filename) {
