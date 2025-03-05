@@ -296,8 +296,9 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      const float aspect = 640 / 480;
-      debug_warn("THIS IS BAD! remember to set an actual aspect ratio");
+      int width, height;
+      glfwGetWindowSize(data[i].context->GLFWwindow, &width, &height);
+      const float aspect = width / height;
 
       lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
