@@ -298,7 +298,7 @@ void lgl_draw(
 
       int width, height;
       glfwGetWindowSize(data[i].context->GLFWwindow, &width, &height);
-      const float aspect = width / height;
+      const float aspect = (float)width / height;
 
       lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
@@ -626,8 +626,10 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
 }
 
 void lgl__viewport_size_callback(
-    const unsigned int width,
-    const unsigned int height) {
+    GLFWwindow* window,
+    int         width,
+    int         height) {
+  (void)window;
 
   glViewport(0, 0, width, height);
 
@@ -671,6 +673,9 @@ lgl_context_t *lgl_start(void) {
   }
 
   glfwMakeContextCurrent(context->GLFWwindow);
+
+  glfwSetFramebufferSizeCallback(
+      context->GLFWwindow, lgl__viewport_size_callback);
 
   gladLoadGL(glfwGetProcAddress);
 
