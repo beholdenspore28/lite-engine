@@ -130,7 +130,8 @@ int main() {
       objects[OBJECTS_CUBE].rotation = lgl_4f_multiply(
           objects[OBJECTS_CUBE].rotation,
           lgl_4f_from_euler((lgl_3f_t) { 0, context->time_delta, 0 }));
-      objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
+      // TODO fix texture scrolling
+      //objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
