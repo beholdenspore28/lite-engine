@@ -11,9 +11,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif // ifdef __cplusplus
-
-#include <platform.h>
+ 
 #include "glad/gl.h"
+#include <GLFW/glfw3.h>
 
 #include "stb_image.h"
 #include "blib/blib_log.h"
@@ -59,7 +59,7 @@ typedef struct {
 } lgl_light_t;
 
 typedef struct {
-  x_data_t   x_data;  
+  GLFWwindow* GLFWwindow;
   int        is_running;
   double     time_current;
   long long  frame_current;

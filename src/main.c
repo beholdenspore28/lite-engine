@@ -1,4 +1,3 @@
-#include "platform.h"
 #include "lgl.h"
 
 int main() {
@@ -123,7 +122,7 @@ int main() {
     framebuffer_quad.diffuse_map   =  colorBuffers[0];
   }
 
-  while(context->is_running) {
+  while(!glfwWindowShouldClose(context->GLFWwindow)) {
     { // update
       objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
       objects[OBJECTS_CUBE].rotation = lgl_4f_multiply(

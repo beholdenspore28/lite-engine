@@ -1,3 +1,5 @@
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 #include "lgl.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -294,9 +296,8 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      const float aspect =
-        (float)data[i].context->x_data.window_attributes.width /
-        (float)data[i].context->x_data.window_attributes.height;
+      const float aspect = 640 / 480;
+      debug_warn("THIS IS BAD! remember to set an actual aspect ratio");
 
       lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
@@ -636,19 +637,41 @@ void lgl__viewport_size_callback(
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 }
 
+void lgl__glfw_error_callback(int error, const char* description) {
+  (void)error;
+    fprintf(stderr, "Error: %s\n", description);
+}
+
 lgl_context_t *lgl_start(void) {
   debug_log("Rev up those fryers!");
 
   lgl_context_t *context = malloc(sizeof(*context));
 
-  context->is_running     = 1,
-  context->time_current   = 0,
-  context->frame_current  = 0,
-  context->time_delta     = 0,
-  context->time_last      = 0,
-  context->time_FPS       = 0,
-  context->x_data         = x_start("Game Window", 640, 480),
-  context->x_data.viewport_size_callback = lgl__viewport_size_callback;
+  context->is_running     = 1;
+  context->time_current   = 0;
+  context->frame_current  = 0;
+  context->time_delta     = 0;
+  context->time_last      = 0;
+  context->time_FPS       = 0;
+
+  if (!glfwInit()) {
+    debug_error("Failed to initialize GLFW!");
+  }
+
+  glfwSetErrorCallback(lgl__glfw_error_callback);
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  context->GLFWwindow = glfwCreateWindow(640, 480, "Game Window", NULL, NULL);
+  if (!context->GLFWwindow) {
+    debug_error("Failed to create GLFW window");
+  }
+
+  glfwMakeContextCurrent(context->GLFWwindow);
+
+  gladLoadGL(glfwGetProcAddress);
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -663,6 +686,8 @@ lgl_context_t *lgl_start(void) {
   glStencilFunc (GL_ALWAYS, 1, 0xFF);
 
   debug_log("Startup completed successfuly");
+
+  debug_log("Success!");
 
   return context;
 }
@@ -700,13 +725,13 @@ void lgl_free(lgl_context_t *context) {
 
   context->is_running = 0;
 
-  x_stop   (&context->x_data);
   free     (context);
   debug_log("Shutdown complete");
 }
 
 void lgl_end_frame(lgl_context_t *context) {
-  x_end_frame(&context->x_data);
   lgl__time_update(context);
+  glfwPollEvents();
+  glfwSwapBuffers(context->GLFWwindow);
 }
 
