@@ -95,7 +95,6 @@ enum {
 
 lgl_context_t *lgl_start(void);
 
-void lgl_framebuffer_draw(lgl_render_data_t *frame);
 void lgl_end_frame(lgl_context_t *context);
 void lgl_free(lgl_context_t *context);
 void  lgl_viewport_set(const float width, const float height);

@@ -217,42 +217,6 @@ void lgl_outline(
   }
 }
 
-void lgl_framebuffer_draw(lgl_render_data_t *frame) {
-    glUseProgram(frame->shader);
-
-#if 0 // log render flags
-    debug_log(" ");
-    printf("framebuffer FLAGS { ");
-    for(size_t j = 0; j < sizeof(frame->render_flags)*8; j++) {
-      size_t flag = (frame->render_flags & (1 << j));
-      printf("%u ", flag ? 1 : 0 );
-    }
-    printf("}\n");
-#endif
-
-    { // render flags
-      if ((frame->render_flags & LGL_FLAG_ENABLED) == 0) {
-        return;
-      }
-
-      if (frame->render_flags & LGL_FLAG_USE_WIREFRAME) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      } else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      }
-    }
-
-    { // textures
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, frame->diffuse_map);
-      glUniform1i(glGetUniformLocation(frame->shader, "u_diffuse_map"), 0);
-    }
-
-    glBindVertexArray(frame->VAO);
-    glDrawArrays(GL_TRIANGLES, 0, frame->vertex_count);
-    glUseProgram(0);
-}
-
 void lgl_draw(
     const size_t             data_length,
     const lgl_render_data_t *data) {
@@ -625,19 +589,13 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
   return cube;
 }
 
-void lgl__viewport_size_callback(
+void lgl__framebuffer_size_callback(
     GLFWwindow* window,
     int         width,
     int         height) {
   (void)window;
 
   glViewport(0, 0, width, height);
-
-  glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGB, width, height,
-      0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 }
 
 void lgl__glfw_error_callback(int error, const char* description) {
@@ -675,7 +633,7 @@ lgl_context_t *lgl_start(void) {
   glfwMakeContextCurrent(context->GLFWwindow);
 
   glfwSetFramebufferSizeCallback(
-      context->GLFWwindow, lgl__viewport_size_callback);
+      context->GLFWwindow, lgl__framebuffer_size_callback);
 
   gladLoadGL(glfwGetProcAddress);
 

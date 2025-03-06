@@ -80,7 +80,6 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
-#if 0
   GLuint shader_framebuffer = 0; {
     GLuint vertex_shader = lgl_shader_compile(
         "res/shaders/frame_buffer_texture_vertex.glsl",
@@ -99,8 +98,8 @@ int main() {
   glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
   unsigned int colorBuffers[2];
   glGenTextures(2, colorBuffers);
-  for (unsigned int i = 0; i < 2; i++)
-  {
+
+  for (unsigned int i = 0; i < 2; i++) {
     glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
     glTexImage2D(
         GL_TEXTURE_2D, 0, GL_RGBA16F, 640, 480, 0, GL_RGBA, GL_FLOAT, NULL
@@ -121,8 +120,8 @@ int main() {
   lgl_render_data_t framebuffer_quad = lgl_cube_alloc(context); {
     framebuffer_quad.shader        =  shader_framebuffer;
     framebuffer_quad.diffuse_map   =  colorBuffers[0];
+    //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
-#endif
 
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
     { // update
@@ -139,7 +138,6 @@ int main() {
       lights[LIGHTS_POINT_1].position.z = sin(context->time_current);
     }
 
-#if 0
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
@@ -151,7 +149,6 @@ int main() {
 
       lgl_draw(OBJECTS_COUNT, objects);
     }
-#endif
 
     {
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -161,7 +158,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(OBJECTS_COUNT, objects);
+      lgl_draw(1, &framebuffer_quad);
     }
 
     lgl_end_frame(context);
