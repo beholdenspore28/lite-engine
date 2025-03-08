@@ -261,7 +261,8 @@ void lgl_draw(
       };
 
       int width, height;
-      glfwGetWindowSize(data[i].context->GLFWwindow, &width, &height);
+      glfwGetFramebufferSize(data[i].context->GLFWwindow, &width, &height);
+
       const float aspect = (float)width / height;
 
       lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
