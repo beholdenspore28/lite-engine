@@ -3,6 +3,9 @@
 int main() {
   lgl_context_t *context = lgl_start();
 
+  // ---------------------------------------------------------------
+  // Create shaders
+  
   GLuint shader_phong = 0; {
     GLuint vertex_shader = lgl_shader_compile(
         "res/shaders/phong_vertex.glsl",
@@ -15,19 +18,35 @@ int main() {
     shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
+  GLuint shader_framebuffer = 0; {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
+    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
+  // ---------------------------------------------------------------
+  // Create textures
+
+  GLuint
+    texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
+    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
+    texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
+
+  // ---------------------------------------------------------------
+  // Create lights
+
   enum {
     LIGHTS_POINT_0,
     LIGHTS_POINT_1,
     LIGHTS_COUNT, // this should ALWAYS be at the end of the enum
   };
   lgl_light_t lights [LIGHTS_COUNT] = {0};
-
-  enum {
-    OBJECTS_FLOOR,
-    OBJECTS_CUBE,
-    OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
-  };
-  lgl_render_data_t objects [OBJECTS_COUNT] = {0};
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
     .type           = 0,
@@ -55,10 +74,15 @@ int main() {
     .specular       = lgl_3f_one(0.6),
   };
 
-  GLuint
-    texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
-    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
-    texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
+  // ---------------------------------------------------------------
+  // Create objects
+
+  enum {
+    OBJECTS_FLOOR,
+    OBJECTS_CUBE,
+    OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
+  };
+  lgl_render_data_t objects [OBJECTS_COUNT] = {0};
 
   objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
     objects[OBJECTS_FLOOR].shader        =  shader_phong;
@@ -80,19 +104,9 @@ int main() {
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
-  GLuint shader_framebuffer = 0; {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_vertex.glsl",
-        GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_fragment.glsl",
-        GL_FRAGMENT_SHADER);
-
-    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-
-  // set up floating point framebuffer to render scene to
+  // ---------------------------------------------------------------
+  // Create framebuffer
+  
   unsigned int hdrFBO;
   glGenFramebuffers(1, &hdrFBO);
   glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -123,8 +137,11 @@ int main() {
     //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
+  // ---------------------------------------------------------------
+  // game loop
+  
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
-    { // update
+    { // update state
       objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
       objects[OBJECTS_CUBE].rotation = lgl_4f_multiply(
           objects[OBJECTS_CUBE].rotation,
@@ -150,7 +167,7 @@ int main() {
       lgl_draw(OBJECTS_COUNT, objects);
     }
 
-    {
+    { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(
