@@ -87,6 +87,14 @@ typedef struct {
   GLint          render_flags;
 } lgl_render_data_t;
 
+typedef struct {
+  GLuint            FBO;
+  GLuint            color_buffers[2];
+  lgl_render_data_t quad;
+} lgl_framebuffer_t;
+
+void lgl_framebuffer_alloc(lgl_framebuffer_t* frame, lgl_context_t* context, GLuint shader);
+
 enum {
   LGL_FLAG_ENABLED       = 1,
   LGL_FLAG_USE_STENCIL   = 1 << 1,

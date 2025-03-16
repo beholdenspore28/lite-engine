@@ -599,6 +599,37 @@ void lgl__framebuffer_size_callback(
   glViewport(0, 0, width, height);
 }
 
+void lgl_framebuffer_alloc(lgl_framebuffer_t* frame, lgl_context_t* context, GLuint shader) { 
+  glGenFramebuffers(1, &frame->FBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, frame->FBO);
+  glGenTextures(2, frame->color_buffers);
+
+  for (unsigned int i = 0; i < 2; i++) {
+    glBindTexture(GL_TEXTURE_2D, frame->color_buffers[i]);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGBA16F, 640, 480, 0, GL_RGBA, GL_FLOAT, NULL
+        );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach texture to framebuffer
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, frame->color_buffers[i], 0
+        );
+  }
+
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
+
+  frame->quad = lgl_cube_alloc(context); {
+    frame->quad.shader        =  shader;
+    frame->quad.diffuse_map   =  frame->color_buffers[0];
+    //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  }
+}
+
+
 void lgl__glfw_error_callback(int error, const char* description) {
   (void)error;
     fprintf(stderr, "Error: %s\n", description);
