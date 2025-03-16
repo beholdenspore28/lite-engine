@@ -8,6 +8,18 @@
 
 #include <time.h>
 
+static lgl_framebuffer_t *lgl__active_framebuffer;
+static lgl_context_t     *lgl__active_context;
+
+void lgl_active_framebuffer_set(lgl_framebuffer_t* frame) {
+  lgl__active_framebuffer = frame;
+}
+
+void lgl_active_context_set(lgl_context_t* context) {
+  lgl__active_context = context;
+}
+
+
 static const float
              LGL__LEFT    = -1.0,
              LGL__RIGHT   =  1.0,
@@ -183,7 +195,6 @@ void lgl__buffer_vertex_array (
 }
 
 void lgl_outline(
-    const lgl_context_t *context,
     const size_t         data_length,
     lgl_render_data_t   *data,
     const GLuint         outline_shader,
@@ -211,7 +222,7 @@ void lgl_outline(
     data[i].scale.y *= (1+thickness);
     data[i].scale.z *= (1+thickness);
 
-    lgl_draw(context, 1, &data[i]);
+    lgl_draw(1, &data[i]);
 
     data[i].scale  = scale_tmp;
     data[i].shader = shader_tmp;
@@ -219,7 +230,6 @@ void lgl_outline(
 }
 
 void lgl_draw(
-    const lgl_context_t     *context,
     const size_t             data_length,
     const lgl_render_data_t *data) {
   for(size_t i = 0; i < data_length; i++) {
@@ -263,7 +273,7 @@ void lgl_draw(
       };
 
       int width, height;
-      glfwGetFramebufferSize(context->GLFWwindow, &width, &height);
+      glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
 
       const float aspect = (float)width / height;
 
@@ -588,47 +598,105 @@ lgl_render_data_t lgl_cube_alloc() {
   return cube;
 }
 
-void lgl__framebuffer_size_callback(
-    GLFWwindow* window,
-    int         width,
-    int         height) {
-  (void)window;
-
-  glViewport(0, 0, width, height);
-}
-
 void lgl_framebuffer_alloc(
     lgl_framebuffer_t *frame,
-    lgl_context_t     *context,
     GLuint             shader) { 
 
   glGenFramebuffers(1, &frame->FBO);
+
   glBindFramebuffer(GL_FRAMEBUFFER, frame->FBO);
+
   glGenTextures(2, frame->color_buffers);
 
   for (unsigned int i = 0; i < 2; i++) {
     glBindTexture(GL_TEXTURE_2D, frame->color_buffers[i]);
-    glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA16F, 640, 480, 0, GL_RGBA, GL_FLOAT, NULL
-        );
+
+    {
+      int width, height;
+      glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+          0, GL_RGBA, GL_FLOAT, NULL);
+
+      debug_log("framebuffer size is %dx%d", width, height);
+    }
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // attach texture to framebuffer
     glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, frame->color_buffers[i], 0
-        );
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+        GL_TEXTURE_2D, frame->color_buffers[i], 0);
   }
 
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  frame->quad = lgl_cube_alloc(context); {
+  frame->quad = lgl_cube_alloc(); {
     frame->quad.shader        =  shader;
     frame->quad.diffuse_map   =  frame->color_buffers[0];
     //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
+}
+
+static void lgl__framebuffer_resize(const int width, const int height) { 
+
+  if (lgl__active_framebuffer == NULL) {
+    debug_error("active framebuffer was NULL on resize.");
+    exit(0);
+  }
+
+  if (lgl__active_framebuffer->FBO == 0) {
+    debug_error("cannot resize the default framebuffer.");
+    exit(0);
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
+
+  glDeleteTextures(2, lgl__active_framebuffer->color_buffers);
+
+  glGenTextures(2, lgl__active_framebuffer->color_buffers);
+  for (unsigned int i = 0; i < 2; i++) {
+    glBindTexture(GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+        0, GL_RGBA, GL_FLOAT, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach texture to framebuffer
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+        GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
+  }
+
+  lgl__active_framebuffer->quad = lgl_cube_alloc(); {
+    lgl__active_framebuffer->quad.diffuse_map = lgl__active_framebuffer->color_buffers[0];
+    //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  debug_log("framebuffer resized to %dx%d", width, height);
+}
+
+void lgl__framebuffer_size_callback(
+    GLFWwindow* window,
+    int         width,
+    int         height) {
+  (void)window;
+    debug_log("FBO %d cb0 %d cb1 %d",
+        lgl__active_framebuffer->FBO,
+        lgl__active_framebuffer->color_buffers[0],
+        lgl__active_framebuffer->color_buffers[1]);
+
+  glViewport(0, 0, width, height);
+
+  lgl__framebuffer_resize(width, height);
 }
 
 void lgl__glfw_error_callback(int error, const char* description) {
@@ -636,17 +704,20 @@ void lgl__glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
 }
 
-lgl_context_t *lgl_start(void) {
+lgl_context_t *lgl_start(const int width, const int height) {
   debug_log("Rev up those fryers!");
 
-  lgl_context_t *context = malloc(sizeof(*context));
+  {
+    lgl_context_t *context = malloc(sizeof(*context));
+    lgl_active_context_set(context);
+  }
 
-  context->is_running     = 1;
-  context->time_current   = 0;
-  context->frame_current  = 0;
-  context->time_delta     = 0;
-  context->time_last      = 0;
-  context->time_FPS       = 0;
+  lgl__active_context->is_running     = 1;
+  lgl__active_context->time_current   = 0;
+  lgl__active_context->frame_current  = 0;
+  lgl__active_context->time_delta     = 0;
+  lgl__active_context->time_last      = 0;
+  lgl__active_context->time_FPS       = 0;
 
   if (!glfwInit()) {
     debug_error("Failed to initialize GLFW!");
@@ -658,15 +729,15 @@ lgl_context_t *lgl_start(void) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  context->GLFWwindow = glfwCreateWindow(640, 480, "Game Window", NULL, NULL);
-  if (!context->GLFWwindow) {
+  lgl__active_context->GLFWwindow = glfwCreateWindow(width, height, "Game Window", NULL, NULL);
+  if (!lgl__active_context->GLFWwindow) {
     debug_error("Failed to create GLFW window");
   }
 
-  glfwMakeContextCurrent(context->GLFWwindow);
+  glfwMakeContextCurrent(lgl__active_context->GLFWwindow);
 
   glfwSetFramebufferSizeCallback(
-      context->GLFWwindow, lgl__framebuffer_size_callback);
+      lgl__active_context->GLFWwindow, lgl__framebuffer_size_callback);
 
   gladLoadGL(glfwGetProcAddress);
 
@@ -686,21 +757,21 @@ lgl_context_t *lgl_start(void) {
 
   debug_log("Success!");
 
-  return context;
+  return lgl__active_context;
 }
 
-void lgl__time_update(lgl_context_t *context) {
+void lgl__time_update() {
   struct timespec spec;
   if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
     debug_error("failed to get time spec.");
     exit(0);
   }
 
-  context->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
-  context->time_delta    = context->time_current - context->time_last;
-  context->time_last     = context->time_current;
-  context->time_FPS      = 1 / context->time_delta;
-  context->frame_current++;
+  lgl__active_context->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
+  lgl__active_context->time_delta    = lgl__active_context->time_current - lgl__active_context->time_last;
+  lgl__active_context->time_last     = lgl__active_context->time_current;
+  lgl__active_context->time_FPS      = 1 / lgl__active_context->time_delta;
+  lgl__active_context->frame_current++;
 
 #if 0 // log time
   debug_log( "\n"
@@ -709,11 +780,11 @@ void lgl__time_update(lgl_context_t *context) {
     "time_delta:     %lf\n"
     "time_last:      %lf\n"
     "time_FPS:       %lf",
-    context->time_current,
-    context->frame_current,
-    context->time_delta,
-    context->time_last,
-    context->time_FPS);
+    lgl__active_context->time_current,
+    lgl__active_context->frame_current,
+    lgl__active_context->time_delta,
+    lgl__active_context->time_last,
+    lgl__active_context->time_FPS);
 #endif // log time
 }
 
@@ -727,7 +798,7 @@ void lgl_free(lgl_context_t *context) {
 }
 
 void lgl_end_frame(lgl_context_t *context) {
-  lgl__time_update(context);
+  lgl__time_update();
   glfwPollEvents();
   glfwSwapBuffers(context->GLFWwindow);
 }

@@ -94,11 +94,11 @@ typedef struct {
 
 void lgl_framebuffer_alloc(
     lgl_framebuffer_t *frame,
-    lgl_context_t     *context,
     GLuint             shader);
 
+void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
+
 void lgl_draw(
-    const lgl_context_t     *context,
     const size_t             data_length,
     const lgl_render_data_t *data);
 
@@ -108,14 +108,13 @@ enum {
   LGL_FLAG_USE_WIREFRAME = 1 << 2,
 };
 
-lgl_context_t *lgl_start(void);
+lgl_context_t *lgl_start(const int width, const int height);
 
-void lgl_end_frame(lgl_context_t *context);
-void lgl_free(lgl_context_t *context);
+void lgl_end_frame();
+void lgl_free();
 void  lgl_viewport_set(const float width, const float height);
 
 void lgl_outline(
-    const lgl_context_t *context,
     const size_t         data_length,
     lgl_render_data_t   *data,
     const GLuint         outline_shader,
@@ -124,8 +123,8 @@ void lgl_outline(
 GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t lgl_quad_alloc  (lgl_context_t *context);
-lgl_render_data_t lgl_cube_alloc  (lgl_context_t *context);
+lgl_render_data_t lgl_quad_alloc  ();
+lgl_render_data_t lgl_cube_alloc  ();
 
 void lgl_perspective(
     float *mat,

@@ -1,7 +1,6 @@
 #include "lgl.h"
-
 int main() {
-  lgl_context_t *context = lgl_start();
+  lgl_context_t *context = lgl_start(640, 480);
 
   // ---------------------------------------------------------------
   // Create shaders
@@ -107,7 +106,8 @@ int main() {
   // ---------------------------------------------------------------
   // Create framebuffer
   lgl_framebuffer_t frame;
-  lgl_framebuffer_alloc(&frame, context, shader_framebuffer);
+  lgl_framebuffer_alloc(&frame, shader_framebuffer);
+  lgl_active_framebuffer_set(&frame);
 
   // ---------------------------------------------------------------
   // game loop
@@ -136,7 +136,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(context, OBJECTS_COUNT, objects);
+      lgl_draw(OBJECTS_COUNT, objects);
     }
 
     { // draw the frame to the screen
@@ -147,7 +147,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(context, 1, &frame.quad);
+      lgl_draw(1, &frame.quad);
     }
 
     lgl_end_frame(context);
