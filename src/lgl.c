@@ -183,10 +183,11 @@ void lgl__buffer_vertex_array (
 }
 
 void lgl_outline(
-    const size_t       data_length,
-    lgl_render_data_t *data,
-    const GLuint       outline_shader,
-    const float        thickness){
+    const lgl_context_t *context,
+    const size_t         data_length,
+    lgl_render_data_t   *data,
+    const GLuint         outline_shader,
+    const float          thickness){
   for(size_t i = 0; i < data_length; i++) { 
     if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
       debug_warn(
@@ -210,7 +211,7 @@ void lgl_outline(
     data[i].scale.y *= (1+thickness);
     data[i].scale.z *= (1+thickness);
 
-    lgl_draw(1, &data[i]);
+    lgl_draw(context, 1, &data[i]);
 
     data[i].scale  = scale_tmp;
     data[i].shader = shader_tmp;
@@ -218,6 +219,7 @@ void lgl_outline(
 }
 
 void lgl_draw(
+    const lgl_context_t     *context,
     const size_t             data_length,
     const lgl_render_data_t *data) {
   for(size_t i = 0; i < data_length; i++) {
@@ -261,7 +263,7 @@ void lgl_draw(
       };
 
       int width, height;
-      glfwGetFramebufferSize(data[i].context->GLFWwindow, &width, &height);
+      glfwGetFramebufferSize(context->GLFWwindow, &width, &height);
 
       const float aspect = (float)width / height;
 
@@ -474,7 +476,7 @@ void lgl_draw(
   }
 }
 
-lgl_render_data_t lgl_quad_alloc(lgl_context_t *context) {
+lgl_render_data_t lgl_quad_alloc() {
   lgl_render_data_t quad = {0};
 
   enum { quad_vertices_count = 6 };
@@ -488,8 +490,6 @@ lgl_render_data_t lgl_quad_alloc(lgl_context_t *context) {
     { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
     { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
   };
-
-  quad.context         = context;
 
   quad.vertices        = quad_vertices;
   quad.vertex_count    = quad_vertices_count;
@@ -512,7 +512,7 @@ lgl_render_data_t lgl_quad_alloc(lgl_context_t *context) {
   return quad;
 }
 
-lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
+lgl_render_data_t lgl_cube_alloc() {
   lgl_render_data_t cube = {0};
 
   enum { cube_vertices_count = 36 };
@@ -567,8 +567,6 @@ lgl_render_data_t lgl_cube_alloc(lgl_context_t *context) {
     { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
   };
 
-  cube.context        = context;
-
   cube.vertices       = cube_vertices;
   cube.vertex_count   = cube_vertices_count;
 
@@ -599,7 +597,11 @@ void lgl__framebuffer_size_callback(
   glViewport(0, 0, width, height);
 }
 
-void lgl_framebuffer_alloc(lgl_framebuffer_t* frame, lgl_context_t* context, GLuint shader) { 
+void lgl_framebuffer_alloc(
+    lgl_framebuffer_t *frame,
+    lgl_context_t     *context,
+    GLuint             shader) { 
+
   glGenFramebuffers(1, &frame->FBO);
   glBindFramebuffer(GL_FRAMEBUFFER, frame->FBO);
   glGenTextures(2, frame->color_buffers);
@@ -628,7 +630,6 @@ void lgl_framebuffer_alloc(lgl_framebuffer_t* frame, lgl_context_t* context, GLu
     //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 }
-
 
 void lgl__glfw_error_callback(int error, const char* description) {
   (void)error;

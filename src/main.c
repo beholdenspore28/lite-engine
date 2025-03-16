@@ -136,7 +136,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(OBJECTS_COUNT, objects);
+      lgl_draw(context, OBJECTS_COUNT, objects);
     }
 
     { // draw the frame to the screen
@@ -147,7 +147,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &frame.quad);
+      lgl_draw(context, 1, &frame.quad);
     }
 
     lgl_end_frame(context);

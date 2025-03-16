@@ -69,7 +69,6 @@ typedef struct {
 } lgl_context_t;
 
 typedef struct {
-  lgl_context_t *context;
   GLuint         VAO;
   GLuint         VBO;
   lgl_vertex_t  *vertices;
@@ -93,7 +92,15 @@ typedef struct {
   lgl_render_data_t quad;
 } lgl_framebuffer_t;
 
-void lgl_framebuffer_alloc(lgl_framebuffer_t* frame, lgl_context_t* context, GLuint shader);
+void lgl_framebuffer_alloc(
+    lgl_framebuffer_t *frame,
+    lgl_context_t     *context,
+    GLuint             shader);
+
+void lgl_draw(
+    const lgl_context_t     *context,
+    const size_t             data_length,
+    const lgl_render_data_t *data);
 
 enum {
   LGL_FLAG_ENABLED       = 1,
@@ -108,12 +115,11 @@ void lgl_free(lgl_context_t *context);
 void  lgl_viewport_set(const float width, const float height);
 
 void lgl_outline(
-    const size_t       data_length,
-    lgl_render_data_t *data,
-    const GLuint       outline_shader,
-    const float        thickness);
-
-void lgl_draw(const size_t data_length, const lgl_render_data_t *data);
+    const lgl_context_t *context,
+    const size_t         data_length,
+    lgl_render_data_t   *data,
+    const GLuint         outline_shader,
+    const float          thickness);
 
 GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
