@@ -780,7 +780,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
 
   gladLoadGL(glfwGetProcAddress);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
@@ -793,7 +793,6 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glStencilFunc (GL_ALWAYS, 1, 0xFF);
 
   debug_log("Startup completed successfuly");
-
   debug_log("Success!");
 
   return lgl__active_context;

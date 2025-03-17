@@ -159,8 +159,8 @@ int main() {
   // Create objects
 
   enum {
-    OBJECTS_CUBE,
     OBJECTS_FLOOR,
+    OBJECTS_CUBE,
     OBJECTS_ASTEROID,
     OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
   };
@@ -213,9 +213,8 @@ int main() {
     { // update state
       context->camera.position.z = cos(context->time_current) - 2;
       context->camera.position.x = sin(context->time_current);
-      context->camera.rotation = quaternion_multiply(context->camera.rotation,
-          quaternion_from_euler(vector3_up(context->time_delta)));
-
+      //context->camera.rotation = quaternion_multiply(context->camera.rotation,
+          //quaternion_from_euler(vector3_up(context->time_delta)));
 
       objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
       objects[OBJECTS_CUBE].rotation = quaternion_multiply(
@@ -234,7 +233,6 @@ int main() {
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
 
-      glClearColor(0.3,0.3,0.3,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
@@ -242,14 +240,14 @@ int main() {
 
       lgl_draw(OBJECTS_COUNT, objects);
 
-      objects[OBJECTS_CUBE].scale = vector3_one(0.01);
-      //objects[OBJECTS_CUBE].render_flags |= LGL_FLAG_USE_WIREFRAME;
+      //objects[OBJECTS_CUBE].scale = vector3_one(0.01);
+      ////objects[OBJECTS_CUBE].render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-      for(size_t i = 0; i < objects[OBJECTS_ASTEROID].vertex_count; i++) {
-        objects[OBJECTS_CUBE].position = 
-          vector3_scale(objects[OBJECTS_ASTEROID].vertices[i].position, 0.1);
-        lgl_draw(1, &objects[OBJECTS_CUBE]);
-      }
+      //for(size_t i = 0; i < objects[OBJECTS_ASTEROID].vertex_count; i++) {
+      //  objects[OBJECTS_CUBE].position = 
+      //    vector3_scale(objects[OBJECTS_ASTEROID].vertices[i].position, 0.1);
+      //  lgl_draw(1, &objects[OBJECTS_CUBE]);
+      //}
       objects[OBJECTS_CUBE].scale = vector3_one(1.0);
     }
 
