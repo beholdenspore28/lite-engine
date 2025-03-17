@@ -19,6 +19,8 @@ void lgl_active_context_set(lgl_context_t* context) {
   lgl__active_context = context;
 }
 
+DEFINE_LIST(lgl_vertex_t)
+DEFINE_LIST(GLuint)
 
 static const float
              LGL__LEFT    = -1.0,

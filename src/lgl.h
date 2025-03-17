@@ -22,11 +22,14 @@ extern "C" {
 #include <stdio.h>
 #include <math.h>
 
+DECLARE_LIST(GLuint)
+
 typedef struct {
   vector3_t       position;
   vector3_t       normal;
   vector2_t       texture_coordinates;
 } lgl_vertex_t;
+DECLARE_LIST(lgl_vertex_t)
 
 typedef struct {
   int            type;

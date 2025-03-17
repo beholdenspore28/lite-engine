@@ -2,79 +2,6 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
-#if 0
-lgl_render_data_t asteroid_mesh_alloc(void) {
-
-	const float   radius     = 10.0;
-	const float   resolution = 20.0;
-
-	int index = 0;
-	for(int face = 0; face < 6; face++) {
-		const int offset = resolution * resolution * face;
-		for(float x = 0; x < resolution; x++) {
-			for(float y = 0; y < resolution; y++) {
-
-				vector3_t position = (vector3_t) { 
-					.x = map(x, 0, resolution -1, -0.5, 0.5), 
-					.y = map(y, 0, resolution -1, -0.5, 0.5), 
-					.z = 0.5,
-				};
-				position = vector3_normalize((vector3_t)position);
-
-				// 0 is front
-				const vector3_t temp = position;
-				switch (face) {
-					case 0: { // 0 is front
-						// do nothing.
-						position.x = -temp.x;
-					} break;
-					case 1: { // 1 is rear
-						position.z = -position.z;
-					}break;
-					case 2: { // 2 is left
-						position.z = temp.x;
-						position.x = temp.z;
-					} break;	
-					case 3: { // 3 is right
-						position.z = -temp.x;
-						position.x = -temp.z;
-					} break;
-					case 4: { // 4 is bottom
-						position.y = -temp.z;
-						position.z = -temp.y;
-					} break;
-					case 5: { // 5 is top
-						position.y = temp.z;
-						position.z = temp.y;
-					} break;
-					default: {
-						fprintf(stderr, "rock generator encountered invalid face index");
-					} break;
-				}
-
-				const float amplitude = 5.0;
-				const float frequency = 1;
-				const float noise = radius + (noise3_fbm(
-							position.x * frequency,
-							position.y * frequency,
-							position.z * frequency) * amplitude);
-
-				vertex_t v = (vertex_t) {
-					.position = vector3_scale(position, noise),
-					.normal = position,
-					.texCoord = vector3_zero(),
-				};
-
-				list_vertex_t_add(&vertices, v);
-			}
-		}
-	}
-
-	lgl_render_data_t mesh = mesh_alloc(vertices, indices);
-	return mesh;
-}
-#endif
-
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
 
@@ -170,7 +97,7 @@ int main() {
     objects[OBJECTS_FLOOR].lights        =  lights;
   }
 
-  objects[OBJECTS_CUBE] = lgl_cube_alloc(context); {
+  objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
     objects[OBJECTS_CUBE].shader         =  shader_phong;
     objects[OBJECTS_CUBE].diffuse_map    =  texture_cube;
     objects[OBJECTS_CUBE].position.z     =  1;
