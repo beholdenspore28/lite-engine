@@ -618,7 +618,7 @@ void lgl_framebuffer_alloc(
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
           0, GL_RGBA, GL_FLOAT, NULL);
 
-      debug_log("framebuffer size is %dx%d", width, height);
+      debug_log("color_buffer %d size is %dx%d", i, width, height);
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -637,21 +637,13 @@ void lgl_framebuffer_alloc(
   frame->quad = lgl_cube_alloc(); {
     frame->quad.shader        =  shader;
     frame->quad.diffuse_map   =  frame->color_buffers[0];
-    //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
+    //frame->quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 static void lgl__framebuffer_resize(const int width, const int height) { 
-
-  if (lgl__active_framebuffer == NULL) {
-    debug_error("active framebuffer was NULL on resize.");
-    exit(0);
-  }
-
-  if (lgl__active_framebuffer->FBO == 0) {
-    debug_error("cannot resize the default framebuffer.");
-    exit(0);
-  }
 
   glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
 
@@ -664,6 +656,8 @@ static void lgl__framebuffer_resize(const int width, const int height) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
         0, GL_RGBA, GL_FLOAT, NULL);
 
+    debug_log("color_buffer %d size is %dx%d", i, width, height);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -674,14 +668,12 @@ static void lgl__framebuffer_resize(const int width, const int height) {
         GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
   }
 
-  lgl__active_framebuffer->quad = lgl_cube_alloc(); {
-    lgl__active_framebuffer->quad.diffuse_map = lgl__active_framebuffer->color_buffers[0];
-    //framebuffer_quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
-  }
+  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
+
+  lgl__active_framebuffer->quad.diffuse_map   =  lgl__active_framebuffer->color_buffers[0];
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  debug_log("framebuffer resized to %dx%d", width, height);
 }
 
 void lgl__framebuffer_size_callback(
