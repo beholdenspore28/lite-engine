@@ -217,7 +217,7 @@ void lgl_outline(
     glUniform4f(glGetUniformLocation(outline_shader, "u_color"),
         0.0, 1.0, 0.5, 1.0);
 
-    lgl_3f_t scale_tmp = data[i].scale;
+    vector3_t scale_tmp = data[i].scale;
     data[i].scale.x *= (1+thickness);
     data[i].scale.y *= (1+thickness);
     data[i].scale.z *= (1+thickness);
@@ -294,7 +294,7 @@ void lgl_draw(
       };
 
       GLfloat rotation[16] = {0};
-      lgl_4f_to_mat4(data[i].rotation, rotation);
+      quaternion_to_mat4(data[i].rotation, rotation);
 
       GLfloat model[16] = {
         1.0,  0.0,  0.0,  0.0,
@@ -492,24 +492,24 @@ lgl_render_data_t lgl_quad_alloc() {
   enum { quad_vertices_count = 6 };
   lgl_vertex_t quad_vertices[quad_vertices_count] = { 
     //position                        //normal          //tex coord
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, 0.0 }, vector3_forward(1.0), { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
 
-    { { LGL__LEFT,  LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__UP,   0.0 }, vector3_forward(1.0), { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
   };
 
   quad.vertices        = quad_vertices;
   quad.vertex_count    = quad_vertices_count;
 
-  quad.scale           = lgl_3f_one(1.0);
-  quad.position        = lgl_3f_zero();
-  quad.rotation        = lgl_4f_zero();
+  quad.scale           = vector3_one(1.0);
+  quad.position        = vector3_zero();
+  quad.rotation        = quaternion_identity();
 
-  quad.texture_offset  = lgl_2f_zero();
-  quad.texture_scale   = lgl_2f_one(1.0);
+  quad.texture_offset  = vector2_zero();
+  quad.texture_scale   = vector2_one(1.0);
 
   quad.render_flags    = LGL_FLAG_ENABLED;
 
@@ -528,64 +528,64 @@ lgl_render_data_t lgl_cube_alloc() {
   enum { cube_vertices_count = 36 };
   lgl_vertex_t cube_vertices[cube_vertices_count] = { 
     //position                                 //normal             //tex coord
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
 
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_back(1.0),    { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
 
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
 
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_forward(1.0), { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
 
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_left(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_left(1.0),    { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
 
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_left(1.0),    { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_left(1.0),    { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_left(1.0),    { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_left(1.0),    { 0.0, 0.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
 
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_right(1.0),   { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_right(1.0),   { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_right(1.0),   { 1.0, 1.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
 
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_right(1.0),   { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_right(1.0),   { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_right(1.0),   { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_right(1.0),   { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
 
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 1.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
 
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, lgl_3f_down(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, lgl_3f_down(1.0),    { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
+    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 0.0, 0.0 } },
+    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
 
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 1.0, 1.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
 
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, lgl_3f_up(1.0),      { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, lgl_3f_up(1.0),      { 0.0, 1.0 } },
+    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 0.0, 0.0 } },
+    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
   };
 
   cube.vertices       = cube_vertices;
   cube.vertex_count   = cube_vertices_count;
 
-  cube.scale          = lgl_3f_one(0.5);
-  cube.position       = lgl_3f_zero();
-  cube.rotation       = lgl_4f_zero();
+  cube.scale          = vector3_one(0.5);
+  cube.position       = vector3_zero();
+  cube.rotation       = quaternion_identity();
 
-  cube.texture_offset = lgl_2f_zero();
-  cube.texture_scale  = lgl_2f_one(1.0);
+  cube.texture_offset = vector2_zero();
+  cube.texture_scale  = vector2_one(1.0);
 
   cube.render_flags   = LGL_FLAG_ENABLED;
 
