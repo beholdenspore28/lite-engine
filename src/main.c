@@ -105,7 +105,7 @@ int main() {
         GL_VERTEX_SHADER);
 
     GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_gaussian_fragment.glsl",
+        "res/shaders/frame_buffer_default_fragment.glsl",
         GL_FRAGMENT_SHADER);
 
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
@@ -115,8 +115,8 @@ int main() {
   // Create textures
 
   GLuint
-    //texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
-    //texture_specular = lgl_texture_alloc("res/textures/default_specular.png"),
+    texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
+    texture_specular = lgl_texture_alloc("res/textures/default_specular.png"),
     texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png");
 
   // ---------------------------------------------------------------
@@ -160,21 +160,22 @@ int main() {
 
   enum {
     OBJECTS_CUBE,
+    OBJECTS_FLOOR,
     OBJECTS_ASTEROID,
     OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
   };
   lgl_render_data_t objects [OBJECTS_COUNT] = {0};
 
-  //objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
-  //  objects[OBJECTS_FLOOR].shader        =  shader_phong;
-  //  objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
-  //  objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
-  //  objects[OBJECTS_FLOOR].texture_scale =  vector2_one(10.0);
-  //  objects[OBJECTS_FLOOR].position.y    = -2;
-  //  objects[OBJECTS_FLOOR].scale         =  (vector3_t) {5, 0.5, 5};
-  //  objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
-  //  objects[OBJECTS_FLOOR].lights        =  lights;
-  //}
+  objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
+    objects[OBJECTS_FLOOR].shader        =  shader_phong;
+    objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
+    objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
+    objects[OBJECTS_FLOOR].texture_scale =  vector2_one(10.0);
+    objects[OBJECTS_FLOOR].position.y    = -2;
+    objects[OBJECTS_FLOOR].scale         =  (vector3_t) {5, 0.5, 5};
+    objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
+    objects[OBJECTS_FLOOR].lights        =  lights;
+  }
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
     objects[OBJECTS_CUBE].shader         =  shader_phong;
