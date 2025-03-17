@@ -81,6 +81,47 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 }
 #endif
 
+void objects_animate(
+    const size_t             count,
+          lgl_render_data_t *objects,
+    const lgl_context_t     *context) {
+
+  for(size_t i = 0; i < count; i++) {
+      objects[i].position.y = cos(context->time_current)*0.2 + 0.5;
+      objects[i].rotation = quaternion_multiply(
+          objects[i].rotation,
+          quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
+  }
+}
+
+void camera_update(lgl_context_t *context) {
+
+  { // movement
+    float y = glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
+      glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
+
+    float x = glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
+      glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT);
+
+    float z = glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
+      glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
+
+
+    debug_log("Input (%f, %f)", x, y);
+
+    context->camera.position.x += x * context->time_delta;
+    context->camera.position.y += y * context->time_delta;
+    context->camera.position.z += z * context->time_delta;
+  }
+
+  { // mouse look
+    vector3_t euler = (vector3_t) { 0, context->time_delta * 0.2, 0, };
+
+    quaternion_t rotation = quaternion_from_euler(euler);
+    context->camera.rotation = quaternion_multiply(context->camera.rotation, rotation);
+  }
+}
+
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
 
@@ -158,45 +199,39 @@ int main() {
   // ---------------------------------------------------------------
   // Create objects
 
-  enum {
-    OBJECTS_FLOOR,
-    OBJECTS_CUBE,
-    OBJECTS_ASTEROID,
-    OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
-  };
-  lgl_render_data_t objects [OBJECTS_COUNT] = {0};
-
-  objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
-    objects[OBJECTS_FLOOR].shader        =  shader_phong;
-    objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
-    objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
-    objects[OBJECTS_FLOOR].texture_scale =  vector2_one(10.0);
-    objects[OBJECTS_FLOOR].position.y    = -2;
-    objects[OBJECTS_FLOOR].scale         =  (vector3_t) {5, 0.5, 5};
-    objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
-    objects[OBJECTS_FLOOR].lights        =  lights;
+  lgl_render_data_t floor = lgl_cube_alloc(context); {
+    floor.shader        =  shader_phong;
+    floor.diffuse_map   =  texture_diffuse;
+    floor.specular_map  =  texture_specular;
+    floor.texture_scale =  vector2_one(10.0);
+    floor.position.y    = -2;
+    floor.scale         =  (vector3_t) {5, 0.5, 5};
+    floor.lights_count  =  LIGHTS_COUNT;
+    floor.lights        =  lights;
   }
 
-  objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
-    objects[OBJECTS_CUBE].shader         =  shader_phong;
-    objects[OBJECTS_CUBE].diffuse_map    =  texture_cube;
-    objects[OBJECTS_CUBE].position.z     =  1;
-    objects[OBJECTS_CUBE].lights_count   =  LIGHTS_COUNT;
-    objects[OBJECTS_CUBE].lights         =  lights;
-    objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
+  lgl_render_data_t cube = lgl_cube_alloc(); {
+    cube.shader         = shader_phong;
+    cube.diffuse_map    = texture_cube;
+    cube.position.z     = 1;
+    cube.scale          = vector3_one(0.01);
+    cube.lights_count   = LIGHTS_COUNT;
+    cube.lights         = lights;
+    cube.render_flags  |= LGL_FLAG_USE_STENCIL;
   }
 
-  objects[OBJECTS_ASTEROID] = asteroid_mesh_alloc(); {
-    objects[OBJECTS_ASTEROID].shader         =  shader_phong;
-    objects[OBJECTS_ASTEROID].diffuse_map    =  texture_cube;
-    objects[OBJECTS_ASTEROID].position.z     =  1;
-    objects[OBJECTS_ASTEROID].lights_count   =  LIGHTS_COUNT;
-    objects[OBJECTS_ASTEROID].lights         =  lights;
-    objects[OBJECTS_ASTEROID].render_flags  |=  LGL_FLAG_USE_STENCIL;
+  lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
+    asteroid.shader         =  shader_phong;
+    asteroid.diffuse_map    =  texture_cube;
+    asteroid.position.z     =  1;
+    asteroid.lights_count   =  LIGHTS_COUNT;
+    asteroid.lights         =  lights;
+    asteroid.render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
   // ---------------------------------------------------------------
   // Create framebuffer
+  
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
   lgl_active_framebuffer_set(&frame);
 
@@ -210,19 +245,10 @@ int main() {
   // game loop
   
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
+
     { // update state
-      context->camera.position.z = cos(context->time_current) - 2;
-      context->camera.position.x = sin(context->time_current);
-      //context->camera.rotation = quaternion_multiply(context->camera.rotation,
-          //quaternion_from_euler(vector3_up(context->time_delta)));
-
-      objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
-      objects[OBJECTS_CUBE].rotation = quaternion_multiply(
-          objects[OBJECTS_CUBE].rotation,
-          quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
-
-      // TODO fix texture scrolling
-      //objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
+      camera_update(context);
+      objects_animate(1, &cube, context);
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
@@ -238,17 +264,14 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(OBJECTS_COUNT, objects);
+      lgl_draw(1, &floor);
+      lgl_draw(1, &cube);
 
-      //objects[OBJECTS_CUBE].scale = vector3_one(0.01);
-      ////objects[OBJECTS_CUBE].render_flags |= LGL_FLAG_USE_WIREFRAME;
-
-      //for(size_t i = 0; i < objects[OBJECTS_ASTEROID].vertex_count; i++) {
-      //  objects[OBJECTS_CUBE].position = 
-      //    vector3_scale(objects[OBJECTS_ASTEROID].vertices[i].position, 0.1);
-      //  lgl_draw(1, &objects[OBJECTS_CUBE]);
-      //}
-      objects[OBJECTS_CUBE].scale = vector3_one(1.0);
+      for(size_t i = 0; i < asteroid.vertex_count; i++) {
+        cube.position = 
+          vector3_scale(asteroid.vertices[i].position, 0.1);
+        lgl_draw(1, &cube);
+      }
     }
 
     { // draw the frame to the screen
