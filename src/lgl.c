@@ -620,7 +620,7 @@ void lgl_framebuffer_alloc(
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
           0, GL_RGBA, GL_FLOAT, NULL);
 
-      debug_log("color_buffer %d size is %dx%d", i, width, height);
+      //debug_log("color_buffer %d size is %dx%d", i, width, height);
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -658,7 +658,7 @@ static void lgl__framebuffer_resize(const int width, const int height) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
         0, GL_RGBA, GL_FLOAT, NULL);
 
-    debug_log("color_buffer %d size is %dx%d", i, width, height);
+    //debug_log("color_buffer %d size is %dx%d", i, width, height);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -683,10 +683,11 @@ void lgl__framebuffer_size_callback(
     int         width,
     int         height) {
   (void)window;
-    debug_log("FBO %d cb0 %d cb1 %d",
-        lgl__active_framebuffer->FBO,
-        lgl__active_framebuffer->color_buffers[0],
-        lgl__active_framebuffer->color_buffers[1]);
+
+  //debug_log("FBO %d cb0 %d cb1 %d",
+  //    lgl__active_framebuffer->FBO,
+  //    lgl__active_framebuffer->color_buffers[0],
+  //    lgl__active_framebuffer->color_buffers[1]);
 
   glViewport(0, 0, width, height);
 

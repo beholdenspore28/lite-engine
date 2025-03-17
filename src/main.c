@@ -2,6 +2,85 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
+#if 1
+lgl_render_data_t asteroid_mesh_alloc(void) {
+
+	list_lgl_vertex_t vertices   = list_lgl_vertex_t_alloc();
+
+	const float   radius     = 1.0;
+	const float   resolution = 10.0;
+
+	for(int face = 0; face < 6; face++) {
+		//const int offset = resolution * resolution * face;
+		for(float x = 0; x < resolution; x++) {
+			for(float y = 0; y < resolution; y++) {
+
+				vector3_t position = (vector3_t) { 
+					.x = map(x, 0, resolution -1, -0.5, 0.5), 
+					.y = map(y, 0, resolution -1, -0.5, 0.5), 
+					.z = 0.5,
+				};
+				position = vector3_normalize(position);
+
+				// 0 is front
+				const vector3_t temp = position;
+				switch (face) {
+					case 0: { // 0 is front
+						// do nothing.
+						position.x = -temp.x;
+					} break;
+					case 1: { // 1 is rear
+						position.z = -position.z;
+					}break;
+					case 2: { // 2 is left
+						position.z = temp.x;
+						position.x = temp.z;
+					} break;	
+					case 3: { // 3 is right
+						position.z = -temp.x;
+						position.x = -temp.z;
+					} break;
+					case 4: { // 4 is bottom
+						position.y = -temp.z;
+						position.z = -temp.y;
+					} break;
+					case 5: { // 5 is top
+						position.y = temp.z;
+						position.z = temp.y;
+					} break;
+					default: {
+						fprintf(stderr, "rock generator encountered invalid face index");
+					} break;
+				}
+
+				const float amplitude = 5.0;
+				const float frequency = 1;
+				const float noise = radius + (noise3_fbm(
+							position.x * frequency,
+							position.y * frequency,
+							position.z * frequency) * amplitude);
+
+				lgl_vertex_t v = (lgl_vertex_t) {
+					.position = vector3_scale(position, noise),
+					.normal = position,
+					.texture_coordinates = vector2_zero(),
+				};
+
+        vector3_print(position, "pos");
+
+				list_lgl_vertex_t_add(&vertices, v);
+			}
+		}
+	}
+
+	lgl_render_data_t mesh;
+  mesh.vertices = vertices.array;
+  mesh.vertex_count = vertices.length;
+
+	return mesh;
+}
+#endif
+
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
 
@@ -26,7 +105,7 @@ int main() {
         GL_VERTEX_SHADER);
 
     GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_fragment.glsl",
+        "res/shaders/frame_buffer_gaussian_fragment.glsl",
         GL_FRAGMENT_SHADER);
 
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
