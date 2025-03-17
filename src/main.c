@@ -7,7 +7,7 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 
 	list_lgl_vertex_t vertices   = list_lgl_vertex_t_alloc();
 
-	const float   radius     = 1.0;
+	const float   radius     = 0.1;
 	const float   resolution = 10.0;
 
 	for(int face = 0; face < 6; face++) {
@@ -66,7 +66,7 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 					.texture_coordinates = vector2_zero(),
 				};
 
-        vector3_print(position, "pos");
+        //vector3_print(position, "pos");
 
 				list_lgl_vertex_t_add(&vertices, v);
 			}
@@ -115,9 +115,9 @@ int main() {
   // Create textures
 
   GLuint
-    texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
-    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png"),
-    texture_specular = lgl_texture_alloc("res/textures/default_specular.png");
+    //texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
+    //texture_specular = lgl_texture_alloc("res/textures/default_specular.png"),
+    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png");
 
   // ---------------------------------------------------------------
   // Create lights
@@ -159,22 +159,22 @@ int main() {
   // Create objects
 
   enum {
-    OBJECTS_FLOOR,
     OBJECTS_CUBE,
+    OBJECTS_ASTEROID,
     OBJECTS_COUNT  // this should ALWAYS be at the end of the enum,
   };
   lgl_render_data_t objects [OBJECTS_COUNT] = {0};
 
-  objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
-    objects[OBJECTS_FLOOR].shader        =  shader_phong;
-    objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
-    objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
-    objects[OBJECTS_FLOOR].texture_scale =  vector2_one(10.0);
-    objects[OBJECTS_FLOOR].position.y    = -2;
-    objects[OBJECTS_FLOOR].scale         =  (vector3_t) {5, 0.5, 5};
-    objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
-    objects[OBJECTS_FLOOR].lights        =  lights;
-  }
+  //objects[OBJECTS_FLOOR] = lgl_cube_alloc(context); {
+  //  objects[OBJECTS_FLOOR].shader        =  shader_phong;
+  //  objects[OBJECTS_FLOOR].diffuse_map   =  texture_diffuse;
+  //  objects[OBJECTS_FLOOR].specular_map  =  texture_specular;
+  //  objects[OBJECTS_FLOOR].texture_scale =  vector2_one(10.0);
+  //  objects[OBJECTS_FLOOR].position.y    = -2;
+  //  objects[OBJECTS_FLOOR].scale         =  (vector3_t) {5, 0.5, 5};
+  //  objects[OBJECTS_FLOOR].lights_count  =  LIGHTS_COUNT;
+  //  objects[OBJECTS_FLOOR].lights        =  lights;
+  //}
 
   objects[OBJECTS_CUBE] = lgl_cube_alloc(); {
     objects[OBJECTS_CUBE].shader         =  shader_phong;
@@ -183,6 +183,15 @@ int main() {
     objects[OBJECTS_CUBE].lights_count   =  LIGHTS_COUNT;
     objects[OBJECTS_CUBE].lights         =  lights;
     objects[OBJECTS_CUBE].render_flags  |=  LGL_FLAG_USE_STENCIL;
+  }
+
+  objects[OBJECTS_ASTEROID] = asteroid_mesh_alloc(); {
+    objects[OBJECTS_ASTEROID].shader         =  shader_phong;
+    objects[OBJECTS_ASTEROID].diffuse_map    =  texture_cube;
+    objects[OBJECTS_ASTEROID].position.z     =  1;
+    objects[OBJECTS_ASTEROID].lights_count   =  LIGHTS_COUNT;
+    objects[OBJECTS_ASTEROID].lights         =  lights;
+    objects[OBJECTS_ASTEROID].render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
   // ---------------------------------------------------------------
@@ -196,9 +205,9 @@ int main() {
   
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
     { // update state
-      objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
-      objects[OBJECTS_CUBE].rotation = quaternion_multiply(
-          objects[OBJECTS_CUBE].rotation,
+      //objects[OBJECTS_ASTEROID].position.y = cos(context->time_current)*0.2 + 0.5;
+      objects[OBJECTS_ASTEROID].rotation = quaternion_multiply(
+          objects[OBJECTS_ASTEROID].rotation,
           quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
       // TODO fix texture scrolling
       //objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
@@ -212,13 +221,22 @@ int main() {
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
 
-      glClearColor(0.5,0,0.5,1);
+      glClearColor(0.3,0.3,0.3,1);
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(OBJECTS_COUNT, objects);
+
+      objects[OBJECTS_CUBE].scale = vector3_one(0.01);
+      //objects[OBJECTS_CUBE].render_flags |= LGL_FLAG_USE_WIREFRAME;
+
+      for(size_t i = 0; i < objects[OBJECTS_ASTEROID].vertex_count; i++) {
+        objects[OBJECTS_CUBE].position = 
+          vector3_scale(objects[OBJECTS_ASTEROID].vertices[i].position, 0.1);
+        lgl_draw(1, &objects[OBJECTS_CUBE]);
+      }
     }
 
     { // draw the frame to the screen

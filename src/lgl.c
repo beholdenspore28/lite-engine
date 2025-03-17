@@ -305,8 +305,8 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      lgl__mat4_multiply(model, rotation, translation);
-      lgl__mat4_multiply(model, model, scale);
+      lgl__mat4_multiply(model, scale, rotation);
+      lgl__mat4_multiply(model, model, translation);
 
       GLfloat mvp[16] = {
         1.0,  0.0,  0.0,  0.0,
