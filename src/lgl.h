@@ -78,9 +78,7 @@ typedef struct {
   lgl_render_data_t quad;
 } lgl_framebuffer_t;
 
-void lgl_framebuffer_alloc(
-    lgl_framebuffer_t *frame,
-    GLuint             shader);
+lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 

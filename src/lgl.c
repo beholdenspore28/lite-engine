@@ -363,6 +363,7 @@ void lgl_draw(
         glUniform1i(glGetUniformLocation(data[i].shader, uniform_name),
             data[i].lights[light].type);
       }
+
       {
         char uniform_name[64] = {0};
 
@@ -600,18 +601,18 @@ lgl_render_data_t lgl_cube_alloc() {
   return cube;
 }
 
-void lgl_framebuffer_alloc(
-    lgl_framebuffer_t *frame,
-    GLuint             shader) { 
+lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) { 
 
-  glGenFramebuffers(1, &frame->FBO);
+  lgl_framebuffer_t frame;
 
-  glBindFramebuffer(GL_FRAMEBUFFER, frame->FBO);
+  glGenFramebuffers(1, &frame.FBO);
 
-  glGenTextures(2, frame->color_buffers);
+  glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
+
+  glGenTextures(2, frame.color_buffers);
 
   for (unsigned int i = 0; i < 2; i++) {
-    glBindTexture(GL_TEXTURE_2D, frame->color_buffers[i]);
+    glBindTexture(GL_TEXTURE_2D, frame.color_buffers[i]);
 
     {
       int width, height;
@@ -630,19 +631,21 @@ void lgl_framebuffer_alloc(
     // attach texture to framebuffer
     glFramebufferTexture2D(
         GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-        GL_TEXTURE_2D, frame->color_buffers[i], 0);
+        GL_TEXTURE_2D, frame.color_buffers[i], 0);
   }
 
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  frame->quad = lgl_cube_alloc(); {
-    frame->quad.shader        =  shader;
-    frame->quad.diffuse_map   =  frame->color_buffers[0];
-    //frame->quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  frame.quad = lgl_cube_alloc(); {
+    frame.quad.shader        =  shader;
+    frame.quad.diffuse_map   =  frame.color_buffers[0];
+    //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  return frame;
 }
 
 static void lgl__framebuffer_resize(const int width, const int height) { 
