@@ -687,10 +687,12 @@ void lgl__framebuffer_size_callback(
     int         height) {
   (void)window;
 
-  //debug_log("FBO %d cb0 %d cb1 %d",
-  //    lgl__active_framebuffer->FBO,
-  //    lgl__active_framebuffer->color_buffers[0],
-  //    lgl__active_framebuffer->color_buffers[1]);
+#if 0
+  debug_log("FBO %d cb0 %d cb1 %d",
+      lgl__active_framebuffer->FBO,
+      lgl__active_framebuffer->color_buffers[0],
+      lgl__active_framebuffer->color_buffers[1]);
+#endif
 
   glViewport(0, 0, width, height);
 

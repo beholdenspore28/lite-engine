@@ -119,31 +119,6 @@ void lgl_perspective(
 
 GLuint lgl_texture_alloc(const char *imageFile);
 
-//static inline vector2_t vector2_zero   (void)    { return (vector2_t) {  0.0f,  0.0f}; }
-//static inline vector2_t vector2_one    (float s) { return (vector2_t) {  s,     s   }; }
-//static inline vector2_t vector2_up     (float s) { return (vector2_t) {  0.0f,  s   }; }
-//static inline vector2_t vector2_down   (float s) { return (vector2_t) {  0.0f, -s   }; }
-//static inline vector2_t vector2_right  (float s) { return (vector2_t) {  s,     0.0f}; }
-//static inline vector2_t vector2_left   (float s) { return (vector2_t) { -s,     0.0f}; }
-//
-//static inline vector3_t vector3_zero   (void)    { return (vector3_t) {  0.0f,  0.0f, 0.0f  }; }
-//static inline vector3_t vector3_one    (float s) { return (vector3_t) {  s,     s,     s    }; }
-//static inline vector3_t vector3_up     (float s) { return (vector3_t) {  0.0f,  s,     0.0f }; }
-//static inline vector3_t vector3_down   (float s) { return (vector3_t) {  0.0f, -s,     0.0f }; }
-//static inline vector3_t vector3_right  (float s) { return (vector3_t) {  s,     0.0f,  0.0f }; }
-//static inline vector3_t vector3_left   (float s) { return (vector3_t) { -s,     0.0f,  0.0f }; }
-//static inline vector3_t vector3_forward(float s) { return (vector3_t) {  0.0f,  0.0f,  s    }; }
-//static inline vector3_t vector3_back   (float s) { return (vector3_t) {  0.0f,  0.0f, -s    }; }
-//
-//static inline vector4_t vector4_zero   (void)    { return (vector4_t){  0.0f,  0.0f,  0.0f, 1.0f }; }
-//static inline vector4_t vector4_one    (float s) { return (vector4_t){  s,     s,     s,    1.0f }; }
-//static inline vector4_t vector4_up     (float s) { return (vector4_t){  0.0f,  s,     0.0f, 1.0f }; }
-//static inline vector4_t vector4_down   (float s) { return (vector4_t){  0.0f, -s,     0.0f, 1.0f }; }
-//static inline vector4_t vector4_right  (float s) { return (vector4_t){  s,     0.0f,  0.0f, 1.0f }; }
-//static inline vector4_t vector4_left   (float s) { return (vector4_t){ -s,     0.0f,  0.0f, 1.0f }; }
-//static inline vector4_t vector4_forward(float s) { return (vector4_t){  0.0f,  0.0f,  s,    1.0f }; }
-//static inline vector4_t vector4_back   (float s) { return (vector4_t){  0.0f,  0.0f, -s,    1.0f }; }
-
 #ifdef __cplusplus
 }
 #endif // ifdef __cplusplus
