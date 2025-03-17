@@ -266,7 +266,10 @@ void lgl_draw(
       }
     }
 
-    { // MVP
+    { // MATRIX CALC
+
+      //-----------------------------------------------------------------------
+      // PROJECTION
       GLfloat projection[16] = {
         1.0,  0.0,  0.0,  0.0,
         0.0,  1.0,  0.0,  0.0,
@@ -281,23 +284,36 @@ void lgl_draw(
 
       lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
 
-      GLfloat scale[16] = {
-        data[i].scale.x,    0.0,                0.0,                0.0,
-        0.0,                data[i].scale.y,    0.0,                0.0,
-        0.0,                0.0,                data[i].scale.z,    0.0,
-        0.0,                0.0,                0.0,                1.0,
+      //-----------------------------------------------------------------------
+      // View
+
+      GLfloat view[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
       };
 
-      GLfloat translation[16] = {
-        1.0,                0.0,                0.0,                0.0,
-        0.0,                1.0,                0.0,                0.0,
-        0.0,                0.0,                1.0,                0.0,
-        data[i].position.x, data[i].position.y, data[i].position.z, 1.0,
-      };
+      {
+        GLfloat translation[16] = {
+          1.0,                0.0,                0.0,                0.0,
+          0.0,                1.0,                0.0,                0.0,
+          0.0,                0.0,                1.0,                0.0,
+          -lgl__active_context->camera.position.x,
+          -lgl__active_context->camera.position.y,
+          -lgl__active_context->camera.position.z, 1.0,
+        };
 
-      GLfloat rotation[16] = {0};
-      quaternion_to_mat4(data[i].rotation, rotation);
+        GLfloat rotation[16] = {0};
+        quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
 
+        lgl__mat4_multiply(view, translation, rotation);
+      }
+
+
+      //-----------------------------------------------------------------------
+      // Model
+      
       GLfloat model[16] = {
         1.0,  0.0,  0.0,  0.0,
         0.0,  1.0,  0.0,  0.0,
@@ -305,8 +321,30 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      lgl__mat4_multiply(model, scale, rotation);
-      lgl__mat4_multiply(model, model, translation);
+      {
+        GLfloat scale[16] = {
+          data[i].scale.x,    0.0,                0.0,                0.0,
+          0.0,                data[i].scale.y,    0.0,                0.0,
+          0.0,                0.0,                data[i].scale.z,    0.0,
+          0.0,                0.0,                0.0,                1.0,
+        };
+
+        GLfloat translation[16] = {
+          1.0,                0.0,                0.0,                0.0,
+          0.0,                1.0,                0.0,                0.0,
+          0.0,                0.0,                1.0,                0.0,
+          data[i].position.x, data[i].position.y, data[i].position.z, 1.0,
+        };
+
+        GLfloat rotation[16] = {0};
+        quaternion_to_mat4(data[i].rotation, rotation);
+
+        lgl__mat4_multiply(model, scale, rotation);
+        lgl__mat4_multiply(model, model, translation);
+      }
+
+      //-----------------------------------------------------------------------
+      // MVP
 
       GLfloat mvp[16] = {
         1.0,  0.0,  0.0,  0.0,
@@ -315,7 +353,8 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      lgl__mat4_multiply(mvp, model, projection);
+      lgl__mat4_multiply(mvp, model, view);
+      lgl__mat4_multiply(mvp, mvp,   projection);
 
       GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);

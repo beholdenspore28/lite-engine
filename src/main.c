@@ -201,14 +201,27 @@ int main() {
   lgl_active_framebuffer_set(&frame);
 
   // ---------------------------------------------------------------
+  // Create camera
+
+  context->camera.rotation = quaternion_identity();
+  context->camera.position = vector3_zero();
+
+  // ---------------------------------------------------------------
   // game loop
   
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
     { // update state
-      //objects[OBJECTS_ASTEROID].position.y = cos(context->time_current)*0.2 + 0.5;
-      objects[OBJECTS_ASTEROID].rotation = quaternion_multiply(
-          objects[OBJECTS_ASTEROID].rotation,
+      context->camera.position.z = cos(context->time_current) - 2;
+      context->camera.position.x = sin(context->time_current);
+      context->camera.rotation = quaternion_multiply(context->camera.rotation,
+          quaternion_from_euler(vector3_up(context->time_delta)));
+
+
+      objects[OBJECTS_CUBE].position.y = cos(context->time_current)*0.2 + 0.5;
+      objects[OBJECTS_CUBE].rotation = quaternion_multiply(
+          objects[OBJECTS_CUBE].rotation,
           quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
+
       // TODO fix texture scrolling
       //objects[OBJECTS_FLOOR].texture_offset.y += context->time_delta;
 
@@ -237,6 +250,7 @@ int main() {
           vector3_scale(objects[OBJECTS_ASTEROID].vertices[i].position, 0.1);
         lgl_draw(1, &objects[OBJECTS_CUBE]);
       }
+      objects[OBJECTS_CUBE].scale = vector3_one(1.0);
     }
 
     { // draw the frame to the screen

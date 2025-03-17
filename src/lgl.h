@@ -45,13 +45,19 @@ typedef struct {
 } lgl_light_t;
 
 typedef struct {
-  GLFWwindow* GLFWwindow;
-  int        is_running;
-  double     time_current;
-  long long  frame_current;
-  double     time_delta;
-  double     time_last;
-  double     time_FPS;
+  vector3_t      position;
+  quaternion_t   rotation;
+} lgl_camera_t;
+
+typedef struct {
+  GLFWwindow    *GLFWwindow;
+  lgl_camera_t   camera;
+  int            is_running;
+  double         time_current;
+  long long      frame_current;
+  double         time_delta;
+  double         time_last;
+  double         time_FPS;
 } lgl_context_t;
 
 typedef struct {
