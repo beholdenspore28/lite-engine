@@ -15,7 +15,7 @@ CFLAGS		      := -Wall           \
 								   -std=c99        \
 								   ${CFLAGS_DEBUG} \
 
-LIBS := -lglfw3
+LIBS := -lglfw -lm
 
 build: build_directory glad
 	${C} ${SRC} ${OBJ} ${INC} ${LIBS} ${CFLAGS} ${OUT}
