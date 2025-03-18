@@ -88,16 +88,15 @@ void objects_animate(
 
   for(size_t i = 0; i < count; i++) {
       objects[i].position.y = cos(context->time_current)*0.2 + 0.5;
-      objects[i].rotation = quaternion_multiply(
-          objects[i].rotation,
-          quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
+      objects[i].position = context->camera.position;
+      //objects[i].rotation = quaternion_multiply(
+      //    objects[i].rotation,
+      //    quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
   }
 }
 
 void camera_update(lgl_context_t *context) {
-
   { // movement
-
     vector3_t movement = vector3_zero(); {
       // SPACE SHIFT
       movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
@@ -118,7 +117,7 @@ void camera_update(lgl_context_t *context) {
         glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
     }
 
-    vector3_print(movement, "movement");
+    //vector3_print(movement, "movement");
 
     movement = vector3_normalize(movement);
     movement = vector3_scale(movement, context->time_delta);
@@ -248,7 +247,7 @@ int main() {
     cube.shader         = shader_phong;
     cube.diffuse_map    = texture_cube;
     cube.position.z     = 1;
-    cube.scale          = vector3_one(0.01);
+    cube.scale          = vector3_one(0.1);
     cube.lights_count   = LIGHTS_COUNT;
     cube.lights         = lights;
     cube.render_flags  |= LGL_FLAG_USE_STENCIL;
@@ -298,8 +297,8 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &floor);
       lgl_draw(1, &cube);
+      lgl_draw(1, &floor);
 
       for(size_t i = 0; i < asteroid.vertex_count; i++) {
         cube.position = 

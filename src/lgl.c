@@ -6,8 +6,6 @@
 #include "stb_image.h"
 #include "blib/blib_file.h"
 
-#include <time.h>
-
 static lgl_framebuffer_t *lgl__active_framebuffer;
 static lgl_context_t     *lgl__active_context;
 
@@ -282,7 +280,7 @@ void lgl_draw(
 
       const float aspect = (float)width / height;
 
-      lgl_perspective(projection, 80 * (3.14159/180.0), aspect, 0.001, 1000);
+      lgl_perspective(projection, 70 * (3.14159/180.0), aspect, 0.001, 1000);
 
       //-----------------------------------------------------------------------
       // View
@@ -296,9 +294,9 @@ void lgl_draw(
 
       {
         GLfloat translation[16] = {
-          1.0,                0.0,                0.0,                0.0,
-          0.0,                1.0,                0.0,                0.0,
-          0.0,                0.0,                1.0,                0.0,
+          1.0, 0.0, 0.0, 0.0,
+          0.0, 1.0, 0.0, 0.0,
+          0.0, 0.0, 1.0, 0.0,
           -lgl__active_context->camera.position.x,
           -lgl__active_context->camera.position.y,
           -lgl__active_context->camera.position.z, 1.0,
@@ -306,7 +304,6 @@ void lgl_draw(
 
         GLfloat rotation[16] = {0};
         quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
-
         lgl__mat4_multiply(view, translation, rotation);
       }
 
@@ -799,13 +796,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
 }
 
 void lgl__time_update() {
-  struct timespec spec;
-  if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) {
-    debug_error("failed to get time spec.");
-    exit(0);
-  }
-
-  lgl__active_context->time_current  = spec.tv_sec + spec.tv_nsec * 1e-9;
+  lgl__active_context->time_current  = glfwGetTime();
   lgl__active_context->time_delta    = lgl__active_context->time_current - lgl__active_context->time_last;
   lgl__active_context->time_last     = lgl__active_context->time_current;
   lgl__active_context->time_FPS      = 1 / lgl__active_context->time_delta;

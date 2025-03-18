@@ -12,19 +12,13 @@ CFLAGS		      ?= -Wall        \
 								-Wextra         \
 								-Wpedantic      \
 								-Werror         \
-								-std=gnu99      \
+								-std=c99        \
 								${CFLAGS_DEBUG} \
 
-VALGRIND		    := valgrind	--leak-check=full \
-						    --show-leak-kinds=all         \
-						    --track-origins=yes           \
-						    --verbose                     \
-
-# LINUX X11 BUILD
-LIBS_X11 := -lm -lrt -lglfw -lGL
+LIBS := -lm -lrt -lglfw -lGL
 
 build: build_directory glad
-	${C} ${SRC} ${OBJ} ${INC} ${LIBS_X11} ${CFLAGS} ${OUT}
+	${C} ${SRC} ${OBJ} ${INC} ${LIBS} ${CFLAGS} ${OUT}
 	./build/lite_engine
 
 glad:
