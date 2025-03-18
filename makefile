@@ -8,12 +8,12 @@ C	              :=  clang
 CFLAGS_DEBUG	  := -g3 -fsanitize=address
 CFLAGS_RELEASE	:= -O3 -flto
 
-CFLAGS		      ?= -Wall        \
-								-Wextra         \
-								-Wpedantic      \
-								-Werror         \
-								-std=c99        \
-								${CFLAGS_DEBUG} \
+CFLAGS		      := -Wall           \
+								   -Wextra         \
+								   -Wpedantic      \
+								   -Werror         \
+								   -std=c99        \
+								   ${CFLAGS_DEBUG} \
 
 LIBS := -lm -lrt -lglfw -lGL
 
