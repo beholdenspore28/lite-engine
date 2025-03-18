@@ -293,16 +293,23 @@ void lgl_draw(
       };
 
       {
+        vector3_t offset = vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
+
         GLfloat translation[16] = {
           1.0, 0.0, 0.0, 0.0,
           0.0, 1.0, 0.0, 0.0,
           0.0, 0.0, 1.0, 0.0,
-          -lgl__active_context->camera.position.x,
-          -lgl__active_context->camera.position.y,
-          -lgl__active_context->camera.position.z, 1.0,
+          -lgl__active_context->camera.position.x + offset.x,
+          -lgl__active_context->camera.position.y + offset.y,
+          -lgl__active_context->camera.position.z + offset.z, 1.0,
         };
 
-        GLfloat rotation[16] = {0};
+        GLfloat rotation[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
+      };
         quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
         lgl__mat4_multiply(view, translation, rotation);
       }

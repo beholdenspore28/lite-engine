@@ -8,10 +8,9 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 	list_lgl_vertex_t vertices   = list_lgl_vertex_t_alloc();
 
 	const float   radius     = 0.1;
-	const float   resolution = 10.0;
+	const float   resolution = 5.0;
 
 	for(int face = 0; face < 6; face++) {
-		//const int offset = resolution * resolution * face;
 		for(float x = 0; x < resolution; x++) {
 			for(float y = 0; y < resolution; y++) {
 
@@ -22,11 +21,10 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 				};
 				position = vector3_normalize(position);
 
-				// 0 is front
 				const vector3_t temp = position;
 				switch (face) {
 					case 0: { // 0 is front
-						// do nothing.
+                    // do nothing.
 						position.x = -temp.x;
 					} break;
 					case 1: { // 1 is rear
@@ -66,8 +64,6 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 					.texture_coordinates = vector2_zero(),
 				};
 
-        //vector3_print(position, "pos");
-
 				list_lgl_vertex_t_add(&vertices, v);
 			}
 		}
@@ -89,15 +85,17 @@ void objects_animate(
   for(size_t i = 0; i < count; i++) {
       objects[i].position.y = cos(context->time_current)*0.2 + 0.5;
       objects[i].position = context->camera.position;
-      //objects[i].rotation = quaternion_multiply(
-      //    objects[i].rotation,
-      //    quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
+      objects[i].rotation = quaternion_multiply(
+          objects[i].rotation,
+          quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
   }
 }
 
 void camera_update(lgl_context_t *context) {
+
   { // movement
     vector3_t movement = vector3_zero(); {
+
       // SPACE SHIFT
       movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
@@ -116,8 +114,6 @@ void camera_update(lgl_context_t *context) {
       movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
     }
-
-    //vector3_print(movement, "movement");
 
     movement = vector3_normalize(movement);
     movement = vector3_scale(movement, context->time_delta);
@@ -247,10 +243,10 @@ int main() {
     cube.shader         = shader_phong;
     cube.diffuse_map    = texture_cube;
     cube.position.z     = 1;
-    cube.scale          = vector3_one(0.1);
+    cube.scale          = vector3_one(0.02);
     cube.lights_count   = LIGHTS_COUNT;
     cube.lights         = lights;
-    cube.render_flags  |= LGL_FLAG_USE_STENCIL;
+    cube.render_flags  |= LGL_FLAG_USE_WIREFRAME;
   }
 
   lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
@@ -259,7 +255,6 @@ int main() {
     asteroid.position.z     =  1;
     asteroid.lights_count   =  LIGHTS_COUNT;
     asteroid.lights         =  lights;
-    asteroid.render_flags  |=  LGL_FLAG_USE_STENCIL;
   }
 
   // ---------------------------------------------------------------
@@ -273,6 +268,7 @@ int main() {
 
   context->camera.rotation = quaternion_identity();
   context->camera.position = vector3_zero();
+  context->camera.position.z = -2;
 
   // ---------------------------------------------------------------
   // game loop
