@@ -97,21 +97,24 @@ void objects_animate(
 void camera_update(lgl_context_t *context) {
 
   { // movement
-    float y = glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
+
+    vector3_t movement = vector3_zero();
+    movement.y = glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
       glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
 
-    float x = glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
+    movement.x = glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
       glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT);
 
-    float z = glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
+    movement.z = glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
       glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
 
+    vector3_print(movement, "movement");
 
-    debug_log("Input (%f, %f)", x, y);
+    movement = vector3_normalize(movement);
+    movement = vector3_scale(movement, context->time_delta);
+    movement = vector3_rotate(movement, context->camera.rotation);
 
-    context->camera.position.x += x * context->time_delta;
-    context->camera.position.y += y * context->time_delta;
-    context->camera.position.z += z * context->time_delta;
+    context->camera.position = vector3_add(context->camera.position, movement);
   }
 
   { // mouse look
