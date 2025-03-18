@@ -34,7 +34,8 @@ Run this command to build the engine:
 make build -B -j4
 ```
 
-# Building on Windows (Less stable)
+# Building on Windows (Less stable, requires mingw)
+Install MinGW and add it to your system's path environment variable. https://www.mingw-w64.org/
 To build the demo, open a terminal and navigate to the lite-engine folder.
 Run this command to build the engine:
 ```
