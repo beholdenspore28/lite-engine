@@ -98,15 +98,25 @@ void camera_update(lgl_context_t *context) {
 
   { // movement
 
-    vector3_t movement = vector3_zero();
-    movement.y = glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
-      glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
+    vector3_t movement = vector3_zero(); {
+      // SPACE SHIFT
+      movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
+        glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
 
-    movement.x = glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
-      glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT);
+      // WASD
+      movement.x += glfwGetKey(context->GLFWwindow, GLFW_KEY_D) -
+        glfwGetKey(context->GLFWwindow, GLFW_KEY_A);
 
-    movement.z = glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
-      glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
+      movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_W) -
+        glfwGetKey(context->GLFWwindow, GLFW_KEY_S);
+
+      // ARROW KEYS
+      movement.x += glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
+        glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT);
+
+      movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
+        glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
+    }
 
     vector3_print(movement, "movement");
 
@@ -118,9 +128,30 @@ void camera_update(lgl_context_t *context) {
   }
 
   { // mouse look
-    vector3_t euler = (vector3_t) { 0, context->time_delta * 0.2, 0, };
+    static int firstFrame = 1;
+    static float last_x   = 0;
+    //static float last_y = 0;
+    static vector3_t eulerAngles = {0};
 
-    quaternion_t rotation = quaternion_from_euler(euler);
+    double mouse_x, mouse_y;
+    glfwGetCursorPos(context->GLFWwindow, &mouse_x, &mouse_y);
+
+    if (firstFrame) {
+      last_x = mouse_x;
+      //last_y = mouse_y;
+      firstFrame = 0;
+    }
+
+    float diff_x = mouse_x - last_x;
+    //float diff_y = mouse_y - last_y;
+
+    last_x = mouse_x;
+    //last_y = mouse_y;
+
+    eulerAngles.y = diff_x * 0.01;
+    //eulerAngles.x = diff_y * 0.01;
+    quaternion_t rotation = quaternion_from_euler(eulerAngles);
+
     context->camera.rotation = quaternion_multiply(context->camera.rotation, rotation);
   }
 }
