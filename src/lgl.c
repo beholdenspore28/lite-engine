@@ -696,38 +696,44 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
 
 static void lgl__framebuffer_resize(const int width, const int height) { 
 
-  glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
+  // I decided to just delete and recreate all framebuffer attachments for compatibility reasons.
+  // I am not sure (because I haven't tested this on all hardware) but I believe this should be
+  // more compatible than reusing the existing attachments.
 
-  glDeleteTextures(2, lgl__active_framebuffer->color_buffers);
+  { // resize the color attachments
+    glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
+    glDeleteTextures(2, lgl__active_framebuffer->color_buffers);
 
-  glGenTextures(2, lgl__active_framebuffer->color_buffers);
-  for (unsigned int i = 0; i < 2; i++) {
-    glBindTexture(GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i]);
+    glGenTextures(2, lgl__active_framebuffer->color_buffers);
+    for (unsigned int i = 0; i < 2; i++) {
+      glBindTexture(GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i]);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-        0, GL_RGBA, GL_FLOAT, NULL);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+          0, GL_RGBA, GL_FLOAT, NULL);
 
-    //debug_log("color_buffer %d size is %dx%d", i, width, height);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // attach texture to framebuffer
-    glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-        GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
+      // attach texture to framebuffer
+      glFramebufferTexture2D(
+          GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+          GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
+    }
   }
 
-  glDeleteRenderbuffers(1, &lgl__active_framebuffer->RBO);
+  { // resize the render buffer
+    glDeleteRenderbuffers(1, &lgl__active_framebuffer->RBO);
 
-  glGenRenderbuffers(1, &lgl__active_framebuffer->RBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    glGenRenderbuffers(1, &lgl__active_framebuffer->RBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 
-  glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-      GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
+    glFramebufferRenderbuffer(
+        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
+  }
 
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);

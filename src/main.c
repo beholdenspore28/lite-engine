@@ -8,7 +8,7 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 	list_lgl_vertex_t vertices   = list_lgl_vertex_t_alloc();
 
 	const float   radius     = 0.1;
-	const float   resolution = 5.0;
+	const float   resolution = 10.0;
 
 	for(int face = 0; face < 6; face++) {
 		for(float x = 0; x < resolution; x++) {
@@ -229,7 +229,7 @@ int main() {
     cube.shader         = shader_phong;
     cube.diffuse_map    = texture_cube;
     cube.position.z     = 1;
-    cube.scale          = vector3_one(1.0);
+    cube.scale          = vector3_one(0.1);
     cube.lights_count   = LIGHTS_COUNT;
     cube.lights         = lights;
     //cube.render_flags  |= LGL_FLAG_USE_WIREFRAME;
