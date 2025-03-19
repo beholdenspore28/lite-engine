@@ -3,17 +3,18 @@ OBJ	            :=  build/*.o
 INC	            := -Isrc -Idep -Idep/glad/include
 OUT	            := -o build/lite_engine
 
-C	              :=  gcc
+C	              :=  clang
 
 CFLAGS_DEBUG	  := -g3 
 CFLAGS_RELEASE	:= -O3 -flto
 
-CFLAGS		      := -Wall           \
-								   -Wextra         \
-								   -Wpedantic      \
-								   -Werror         \
-								   -std=c99        \
-								   ${CFLAGS_DEBUG} \
+CFLAGS		      := -Wall              \
+								   -Wextra            \
+								   -Wpedantic         \
+								   -Werror            \
+									 -fsanitize=address \
+								   -std=c99           \
+								   ${CFLAGS_DEBUG}    \
 
 LIBS := -lglfw -lm
 

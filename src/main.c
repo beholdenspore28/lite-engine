@@ -5,7 +5,8 @@
 #if 1
 lgl_render_data_t asteroid_mesh_alloc(void) {
 
-	list_lgl_vertex_t vertices   = list_lgl_vertex_t_alloc();
+	lgl_render_data_t mesh;
+  mesh.vertices = list_lgl_vertex_t_alloc();
 
 	const float   radius     = 0.1;
 	const float   resolution = 10.0;
@@ -64,14 +65,10 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 					.texture_coordinates = vector2_zero(),
 				};
 
-				list_lgl_vertex_t_add(&vertices, v);
+				list_lgl_vertex_t_add(&mesh.vertices, v);
 			}
 		}
 	}
-
-	lgl_render_data_t mesh;
-  mesh.vertices = vertices.array;
-  mesh.vertex_count = vertices.length;
 
 	return mesh;
 }
@@ -282,9 +279,9 @@ int main() {
 
       lgl_draw(1, &cube);
 
-      for(size_t i = 0; i < asteroid.vertex_count; i++) {
+      for(size_t i = 0; i < asteroid.vertices.length; i++) {
         cube.position = 
-          vector3_scale(asteroid.vertices[i].position, 1.0);
+          vector3_scale(asteroid.vertices.array[i].position, 1.0);
         lgl_draw(1, &cube);
       }
     }

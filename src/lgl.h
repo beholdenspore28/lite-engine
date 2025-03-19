@@ -25,69 +25,70 @@ extern "C" {
 DECLARE_LIST(GLuint)
 
 typedef struct {
-  vector3_t       position;
-  vector3_t       normal;
-  vector2_t       texture_coordinates;
+  vector3_t          position;
+  vector3_t          normal;
+  vector2_t          texture_coordinates;
 } lgl_vertex_t;
+
 DECLARE_LIST(lgl_vertex_t)
 
 typedef struct {
-  int            type;
-  vector3_t       position;
-  vector3_t       direction;
-  float          cut_off;
-  float          outer_cut_off;
-  float          constant;
-  float          linear;
-  float          quadratic;
-  vector3_t       diffuse;
-  vector3_t       specular;
+  int                type;
+  vector3_t          position;
+  vector3_t          direction;
+  float              cut_off;
+  float              outer_cut_off;
+  float              constant;
+  float              linear;
+  float              quadratic;
+  vector3_t          diffuse;
+  vector3_t          specular;
 } lgl_light_t;
 
 typedef struct {
-  vector3_t      position;
-  quaternion_t   rotation;
+  vector3_t          position;
+  quaternion_t       rotation;
 } lgl_camera_t;
 
+
 typedef struct {
-  GLFWwindow    *GLFWwindow;
-  lgl_camera_t   camera;
-  int            is_running;
-  double         time_current;
-  long long      frame_current;
-  double         time_delta;
-  double         time_last;
-  double         time_FPS;
+  GLFWwindow        *GLFWwindow;
+  lgl_camera_t       camera;
+  int                is_running;
+  double             time_current;
+  long long          frame_current;
+  double             time_delta;
+  double             time_last;
+  double             time_FPS;
 } lgl_context_t;
 
 typedef struct {
-  GLuint         VAO;
-  GLuint         VBO;
+  GLuint             VAO;
+  GLuint             VBO;
 
-  lgl_vertex_t  *vertices;
-  size_t         vertex_count;
+  list_lgl_vertex_t  vertices;
   
-  vector3_t      position;
-  vector3_t      scale;
-  quaternion_t   rotation;
+  vector3_t          position;
+  vector3_t          scale;
+  quaternion_t       rotation;
 
-  GLuint         shader;
-  GLuint         diffuse_map;
-  GLuint         specular_map;
-  vector2_t      texture_offset;
-  vector2_t      texture_scale;
+  GLuint             shader;
+  GLuint             diffuse_map;
+  GLuint             specular_map;
+  vector2_t          texture_offset;
+  vector2_t          texture_scale;
 
-  lgl_light_t   *lights;
-  GLuint         lights_count;
+  lgl_light_t       *lights;
+  GLuint             lights_count;
 
-  GLint          render_flags;
+  GLint              render_flags;
 } lgl_render_data_t;
 
 typedef struct {
-  GLuint            FBO;
-  GLuint            RBO;
-  GLuint            color_buffers[2];
-  lgl_render_data_t quad;
+  GLuint             FBO;
+  GLuint             RBO;
+  GLuint             color_buffers[2];
+  lgl_render_data_t  quad;
 } lgl_framebuffer_t;
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);

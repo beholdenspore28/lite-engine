@@ -526,7 +526,7 @@ void lgl_draw(
     }
 
     glBindVertexArray(data[i].VAO);
-    glDrawArrays(GL_TRIANGLES, 0, data[i].vertex_count);
+    glDrawArrays(GL_TRIANGLES, 0, data[i].vertices.length);
     glUseProgram(0);
 
   }
@@ -547,8 +547,8 @@ lgl_render_data_t lgl_quad_alloc() {
     { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
   };
 
-  quad.vertices        = quad_vertices;
-  quad.vertex_count    = quad_vertices_count;
+  quad.vertices.array  = quad_vertices;
+  quad.vertices.length = quad_vertices_count;
 
   quad.scale           = vector3_one(1.0);
   quad.position        = vector3_zero();
@@ -562,8 +562,8 @@ lgl_render_data_t lgl_quad_alloc() {
   lgl__buffer_vertex_array(
       &quad.VAO,
       &quad.VBO,
-      quad.vertex_count,
-      quad.vertices);
+      quad.vertices.length,
+      quad.vertices.array);
 
   return quad;
 }
@@ -623,23 +623,23 @@ lgl_render_data_t lgl_cube_alloc() {
     { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
   };
 
-  cube.vertices       = cube_vertices;
-  cube.vertex_count   = cube_vertices_count;
+  cube.vertices.array  = cube_vertices;
+  cube.vertices.length = cube_vertices_count;
 
-  cube.scale          = vector3_one(0.5);
-  cube.position       = vector3_zero();
-  cube.rotation       = quaternion_identity();
+  cube.scale           = vector3_one(0.5);
+  cube.position        = vector3_zero();
+  cube.rotation        = quaternion_identity();
 
-  cube.texture_offset = vector2_zero();
-  cube.texture_scale  = vector2_one(1.0);
+  cube.texture_offset  = vector2_zero();
+  cube.texture_scale   = vector2_one(1.0);
 
-  cube.render_flags   = LGL_FLAG_ENABLED;
+  cube.render_flags    = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(
       &cube.VAO,
       &cube.VBO,
-      cube.vertex_count,
-      cube.vertices);
+      cube.vertices.length,
+      cube.vertices.array);
 
   return cube;
 }
