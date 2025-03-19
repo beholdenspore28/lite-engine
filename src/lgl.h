@@ -63,18 +63,23 @@ typedef struct {
 typedef struct {
   GLuint         VAO;
   GLuint         VBO;
+
   lgl_vertex_t  *vertices;
   size_t         vertex_count;
+  
   vector3_t      position;
   vector3_t      scale;
   quaternion_t   rotation;
+
   GLuint         shader;
   GLuint         diffuse_map;
   GLuint         specular_map;
   vector2_t      texture_offset;
   vector2_t      texture_scale;
-  GLuint         lights_count;
+
   lgl_light_t   *lights;
+  GLuint         lights_count;
+
   GLint          render_flags;
 } lgl_render_data_t;
 

@@ -116,7 +116,7 @@ void camera_update(lgl_context_t *context) {
     }
 
     movement = vector3_normalize(movement);
-    movement = vector3_scale(movement, context->time_delta);
+    movement = vector3_scale(movement, context->time_delta *10);
     movement = vector3_rotate(movement, context->camera.rotation);
 
     context->camera.position = vector3_add(context->camera.position, movement);
@@ -184,10 +184,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create textures
 
-  GLuint
-    texture_diffuse  = lgl_texture_alloc("res/textures/test.png"),
-    texture_specular = lgl_texture_alloc("res/textures/default_specular.png"),
-    texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  GLuint texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png");
 
   // ---------------------------------------------------------------
   // Create lights
@@ -228,25 +225,14 @@ int main() {
   // ---------------------------------------------------------------
   // Create objects
 
-  lgl_render_data_t floor = lgl_cube_alloc(context); {
-    floor.shader        =  shader_phong;
-    floor.diffuse_map   =  texture_diffuse;
-    floor.specular_map  =  texture_specular;
-    floor.texture_scale =  vector2_one(10.0);
-    floor.position.y    = -2;
-    floor.scale         =  (vector3_t) {5, 0.5, 5};
-    floor.lights_count  =  LIGHTS_COUNT;
-    floor.lights        =  lights;
-  }
-
   lgl_render_data_t cube = lgl_cube_alloc(); {
     cube.shader         = shader_phong;
     cube.diffuse_map    = texture_cube;
     cube.position.z     = 1;
-    cube.scale          = vector3_one(0.02);
+    cube.scale          = vector3_one(1.0);
     cube.lights_count   = LIGHTS_COUNT;
     cube.lights         = lights;
-    cube.render_flags  |= LGL_FLAG_USE_WIREFRAME;
+    //cube.render_flags  |= LGL_FLAG_USE_WIREFRAME;
   }
 
   lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
@@ -273,6 +259,7 @@ int main() {
   // ---------------------------------------------------------------
   // game loop
   
+  glClearColor(0,0,0,1);
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
     { // update state
@@ -294,11 +281,10 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(1, &cube);
-      lgl_draw(1, &floor);
 
       for(size_t i = 0; i < asteroid.vertex_count; i++) {
         cube.position = 
-          vector3_scale(asteroid.vertices[i].position, 0.1);
+          vector3_scale(asteroid.vertices[i].position, 1.0);
         lgl_draw(1, &cube);
       }
     }
