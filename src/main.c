@@ -143,12 +143,16 @@ void camera_update(lgl_context_t *context) {
 
 #if 0
 // distribute the objects randomly inside a box
-static inline void box_distribution(unsigned int count, lgl_render_data_t *objects, float length) {
+static inline void box_distribution(
+    unsigned int       count,
+    lgl_render_data_t *objects,
+    float              length,
+    int                seed) {
   for(unsigned int i = 0; i < count; i++) {
 
-    objects[i].position.x = noise3( i + 1, i,     i     );
-    objects[i].position.y = noise3( i,     i + 1, i     );
-    objects[i].position.z = noise3( i,     i,     i + 1 );
+    objects[i].position.x = noise3( seed + i + 1, seed + i,     seed + i     );
+    objects[i].position.y = noise3( seed + i,     seed + i + 1, seed + i     );
+    objects[i].position.z = noise3( seed + i,     seed + i,     seed + i + 1 );
 
     objects[i].position = vector3_scale(objects[i].position, length);
 
@@ -159,7 +163,11 @@ static inline void box_distribution(unsigned int count, lgl_render_data_t *objec
 }
 #endif
 
-static inline void sphere_distribution(unsigned int count, lgl_render_data_t *objects, float radius, int seed) {
+static inline void sphere_distribution(
+    unsigned int       count,
+    lgl_render_data_t *objects,
+    float              radius,
+    int                seed) {
   for(unsigned int i = 0; i < count; i++) {
 
     vector3_t eulerAngles = vector3_zero();
@@ -280,7 +288,7 @@ int main() {
 
   context->camera.rotation = quaternion_identity();
   context->camera.position = vector3_zero();
-  context->camera.position.z = -2;
+  context->camera.position.z = -100;
 
   // ---------------------------------------------------------------
   // game loop
