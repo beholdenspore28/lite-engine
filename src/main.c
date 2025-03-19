@@ -141,12 +141,34 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-// arranges an array of objects into a galaxy-shaped formation
-void galaxy_formation(unsigned int length, lgl_render_data_t *stars) {
-  for (unsigned int i = 0; i < length; i++) {
-    stars[i].position.x = i;
-    stars[i].position.y = i;
-    stars[i].position.z = i;
+#if 0
+// distribute the objects randomly inside a box
+static inline void box_distribution(unsigned int count, lgl_render_data_t *objects, float length) {
+  for(unsigned int i = 0; i < count; i++) {
+
+    objects[i].position.x = noise3( i + 1, i,     i     );
+    objects[i].position.y = noise3( i,     i + 1, i     );
+    objects[i].position.z = noise3( i,     i,     i + 1 );
+
+    objects[i].position = vector3_scale(objects[i].position, length);
+
+    objects[i].position.x -= length * 0.5;
+    objects[i].position.y -= length * 0.5;
+    objects[i].position.z -= length * 0.5;
+  }
+}
+#endif
+
+static inline void sphere_distribution(unsigned int count, lgl_render_data_t *objects, float radius, int seed) {
+  for(unsigned int i = 0; i < count; i++) {
+
+    vector3_t eulerAngles = vector3_zero();
+
+    eulerAngles.x = noise3( seed + i  , seed + i,   seed + i   ) * 2 * PI;
+    eulerAngles.y = noise3( seed + i+1, seed + i+1, seed + i+1 ) * 2 * PI;
+    eulerAngles.z = noise3( seed + i+2, seed + i+2, seed + i+2 ) * 2 * PI;
+
+    objects[i].position = vector3_rotate(vector3_forward(noise1(i)*radius), quaternion_from_euler(eulerAngles));
   }
 }
 
@@ -222,21 +244,22 @@ int main() {
   };
 
   // ---------------------------------------------------------------
-  // Create objects
+  // Create stars
 
-  enum { STARS_LENGTH = 128 };
-
+  enum { STARS_LENGTH = 256 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
+
   for(int i = 0; i < STARS_LENGTH; i++) {
     stars[i] = star;
-    stars[i].position.x = i * 2;
     stars[i].shader         = shader_phong;
     stars[i].diffuse_map    = texture_cube;
-    stars[i].lights_count   =  LIGHTS_COUNT;
-    stars[i].lights         =  lights;
+    stars[i].lights_count   = LIGHTS_COUNT;
+    stars[i].lights         = lights;
     stars[i].scale          = vector3_one(1);
   }
+
+  sphere_distribution(STARS_LENGTH, stars, 50, 1);
 
   lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
     asteroid.shader         =  shader_phong;
