@@ -176,7 +176,9 @@ static inline void sphere_distribution(
     eulerAngles.y = noise3( seed + i+1, seed + i+1, seed + i+1 ) * 2 * PI;
     eulerAngles.z = noise3( seed + i+2, seed + i+2, seed + i+2 ) * 2 * PI;
 
-    objects[i].position = vector3_rotate(vector3_forward(noise1(i)*radius), quaternion_from_euler(eulerAngles));
+    objects[i].position = vector3_rotate(
+        vector3_forward(noise1(i)*radius),
+        quaternion_from_euler(eulerAngles));
   }
 }
 
