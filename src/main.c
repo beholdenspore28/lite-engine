@@ -2,7 +2,6 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
-#if 1
 lgl_render_data_t asteroid_mesh_alloc(void) {
 
 	lgl_render_data_t mesh;
@@ -72,7 +71,6 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 
 	return mesh;
 }
-#endif
 
 void objects_animate(
     const size_t             count,
@@ -80,7 +78,7 @@ void objects_animate(
     const lgl_context_t     *context) {
 
   for(size_t i = 0; i < count; i++) {
-      objects[i].position.y = cos(context->time_current)*0.2 + 0.5;
+      objects[i].position.y = cos(context->time_current) * 0.2 + 0.5;
       objects[i].position = context->camera.position;
       objects[i].rotation = quaternion_multiply(
           objects[i].rotation,
@@ -122,7 +120,6 @@ void camera_update(lgl_context_t *context) {
   { // mouse look
     static int firstFrame = 1;
     static float last_x   = 0;
-    //static float last_y = 0;
     static vector3_t eulerAngles = {0};
 
     double mouse_x, mouse_y;
@@ -130,21 +127,26 @@ void camera_update(lgl_context_t *context) {
 
     if (firstFrame) {
       last_x = mouse_x;
-      //last_y = mouse_y;
       firstFrame = 0;
     }
 
     float diff_x = mouse_x - last_x;
-    //float diff_y = mouse_y - last_y;
 
     last_x = mouse_x;
-    //last_y = mouse_y;
 
     eulerAngles.y = diff_x * 0.01;
-    //eulerAngles.x = diff_y * 0.01;
     quaternion_t rotation = quaternion_from_euler(eulerAngles);
 
     context->camera.rotation = quaternion_multiply(context->camera.rotation, rotation);
+  }
+}
+
+// arranges an array of objects into a galaxy-shaped formation
+void galaxy_formation(unsigned int length, lgl_render_data_t *stars) {
+  for (unsigned int i = 0; i < length; i++) {
+    stars[i].position.x = i;
+    stars[i].position.y = i;
+    stars[i].position.z = i;
   }
 }
 
@@ -222,14 +224,18 @@ int main() {
   // ---------------------------------------------------------------
   // Create objects
 
-  lgl_render_data_t cube = lgl_cube_alloc(); {
-    cube.shader         = shader_phong;
-    cube.diffuse_map    = texture_cube;
-    cube.position.z     = 1;
-    cube.scale          = vector3_one(0.1);
-    cube.lights_count   = LIGHTS_COUNT;
-    cube.lights         = lights;
-    //cube.render_flags  |= LGL_FLAG_USE_WIREFRAME;
+  enum { STARS_LENGTH = 128 };
+
+  lgl_render_data_t star = lgl_cube_alloc();
+  lgl_render_data_t stars[STARS_LENGTH];
+  for(int i = 0; i < STARS_LENGTH; i++) {
+    stars[i] = star;
+    stars[i].position.x = i * 2;
+    stars[i].shader         = shader_phong;
+    stars[i].diffuse_map    = texture_cube;
+    stars[i].lights_count   =  LIGHTS_COUNT;
+    stars[i].lights         =  lights;
+    stars[i].scale          = vector3_one(1);
   }
 
   lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
@@ -261,7 +267,7 @@ int main() {
 
     { // update state
       camera_update(context);
-      objects_animate(1, &cube, context);
+      //objects_animate(1, &stars, context);
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
@@ -277,13 +283,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &cube);
-
-      for(size_t i = 0; i < asteroid.vertices.length; i++) {
-        cube.position = 
-          vector3_scale(asteroid.vertices.array[i].position, 1.0);
-        lgl_draw(1, &cube);
-      }
+      lgl_draw(STARS_LENGTH, stars);
     }
 
     { // draw the frame to the screen

@@ -84,6 +84,8 @@ typedef struct {
   GLint              render_flags;
 } lgl_render_data_t;
 
+DECLARE_LIST(lgl_render_data_t)
+
 typedef struct {
   GLuint             FBO;
   GLuint             RBO;
