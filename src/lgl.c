@@ -647,35 +647,38 @@ lgl_render_data_t lgl_cube_alloc() {
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) { 
 
   lgl_framebuffer_t frame;
-
   glGenFramebuffers(1, &frame.FBO);
-
   glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
 
   glGenTextures(2, frame.color_buffers);
 
+  int width, height;
+  glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
+
   for (unsigned int i = 0; i < 2; i++) {
     glBindTexture(GL_TEXTURE_2D, frame.color_buffers[i]);
 
-    {
-      int width, height;
-      glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
-
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-          0, GL_RGBA, GL_FLOAT, NULL);
-
-      //debug_log("color_buffer %d size is %dx%d", i, width, height);
-    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+        0, GL_RGBA, GL_FLOAT, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     // attach texture to framebuffer
     glFramebufferTexture2D(
         GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
         GL_TEXTURE_2D, frame.color_buffers[i], 0);
   }
+
+  glGenRenderbuffers(1, &frame.RBO);
+  glBindRenderbuffer(GL_RENDERBUFFER, frame.RBO);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
+  glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+      GL_RENDERBUFFER, frame.RBO);
 
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
@@ -715,6 +718,16 @@ static void lgl__framebuffer_resize(const int width, const int height) {
         GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
         GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
   }
+
+  glDeleteRenderbuffers(1, &lgl__active_framebuffer->RBO);
+
+  glGenRenderbuffers(1, &lgl__active_framebuffer->RBO);
+  glBindRenderbuffer(GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
+  glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+      GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
 
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
@@ -787,6 +800,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
 
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glDepthMask(GL_TRUE);
   glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
 

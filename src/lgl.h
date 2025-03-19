@@ -85,6 +85,7 @@ typedef struct {
 
 typedef struct {
   GLuint            FBO;
+  GLuint            RBO;
   GLuint            color_buffers[2];
   lgl_render_data_t quad;
 } lgl_framebuffer_t;
