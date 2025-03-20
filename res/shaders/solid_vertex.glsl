@@ -1,14 +1,9 @@
-#version 410 core
+#version 460 core
 
-layout (location = 0) in vec3 in_position;
-layout (location = 1) in vec2 in_tex_coord;
+layout (location = 0) in vec3 a_position;
 
-out vec4 v_color;
-
-uniform vec4 u_color;
 uniform mat4 u_mvp;
 
-void main(){
-	gl_Position = u_mvp * vec4(in_position, 1.0);
-  v_color = u_color;
+void main() {
+	gl_Position = u_mvp * vec4(a_position, 1.0);
 } 

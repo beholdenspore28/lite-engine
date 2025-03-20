@@ -10,6 +10,7 @@ out vec3 v_fragment_position;
 
 uniform vec2 u_texture_offset;
 uniform vec2 u_texture_scale;
+uniform vec4 u_color;
 uniform mat4 u_mvp;
 
 void main(){

@@ -78,8 +78,6 @@ void objects_animate(
     const lgl_context_t     *context) {
 
   for(size_t i = 0; i < count; i++) {
-      objects[i].position.y = cos(context->time_current) * 0.2 + 0.5;
-      objects[i].position = context->camera.position;
       objects[i].rotation = quaternion_multiply(
           objects[i].rotation,
           quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
@@ -188,16 +186,16 @@ int main() {
   // ---------------------------------------------------------------
   // Create shaders
   
-  GLuint shader_phong = 0; {
+  GLuint shader_solid = 0; {
     GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/phong_vertex.glsl",
+        "res/shaders/solid_vertex.glsl",
         GL_VERTEX_SHADER);
 
     GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_fragment.glsl",
+        "res/shaders/solid_fragment.glsl",
         GL_FRAGMENT_SHADER);
 
-    shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
+    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
   GLuint shader_framebuffer = 0; {
@@ -256,28 +254,20 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 256 };
+  enum { STARS_LENGTH = 512 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
   for(int i = 0; i < STARS_LENGTH; i++) {
-    stars[i] = star;
-    stars[i].shader         = shader_phong;
+    stars[i]                = star;
+    stars[i].shader         = shader_solid;
     stars[i].diffuse_map    = texture_cube;
     stars[i].lights_count   = LIGHTS_COUNT;
     stars[i].lights         = lights;
-    stars[i].scale          = vector3_one(1);
+    stars[i].scale          = vector3_one(0.1);
   }
 
   sphere_distribution(STARS_LENGTH, stars, 50, 1);
-
-  lgl_render_data_t asteroid = asteroid_mesh_alloc(); {
-    asteroid.shader         =  shader_phong;
-    asteroid.diffuse_map    =  texture_cube;
-    asteroid.position.z     =  1;
-    asteroid.lights_count   =  LIGHTS_COUNT;
-    asteroid.lights         =  lights;
-  }
 
   // ---------------------------------------------------------------
   // Create framebuffer
@@ -300,7 +290,7 @@ int main() {
 
     { // update state
       camera_update(context);
-      //objects_animate(1, &stars, context);
+      //objects_animate(STARS_LENGTH, stars, context);
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);

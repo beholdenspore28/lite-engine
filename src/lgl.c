@@ -389,6 +389,10 @@ void lgl_draw(
       glUniform3f(
           glGetUniformLocation(data[i].shader, "u_ambient_light"), 
           0.2, 0.2, 0.2);
+
+      glUniform4f(
+          glGetUniformLocation(data[i].shader, "u_color"), 
+          1.0, 1.0, 1.0, 1.0);
     }
 
     // lighting uniforms
