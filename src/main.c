@@ -244,7 +244,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 2000 };
+  enum { STARS_LENGTH = 100 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
