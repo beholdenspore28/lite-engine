@@ -278,7 +278,6 @@ int main() {
   glClearColor(0,0,0,1);
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
-    lgl_camera_update();
     {
       char window_title[64] = {0};
 
@@ -288,6 +287,7 @@ int main() {
           "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
           context->time_FPS,
           context->time_delta);
+
 
       glfwSetWindowTitle(context->GLFWwindow, window_title);
     }

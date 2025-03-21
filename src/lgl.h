@@ -48,10 +48,8 @@ typedef struct {
 typedef struct {
   vector3_t          position;
   quaternion_t       rotation;
-  GLfloat           *matrix;
 } lgl_camera_t;
 
-void lgl_camera_update(void);
 
 typedef struct {
   GLFWwindow        *GLFWwindow;
