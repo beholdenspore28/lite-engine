@@ -807,6 +807,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glfwSetFramebufferSizeCallback(
       lgl__active_context->GLFWwindow, lgl__framebuffer_size_callback);
 
+  glfwSwapInterval(0); // disable vsync
+
   gladLoadGL(glfwGetProcAddress);
 
   glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
