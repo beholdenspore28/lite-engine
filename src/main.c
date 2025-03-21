@@ -278,6 +278,20 @@ int main() {
   glClearColor(0,0,0,1);
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
+    {
+      char window_title[64] = {0};
+
+      snprintf(
+          window_title,
+          sizeof(window_title),
+          "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
+          context->time_FPS,
+          context->time_delta);
+
+
+      glfwSetWindowTitle(context->GLFWwindow, window_title);
+    }
+
     { // update state
       camera_update(context);
       //objects_animate(STARS_LENGTH, stars, context);
