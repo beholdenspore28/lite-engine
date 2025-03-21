@@ -795,6 +795,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
   lgl__active_context->GLFWwindow = glfwCreateWindow(width, height, "Game Window", NULL, NULL);
   if (!lgl__active_context->GLFWwindow) {

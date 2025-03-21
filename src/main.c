@@ -85,42 +85,34 @@ void objects_animate(
 }
 
 void camera_update(lgl_context_t *context) {
-
   { // movement
     vector3_t movement = vector3_zero(); {
-
-      // SPACE SHIFT
       movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
-
-      // WASD
       movement.x += glfwGetKey(context->GLFWwindow, GLFW_KEY_D) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_A);
-
       movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_W) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_S);
-
-      // ARROW KEYS
       movement.x += glfwGetKey(context->GLFWwindow, GLFW_KEY_RIGHT) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT);
-
       movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
     }
-
+    float speed = glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_CONTROL) ? 100 : 10;
     movement = vector3_normalize(movement);
-    movement = vector3_scale(movement, context->time_delta *10);
+    movement = vector3_scale(movement, context->time_delta * speed);
     movement = vector3_rotate(movement, context->camera.rotation);
-
     context->camera.position = vector3_add(context->camera.position, movement);
   }
 
-  { // mouse look
+  // mouse look
+  if (glfwGetMouseButton(context->GLFWwindow, GLFW_MOUSE_BUTTON_1)) {
     static int firstFrame = 1;
     static float last_x   = 0;
     static vector3_t eulerAngles = {0};
 
     double mouse_x, mouse_y;
+
     glfwGetCursorPos(context->GLFWwindow, &mouse_x, &mouse_y);
 
     if (firstFrame) {
@@ -129,12 +121,10 @@ void camera_update(lgl_context_t *context) {
     }
 
     float diff_x = mouse_x - last_x;
-
     last_x = mouse_x;
 
     eulerAngles.y = diff_x * 0.01;
     quaternion_t rotation = quaternion_from_euler(eulerAngles);
-
     context->camera.rotation = quaternion_multiply(context->camera.rotation, rotation);
   }
 }
@@ -146,8 +136,8 @@ static inline void box_distribution(
     lgl_render_data_t *objects,
     float              length,
     int                seed) {
-  for(unsigned int i = 0; i < count; i++) {
 
+  for(unsigned int i = 0; i < count; i++) {
     objects[i].position.x = noise3( seed + i + 1, seed + i,     seed + i     );
     objects[i].position.y = noise3( seed + i,     seed + i + 1, seed + i     );
     objects[i].position.z = noise3( seed + i,     seed + i,     seed + i + 1 );
