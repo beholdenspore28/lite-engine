@@ -244,7 +244,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 2000 };
+  enum { STARS_LENGTH = 100 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -272,12 +272,23 @@ int main() {
   context->camera.position = vector3_zero();
   context->camera.position.z = -100;
 
+  GLfloat identity[16] = {
+    1.0,  0.0,  0.0,  0.0,
+    0.0,  1.0,  0.0,  0.0,
+    0.0,  0.0,  1.0,  0.0,
+    0.0,  0.0,  0.0,  1.0,
+  };
+
+  context->camera.matrix = identity;
+
   // ---------------------------------------------------------------
   // game loop
 
   glClearColor(0,0,0,1);
+
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
+    lgl_camera_update(1, &context->camera);
     {
       char window_title[64] = {0};
 
@@ -287,7 +298,6 @@ int main() {
           "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
           context->time_FPS,
           context->time_delta);
-
 
       glfwSetWindowTitle(context->GLFWwindow, window_title);
     }

@@ -230,6 +230,65 @@ void lgl_outline(
   }
 }
 
+void lgl_camera_update(unsigned int count, lgl_camera_t *cameras) {
+
+  for(unsigned int camera = 0; camera < count; camera++) {
+
+    //-----------------------------------------------------------------------
+    // PROJECTION
+    
+    GLfloat projection[16] = {
+      1.0,  0.0,  0.0,  0.0,
+      0.0,  1.0,  0.0,  0.0,
+      0.0,  0.0,  1.0,  0.0,
+      0.0,  0.0,  0.0,  1.0,
+    };
+
+    {
+      int width, height;
+      glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
+
+      const float aspect = (float)width / height;
+
+      lgl_perspective(projection, 70 * (3.14159/180.0), aspect, 0.001, 1000);
+    }
+
+    //-----------------------------------------------------------------------
+    // View
+
+    GLfloat view[16] = {
+      1.0,  0.0,  0.0,  0.0,
+      0.0,  1.0,  0.0,  0.0,
+      0.0,  0.0,  1.0,  0.0,
+      0.0,  0.0,  0.0,  1.0,
+    };
+
+    {
+      vector3_t offset = vector3_rotate(vector3_back(1.0), cameras[camera].rotation);
+
+      GLfloat translation[16] = {
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        -cameras[camera].position.x + offset.x,
+        -cameras[camera].position.y + offset.y,
+        -cameras[camera].position.z + offset.z, 1.0,
+      };
+
+      GLfloat rotation[16] = {
+        1.0,  0.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,  0.0,
+        0.0,  0.0,  1.0,  0.0,
+        0.0,  0.0,  0.0,  1.0,
+      };
+      quaternion_to_mat4(quaternion_conjugate(cameras[camera].rotation), rotation);
+      lgl__mat4_multiply(view, translation, rotation);
+    }
+
+    lgl__mat4_multiply(cameras[camera].matrix, view, projection);
+  }
+}
+
 void lgl_draw(
     const size_t             data_length,
     const lgl_render_data_t *data) {
@@ -266,55 +325,6 @@ void lgl_draw(
     }
 
     { // MATRIX CALC
-
-      //-----------------------------------------------------------------------
-      // PROJECTION
-      GLfloat projection[16] = {
-        1.0,  0.0,  0.0,  0.0,
-        0.0,  1.0,  0.0,  0.0,
-        0.0,  0.0,  1.0,  0.0,
-        0.0,  0.0,  0.0,  1.0,
-      };
-
-      int width, height;
-      glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
-
-      const float aspect = (float)width / height;
-
-      lgl_perspective(projection, 70 * (3.14159/180.0), aspect, 0.001, 1000);
-
-      //-----------------------------------------------------------------------
-      // View
-
-      GLfloat view[16] = {
-        1.0,  0.0,  0.0,  0.0,
-        0.0,  1.0,  0.0,  0.0,
-        0.0,  0.0,  1.0,  0.0,
-        0.0,  0.0,  0.0,  1.0,
-      };
-
-      {
-        vector3_t offset = vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
-
-        GLfloat translation[16] = {
-          1.0, 0.0, 0.0, 0.0,
-          0.0, 1.0, 0.0, 0.0,
-          0.0, 0.0, 1.0, 0.0,
-          -lgl__active_context->camera.position.x + offset.x,
-          -lgl__active_context->camera.position.y + offset.y,
-          -lgl__active_context->camera.position.z + offset.z, 1.0,
-        };
-
-        GLfloat rotation[16] = {
-        1.0,  0.0,  0.0,  0.0,
-        0.0,  1.0,  0.0,  0.0,
-        0.0,  0.0,  1.0,  0.0,
-        0.0,  0.0,  0.0,  1.0,
-      };
-        quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
-        lgl__mat4_multiply(view, translation, rotation);
-      }
-
 
       //-----------------------------------------------------------------------
       // Model
@@ -358,8 +368,7 @@ void lgl_draw(
         0.0,  0.0,  0.0,  1.0,
       };
 
-      lgl__mat4_multiply(mvp, model, view);
-      lgl__mat4_multiply(mvp, mvp,   projection);
+      lgl__mat4_multiply(mvp, model, lgl__active_context->camera.matrix);
 
       GLint mvp_location = glGetUniformLocation(data[i].shader, "u_mvp");
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
@@ -806,6 +815,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
 
   glfwSetFramebufferSizeCallback(
       lgl__active_context->GLFWwindow, lgl__framebuffer_size_callback);
+
+  glfwSwapInterval(0);
 
   gladLoadGL(glfwGetProcAddress);
 
