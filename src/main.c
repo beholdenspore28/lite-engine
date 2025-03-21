@@ -272,11 +272,30 @@ int main() {
   context->camera.position = vector3_zero();
   context->camera.position.z = -100;
 
+  GLfloat view[16] = {
+    1.0,  0.0,  0.0,  0.0,
+    0.0,  1.0,  0.0,  0.0,
+    0.0,  0.0,  1.0,  0.0,
+    0.0,  0.0,  0.0,  1.0,
+  };
+
+  GLfloat projection[16] = {
+    1.0,  0.0,  0.0,  0.0,
+    0.0,  1.0,  0.0,  0.0,
+    0.0,  0.0,  1.0,  0.0,
+    0.0,  0.0,  0.0,  1.0,
+  };
+
+  context->camera.view = view;
+  context->camera.projection = projection;
+
   // ---------------------------------------------------------------
   // game loop
   
   glClearColor(0,0,0,1);
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
+
+    lgl_camera_update();
 
     {
       char window_title[64] = {0};
