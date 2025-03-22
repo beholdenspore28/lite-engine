@@ -272,9 +272,12 @@ int main() {
     }
 
     stars[i].position = vector3_point_in_unit_sphere(i);
+    vector3_t direction = vector3_normalize(vector3_negate(stars[i].position));
+    stars[i].position = vector3_add(stars[i].position, direction);
+
     stars[i].position.x *= 3;
-    stars[i].position.y /= 1 * vector3_magnitude(stars[i].position);
     stars[i].position.z *= 10;
+    
     stars[i].position = swirl(stars[i].position, 0.1);
   }
 
