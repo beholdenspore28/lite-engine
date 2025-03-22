@@ -11,7 +11,6 @@ CFLAGS_RELEASE	:= -O3 -flto
 CFLAGS		      := -Wall              \
 								   -Wextra            \
 								   -Wpedantic         \
-								   -Werror            \
 									 -fsanitize=address \
 								   -std=c99           \
 								   ${CFLAGS_DEBUG}    \

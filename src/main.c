@@ -98,7 +98,7 @@ void camera_update(lgl_context_t *context) {
       movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
     }
-    float speed = glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_CONTROL) ? 100 : 10;
+    float speed = glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_CONTROL) ? 10 : 1;
     movement = vector3_normalize(movement);
     movement = vector3_scale(movement, context->time_delta * speed);
     movement = vector3_rotate(movement, context->camera.rotation);
@@ -129,28 +129,23 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-#if 0
+#if 1
 // distribute the objects randomly inside a box
 static inline void box_distribution(
     unsigned int       count,
     lgl_render_data_t *objects,
-    float              length,
     int                seed) {
 
   for(unsigned int i = 0; i < count; i++) {
-    objects[i].position.x = noise3( seed + i + 1, seed + i,     seed + i     );
-    objects[i].position.y = noise3( seed + i,     seed + i + 1, seed + i     );
-    objects[i].position.z = noise3( seed + i,     seed + i,     seed + i + 1 );
-
-    objects[i].position = vector3_scale(objects[i].position, length);
-
-    objects[i].position.x -= length * 0.5;
-    objects[i].position.y -= length * 0.5;
-    objects[i].position.z -= length * 0.5;
+    objects[i].position.x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2 - 1;
+    objects[i].position.y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2 - 1;
+    objects[i].position.z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2 - 1;
+    objects[i].position.z *= 10;
   }
 }
 #endif
 
+#if 1
 vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
     float d, x, y, z;
     int i = 0;
@@ -163,7 +158,31 @@ vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
     } while(d > 1.0);
     return (vector3_t) { x, y, z };
 }
+#else
+vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
 
+    float u  = noise1(seed)   * 2 - 1;
+    float x1 = noise1(seed+1) * 2 - 1;
+    float x2 = noise1(seed+2) * 2 - 1;
+    float x3 = noise1(seed+3) * 2 - 1;
+
+    float mag = sqrt(x1*x1 + x2*x2 + x3*x3);
+    x1 /= mag;
+    x2 /= mag;
+    x3 /= mag;
+
+    float c = cbrt(u);
+
+    return (vector3_t) { x1*c, x2*c, x3*c };
+}
+#endif
+
+static inline vector3_t swirl(vector3_t point) {
+  float swirl_amount = vector3_square_magnitude(point)/10;
+  return vector3_rotate(point, quaternion_from_euler(vector3_up(swirl_amount)));
+}
+
+#if 0
 static inline void sphere_distribution(
     unsigned int       count,
     lgl_render_data_t *objects,
@@ -173,18 +192,9 @@ static inline void sphere_distribution(
   for(unsigned int i = 0; i < count; i++) {
     objects[i].position = vector3_point_in_unit_sphere(seed+i);
     objects[i].position = vector3_scale(objects[i].position, radius);
-
-    //vector3_t eulerAngles = vector3_zero();
-
-    //eulerAngles.x = noise3( seed + i  , seed + i,   seed + i   ) * 2 * PI;
-    //eulerAngles.y = noise3( seed + i+1, seed + i+1, seed + i+1 ) * 2 * PI;
-    //eulerAngles.z = noise3( seed + i+2, seed + i+2, seed + i+2 ) * 2 * PI;
-
-    //objects[i].position = vector3_rotate(
-    //    vector3_forward(noise1(i)*radius),
-    //    quaternion_from_euler(eulerAngles));
   }
 }
+#endif
 
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
@@ -270,10 +280,16 @@ int main() {
     stars[i].diffuse_map    = texture_cube;
     stars[i].lights_count   = LIGHTS_COUNT;
     stars[i].lights         = lights;
-    stars[i].scale          = vector3_one(0.1);
+    stars[i].scale          = vector3_one(0.01);
   }
 
-  sphere_distribution(STARS_LENGTH, stars, 50, 1);
+  box_distribution(STARS_LENGTH, stars, 1);
+
+#if 1
+  for(int i = 0; i < STARS_LENGTH; i++) {
+    stars[i].position = swirl(stars[i].position);
+  }
+#endif
 
   // ---------------------------------------------------------------
   // Create framebuffer
@@ -286,7 +302,7 @@ int main() {
 
   context->camera.rotation = quaternion_identity();
   context->camera.position = vector3_zero();
-  context->camera.position.z = -100;
+  context->camera.position.z = -3;
 
   GLfloat view[16] = {
     1.0,  0.0,  0.0,  0.0,
