@@ -151,22 +151,38 @@ static inline void box_distribution(
 }
 #endif
 
+vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
+    float d, x, y, z;
+    int i = 0;
+    do {
+        x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2.0 - 1.0;
+        y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2.0 - 1.0;
+        z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2.0 - 1.0;
+        d = x*x + y*y + z*z;
+        i++;
+    } while(d > 1.0);
+    return (vector3_t) { x, y, z };
+}
+
 static inline void sphere_distribution(
     unsigned int       count,
     lgl_render_data_t *objects,
     float              radius,
     int                seed) {
+
   for(unsigned int i = 0; i < count; i++) {
+    objects[i].position = vector3_point_in_unit_sphere(seed+i);
+    objects[i].position = vector3_scale(objects[i].position, radius);
 
-    vector3_t eulerAngles = vector3_zero();
+    //vector3_t eulerAngles = vector3_zero();
 
-    eulerAngles.x = noise3( seed + i  , seed + i,   seed + i   ) * 2 * PI;
-    eulerAngles.y = noise3( seed + i+1, seed + i+1, seed + i+1 ) * 2 * PI;
-    eulerAngles.z = noise3( seed + i+2, seed + i+2, seed + i+2 ) * 2 * PI;
+    //eulerAngles.x = noise3( seed + i  , seed + i,   seed + i   ) * 2 * PI;
+    //eulerAngles.y = noise3( seed + i+1, seed + i+1, seed + i+1 ) * 2 * PI;
+    //eulerAngles.z = noise3( seed + i+2, seed + i+2, seed + i+2 ) * 2 * PI;
 
-    objects[i].position = vector3_rotate(
-        vector3_forward(noise1(i)*radius),
-        quaternion_from_euler(eulerAngles));
+    //objects[i].position = vector3_rotate(
+    //    vector3_forward(noise1(i)*radius),
+    //    quaternion_from_euler(eulerAngles));
   }
 }
 
@@ -244,7 +260,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 100 };
+  enum { STARS_LENGTH = 4000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
