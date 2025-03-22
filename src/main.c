@@ -263,10 +263,19 @@ int main() {
   }
 
   for(int i = 0; i < STARS_LENGTH; i++) {
+
+    // two tone color
+    if (i % 2 == 0) {
+      stars[i].color = (vector4_t) { 1.0, 1.0, 0.0, 1.0 };
+    } else {
+      stars[i].color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
+    }
+
     stars[i].position = vector3_point_in_unit_sphere(i);
+    stars[i].position.x *= 3;
+    stars[i].position.y /= 1 * vector3_magnitude(stars[i].position);
     stars[i].position.z *= 10;
-    stars[i].position.y /= 0.1 * vector3_magnitude(stars[i].position);
-    stars[i].position = swirl(stars[i].position, 0.1);
+    stars[i].position = swirl(stars[i].position, 0.3);
   }
 
   // ---------------------------------------------------------------
