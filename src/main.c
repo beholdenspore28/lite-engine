@@ -72,18 +72,6 @@ lgl_render_data_t asteroid_mesh_alloc(void) {
 	return mesh;
 }
 
-void objects_animate(
-    const size_t             count,
-          lgl_render_data_t *objects,
-    const lgl_context_t     *context) {
-
-  for(size_t i = 0; i < count; i++) {
-      objects[i].rotation = quaternion_multiply(
-          objects[i].rotation,
-          quaternion_from_euler((vector3_t) { 0, context->time_delta, 0 }));
-  }
-}
-
 void camera_update(lgl_context_t *context) {
   { // movement
     vector3_t movement = vector3_zero(); {
@@ -259,10 +247,7 @@ int main() {
     stars[i].diffuse_map    = texture_cube;
     stars[i].lights_count   = LIGHTS_COUNT;
     stars[i].lights         = lights;
-    stars[i].scale          = vector3_one(0.01);
-  }
-
-  for(int i = 0; i < STARS_LENGTH; i++) {
+    stars[i].scale          = vector3_one(0.1);
 
     // two tone color
     if (i % 2 == 0) {
@@ -272,13 +257,16 @@ int main() {
     }
 
     stars[i].position = vector3_point_in_unit_sphere(i);
-    vector3_t direction = vector3_normalize(vector3_negate(stars[i].position));
-    stars[i].position = vector3_add(stars[i].position, direction);
+    vector3_t gravity = vector3_normalize(vector3_negate(stars[i].position));
+    stars[i].position = vector3_add(stars[i].position, gravity);
 
     stars[i].position.x *= 3;
     stars[i].position.z *= 10;
     
     stars[i].position = swirl(stars[i].position, 0.1);
+
+    stars[i].position = vector3_scale(stars[i].position, 10);
+    stars[i].position = vector3_rotate(stars[i].position, quaternion_from_euler(vector3_right(PI/5)));
   }
 
   // ---------------------------------------------------------------
@@ -316,6 +304,7 @@ int main() {
   
   float timer = 0;
   glClearColor(0,0,0,1);
+
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
     lgl_camera_update();
@@ -339,7 +328,13 @@ int main() {
 
     { // update state
       camera_update(context);
-      //objects_animate(STARS_LENGTH, stars, context);
+
+      // speen
+      for(size_t i = 0; i < STARS_LENGTH; i++) {
+        stars[i].position = vector3_rotate(
+            stars[i].position,
+            quaternion_from_euler(vector3_up(context->time_delta * 0.1)));
+      }
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
