@@ -126,7 +126,6 @@ static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
   return ret;
 }
 
-#if 1
 vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
     float d, x, y, z;
     int i = 0;
@@ -139,28 +138,40 @@ vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
     } while(d > 1.0);
     return (vector3_t) { x, y, z };
 }
-#else
-vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
-
-    float u  = noise1(seed)   * 2 - 1;
-    float x1 = noise1(seed+1) * 2 - 1;
-    float x2 = noise1(seed+2) * 2 - 1;
-    float x3 = noise1(seed+3) * 2 - 1;
-
-    float mag = sqrt(x1*x1 + x2*x2 + x3*x3);
-    x1 /= mag;
-    x2 /= mag;
-    x3 /= mag;
-
-    float c = cbrt(u);
-
-    return (vector3_t) { x1*c, x2*c, x3*c };
-}
-#endif
 
 static inline vector3_t swirl(vector3_t point, float strength_01) {
   float swirl_amount = vector3_square_magnitude(point) * strength_01;
   return vector3_rotate(point, quaternion_from_euler(vector3_up(swirl_amount)));
+}
+
+void galaxy_distribution(
+    unsigned int       count,
+    lgl_render_data_t *stars,
+    float              radius,
+    float              swirl_strength) {
+
+  for(unsigned int i = 0; i < count; i++) {
+    // two tone color
+    if (i % 2 == 0) {
+      stars[i].color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
+    } else {
+      stars[i].color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
+    }
+
+    stars[i].position = vector3_point_in_unit_sphere(i);
+    vector3_t gravity = vector3_normalize(vector3_negate(stars[i].position));
+    stars[i].position = vector3_add(stars[i].position, gravity);
+
+    stars[i].position.x *= 4;
+    stars[i].position.z *= 10;
+    
+    stars[i].position = swirl(stars[i].position, swirl_strength);
+
+    stars[i].position = vector3_scale(stars[i].position, radius);
+
+    stars[i].position = vector3_rotate(
+        stars[i].position, quaternion_from_euler(vector3_right(PI/5)));
+  }
 }
 
 int main() {
@@ -192,11 +203,6 @@ int main() {
 
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
   }
-
-  // ---------------------------------------------------------------
-  // Create textures
-
-  GLuint texture_cube     = lgl_texture_alloc("res/textures/lite-engine-cube.png");
 
   // ---------------------------------------------------------------
   // Create lights
@@ -237,37 +243,18 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 4000 };
+  enum { STARS_LENGTH = 10000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
   for(int i = 0; i < STARS_LENGTH; i++) {
     stars[i]                = star;
     stars[i].shader         = shader_solid;
-    stars[i].diffuse_map    = texture_cube;
-    stars[i].lights_count   = LIGHTS_COUNT;
-    stars[i].lights         = lights;
     stars[i].scale          = vector3_one(0.1);
-
-    // two tone color
-    if (i % 2 == 0) {
-      stars[i].color = (vector4_t) { 1.0, 1.0, 0.0, 1.0 };
-    } else {
-      stars[i].color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
-    }
-
-    stars[i].position = vector3_point_in_unit_sphere(i);
-    vector3_t gravity = vector3_normalize(vector3_negate(stars[i].position));
-    stars[i].position = vector3_add(stars[i].position, gravity);
-
-    stars[i].position.x *= 3;
-    stars[i].position.z *= 10;
-    
-    stars[i].position = swirl(stars[i].position, 0.1);
-
-    stars[i].position = vector3_scale(stars[i].position, 10);
-    stars[i].position = vector3_rotate(stars[i].position, quaternion_from_euler(vector3_right(PI/5)));
   }
+
+  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1);
+
 
   // ---------------------------------------------------------------
   // Create framebuffer
