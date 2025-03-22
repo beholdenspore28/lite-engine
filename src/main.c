@@ -249,7 +249,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 4000 };
+  enum { STARS_LENGTH = 1000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -265,7 +265,7 @@ int main() {
   for(int i = 0; i < STARS_LENGTH; i++) {
     stars[i].position = vector3_point_in_unit_cube(i);
     stars[i].position.z *= 10;
-    stars[i].position = swirl(stars[i].position, 0.2);
+    stars[i].position = swirl(stars[i].position, 0.02);
   }
 
   // ---------------------------------------------------------------
