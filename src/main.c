@@ -275,7 +275,7 @@ int main() {
     stars[i].position.x *= 3;
     stars[i].position.y /= 1 * vector3_magnitude(stars[i].position);
     stars[i].position.z *= 10;
-    stars[i].position = swirl(stars[i].position, 0.3);
+    stars[i].position = swirl(stars[i].position, 0.1);
   }
 
   // ---------------------------------------------------------------
