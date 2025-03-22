@@ -129,21 +129,14 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-#if 1
 // distribute the objects randomly inside a box
-static inline void box_distribution(
-    unsigned int       count,
-    lgl_render_data_t *objects,
-    int                seed) {
-
-  for(unsigned int i = 0; i < count; i++) {
-    objects[i].position.x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2 - 1;
-    objects[i].position.y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2 - 1;
-    objects[i].position.z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2 - 1;
-    objects[i].position.z *= 10;
-  }
+static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
+  vector3_t ret = vector3_zero();
+  ret.x = noise3(seed + 1, seed,     seed     ) * 2.0 - 1.0;
+  ret.y = noise3(seed,     seed + 1, seed     ) * 2.0 - 1.0;
+  ret.z = noise3(seed,     seed,     seed + 1 ) * 2.0 - 1.0;
+  return ret;
 }
-#endif
 
 #if 1
 vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
@@ -177,24 +170,10 @@ vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
 }
 #endif
 
-static inline vector3_t swirl(vector3_t point) {
-  float swirl_amount = vector3_square_magnitude(point)/10;
+static inline vector3_t swirl(vector3_t point, float strength_01) {
+  float swirl_amount = vector3_square_magnitude(point) * strength_01;
   return vector3_rotate(point, quaternion_from_euler(vector3_up(swirl_amount)));
 }
-
-#if 0
-static inline void sphere_distribution(
-    unsigned int       count,
-    lgl_render_data_t *objects,
-    float              radius,
-    int                seed) {
-
-  for(unsigned int i = 0; i < count; i++) {
-    objects[i].position = vector3_point_in_unit_sphere(seed+i);
-    objects[i].position = vector3_scale(objects[i].position, radius);
-  }
-}
-#endif
 
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
@@ -283,13 +262,11 @@ int main() {
     stars[i].scale          = vector3_one(0.01);
   }
 
-  box_distribution(STARS_LENGTH, stars, 1);
-
-#if 1
   for(int i = 0; i < STARS_LENGTH; i++) {
-    stars[i].position = swirl(stars[i].position);
+    stars[i].position = vector3_point_in_unit_cube(i);
+    stars[i].position.z *= 10;
+    stars[i].position = swirl(stars[i].position, 0.2);
   }
-#endif
 
   // ---------------------------------------------------------------
   // Create framebuffer
