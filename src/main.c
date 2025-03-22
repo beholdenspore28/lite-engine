@@ -148,7 +148,10 @@ void galaxy_distribution(
     unsigned int       count,
     lgl_render_data_t *stars,
     float              radius,
-    float              swirl_strength) {
+    float              swirl_strength,
+    float              arm_thickness,
+    float              arm_length,
+    float              tilt) {
 
   for(unsigned int i = 0; i < count; i++) {
     // two tone color
@@ -162,15 +165,15 @@ void galaxy_distribution(
     vector3_t gravity = vector3_normalize(vector3_negate(stars[i].position));
     stars[i].position = vector3_add(stars[i].position, gravity);
 
-    stars[i].position.x *= 4;
-    stars[i].position.z *= 10;
+    stars[i].position.x *= arm_thickness;
+    stars[i].position.z *= arm_length;
     
     stars[i].position = swirl(stars[i].position, swirl_strength);
 
     stars[i].position = vector3_scale(stars[i].position, radius);
 
     stars[i].position = vector3_rotate(
-        stars[i].position, quaternion_from_euler(vector3_right(PI/5)));
+        stars[i].position, quaternion_from_euler(vector3_right(tilt)));
   }
 }
 
@@ -253,7 +256,7 @@ int main() {
     stars[i].scale          = vector3_one(0.1);
   }
 
-  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1);
+  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
 
 
   // ---------------------------------------------------------------
