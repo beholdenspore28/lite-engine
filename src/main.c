@@ -258,7 +258,6 @@ int main() {
 
   galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
 
-
   // ---------------------------------------------------------------
   // Create framebuffer
   
@@ -340,7 +339,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(STARS_LENGTH, stars, 0);
+      lgl_draw(STARS_LENGTH, stars);
     }
 
     { // draw the frame to the screen
@@ -351,7 +350,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &frame.quad, 0);
+      lgl_draw(1, &frame.quad);
     }
 
     lgl_end_frame(context);

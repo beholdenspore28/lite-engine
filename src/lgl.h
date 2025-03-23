@@ -97,14 +97,17 @@ typedef struct {
   lgl_render_data_t  quad;
 } lgl_framebuffer_t;
 
+void lgl_draw_instanced(
+    lgl_render_data_t *instance,
+    GLfloat           *transformations);
+
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 
 void lgl_draw(
     const size_t             data_length,
-    const lgl_render_data_t *data,
-    const unsigned int       instanced_draw);
+    const lgl_render_data_t *data);
 
 enum {
   LGL_FLAG_ENABLED       = 1,
