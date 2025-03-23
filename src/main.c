@@ -328,14 +328,14 @@ int main() {
   // ---------------------------------------------------------------
   // Create camera
 
-  context->camera.rotation = quaternion_identity();
-  context->camera.position = vector3_zero();
+  context->camera.rotation   = quaternion_identity();
+  context->camera.position   = vector3_zero();
   context->camera.position.z = -50;
 
-  GLfloat view[16]; lgl_mat4_identity(view);
-  GLfloat projection[16]; lgl_mat4_identity(projection);
+  GLfloat view[16];          lgl_mat4_identity(view);
+  GLfloat projection[16];    lgl_mat4_identity(projection);
 
-  context->camera.view = view;
+  context->camera.view       = view;
   context->camera.projection = projection;
 
   // ---------------------------------------------------------------
