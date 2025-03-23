@@ -86,20 +86,20 @@ typedef struct {
   GLuint             lights_count;
 
   GLint              render_flags;
-} lgl_render_data_t;
+} lgl_object_t;
 
-DECLARE_LIST(lgl_render_data_t)
+DECLARE_LIST(lgl_object_t)
 
 typedef struct {
   GLuint             FBO;
   GLuint             RBO;
   GLuint             color_buffers[2];
-  lgl_render_data_t  quad;
+  lgl_object_t  quad;
 } lgl_framebuffer_t;
 
 void lgl_draw_instanced(
     unsigned int       count,
-    lgl_render_data_t *instance);
+    lgl_object_t *instance);
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
 
@@ -107,7 +107,7 @@ void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 
 void lgl_draw(
     const size_t             data_length,
-    const lgl_render_data_t *data);
+    const lgl_object_t *data);
 
 enum {
   LGL_FLAG_ENABLED       = 1,
@@ -123,15 +123,15 @@ void  lgl_viewport_set(const float width, const float height);
 
 void lgl_outline(
     const size_t         data_length,
-    lgl_render_data_t   *data,
+    lgl_object_t   *data,
     const GLuint         outline_shader,
     const float          thickness);
 
 GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t lgl_quad_alloc(void);
-lgl_render_data_t lgl_cube_alloc(void);
+lgl_object_t lgl_quad_alloc(void);
+lgl_object_t lgl_cube_alloc(void);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
     debug_log("");

@@ -2,9 +2,9 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
-lgl_render_data_t asteroid_mesh_alloc(void) {
+lgl_object_t asteroid_mesh_alloc(void) {
 
-	lgl_render_data_t mesh;
+	lgl_object_t mesh;
   mesh.vertices = list_lgl_vertex_t_alloc();
 
 	const float   radius     = 0.1;
@@ -146,7 +146,7 @@ static inline vector3_t swirl(vector3_t point, float strength_01) {
 
 void galaxy_distribution(
     unsigned int       count,
-    lgl_render_data_t *stars,
+    lgl_object_t *stars,
     float              radius,
     float              swirl_strength,
     float              arm_thickness,
@@ -249,8 +249,8 @@ int main() {
   // Create stars
 
   enum { STARS_LENGTH = 40000 };
-  lgl_render_data_t star = lgl_cube_alloc();
-  lgl_render_data_t stars[STARS_LENGTH];
+  lgl_object_t star = lgl_cube_alloc();
+  lgl_object_t stars[STARS_LENGTH];
 
   for(int i = 0; i < STARS_LENGTH; i++) {
     stars[i]                = star;

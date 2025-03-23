@@ -19,7 +19,7 @@ void lgl_active_context_set(lgl_context_t* context) {
 
 DEFINE_LIST(GLuint)
 DEFINE_LIST(lgl_vertex_t)
-DEFINE_LIST(lgl_render_data_t)
+DEFINE_LIST(lgl_object_t)
 
 static const float
              LGL__LEFT    = -1.0,
@@ -166,7 +166,7 @@ void lgl__buffer_vertex_array (
 
 void lgl_outline(
     const size_t         data_length,
-    lgl_render_data_t   *data,
+    lgl_object_t   *data,
     const GLuint         outline_shader,
     const float          thickness){
 
@@ -230,7 +230,7 @@ void lgl_camera_update(void) {
 
 }
 
-static inline void lgl__mvp(const lgl_render_data_t *data) {
+static inline void lgl__mvp(const lgl_object_t *data) {
 
   { // Model
 
@@ -273,7 +273,7 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
 
 void lgl_draw_instanced(
     unsigned int       count,
-    lgl_render_data_t *instance) {
+    lgl_object_t *instance) {
 
     { // render flags
       if ((instance->render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -322,7 +322,7 @@ void lgl_draw_instanced(
 
 void lgl_draw(
     const size_t             data_length,
-    const lgl_render_data_t *data) {
+    const lgl_object_t *data) {
 
   for(size_t i = 0; i < data_length; i++) {
 
@@ -524,8 +524,8 @@ void lgl_draw(
   }
 }
 
-lgl_render_data_t lgl_quad_alloc(void) {
-  lgl_render_data_t quad = {0};
+lgl_object_t lgl_quad_alloc(void) {
+  lgl_object_t quad = {0};
 
   enum { quad_vertices_count = 6 };
   lgl_vertex_t quad_vertices[quad_vertices_count] = { 
@@ -560,8 +560,8 @@ lgl_render_data_t lgl_quad_alloc(void) {
   return quad;
 }
 
-lgl_render_data_t lgl_cube_alloc(void) {
-  lgl_render_data_t cube = {0};
+lgl_object_t lgl_cube_alloc(void) {
+  lgl_object_t cube = {0};
 
   enum { cube_vertices_count = 36 };
   lgl_vertex_t cube_vertices[cube_vertices_count] = { 
