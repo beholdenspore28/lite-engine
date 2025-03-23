@@ -296,6 +296,18 @@ void lgl_draw_instanced(
     glUseProgram(instance->shader);
     glUniform1i(glGetUniformLocation(instance->shader, "u_use_instancing"), 1);
 
+    { // camera matrix
+      GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
+
+      lgl_mat4_multiply(
+          camera_matrix,
+          lgl__active_context->camera.view,
+          lgl__active_context->camera.projection);
+
+      GLint camera_matrix_location = glGetUniformLocation(instance->shader, "u_camera_matrix");
+      glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
+    }
+
     glBindVertexArray(instance->VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, instance->vertices.length, count);
     glUseProgram(0);

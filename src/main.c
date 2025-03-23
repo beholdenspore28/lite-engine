@@ -117,6 +117,26 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
+lgl_mat4_print(GLfloat *mat) {
+    debug_log("Matrix");
+    for(int j = 0; j < 4; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 4; j < 8; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 8; j < 12; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 12; j < 16; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+
+}
 // distribute the objects randomly inside a box
 static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
   vector3_t ret = vector3_zero();
@@ -246,7 +266,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 10000 };
+  enum { STARS_LENGTH = 10 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -257,13 +277,6 @@ int main() {
   }
 
   galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
-
-  // -------------------------
-  // configure instanced array
-
-  GLuint buffer;
-  glGenBuffers(1, &buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
   GLfloat model_matrices[STARS_LENGTH][16];
   for(unsigned int i = 0; i < STARS_LENGTH; i++) {
@@ -287,8 +300,18 @@ int main() {
       lgl_mat4_multiply(model_matrices[i], scale, rotation);
       lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
     }
-
   }
+
+  for(int i = 0; i < STARS_LENGTH; i++) {
+    lgl_mat4_print(model_matrices[i]);
+  }
+
+  // -------------------------
+  // configure instanced array
+
+  GLuint buffer;
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
   glBufferData(
       GL_ARRAY_BUFFER, STARS_LENGTH * sizeof(GLfloat) * 16,
@@ -395,7 +418,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 1
+#if 0
       lgl_draw(STARS_LENGTH, stars);
 #else
       lgl_draw_instanced(STARS_LENGTH, stars);
