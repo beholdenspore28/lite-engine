@@ -255,7 +255,7 @@ int main() {
   for(int i = 0; i < STARS_LENGTH; i++) {
     stars[i]                = star;
     stars[i].shader         = shader_solid;
-    stars[i].scale          = vector3_one(0.1);
+    stars[i].scale          = vector3_one(0.04);
   }
 
   galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 8, PI/5);
