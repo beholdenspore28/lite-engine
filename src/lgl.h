@@ -133,6 +133,26 @@ GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 lgl_render_data_t lgl_quad_alloc(void);
 lgl_render_data_t lgl_cube_alloc(void);
 
+static inline void lgl_mat4_print(GLfloat *mat) {
+    debug_log("Matrix");
+    for(int j = 0; j < 4; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 4; j < 8; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 8; j < 12; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+    for(int j = 12; j < 16; j++) {
+      printf("%f ", mat[j]);
+    }
+    putchar('\n');
+}
+
 static inline void lgl_mat4_identity(GLfloat *m) {
   m[0 ] = 1.0; m[1 ] = 0.0; m[2 ] = 0.0; m[3 ] = 0.0;
   m[4 ] = 0.0; m[5 ] = 1.0; m[6 ] = 0.0; m[7 ] = 0.0;

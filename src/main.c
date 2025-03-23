@@ -117,26 +117,6 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-lgl_mat4_print(GLfloat *mat) {
-    debug_log("Matrix");
-    for(int j = 0; j < 4; j++) {
-      printf("%f ", mat[j]);
-    }
-    putchar('\n');
-    for(int j = 4; j < 8; j++) {
-      printf("%f ", mat[j]);
-    }
-    putchar('\n');
-    for(int j = 8; j < 12; j++) {
-      printf("%f ", mat[j]);
-    }
-    putchar('\n');
-    for(int j = 12; j < 16; j++) {
-      printf("%f ", mat[j]);
-    }
-    putchar('\n');
-
-}
 // distribute the objects randomly inside a box
 static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
   vector3_t ret = vector3_zero();
@@ -199,6 +179,8 @@ void galaxy_distribution(
 
 int main() {
   lgl_context_t *context = lgl_start(854, 480);
+
+  glClearColor(0,0,0,1);
 
   // ---------------------------------------------------------------
   // Create shaders
@@ -418,7 +400,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 0
+#if 1
       lgl_draw(STARS_LENGTH, stars);
 #else
       lgl_draw_instanced(STARS_LENGTH, stars);
