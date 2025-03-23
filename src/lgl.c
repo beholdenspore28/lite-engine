@@ -234,25 +234,20 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
 
   { // Model
 
-    GLfloat model_matrix[16] = {
-      1.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,
-    };
+    GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
 
     {
       GLfloat scale[16] = {
-        data->scale.x,    0.0,                0.0,                0.0,
-        0.0,                data->scale.y,    0.0,                0.0,
-        0.0,                0.0,                data->scale.z,    0.0,
-        0.0,                0.0,                0.0,                1.0,
+        data->scale.x, 0.0,           0.0,           0.0,
+        0.0,           data->scale.y, 0.0,           0.0,
+        0.0,           0.0,           data->scale.z, 0.0,
+        0.0,           0.0,           0.0,           1.0,
       };
 
       GLfloat translation[16] = {
-        1.0,                0.0,                0.0,                0.0,
-        0.0,                1.0,                0.0,                0.0,
-        0.0,                0.0,                1.0,                0.0,
+        1.0,              0.0,              0.0,              0.0,
+        0.0,              1.0,              0.0,              0.0,
+        0.0,              0.0,              1.0,              0.0,
         data->position.x, data->position.y, data->position.z, 1.0,
       };
 
@@ -268,12 +263,7 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
   }
 
   { // camera matrix
-    GLfloat camera_matrix[16] = {
-      1.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,
-    };
+    GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
 
     lgl_mat4_multiply(
         camera_matrix,
