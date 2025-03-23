@@ -248,7 +248,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 1000 };
+  enum { STARS_LENGTH = 10000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -284,9 +284,9 @@ int main() {
     }
   }
 
-  for(int i = 0; i < STARS_LENGTH; i++) {
-    lgl_mat4_print(model_matrices[i]);
-  }
+  //for(int i = 0; i < STARS_LENGTH; i++) {
+  //  lgl_mat4_print(model_matrices[i]);
+  //}
 
   // -------------------------
   // configure instanced array
@@ -302,14 +302,15 @@ int main() {
   glBindVertexArray(stars[0].VAO);
 
   // set attribute pointers for matrix (4 times vec4)
-  glEnableVertexAttribArray(3);
   glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)0);
-  glEnableVertexAttribArray(4);
   glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
-  glEnableVertexAttribArray(5);
   glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
-  glEnableVertexAttribArray(6);
   glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
+
+  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(4);
+  glEnableVertexAttribArray(5);
+  glEnableVertexAttribArray(6);
 
   glVertexAttribDivisor(3, 1);
   glVertexAttribDivisor(4, 1);

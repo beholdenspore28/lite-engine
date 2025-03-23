@@ -308,6 +308,13 @@ void lgl_draw_instanced(
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
+    glUniform4f(
+        glGetUniformLocation( instance->shader, "u_color"),
+        instance->color.x,
+        instance->color.y,
+        instance->color.z,
+        instance->color.w);
+
     glBindVertexArray(instance->VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, instance->vertices.length, count);
     glUseProgram(0);
