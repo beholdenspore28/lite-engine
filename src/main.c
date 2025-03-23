@@ -248,7 +248,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 10000 };
+  enum { STARS_LENGTH = 40000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -258,7 +258,7 @@ int main() {
     stars[i].scale          = vector3_one(0.1);
   }
 
-  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
+  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 8, PI/5);
 
   GLfloat model_matrices[STARS_LENGTH][16];
   for(unsigned int i = 0; i < STARS_LENGTH; i++) {
@@ -366,13 +366,6 @@ int main() {
 
     { // update state
       camera_update(context);
-
-      // speen
-      for(size_t i = 0; i < STARS_LENGTH; i++) {
-        stars[i].position = vector3_rotate(
-            stars[i].position,
-            quaternion_from_euler(vector3_up(context->time_delta * 0.1)));
-      }
 
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
