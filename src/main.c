@@ -246,8 +246,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 1000 };
-
+  enum { STARS_LENGTH = 10000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -258,6 +257,7 @@ int main() {
   }
 
   galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
+
 
   // ---------------------------------------------------------------
   // Create framebuffer
