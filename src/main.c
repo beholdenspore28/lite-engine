@@ -340,7 +340,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(STARS_LENGTH, stars);
+      lgl_draw(STARS_LENGTH, stars, 0);
     }
 
     { // draw the frame to the screen
@@ -351,7 +351,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &frame.quad);
+      lgl_draw(1, &frame.quad, 0);
     }
 
     lgl_end_frame(context);

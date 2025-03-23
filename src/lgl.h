@@ -103,7 +103,8 @@ void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 
 void lgl_draw(
     const size_t             data_length,
-    const lgl_render_data_t *data);
+    const lgl_render_data_t *data,
+    const unsigned int       instanced_draw);
 
 enum {
   LGL_FLAG_ENABLED       = 1,
