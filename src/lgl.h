@@ -98,8 +98,8 @@ typedef struct {
 } lgl_framebuffer_t;
 
 void lgl_draw_instanced(
-    lgl_render_data_t *instance,
-    GLfloat           *transformations);
+    unsigned int       count,
+    lgl_render_data_t *instance);
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
 
@@ -132,6 +132,44 @@ GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_render_data_t lgl_quad_alloc(void);
 lgl_render_data_t lgl_cube_alloc(void);
+
+static inline void lgl_mat4_identity(GLfloat *m) {
+  m[0 ] = 1.0; m[1 ] = 0.0; m[2 ] = 0.0; m[3 ] = 0.0;
+  m[4 ] = 0.0; m[5 ] = 1.0; m[6 ] = 0.0; m[7 ] = 0.0;
+  m[8 ] = 0.0; m[9 ] = 0.0; m[10] = 1.0; m[11] = 0.0;
+  m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
+}
+
+/*Multiplies a 4x4 matrix with another 4x4 matrix*/
+static inline void lgl_mat4_multiply(
+    float *result,
+    const float *a,
+    const float *b) {
+
+  // row 0
+  result[ 0] = a[ 0] * b[ 0] + a[ 4] * b[ 1] + a[ 8] * b[ 2] + a[12] * b[ 3];
+  result[ 1] = a[ 0] * b[ 1] + a[ 1] * b[ 5] + a[ 2] * b[ 9] + a[ 3] * b[13];
+  result[ 2] = a[ 0] * b[ 2] + a[ 1] * b[ 6] + a[ 2] * b[10] + a[ 3] * b[14];
+  result[ 3] = a[ 0] * b[ 3] + a[ 1] * b[ 7] + a[ 2] * b[11] + a[ 3] * b[15];
+
+  // row 1
+  result[ 4] = a[ 4] * b[ 0] + a[ 5] * b[ 4] + a[ 6] * b[ 8] + a[ 7] * b[12];
+  result[ 5] = a[ 4] * b[ 1] + a[ 5] * b[ 5] + a[ 6] * b[ 9] + a[ 7] * b[13];
+  result[ 6] = a[ 4] * b[ 2] + a[ 5] * b[ 6] + a[ 6] * b[10] + a[ 7] * b[14];
+  result[ 7] = a[ 4] * b[ 3] + a[ 5] * b[ 7] + a[ 6] * b[11] + a[ 7] * b[15];
+
+  // row 2
+  result[ 8] = a[ 8] * b[ 0] + a[ 9] * b[ 4] + a[10] * b[ 8] + a[11] * b[12];
+  result[ 9] = a[ 8] * b[ 1] + a[ 9] * b[ 5] + a[10] * b[ 9] + a[11] * b[13];
+  result[10] = a[ 8] * b[ 2] + a[ 9] * b[ 6] + a[10] * b[10] + a[11] * b[14];
+  result[11] = a[ 8] * b[ 3] + a[ 9] * b[ 7] + a[10] * b[11] + a[11] * b[15];
+
+  // row 3
+  result[12] = a[12] * b[ 0] + a[13] * b[ 4] + a[14] * b[ 8] + a[15] * b[12];
+  result[13] = a[12] * b[ 1] + a[13] * b[ 5] + a[14] * b[ 9] + a[15] * b[13];
+  result[14] = a[12] * b[ 2] + a[13] * b[ 6] + a[14] * b[10] + a[15] * b[14];
+  result[15] = a[12] * b[ 3] + a[13] * b[ 7] + a[14] * b[11] + a[15] * b[15];
+}
 
 void lgl_perspective(
     float *mat,

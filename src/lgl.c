@@ -29,37 +29,6 @@ static const float
              LGL__FORWARD =  1.0,
              LGL__BACK    = -1.0;
 
-/*Multiplies a 4x4 matrix with another 4x4 matrix*/
-static inline void lgl__mat4_multiply(
-    float *result,
-    const float *a,
-    const float *b) {
-
-  // row 0
-  result[ 0] = a[ 0] * b[ 0] + a[ 4] * b[ 1] + a[ 8] * b[ 2] + a[12] * b[ 3];
-  result[ 1] = a[ 0] * b[ 1] + a[ 1] * b[ 5] + a[ 2] * b[ 9] + a[ 3] * b[13];
-  result[ 2] = a[ 0] * b[ 2] + a[ 1] * b[ 6] + a[ 2] * b[10] + a[ 3] * b[14];
-  result[ 3] = a[ 0] * b[ 3] + a[ 1] * b[ 7] + a[ 2] * b[11] + a[ 3] * b[15];
-
-  // row 1
-  result[ 4] = a[ 4] * b[ 0] + a[ 5] * b[ 4] + a[ 6] * b[ 8] + a[ 7] * b[12];
-  result[ 5] = a[ 4] * b[ 1] + a[ 5] * b[ 5] + a[ 6] * b[ 9] + a[ 7] * b[13];
-  result[ 6] = a[ 4] * b[ 2] + a[ 5] * b[ 6] + a[ 6] * b[10] + a[ 7] * b[14];
-  result[ 7] = a[ 4] * b[ 3] + a[ 5] * b[ 7] + a[ 6] * b[11] + a[ 7] * b[15];
-
-  // row 2
-  result[ 8] = a[ 8] * b[ 0] + a[ 9] * b[ 4] + a[10] * b[ 8] + a[11] * b[12];
-  result[ 9] = a[ 8] * b[ 1] + a[ 9] * b[ 5] + a[10] * b[ 9] + a[11] * b[13];
-  result[10] = a[ 8] * b[ 2] + a[ 9] * b[ 6] + a[10] * b[10] + a[11] * b[14];
-  result[11] = a[ 8] * b[ 3] + a[ 9] * b[ 7] + a[10] * b[11] + a[11] * b[15];
-
-  // row 3
-  result[12] = a[12] * b[ 0] + a[13] * b[ 4] + a[14] * b[ 8] + a[15] * b[12];
-  result[13] = a[12] * b[ 1] + a[13] * b[ 5] + a[14] * b[ 9] + a[15] * b[13];
-  result[14] = a[12] * b[ 2] + a[13] * b[ 6] + a[14] * b[10] + a[15] * b[14];
-  result[15] = a[12] * b[ 3] + a[13] * b[ 7] + a[14] * b[11] + a[15] * b[15];
-}
-
 void lgl_perspective(
     float *mat,
     const float fov,
@@ -249,23 +218,14 @@ void lgl_camera_update(void) {
   {
     vector3_t offset = vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
 
-    GLfloat translation[16] = {
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      -lgl__active_context->camera.position.x + offset.x,
-      -lgl__active_context->camera.position.y + offset.y,
-      -lgl__active_context->camera.position.z + offset.z, 1.0,
-    };
+    GLfloat translation[16]; lgl_mat4_identity(translation);
+    translation[12] = -lgl__active_context->camera.position.x + offset.x;
+    translation[13] = -lgl__active_context->camera.position.y + offset.y;
+    translation[14] = -lgl__active_context->camera.position.z + offset.z;
 
-    GLfloat rotation[16] = {
-      1.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,
-    };
+    GLfloat rotation[16]; lgl_mat4_identity(rotation);
     quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
-    lgl__mat4_multiply(lgl__active_context->camera.view, translation, rotation);
+    lgl_mat4_multiply(lgl__active_context->camera.view, translation, rotation);
   }
 
 }
@@ -299,8 +259,8 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(data->rotation, rotation);
 
-      lgl__mat4_multiply(model_matrix, scale, rotation);
-      lgl__mat4_multiply(model_matrix, model_matrix, translation);
+      lgl_mat4_multiply(model_matrix, scale, rotation);
+      lgl_mat4_multiply(model_matrix, model_matrix, translation);
     }
 
     GLint model_matrix_location = glGetUniformLocation(data->shader, "u_model_matrix");
@@ -315,7 +275,7 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
       0.0,  0.0,  0.0,  1.0,
     };
 
-    lgl__mat4_multiply(
+    lgl_mat4_multiply(
         camera_matrix,
         lgl__active_context->camera.view,
         lgl__active_context->camera.projection);
@@ -326,11 +286,33 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
 }
 
 void lgl_draw_instanced(
-    lgl_render_data_t *instance,
-    GLfloat           *transformations) {
+    unsigned int       count,
+    lgl_render_data_t *instance) {
+
+    { // render flags
+      if ((instance->render_flags & LGL_FLAG_ENABLED) == 0) {
+        return;
+      }
+
+      if (instance->render_flags & LGL_FLAG_USE_WIREFRAME) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      }
+
+      if (instance->render_flags & LGL_FLAG_USE_STENCIL) {
+        glStencilMask(0xFF);
+      } else {
+        glStencilMask(0x00);
+      }
+    }
   
     glUseProgram(instance->shader);
     glUniform1i(glGetUniformLocation(instance->shader, "u_use_instancing"), 1);
+
+    glBindVertexArray(instance->VAO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, instance->vertices.length, count);
+    glUseProgram(0);
 }
 
 void lgl_draw(

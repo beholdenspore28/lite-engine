@@ -258,6 +258,54 @@ int main() {
 
   galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 10, PI/5);
 
+  // -------------------------
+  // configure instanced array
+
+  GLuint buffer;
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+  GLfloat model[STARS_LENGTH][16];
+  for(unsigned int i = 0; i < STARS_LENGTH; i++) {
+    lgl_mat4_identity(model[i]);
+  }
+
+  glBufferData(
+      GL_ARRAY_BUFFER, STARS_LENGTH * sizeof(GLfloat) * 16,
+      model, GL_STATIC_DRAW);
+
+  unsigned int VAO = stars[0].VAO;
+  glBindVertexArray(VAO);
+
+  // set attribute pointers for matrix (4 times vec4)
+  glVertexAttribPointer(
+      3, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)0);
+
+  glVertexAttribPointer(
+      4, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(sizeof(vector4_t)));
+
+  glVertexAttribPointer(
+      5, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
+
+  glVertexAttribPointer(
+      6, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
+
+  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(4);
+  glEnableVertexAttribArray(5);
+  glEnableVertexAttribArray(6);
+
+  glVertexAttribDivisor(3, 1);
+  glVertexAttribDivisor(4, 1);
+  glVertexAttribDivisor(5, 1);
+  glVertexAttribDivisor(6, 1);
+
+  glBindVertexArray(0);
+
   // ---------------------------------------------------------------
   // Create framebuffer
   
@@ -269,21 +317,10 @@ int main() {
 
   context->camera.rotation = quaternion_identity();
   context->camera.position = vector3_zero();
-  context->camera.position.z = -3;
+  context->camera.position.z = -50;
 
-  GLfloat view[16] = {
-    1.0,  0.0,  0.0,  0.0,
-    0.0,  1.0,  0.0,  0.0,
-    0.0,  0.0,  1.0,  0.0,
-    0.0,  0.0,  0.0,  1.0,
-  };
-
-  GLfloat projection[16] = {
-    1.0,  0.0,  0.0,  0.0,
-    0.0,  1.0,  0.0,  0.0,
-    0.0,  0.0,  1.0,  0.0,
-    0.0,  0.0,  0.0,  1.0,
-  };
+  GLfloat view[16]; lgl_mat4_identity(view);
+  GLfloat projection[16]; lgl_mat4_identity(projection);
 
   context->camera.view = view;
   context->camera.projection = projection;
@@ -292,7 +329,6 @@ int main() {
   // game loop
   
   float timer = 0;
-  glClearColor(0,0,0,1);
 
   while(!glfwWindowShouldClose(context->GLFWwindow)) {
 
@@ -339,7 +375,11 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
+#if 1
       lgl_draw(STARS_LENGTH, stars);
+#else
+      lgl_draw_instanced(STARS_LENGTH, stars);
+#endif
     }
 
     { // draw the frame to the screen
