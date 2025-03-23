@@ -117,8 +117,8 @@ enum {
 
 lgl_context_t *lgl_start(const int width, const int height);
 
-void lgl_end_frame();
-void lgl_free();
+void lgl_end_frame(void);
+void lgl_free(lgl_context_t *context);
 void  lgl_viewport_set(const float width, const float height);
 
 void lgl_outline(
@@ -130,8 +130,8 @@ void lgl_outline(
 GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_render_data_t lgl_quad_alloc  ();
-lgl_render_data_t lgl_cube_alloc  ();
+lgl_render_data_t lgl_quad_alloc(void);
+lgl_render_data_t lgl_cube_alloc(void);
 
 void lgl_perspective(
     float *mat,

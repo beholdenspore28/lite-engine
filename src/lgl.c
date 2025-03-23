@@ -537,7 +537,7 @@ void lgl_draw(
   }
 }
 
-lgl_render_data_t lgl_quad_alloc() {
+lgl_render_data_t lgl_quad_alloc(void) {
   lgl_render_data_t quad = {0};
 
   enum { quad_vertices_count = 6 };
@@ -573,7 +573,7 @@ lgl_render_data_t lgl_quad_alloc() {
   return quad;
 }
 
-lgl_render_data_t lgl_cube_alloc() {
+lgl_render_data_t lgl_cube_alloc(void) {
   lgl_render_data_t cube = {0};
 
   enum { cube_vertices_count = 36 };
@@ -831,7 +831,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
   return lgl__active_context;
 }
 
-void lgl__time_update() {
+void lgl__time_update(void) {
   lgl__active_context->time_current  = glfwGetTime();
   lgl__active_context->time_delta    = lgl__active_context->time_current - lgl__active_context->time_last;
   lgl__active_context->time_last     = lgl__active_context->time_current;
@@ -862,9 +862,9 @@ void lgl_free(lgl_context_t *context) {
   debug_log("Shutdown complete");
 }
 
-void lgl_end_frame(lgl_context_t *context) {
+void lgl_end_frame(void) {
   lgl__time_update();
   glfwPollEvents();
-  glfwSwapBuffers(context->GLFWwindow);
+  glfwSwapBuffers(lgl__active_context->GLFWwindow);
 }
 

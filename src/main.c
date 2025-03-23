@@ -353,7 +353,7 @@ int main() {
       lgl_draw(1, &frame.quad);
     }
 
-    lgl_end_frame(context);
+    lgl_end_frame();
   }
 
   lgl_free(context);
