@@ -237,19 +237,15 @@ static inline void lgl__mvp(const lgl_render_data_t *data) {
     GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
 
     {
-      GLfloat scale[16] = {
-        data->scale.x, 0.0,           0.0,           0.0,
-        0.0,           data->scale.y, 0.0,           0.0,
-        0.0,           0.0,           data->scale.z, 0.0,
-        0.0,           0.0,           0.0,           1.0,
-      };
+      GLfloat scale[16]; lgl_mat4_identity(scale);
+      scale[0 ] = data->scale.x;
+      scale[5 ] = data->scale.y;
+      scale[10] = data->scale.z;
 
-      GLfloat translation[16] = {
-        1.0,              0.0,              0.0,              0.0,
-        0.0,              1.0,              0.0,              0.0,
-        0.0,              0.0,              1.0,              0.0,
-        data->position.x, data->position.y, data->position.z, 1.0,
-      };
+      GLfloat translation[16]; lgl_mat4_identity(translation);
+      translation[12] = data->position.x;
+      translation[13] = data->position.y;
+      translation[14] = data->position.z;
 
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(data->rotation, rotation);

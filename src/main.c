@@ -265,14 +265,34 @@ int main() {
   glGenBuffers(1, &buffer);
   glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-  GLfloat model[STARS_LENGTH][16];
+  GLfloat model_matrices[STARS_LENGTH][16];
   for(unsigned int i = 0; i < STARS_LENGTH; i++) {
-    lgl_mat4_identity(model[i]);
+
+    lgl_mat4_identity(model_matrices[i]);
+
+    {
+      GLfloat scale[16]; lgl_mat4_identity(scale);
+      scale[0 ] = stars[i].scale.x;
+      scale[5 ] = stars[i].scale.y;
+      scale[10] = stars[i].scale.z;
+
+      GLfloat translation[16]; lgl_mat4_identity(translation);
+      translation[12] = stars[i].position.x;
+      translation[13] = stars[i].position.y;
+      translation[14] = stars[i].position.z;
+
+      GLfloat rotation[16] = {0};
+      quaternion_to_mat4(stars[i].rotation, rotation);
+
+      lgl_mat4_multiply(model_matrices[i], scale, rotation);
+      lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
+    }
+
   }
 
   glBufferData(
       GL_ARRAY_BUFFER, STARS_LENGTH * sizeof(GLfloat) * 16,
-      model, GL_STATIC_DRAW);
+      model_matrices, GL_STATIC_DRAW);
 
   unsigned int VAO = stars[0].VAO;
   glBindVertexArray(VAO);
