@@ -134,21 +134,21 @@ lgl_render_data_t lgl_quad_alloc(void);
 lgl_render_data_t lgl_cube_alloc(void);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
-    debug_log("Matrix");
+    debug_log("");
     for(int j = 0; j < 4; j++) {
-      printf("%f ", mat[j]);
+      printf("%.2f\t", mat[j]);
     }
     putchar('\n');
     for(int j = 4; j < 8; j++) {
-      printf("%f ", mat[j]);
+      printf("%.2f\t", mat[j]);
     }
     putchar('\n');
     for(int j = 8; j < 12; j++) {
-      printf("%f ", mat[j]);
+      printf("%.2f\t", mat[j]);
     }
     putchar('\n');
     for(int j = 12; j < 16; j++) {
-      printf("%f ", mat[j]);
+      printf("%.2f\t", mat[j]);
     }
     putchar('\n');
 }

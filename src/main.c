@@ -248,7 +248,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 10 };
+  enum { STARS_LENGTH = 1000 };
   lgl_render_data_t star = lgl_cube_alloc();
   lgl_render_data_t stars[STARS_LENGTH];
 
@@ -297,32 +297,19 @@ int main() {
 
   glBufferData(
       GL_ARRAY_BUFFER, STARS_LENGTH * sizeof(GLfloat) * 16,
-      model_matrices, GL_STATIC_DRAW);
+      &model_matrices[0], GL_STATIC_DRAW);
 
-  unsigned int VAO = stars[0].VAO;
-  glBindVertexArray(VAO);
+  glBindVertexArray(stars[0].VAO);
 
   // set attribute pointers for matrix (4 times vec4)
-  glVertexAttribPointer(
-      3, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)0);
-
-  glVertexAttribPointer(
-      4, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(sizeof(vector4_t)));
-
-  glVertexAttribPointer(
-      5, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
-
-  glVertexAttribPointer(
-      6, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
-
   glEnableVertexAttribArray(3);
+  glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)0);
   glEnableVertexAttribArray(4);
+  glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
   glEnableVertexAttribArray(5);
+  glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
   glEnableVertexAttribArray(6);
+  glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
 
   glVertexAttribDivisor(3, 1);
   glVertexAttribDivisor(4, 1);
@@ -400,7 +387,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 1
+#if 0
       lgl_draw(STARS_LENGTH, stars);
 #else
       lgl_draw_instanced(STARS_LENGTH, stars);
