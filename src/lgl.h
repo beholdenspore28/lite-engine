@@ -66,22 +66,26 @@ typedef struct {
 } lgl_context_t;
 
 typedef struct {
-  GLuint            *VAO;
-  GLuint            *VBO;
+  GLuint             VAO;
+  GLuint             VBO;
+
   lgl_vertex_t      *vertices;
   GLuint             vertices_length;
+
   vector3_t         *position;
   vector3_t         *scale;
   quaternion_t      *rotation;
-  GLuint            *shader;
-  GLuint            *diffuse_map;
-  GLuint            *specular_map;
-  vector2_t         *texture_offset;
-  vector2_t         *texture_scale;
-  vector4_t         *color;
+
+  GLuint             shader;
+  GLuint             diffuse_map;
+  GLuint             specular_map;
+  vector2_t          texture_offset;
+  vector2_t          texture_scale;
+  vector4_t          color;
+
   lgl_light_t       *lights;
   GLuint             lights_count;
-  GLint             *render_flags;
+  GLint              render_flags;
   GLuint             length;
 } lgl_object_t;
 

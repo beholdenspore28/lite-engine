@@ -155,26 +155,19 @@ void galaxy_distribution(
     float              tilt) {
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    // two tone color
-    if (i % 2 == 0) {
-      stars.color[0] = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
-    } else {
-      stars.color[0] = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
-    }
+    stars.position[i] = vector3_point_in_unit_sphere(i);
+    vector3_t gravity = vector3_normalize(vector3_negate(stars.position[i]));
+    stars.position[i] = vector3_add(stars.position[i], gravity);
 
-    stars.position[0] = vector3_point_in_unit_sphere(i);
-    vector3_t gravity = vector3_normalize(vector3_negate(stars.position[0]));
-    stars.position[0] = vector3_add(stars.position[0], gravity);
-
-    stars.position[0].x *= arm_thickness;
-    stars.position[0].z *= arm_length;
+    stars.position[i].x *= arm_thickness;
+    stars.position[i].z *= arm_length;
     
-    stars.position[0] = swirl(stars.position[0], swirl_strength);
+    stars.position[i] = swirl(stars.position[i], swirl_strength);
 
-    stars.position[0] = vector3_scale(stars.position[0], radius);
+    stars.position[i] = vector3_scale(stars.position[i], radius);
 
-    stars.position[0] = vector3_rotate(
-        stars.position[0], quaternion_from_euler(vector3_right(tilt)));
+    stars.position[i] = vector3_rotate(
+        stars.position[i], quaternion_from_euler(vector3_right(tilt)));
   }
 }
 
@@ -249,11 +242,12 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_cube_alloc(1000); 
+  lgl_object_t stars = lgl_cube_alloc(40000); 
+  stars.shader = shader_solid;
+  stars.color = vector4_one(1.0);
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.shader[i]         = shader_solid;
-    stars.scale[i]          = vector3_one(0.04);
+    stars.scale[i]          = vector3_one(0.1);
   }
 
   galaxy_distribution(stars, 10, 0.1, 4, 8, PI/5);
@@ -297,7 +291,7 @@ int main() {
       GL_ARRAY_BUFFER, stars.length * sizeof(GLfloat) * 16,
       &model_matrices[0], GL_STATIC_DRAW);
 
-  glBindVertexArray(stars.VAO[0]);
+  glBindVertexArray(stars.VAO);
 
   // set attribute pointers for matrix (4 times vec4)
   glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)0);
@@ -380,7 +374,7 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
 #if 0
-      lgl_draw(stars.length, stars);
+      lgl_draw(stars);
 #else
       lgl_draw_instanced(stars);
 #endif

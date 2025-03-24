@@ -256,7 +256,7 @@ static inline void lgl__mvp(const lgl_object_t data, unsigned int i) {
       lgl_mat4_multiply(model_matrix, model_matrix, translation);
     }
 
-    GLint model_matrix_location = glGetUniformLocation(data.shader[i], "u_model_matrix");
+    GLint model_matrix_location = glGetUniformLocation(data.shader, "u_model_matrix");
     glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
   }
 
@@ -268,7 +268,7 @@ static inline void lgl__mvp(const lgl_object_t data, unsigned int i) {
         lgl__active_context->camera.view,
         lgl__active_context->camera.projection);
 
-    GLint camera_matrix_location = glGetUniformLocation(data.shader[i], "u_camera_matrix");
+    GLint camera_matrix_location = glGetUniformLocation(data.shader, "u_camera_matrix");
     glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
   }
 }
@@ -276,25 +276,25 @@ static inline void lgl__mvp(const lgl_object_t data, unsigned int i) {
 void lgl_draw_instanced(const lgl_object_t object) {
 
     { // render flags
-      if ((object.render_flags[0] & LGL_FLAG_ENABLED) == 0) {
+      if ((object.render_flags & LGL_FLAG_ENABLED) == 0) {
         return;
       }
 
-      if (object.render_flags[0] & LGL_FLAG_USE_WIREFRAME) {
+      if (object.render_flags & LGL_FLAG_USE_WIREFRAME) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       }
 
-      if (object.render_flags[0] & LGL_FLAG_USE_STENCIL) {
+      if (object.render_flags & LGL_FLAG_USE_STENCIL) {
         glStencilMask(0xFF);
       } else {
         glStencilMask(0x00);
       }
     }
   
-    glUseProgram(object.shader[0]);
-    glUniform1i(glGetUniformLocation(object.shader[0], "u_use_instancing"), 1);
+    glUseProgram(object.shader);
+    glUniform1i(glGetUniformLocation(object.shader, "u_use_instancing"), 1);
 
     { // camera matrix
       GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
@@ -304,18 +304,18 @@ void lgl_draw_instanced(const lgl_object_t object) {
           lgl__active_context->camera.view,
           lgl__active_context->camera.projection);
 
-      GLint camera_matrix_location = glGetUniformLocation(object.shader[0], "u_camera_matrix");
+      GLint camera_matrix_location = glGetUniformLocation(object.shader, "u_camera_matrix");
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
     glUniform4f(
-        glGetUniformLocation( object.shader[0], "u_color"),
-        object.color[0].x,
-        object.color[0].y,
-        object.color[0].z,
-        object.color[0].w);
+        glGetUniformLocation( object.shader, "u_color"),
+        object.color.x,
+        object.color.y,
+        object.color.z,
+        object.color.w);
 
-    glBindVertexArray(object.VAO[0]);
+    glBindVertexArray(object.VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_length, object.length);
     glUseProgram(0);
 }
@@ -328,64 +328,64 @@ void lgl_draw(
   for(size_t i = 0; i < data_length; i++) {
 
     { // render flags
-      if ((data.render_flags[i] & LGL_FLAG_ENABLED) == 0) {
+      if ((data.render_flags & LGL_FLAG_ENABLED) == 0) {
         continue;
       }
 
-      if (data.render_flags[i] & LGL_FLAG_USE_WIREFRAME) {
+      if (data.render_flags & LGL_FLAG_USE_WIREFRAME) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       }
 
-      if (data.render_flags[i] & LGL_FLAG_USE_STENCIL) {
+      if (data.render_flags & LGL_FLAG_USE_STENCIL) {
         glStencilMask(0xFF);
       } else {
         glStencilMask(0x00);
       }
     }
 
-    glUseProgram(data.shader[i]);
-    glUniform1i(glGetUniformLocation(data.shader[i], "u_use_instancing"), 0);
+    glUseProgram(data.shader);
+    glUniform1i(glGetUniformLocation(data.shader, "u_use_instancing"), 0);
 
     lgl__mvp(data+i);
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, data.diffuse_map[i]);
+      glBindTexture(GL_TEXTURE_2D, data.diffuse_map);
 
       glActiveTexture(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, data.specular_map[i]);
 
-      glUniform2f(glGetUniformLocation(data.shader[i], "u_texture_offset"),
-          data.texture_offset[i].x,
-          data.texture_offset[i].y);
+      glUniform2f(glGetUniformLocation(data.shader, "u_texture_offset"),
+          data.texture_offset.x,
+          data.texture_offset.y);
 
-      glUniform2f(glGetUniformLocation(data.shader[i], "u_texture_scale"),
-          data.texture_scale[i].x,
-          data.texture_scale[i].y);
+      glUniform2f(glGetUniformLocation(data.shader, "u_texture_scale"),
+          data.texture_scale.x,
+          data.texture_scale.y);
     }
 
     { // other material properties
-      glUniform1i(glGetUniformLocation(data.shader[i], "u_material.diffuse"), 0);
-      glUniform1i(glGetUniformLocation(data.shader[i], "u_material.specular"), 1);
-      glUniform1f(glGetUniformLocation(data.shader[i], "u_material.shininess"), 8.0f);
+      glUniform1i(glGetUniformLocation(data.shader, "u_material.diffuse"), 0);
+      glUniform1i(glGetUniformLocation(data.shader, "u_material.specular"), 1);
+      glUniform1f(glGetUniformLocation(data.shader, "u_material.shininess"), 8.0f);
 
       glUniform3f(
-          glGetUniformLocation(data.shader[i], "u_ambient_light"), 
+          glGetUniformLocation(data.shader, "u_ambient_light"), 
           0.2, 0.2, 0.2);
 
       glUniform4f(
-          glGetUniformLocation( data.shader[i], "u_color"),
-          data.color[i].x,
-          data.color[i].y,
-          data.color[i].z,
-          data.color[i].w);
+          glGetUniformLocation( data.shader, "u_color"),
+          data.color.x,
+          data.color.y,
+          data.color.z,
+          data.color.w);
     }
 
 #if 0 // lighting uniforms
     for(GLuint light = 0; light < data[i].lights_count; light++) {
-      glUniform1ui(glGetUniformLocation(data.shader[i], "u_lights_count"),
+      glUniform1ui(glGetUniformLocation(data.shader, "u_lights_count"),
           data[i].lights_count);
       {
         char uniform_name[64] = {0};
@@ -396,7 +396,7 @@ void lgl_draw(
             "u_lights[%d].type",
             light);
 
-        glUniform1i(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1i(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].type);
       }
 
@@ -409,7 +409,7 @@ void lgl_draw(
             "u_lights[%d].position",
             light);
 
-        glUniform3f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].position.x,
             data[i].lights[light].position.y,
             data[i].lights[light].position.z);
@@ -423,7 +423,7 @@ void lgl_draw(
             "u_lights[%d].direction",
             light);
 
-        glUniform3f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].direction.x,
             data[i].lights[light].direction.y,
             data[i].lights[light].direction.z);
@@ -437,7 +437,7 @@ void lgl_draw(
             "u_lights[%d].cut_off",
             light);
 
-        glUniform1f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].cut_off);
       }
       {
@@ -449,7 +449,7 @@ void lgl_draw(
             "u_lights[%d].outer_cut_off",
             light);
 
-        glUniform1f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].outer_cut_off);
       }
       {
@@ -461,7 +461,7 @@ void lgl_draw(
             "u_lights[%d].constant",
             light);
 
-        glUniform1f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].constant);
       }
       {
@@ -473,7 +473,7 @@ void lgl_draw(
             "u_lights[%d].linear",
             light);
 
-        glUniform1f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].linear);
       }
       {
@@ -485,7 +485,7 @@ void lgl_draw(
             "u_lights[%d].quadratic",
             light);
 
-        glUniform1f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].quadratic);
       }
       {
@@ -497,7 +497,7 @@ void lgl_draw(
             "u_lights[%d].diffuse",
             light);
 
-        glUniform3f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].diffuse.x,
             data[i].lights[light].diffuse.y,
             data[i].lights[light].diffuse.z);
@@ -511,7 +511,7 @@ void lgl_draw(
             "u_lights[%d].specular",
             light);
 
-        glUniform3f(glGetUniformLocation(data.shader[i], uniform_name),
+        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
             data[i].lights[light].specular.x,
             data[i].lights[light].specular.y,
             data[i].lights[light].specular.z);
@@ -519,7 +519,7 @@ void lgl_draw(
     }
 #endif
 
-    glBindVertexArray(data.VAO[i]);
+    glBindVertexArray(data.VAO);
     glDrawArrays(GL_TRIANGLES, 0, data.vertices_length);
     glUseProgram(0);
   }
@@ -548,14 +548,14 @@ lgl_object_t lgl_quad_alloc(void) {
   quad.position[0]        = vector3_zero();
   quad.rotation[0]        = quaternion_identity();
 
-  quad.texture_offset[0]  = vector2_zero();
-  quad.texture_scale[0]   = vector2_one(1.0);
+  quad.texture_offset  = vector2_zero();
+  quad.texture_scale   = vector2_one(1.0);
 
-  quad.render_flags[0]    = LGL_FLAG_ENABLED;
+  quad.render_flags       = LGL_FLAG_ENABLED;
 
   lgl__buffer_vertex_array(
-      &quad.VAO[0],
-      &quad.VBO[0],
+      &quad.VAO,
+      &quad.VBO,
       quad.vertices_length,
       quad.vertices);
 
@@ -617,40 +617,32 @@ lgl_object_t lgl_cube_alloc(unsigned int length) {
     { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
   };
 
-  cube.vertices           = cube_vertices;
-  cube.vertices_length    = cube_vertices_count;
+  cube.vertices        = cube_vertices;
+  cube.vertices_length = cube_vertices_count;
 
-  cube.VAO                = calloc(sizeof(*cube.VAO),            length);
-  cube.VBO                = calloc(sizeof(*cube.VBO),            length);
-  cube.shader             = calloc(sizeof(*cube.shader),         length);
-  cube.scale              = calloc(sizeof(*cube.scale),          length);
-  cube.position           = calloc(sizeof(*cube.position),       length);
-  cube.rotation           = calloc(sizeof(*cube.rotation),       length);
-  cube.color              = calloc(sizeof(*cube.color),          length);
-  cube.diffuse_map        = calloc(sizeof(*cube.diffuse_map),    length);
-  cube.specular_map       = calloc(sizeof(*cube.specular_map),   length);
-  cube.texture_offset     = calloc(sizeof(*cube.texture_offset), length);
-  cube.texture_scale      = calloc(sizeof(*cube.texture_scale),  length);
-  cube.render_flags       = calloc(sizeof(*cube.render_flags),   length);
+  cube.scale    = calloc(sizeof(*cube.scale),    length);
+  cube.position = calloc(sizeof(*cube.position), length);
+  cube.rotation = calloc(sizeof(*cube.rotation), length);
 
-  cube.length             = length;
+  cube.length = length;
 
   for(unsigned int j = 0; j < length; j++) {
 
-    cube.scale[j]           = vector3_one(0.5);
-    cube.position[j]        = vector3_zero();
-    cube.rotation[j]        = quaternion_identity();
+    cube.scale[j]    = vector3_one(1.0);
+    cube.position[j] = vector3_zero();
+    cube.rotation[j] = quaternion_identity();
 
-    cube.texture_offset[j]  = vector2_zero();
-    cube.texture_scale[j]   = vector2_one(1.0);
-    cube.render_flags[j]    = LGL_FLAG_ENABLED;
+    cube.texture_offset = vector2_zero();
+    cube.texture_scale  = vector2_one(1.0);
+    cube.render_flags   = LGL_FLAG_ENABLED;
 
-    lgl__buffer_vertex_array(
-        &cube.VAO[j],
-        &cube.VBO[j],
-        cube.vertices_length,
-        cube.vertices);
   }
+
+  lgl__buffer_vertex_array(
+      &cube.VAO,
+      &cube.VBO,
+      cube.vertices_length,
+      cube.vertices);
 
   return cube;
 }
@@ -695,8 +687,8 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
   glDrawBuffers(2, attachments);
 
   frame.quad = lgl_cube_alloc(1); {
-    frame.quad.shader[0]        =  shader;
-    frame.quad.diffuse_map[0]   =  frame.color_buffers[0];
+    frame.quad.shader        =  shader;
+    frame.quad.diffuse_map   =  frame.color_buffers[0];
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
@@ -749,7 +741,7 @@ static void lgl__framebuffer_resize(const int width, const int height) {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  lgl__active_framebuffer->quad.diffuse_map[0] = lgl__active_framebuffer->color_buffers[0];
+  lgl__active_framebuffer->quad.diffuse_map = lgl__active_framebuffer->color_buffers[0];
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
