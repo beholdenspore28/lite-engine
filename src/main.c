@@ -156,8 +156,8 @@ void galaxy_distribution(
 
   for(unsigned int i = 0; i < stars.length; i++) {
     stars.position[i] = vector3_point_in_unit_sphere(i);
-    vector3_t gravity = vector3_normalize(vector3_negate(stars.position[i]));
-    stars.position[i] = vector3_add(stars.position[i], gravity);
+    vector3_t gravity = vector3_normalize(stars.position[i]);
+    stars.position[i] = vector3_subtract(stars.position[i], gravity);
 
     stars.position[i].x *= arm_thickness;
     stars.position[i].z *= arm_length;
@@ -172,7 +172,7 @@ void galaxy_distribution(
 }
 
 int main() {
-  lgl_context_t *context = lgl_start(854, 480);
+  lgl_context_t *context = lgl_start(1600, 900);
 
   glClearColor(0,0,0,1);
 
@@ -244,13 +244,13 @@ int main() {
 
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
-  stars.color = vector4_one(1.0);
+  stars.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.scale[i]          = vector3_one(0.1);
+    stars.scale[i] = vector3_one(0.04);
   }
 
-  galaxy_distribution(stars, 10, 0.2, 2, 5, PI/5);
+  galaxy_distribution(stars, 10, 0.3, 3, 5, -PI/5);
 
   GLfloat model_matrices[stars.length][16];
   for(unsigned int i = 0; i < stars.length; i++) {
@@ -348,7 +348,6 @@ int main() {
           context->time_FPS,
           context->time_delta);
 
-
       glfwSetWindowTitle(context->GLFWwindow, window_title);
     }
 
@@ -390,6 +389,8 @@ int main() {
     lgl_end_frame();
   }
 
+  lgl_object_free(stars);
+  lgl_framebuffer_free(frame);
   lgl_free(context);
 
   return 0;

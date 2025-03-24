@@ -99,6 +99,7 @@ typedef struct {
 } lgl_framebuffer_t;
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
+void lgl_framebuffer_free(lgl_framebuffer_t frame);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 
@@ -133,6 +134,7 @@ enum {
 };
 
 lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype);
+void lgl_object_free(lgl_object_t object);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
     debug_log("");

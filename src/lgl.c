@@ -516,32 +516,6 @@ void lgl_draw(const lgl_object_t data) {
   }
 }
 
-#if 0
-lgl_object_t lgl_quad_alloc(void) {
-  lgl_object_t quad = {0};
-
-  quad.vertices           = quad_vertices;
-  quad.vertices_length    = quad_vertices_count;
-
-  quad.scale[0]           = vector3_one(1.0);
-  quad.position[0]        = vector3_zero();
-  quad.rotation[0]        = quaternion_identity();
-
-  quad.texture_offset  = vector2_zero();
-  quad.texture_scale   = vector2_one(1.0);
-
-  quad.render_flags       = LGL_FLAG_ENABLED;
-
-  lgl__buffer_vertex_array(
-      &quad.VAO,
-      &quad.VBO,
-      quad.vertices_length,
-      quad.vertices);
-
-  return quad;
-}
-#endif
-
 lgl_object_t lgl_object_alloc(
     unsigned int length,
     unsigned int archetype) {
@@ -655,6 +629,12 @@ lgl_object_t lgl_object_alloc(
   return object;
 }
 
+void lgl_object_free(lgl_object_t object) {
+  free(object.scale);
+  free(object.position);
+  free(object.rotation);
+}
+
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) { 
 
   lgl_framebuffer_t frame;
@@ -703,6 +683,10 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   return frame;
+}
+
+void lgl_framebuffer_free(lgl_framebuffer_t frame) {
+  lgl_object_free(frame.quad);
 }
 
 static void lgl__framebuffer_resize(const int width, const int height) { 
@@ -801,6 +785,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   //glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
   lgl__active_context->GLFWwindow = glfwCreateWindow(width, height, "Game Window", NULL, NULL);
@@ -808,12 +793,25 @@ lgl_context_t *lgl_start(const int width, const int height) {
     debug_error("Failed to create GLFW window");
   }
 
+  glfwDefaultWindowHints();
   glfwMakeContextCurrent(lgl__active_context->GLFWwindow);
 
   glfwSetFramebufferSizeCallback(
       lgl__active_context->GLFWwindow, lgl__framebuffer_size_callback);
 
   glfwSwapInterval(0); // disable vsync
+
+  { // center the window
+    const GLFWvidmode * mode       = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    
+    unsigned int resolution_width  = mode->width;
+    unsigned int resolution_height = mode->height;
+    unsigned int position_x        = (-width/2 ) + resolution_width/2;
+    unsigned int position_y        = (-height/2) + resolution_height/2;
+    
+    glfwSetWindowPos(lgl__active_context->GLFWwindow, position_x, position_y);
+  }
+  glfwShowWindow(lgl__active_context->GLFWwindow);
 
   gladLoadGL(glfwGetProcAddress);
 
