@@ -166,12 +166,12 @@ void lgl__buffer_vertex_array (
 
 #if 0
 void lgl_outline(
-    const size_t         data_length,
+    const size_t         data.length,
     lgl_object_t   *data,
     const GLuint         outline_shader,
     const float          thickness){
 
-  for(size_t i = 0; i < data_length; i++) { 
+  for(size_t i = 0; i < data.length; i++) { 
 
     if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
       debug_warn(
@@ -229,48 +229,6 @@ void lgl_camera_update(void) {
     quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
     lgl_mat4_multiply(lgl__active_context->camera.view, translation, rotation);
   }
-
-}
-
-static inline void lgl__mvp(const lgl_object_t data, unsigned int i) {
-
-  { // Model
-
-    GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
-
-    {
-      GLfloat scale[16]; lgl_mat4_identity(scale);
-      scale[0 ] = data.scale[i].x;
-      scale[5 ] = data.scale[i].y;
-      scale[10] = data.scale[i].z;
-
-      GLfloat translation[16]; lgl_mat4_identity(translation);
-      translation[12] = data.position[i].x;
-      translation[13] = data.position[i].y;
-      translation[14] = data.position[i].z;
-
-      GLfloat rotation[16] = {0};
-      quaternion_to_mat4(data.rotation[i], rotation);
-
-      lgl_mat4_multiply(model_matrix, scale, rotation);
-      lgl_mat4_multiply(model_matrix, model_matrix, translation);
-    }
-
-    GLint model_matrix_location = glGetUniformLocation(data.shader, "u_model_matrix");
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
-  }
-
-  { // camera matrix
-    GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
-
-    lgl_mat4_multiply(
-        camera_matrix,
-        lgl__active_context->camera.view,
-        lgl__active_context->camera.projection);
-
-    GLint camera_matrix_location = glGetUniformLocation(data.shader, "u_camera_matrix");
-    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
-  }
 }
 
 void lgl_draw_instanced(const lgl_object_t object) {
@@ -320,12 +278,9 @@ void lgl_draw_instanced(const lgl_object_t object) {
     glUseProgram(0);
 }
 
-#if 0
-void lgl_draw(
-    const size_t             data_length,
-    const lgl_object_t *data) {
+void lgl_draw(const lgl_object_t data) {
 
-  for(size_t i = 0; i < data_length; i++) {
+  for(size_t i = 0; i < data.length; i++) {
 
     { // render flags
       if ((data.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -348,14 +303,50 @@ void lgl_draw(
     glUseProgram(data.shader);
     glUniform1i(glGetUniformLocation(data.shader, "u_use_instancing"), 0);
 
-    lgl__mvp(data+i);
+    { // Model
+
+      GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
+
+      {
+        GLfloat scale[16]; lgl_mat4_identity(scale);
+        scale[0 ] = data.scale[i].x;
+        scale[5 ] = data.scale[i].y;
+        scale[10] = data.scale[i].z;
+
+        GLfloat translation[16]; lgl_mat4_identity(translation);
+        translation[12] = data.position[i].x;
+        translation[13] = data.position[i].y;
+        translation[14] = data.position[i].z;
+
+        GLfloat rotation[16] = {0};
+        quaternion_to_mat4(data.rotation[i], rotation);
+
+        lgl_mat4_multiply(model_matrix, scale, rotation);
+        lgl_mat4_multiply(model_matrix, model_matrix, translation);
+      }
+
+      GLint model_matrix_location = glGetUniformLocation(data.shader, "u_model_matrix");
+      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+    }
+
+    { // camera matrix
+      GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
+
+      lgl_mat4_multiply(
+          camera_matrix,
+          lgl__active_context->camera.view,
+          lgl__active_context->camera.projection);
+
+      GLint camera_matrix_location = glGetUniformLocation(data.shader, "u_camera_matrix");
+      glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
+    }
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, data.diffuse_map);
 
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, data.specular_map[i]);
+      glBindTexture(GL_TEXTURE_2D, data.specular_map);
 
       glUniform2f(glGetUniformLocation(data.shader, "u_texture_offset"),
           data.texture_offset.x,
@@ -375,12 +366,21 @@ void lgl_draw(
           glGetUniformLocation(data.shader, "u_ambient_light"), 
           0.2, 0.2, 0.2);
 
+      if (i % 2 == 0) {
       glUniform4f(
           glGetUniformLocation( data.shader, "u_color"),
           data.color.x,
           data.color.y,
           data.color.z,
           data.color.w);
+      } else {
+      glUniform4f(
+          glGetUniformLocation( data.shader, "u_color"),
+          0.5,
+          0.5,
+          1.0,
+          1.0);
+      }
     }
 
 #if 0 // lighting uniforms
@@ -524,7 +524,6 @@ void lgl_draw(
     glUseProgram(0);
   }
 }
-#endif
 
 #if 0
 lgl_object_t lgl_quad_alloc(void) {

@@ -242,15 +242,15 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_object_alloc(40000, LGL_OBJECT_ARCHETYPE_CUBE); 
+  lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
   stars.color = vector4_one(1.0);
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.scale[i]          = vector3_one(0.04);
+    stars.scale[i]          = vector3_one(0.1);
   }
 
-  galaxy_distribution(stars, 10, 0.3, 4, 8, PI/5);
+  galaxy_distribution(stars, 10, 0.2, 2, 5, PI/5);
 
   GLfloat model_matrices[stars.length][16];
   for(unsigned int i = 0; i < stars.length; i++) {
@@ -275,10 +275,6 @@ int main() {
       lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
     }
   }
-
-  //for(int i = 0; i < stars.length; i++) {
-  //  lgl_mat4_print(model_matrices[i]);
-  //}
 
   // -------------------------
   // configure instanced array
@@ -373,7 +369,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 0
+#if 1
       lgl_draw(stars);
 #else
       lgl_draw_instanced(stars);
