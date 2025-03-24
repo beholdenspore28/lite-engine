@@ -362,6 +362,21 @@ int main() {
     }
 
     { // draw scene to the frame
+      glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
+
+      glClear(
+          GL_COLOR_BUFFER_BIT |
+          GL_DEPTH_BUFFER_BIT |
+          GL_STENCIL_BUFFER_BIT);
+
+#if 0
+      lgl_draw(stars);
+#else
+      lgl_draw_instanced(stars);
+#endif
+    }
+
+    { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(
@@ -369,23 +384,8 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 1
-      lgl_draw(stars);
-#else
-      lgl_draw_instanced(stars);
-#endif
+      lgl_draw(frame.quad);
     }
-
-    //{ // draw the frame to the screen
-    //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //  glClear(
-    //      GL_COLOR_BUFFER_BIT |
-    //      GL_DEPTH_BUFFER_BIT |
-    //      GL_STENCIL_BUFFER_BIT);
-
-    //  lgl_draw(1, &frame.quad);
-    //}
 
     lgl_end_frame();
   }

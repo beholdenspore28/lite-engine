@@ -366,21 +366,12 @@ void lgl_draw(const lgl_object_t data) {
           glGetUniformLocation(data.shader, "u_ambient_light"), 
           0.2, 0.2, 0.2);
 
-      if (i % 2 == 0) {
       glUniform4f(
           glGetUniformLocation( data.shader, "u_color"),
           data.color.x,
           data.color.y,
           data.color.z,
           data.color.w);
-      } else {
-      glUniform4f(
-          glGetUniformLocation( data.shader, "u_color"),
-          0.5,
-          0.5,
-          1.0,
-          1.0);
-      }
     }
 
 #if 0 // lighting uniforms
