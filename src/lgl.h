@@ -66,26 +66,23 @@ typedef struct {
 } lgl_context_t;
 
 typedef struct {
-  GLuint             VAO;
-  GLuint             VBO;
-
-  list_lgl_vertex_t  vertices;
-  
-  vector3_t          position;
-  vector3_t          scale;
-  quaternion_t       rotation;
-
-  GLuint             shader;
-  GLuint             diffuse_map;
-  GLuint             specular_map;
-  vector2_t          texture_offset;
-  vector2_t          texture_scale;
-  vector4_t          color;
-
+  GLuint            *VAO;
+  GLuint            *VBO;
+  lgl_vertex_t      *vertices;
+  GLuint             vertices_length;
+  vector3_t         *position;
+  vector3_t         *scale;
+  quaternion_t      *rotation;
+  GLuint            *shader;
+  GLuint            *diffuse_map;
+  GLuint            *specular_map;
+  vector2_t         *texture_offset;
+  vector2_t         *texture_scale;
+  vector4_t         *color;
   lgl_light_t       *lights;
   GLuint             lights_count;
-
-  GLint              render_flags;
+  GLint             *render_flags;
+  GLuint             length;
 } lgl_object_t;
 
 DECLARE_LIST(lgl_object_t)
@@ -97,17 +94,12 @@ typedef struct {
   lgl_object_t  quad;
 } lgl_framebuffer_t;
 
-void lgl_draw_instanced(
-    unsigned int       count,
-    lgl_object_t *instance);
-
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
 
-void lgl_draw(
-    const size_t             data_length,
-    const lgl_object_t *data);
+void lgl_draw           (const lgl_object_t object);
+void lgl_draw_instanced (const lgl_object_t object);
 
 enum {
   LGL_FLAG_ENABLED       = 1,

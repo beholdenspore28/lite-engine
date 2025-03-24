@@ -2,6 +2,7 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
+#if 0
 lgl_object_t asteroid_mesh_alloc(void) {
 
 	lgl_object_t mesh;
@@ -71,6 +72,7 @@ lgl_object_t asteroid_mesh_alloc(void) {
 
 	return mesh;
 }
+#endif
 
 void camera_update(lgl_context_t *context) {
   { // movement
@@ -145,35 +147,34 @@ static inline vector3_t swirl(vector3_t point, float strength_01) {
 }
 
 void galaxy_distribution(
-    unsigned int       count,
-    lgl_object_t *stars,
+    lgl_object_t       stars,
     float              radius,
     float              swirl_strength,
     float              arm_thickness,
     float              arm_length,
     float              tilt) {
 
-  for(unsigned int i = 0; i < count; i++) {
+  for(unsigned int i = 0; i < stars.length; i++) {
     // two tone color
     if (i % 2 == 0) {
-      stars[i].color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
+      stars.color[0] = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
     } else {
-      stars[i].color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
+      stars.color[0] = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
     }
 
-    stars[i].position = vector3_point_in_unit_sphere(i);
-    vector3_t gravity = vector3_normalize(vector3_negate(stars[i].position));
-    stars[i].position = vector3_add(stars[i].position, gravity);
+    stars.position[0] = vector3_point_in_unit_sphere(i);
+    vector3_t gravity = vector3_normalize(vector3_negate(stars.position[0]));
+    stars.position[0] = vector3_add(stars.position[0], gravity);
 
-    stars[i].position.x *= arm_thickness;
-    stars[i].position.z *= arm_length;
+    stars.position[0].x *= arm_thickness;
+    stars.position[0].z *= arm_length;
     
-    stars[i].position = swirl(stars[i].position, swirl_strength);
+    stars.position[0] = swirl(stars.position[0], swirl_strength);
 
-    stars[i].position = vector3_scale(stars[i].position, radius);
+    stars.position[0] = vector3_scale(stars.position[0], radius);
 
-    stars[i].position = vector3_rotate(
-        stars[i].position, quaternion_from_euler(vector3_right(tilt)));
+    stars.position[0] = vector3_rotate(
+        stars.position[0], quaternion_from_euler(vector3_right(tilt)));
   }
 }
 
@@ -248,43 +249,41 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  enum { STARS_LENGTH = 40000 };
-  lgl_object_t star = lgl_cube_alloc();
-  lgl_object_t stars[STARS_LENGTH];
+  lgl_object_t stars = lgl_cube_alloc();
+  stars.length = 1000;
 
-  for(int i = 0; i < STARS_LENGTH; i++) {
-    stars[i]                = star;
-    stars[i].shader         = shader_solid;
-    stars[i].scale          = vector3_one(0.04);
+  for(unsigned int i = 0; i < stars.length; i++) {
+    stars.shader[i]         = shader_solid;
+    stars.scale[i]          = vector3_one(0.04);
   }
 
-  galaxy_distribution(STARS_LENGTH, stars, 10, 0.1, 4, 8, PI/5);
+  galaxy_distribution(stars, 10, 0.1, 4, 8, PI/5);
 
-  GLfloat model_matrices[STARS_LENGTH][16];
-  for(unsigned int i = 0; i < STARS_LENGTH; i++) {
+  GLfloat model_matrices[stars.length][16];
+  for(unsigned int i = 0; i < stars.length; i++) {
 
     lgl_mat4_identity(model_matrices[i]);
 
     {
       GLfloat scale[16]; lgl_mat4_identity(scale);
-      scale[0 ] = stars[i].scale.x;
-      scale[5 ] = stars[i].scale.y;
-      scale[10] = stars[i].scale.z;
+      scale[0 ] = stars.scale[i].x;
+      scale[5 ] = stars.scale[i].y;
+      scale[10] = stars.scale[i].z;
 
       GLfloat translation[16]; lgl_mat4_identity(translation);
-      translation[12] = stars[i].position.x;
-      translation[13] = stars[i].position.y;
-      translation[14] = stars[i].position.z;
+      translation[12] = stars.position[i].x;
+      translation[13] = stars.position[i].y;
+      translation[14] = stars.position[i].z;
 
       GLfloat rotation[16] = {0};
-      quaternion_to_mat4(stars[i].rotation, rotation);
+      quaternion_to_mat4(stars.rotation[i], rotation);
 
       lgl_mat4_multiply(model_matrices[i], scale, rotation);
       lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
     }
   }
 
-  //for(int i = 0; i < STARS_LENGTH; i++) {
+  //for(int i = 0; i < stars.length; i++) {
   //  lgl_mat4_print(model_matrices[i]);
   //}
 
@@ -296,10 +295,10 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
   glBufferData(
-      GL_ARRAY_BUFFER, STARS_LENGTH * sizeof(GLfloat) * 16,
+      GL_ARRAY_BUFFER, stars.length * sizeof(GLfloat) * 16,
       &model_matrices[0], GL_STATIC_DRAW);
 
-  glBindVertexArray(stars[0].VAO);
+  glBindVertexArray(stars.VAO[0]);
 
   // set attribute pointers for matrix (4 times vec4)
   glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)0);
@@ -382,9 +381,9 @@ int main() {
           GL_STENCIL_BUFFER_BIT);
 
 #if 0
-      lgl_draw(STARS_LENGTH, stars);
+      lgl_draw(stars.length, stars);
 #else
-      lgl_draw_instanced(STARS_LENGTH, stars);
+      lgl_draw_instanced(stars);
 #endif
     }
 
