@@ -119,7 +119,7 @@ lgl_context_t *lgl_start(const int width, const int height);
 
 void lgl_end_frame(void);
 void lgl_free(lgl_context_t *context);
-void  lgl_viewport_set(const float width, const float height);
+void lgl_viewport_set(const float width, const float height);
 
 void lgl_outline(
     const size_t         data_length,

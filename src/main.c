@@ -374,7 +374,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(
           GL_COLOR_BUFFER_BIT |
@@ -388,16 +388,16 @@ int main() {
 #endif
     }
 
-    { // draw the frame to the screen
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //{ // draw the frame to the screen
+    //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      glClear(
-          GL_COLOR_BUFFER_BIT |
-          GL_DEPTH_BUFFER_BIT |
-          GL_STENCIL_BUFFER_BIT);
+    //  glClear(
+    //      GL_COLOR_BUFFER_BIT |
+    //      GL_DEPTH_BUFFER_BIT |
+    //      GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(1, &frame.quad);
-    }
+    //  lgl_draw(1, &frame.quad);
+    //}
 
     lgl_end_frame();
   }

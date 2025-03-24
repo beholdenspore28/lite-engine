@@ -164,6 +164,7 @@ void lgl__buffer_vertex_array (
   glEnableVertexAttribArray(2);
 }
 
+#if 0
 void lgl_outline(
     const size_t         data_length,
     lgl_object_t   *data,
@@ -200,6 +201,7 @@ void lgl_outline(
     data[i].shader = shader_tmp;
   }
 }
+#endif
 
 void lgl_camera_update(void) {
 
@@ -320,6 +322,7 @@ void lgl_draw_instanced(
     glUseProgram(0);
 }
 
+#if 0
 void lgl_draw(
     const size_t             data_length,
     const lgl_object_t *data) {
@@ -523,6 +526,7 @@ void lgl_draw(
     glUseProgram(0);
   }
 }
+#endif
 
 lgl_object_t lgl_quad_alloc(void) {
   lgl_object_t quad = {0};
