@@ -123,7 +123,7 @@ GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_object_t lgl_quad_alloc(void);
-lgl_object_t lgl_cube_alloc(void);
+lgl_object_t lgl_cube_alloc(unsigned int length);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
     debug_log("");

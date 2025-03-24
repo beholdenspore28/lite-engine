@@ -562,7 +562,7 @@ lgl_object_t lgl_quad_alloc(void) {
   return quad;
 }
 
-lgl_object_t lgl_cube_alloc(void) {
+lgl_object_t lgl_cube_alloc(unsigned int length) {
   lgl_object_t cube = {0};
 
   enum { cube_vertices_count = 36 };
@@ -620,20 +620,37 @@ lgl_object_t lgl_cube_alloc(void) {
   cube.vertices           = cube_vertices;
   cube.vertices_length    = cube_vertices_count;
 
-  cube.scale[0]           = vector3_one(0.5);
-  cube.position[0]        = vector3_zero();
-  cube.rotation[0]        = quaternion_identity();
+  cube.VAO                = calloc(sizeof(*cube.VAO),            length);
+  cube.VBO                = calloc(sizeof(*cube.VBO),            length);
+  cube.shader             = calloc(sizeof(*cube.shader),         length);
+  cube.scale              = calloc(sizeof(*cube.scale),          length);
+  cube.position           = calloc(sizeof(*cube.position),       length);
+  cube.rotation           = calloc(sizeof(*cube.rotation),       length);
+  cube.color              = calloc(sizeof(*cube.color),          length);
+  cube.diffuse_map        = calloc(sizeof(*cube.diffuse_map),    length);
+  cube.specular_map       = calloc(sizeof(*cube.specular_map),   length);
+  cube.texture_offset     = calloc(sizeof(*cube.texture_offset), length);
+  cube.texture_scale      = calloc(sizeof(*cube.texture_scale),  length);
+  cube.render_flags       = calloc(sizeof(*cube.render_flags),   length);
 
-  cube.texture_offset[0]  = vector2_zero();
-  cube.texture_scale[0]   = vector2_one(1.0);
+  cube.length             = length;
 
-  cube.render_flags[0]    = LGL_FLAG_ENABLED;
+  for(unsigned int j = 0; j < length; j++) {
 
-  lgl__buffer_vertex_array(
-      &cube.VAO[0],
-      &cube.VBO[0],
-      cube.vertices_length,
-      cube.vertices);
+    cube.scale[j]           = vector3_one(0.5);
+    cube.position[j]        = vector3_zero();
+    cube.rotation[j]        = quaternion_identity();
+
+    cube.texture_offset[j]  = vector2_zero();
+    cube.texture_scale[j]   = vector2_one(1.0);
+    cube.render_flags[j]    = LGL_FLAG_ENABLED;
+
+    lgl__buffer_vertex_array(
+        &cube.VAO[j],
+        &cube.VBO[j],
+        cube.vertices_length,
+        cube.vertices);
+  }
 
   return cube;
 }
@@ -677,7 +694,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  frame.quad = lgl_cube_alloc(); {
+  frame.quad = lgl_cube_alloc(1); {
     frame.quad.shader[0]        =  shader;
     frame.quad.diffuse_map[0]   =  frame.color_buffers[0];
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;

@@ -249,8 +249,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_cube_alloc();
-  stars.length = 1000;
+  lgl_object_t stars = lgl_cube_alloc(1000); 
 
   for(unsigned int i = 0; i < stars.length; i++) {
     stars.shader[i]         = shader_solid;
