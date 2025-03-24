@@ -704,7 +704,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE); {
+  frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_QUAD); {
     frame.quad.shader        =  shader;
     frame.quad.diffuse_map   =  frame.color_buffers[0];
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
