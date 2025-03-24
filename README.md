@@ -2,7 +2,7 @@
 
 # ⚠️ Lite-Engine is under development and should not be used for production projects yet. ⚠️
 
-![galaxy_preview](./doc/img/galaxy_preview.png)
+![galaxy_preview](./doc/img/galaxy_review.png)
 
 # The mission.
 I created Lite-Engine with the purpose of providing a light-weight, extendable,
