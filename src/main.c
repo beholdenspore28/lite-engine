@@ -247,10 +247,10 @@ int main() {
   stars.color = vector4_one(1.0);
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.scale[i]          = vector3_one(0.1);
+    stars.scale[i]          = vector3_one(0.04);
   }
 
-  galaxy_distribution(stars, 10, 0.1, 4, 8, PI/5);
+  galaxy_distribution(stars, 10, 0.3, 4, 8, PI/5);
 
   GLfloat model_matrices[stars.length][16];
   for(unsigned int i = 0; i < stars.length; i++) {
