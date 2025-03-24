@@ -242,7 +242,7 @@ int main() {
   // ---------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_cube_alloc(40000); 
+  lgl_object_t stars = lgl_object_alloc(40000, LGL_OBJECT_ARCHETYPE_QUAD); 
   stars.shader = shader_solid;
   stars.color = vector4_one(1.0);
 

@@ -526,20 +526,9 @@ void lgl_draw(
 }
 #endif
 
+#if 0
 lgl_object_t lgl_quad_alloc(void) {
   lgl_object_t quad = {0};
-
-  enum { quad_vertices_count = 6 };
-  lgl_vertex_t quad_vertices[quad_vertices_count] = { 
-    //position                        //normal          //tex coord
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, 0.0 }, vector3_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
-
-    { { LGL__LEFT,  LGL__UP,   0.0 }, vector3_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
-  };
 
   quad.vertices           = quad_vertices;
   quad.vertices_length    = quad_vertices_count;
@@ -561,90 +550,119 @@ lgl_object_t lgl_quad_alloc(void) {
 
   return quad;
 }
+#endif
 
-lgl_object_t lgl_cube_alloc(unsigned int length) {
-  lgl_object_t cube = {0};
+lgl_object_t lgl_object_alloc(
+    unsigned int length,
+    unsigned int archetype) {
 
-  enum { cube_vertices_count = 36 };
-  lgl_vertex_t cube_vertices[cube_vertices_count] = { 
-    //position                                 //normal             //tex coord
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+  lgl_object_t object = {0};
 
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+  object.scale    = calloc(sizeof(*object.scale),    length);
+  object.position = calloc(sizeof(*object.position), length);
+  object.rotation = calloc(sizeof(*object.rotation), length);
 
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
-
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
-
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_left(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
-
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_left(1.0),    { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
-
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_right(1.0),   { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
-
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_right(1.0),   { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
-
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 1.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
-
-    { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
-    { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 0.0, 0.0 } },
-    { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
-
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 1.0, 1.0 } },
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
-
-    { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 0.0, 0.0 } },
-    { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
-  };
-
-  cube.vertices        = cube_vertices;
-  cube.vertices_length = cube_vertices_count;
-
-  cube.scale    = calloc(sizeof(*cube.scale),    length);
-  cube.position = calloc(sizeof(*cube.position), length);
-  cube.rotation = calloc(sizeof(*cube.rotation), length);
-
-  cube.length = length;
+  object.length = length;
 
   for(unsigned int j = 0; j < length; j++) {
 
-    cube.scale[j]    = vector3_one(1.0);
-    cube.position[j] = vector3_zero();
-    cube.rotation[j] = quaternion_identity();
+    object.scale[j]    = vector3_one(1.0);
+    object.position[j] = vector3_zero();
+    object.rotation[j] = quaternion_identity();
 
-    cube.texture_offset = vector2_zero();
-    cube.texture_scale  = vector2_one(1.0);
-    cube.render_flags   = LGL_FLAG_ENABLED;
-
+    object.texture_offset = vector2_zero();
+    object.texture_scale  = vector2_one(1.0);
+    object.render_flags   = LGL_FLAG_ENABLED;
   }
 
-  lgl__buffer_vertex_array(
-      &cube.VAO,
-      &cube.VBO,
-      cube.vertices_length,
-      cube.vertices);
+  switch (archetype) {
+    case LGL_OBJECT_ARCHETYPE_QUAD: {
+      enum { quad_vertices_count = 6 };
+      lgl_vertex_t quad_vertices[quad_vertices_count] = { 
+        //position                        //normal          //tex coord
+        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+        { { LGL__RIGHT, LGL__DOWN, 0.0 }, vector3_forward(1.0), { 1.0, 0.0 } },
+        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
 
-  return cube;
+        { { LGL__LEFT,  LGL__UP,   0.0 }, vector3_forward(1.0), { 0.0, 1.0 } },
+        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
+      };
+      object.vertices        = quad_vertices;
+      object.vertices_length = quad_vertices_count;
+
+      lgl__buffer_vertex_array(
+          &object.VAO,
+          &object.VBO,
+          object.vertices_length,
+          object.vertices);
+    } break;
+
+    case LGL_OBJECT_ARCHETYPE_CUBE: {
+      enum { cube_vertices_count = 36 };
+      lgl_vertex_t cube_vertices[cube_vertices_count] = { 
+        //position                                 //normal             //tex coord
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 1.0, 0.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+
+        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 0.0, 1.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 1.0, 0.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
+
+        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 0.0, 1.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
+
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_left(1.0),    { 1.0, 1.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
+
+        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_left(1.0),    { 0.0, 0.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
+
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_right(1.0),   { 1.0, 1.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
+
+        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_right(1.0),   { 0.0, 0.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
+
+        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 1.0, 1.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
+
+        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
+        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 0.0, 0.0 } },
+        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
+
+        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 1.0, 1.0 } },
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
+
+        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 0.0, 0.0 } },
+        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
+      };
+
+      object.vertices        = cube_vertices;
+      object.vertices_length = cube_vertices_count;
+
+      lgl__buffer_vertex_array(
+          &object.VAO,
+          &object.VBO,
+          object.vertices_length,
+          object.vertices);
+    } break;
+  }
+
+  return object;
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) { 
@@ -686,7 +704,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  frame.quad = lgl_cube_alloc(1); {
+  frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE); {
     frame.quad.shader        =  shader;
     frame.quad.diffuse_map   =  frame.color_buffers[0];
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;

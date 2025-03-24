@@ -126,8 +126,13 @@ void lgl_outline(
 GLuint  lgl_shader_compile(const char *file_path, GLenum type);
 GLuint  lgl_shader_link   (GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_object_t lgl_quad_alloc(void);
-lgl_object_t lgl_cube_alloc(unsigned int length);
+enum {
+  LGL_OBJECT_ARCHETYPE_EMPTY,
+  LGL_OBJECT_ARCHETYPE_CUBE,
+  LGL_OBJECT_ARCHETYPE_QUAD,
+};
+
+lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
     debug_log("");
