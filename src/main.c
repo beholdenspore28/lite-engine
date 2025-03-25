@@ -2,78 +2,6 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
-#if 0
-lgl_object_t asteroid_mesh_alloc(void) {
-
-	lgl_object_t mesh;
-  mesh.vertices = list_lgl_vertex_t_alloc();
-
-	const float   radius     = 0.1;
-	const float   resolution = 10.0;
-
-	for(int face = 0; face < 6; face++) {
-		for(float x = 0; x < resolution; x++) {
-			for(float y = 0; y < resolution; y++) {
-
-				vector3_t position = (vector3_t) { 
-					.x = map(x, 0, resolution -1, -0.5, 0.5), 
-					.y = map(y, 0, resolution -1, -0.5, 0.5), 
-					.z = 0.5,
-				};
-				position = vector3_normalize(position);
-
-				const vector3_t temp = position;
-				switch (face) {
-					case 0: { // 0 is front
-                    // do nothing.
-						position.x = -temp.x;
-					} break;
-					case 1: { // 1 is rear
-						position.z = -position.z;
-					}break;
-					case 2: { // 2 is left
-						position.z = temp.x;
-						position.x = temp.z;
-					} break;	
-					case 3: { // 3 is right
-						position.z = -temp.x;
-						position.x = -temp.z;
-					} break;
-					case 4: { // 4 is bottom
-						position.y = -temp.z;
-						position.z = -temp.y;
-					} break;
-					case 5: { // 5 is top
-						position.y = temp.z;
-						position.z = temp.y;
-					} break;
-					default: {
-						fprintf(stderr, "rock generator encountered invalid face index");
-					} break;
-				}
-
-				const float amplitude = 5.0;
-				const float frequency = 1;
-				const float noise = radius + (noise3_fbm(
-							position.x * frequency,
-							position.y * frequency,
-							position.z * frequency) * amplitude);
-
-				lgl_vertex_t v = (lgl_vertex_t) {
-					.position = vector3_scale(position, noise),
-					.normal = position,
-					.texture_coordinates = vector2_zero(),
-				};
-
-				list_lgl_vertex_t_add(&mesh.vertices, v);
-			}
-		}
-	}
-
-	return mesh;
-}
-#endif
-
 void camera_update(lgl_context_t *context) {
   { // movement
     vector3_t movement = vector3_zero(); {
@@ -119,32 +47,11 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-// distribute the objects randomly inside a box
-static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
-  vector3_t ret = vector3_zero();
-  ret.x = noise3(seed + 1, seed,     seed     ) * 2.0 - 1.0;
-  ret.y = noise3(seed,     seed + 1, seed     ) * 2.0 - 1.0;
-  ret.z = noise3(seed,     seed,     seed + 1 ) * 2.0 - 1.0;
-  return ret;
-}
-
-vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
-    float d, x, y, z;
-    int i = 0;
-    do {
-        x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2.0 - 1.0;
-        y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2.0 - 1.0;
-        z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2.0 - 1.0;
-        d = x*x + y*y + z*z;
-        i++;
-    } while(d > 1.0);
-    return (vector3_t) { x, y, z };
-}
-
 static inline vector3_t swirl(vector3_t point, float strength_01) {
   float swirl_amount = vector3_square_magnitude(point) * strength_01;
   return vector3_rotate(point, quaternion_from_euler(vector3_up(swirl_amount)));
 }
+
 
 void galaxy_distribution(
     lgl_object_t       stars,
@@ -196,7 +103,7 @@ void matrix_buffer(lgl_object_t *object) {
     }
   }
 
-  // -------------------------
+  // --------------------------------------------------------------------------
   // configure instanced array
 
   GLuint buffer;
@@ -240,7 +147,7 @@ int main() {
 
   glClearColor(0,0,0,1);
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Create shaders
   
   GLuint shader_solid = 0; {
@@ -267,7 +174,7 @@ int main() {
     shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Create lights
 
   enum {
@@ -303,7 +210,7 @@ int main() {
     .specular       = vector3_one(0.6),
   };
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Create stars
 
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
@@ -318,13 +225,13 @@ int main() {
 
   matrix_buffer(&stars);
   
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Create framebuffer
   
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
   lgl_active_framebuffer_set(&frame);
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Create camera
 
   context->camera.rotation   = quaternion_identity();
@@ -337,7 +244,7 @@ int main() {
   context->camera.view       = view;
   context->camera.projection = projection;
 
-  // ---------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // game loop
   
   float timer = 0;

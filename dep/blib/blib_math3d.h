@@ -393,6 +393,29 @@ vector3_to_vector4(vector3_t v) {
 	return (vector4_t){.x = v.x, .y = v.y, .z = v.z, .w = 1.0f};
 }
 
+// returns a randon point within a unit length cube
+static inline vector3_t vector3_point_in_unit_cube(unsigned int seed) {
+  vector3_t ret = vector3_zero();
+  ret.x = noise3(seed + 1, seed,     seed     ) * 2.0 - 1.0;
+  ret.y = noise3(seed,     seed + 1, seed     ) * 2.0 - 1.0;
+  ret.z = noise3(seed,     seed,     seed + 1 ) * 2.0 - 1.0;
+  return ret;
+}
+
+// returns a random unit length vector
+static inline vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
+    float d, x, y, z;
+    int i = 0;
+    do {
+        x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2.0 - 1.0;
+        y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2.0 - 1.0;
+        z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2.0 - 1.0;
+        d = x*x + y*y + z*z;
+        i++;
+    } while(d > 1.0);
+    return (vector3_t) { x, y, z };
+}
+
 /*Prints a vec "v" using printf*/
 static inline void 
 vector4_print(const vector4_t v, const char *label) {
