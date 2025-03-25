@@ -50,15 +50,15 @@ void camera_update(lgl_context_t *context) {
 void galaxy_distribution(
     lgl_object_t       stars,
     float              radius,
+    unsigned int       seed,
     float              swirl_strength,
     float              arm_thickness,
-    float              arm_length,
-    float              tilt) {
+    float              arm_length) {
 
   for(unsigned int i = 0; i < stars.length; i++) {
 
     // sphere
-    stars.position[i] = vector3_point_in_unit_sphere(i);
+    stars.position[i] = vector3_point_in_unit_sphere(seed + i);
 
     // gravity
     vector3_t gravity = vector3_normalize(stars.position[i]);
@@ -71,14 +71,10 @@ void galaxy_distribution(
     // swirl
     float swirl_amount = vector3_square_magnitude(stars.position[i]) * swirl_strength;
     stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
-    //stars.position[i] = swirl(stars.position[i], swirl_strength);
 
     // scale
     stars.position[i] = vector3_scale(stars.position[i], radius);
 
-    // tilt
-    stars.position[i] = vector3_rotate(
-        stars.position[i], quaternion_from_euler(vector3_right(tilt)));
   }
 }
 
@@ -217,17 +213,36 @@ int main() {
   // --------------------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
+  lgl_object_t stars = lgl_object_alloc(20000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
-  stars.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
+  stars.color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
+  stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
+
+  lgl_object_t stars_blue = lgl_object_alloc(20000, LGL_OBJECT_ARCHETYPE_CUBE); 
+  stars_blue.shader = shader_solid;
+  stars_blue.color = (vector4_t) { 1.0, 0.5, 0.5, 1.0 };
+  stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.scale[i] = vector3_one(0.1);
+    stars_blue.scale[i] = vector3_one(0.04);
+    stars.scale[i]      = vector3_one(0.02);
   }
 
-  galaxy_distribution(stars, 10, 0.3, 3, 5, -PI/5);
+  galaxy_distribution(stars,      10, 902347, 0.3, 3, 5);
+  galaxy_distribution(stars_blue, 10, 0,      0.3, 3, 5);
+
+  for(unsigned int i = 0; i < stars.length; i++) {
+    stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_right(-PI/8)));
+    stars_blue.position[i] = vector3_rotate(stars_blue.position[i], quaternion_from_euler(vector3_right(-PI/8)));
+  }
 
   matrix_buffer(&stars);
+  matrix_buffer(&stars_blue);
+
+  stars.position[0] = vector3_zero();
+  stars.rotation[0] = quaternion_identity();
+  stars_blue.position[0] = vector3_zero();
+  stars_blue.rotation[0] = quaternion_identity();
   
   // --------------------------------------------------------------------------
   // Create framebuffer
@@ -276,6 +291,12 @@ int main() {
     { // update state
       camera_update(context);
 
+      stars.rotation[0] = quaternion_from_euler(vector3_up(context->time_current * 0.1));
+      stars_blue.rotation[0].x = stars.rotation[0].x;
+      stars_blue.rotation[0].y = stars.rotation[0].y;
+      stars_blue.rotation[0].z = stars.rotation[0].z;
+      stars_blue.rotation[0].w = stars.rotation[0].w;
+
       lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
       lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
       lights[LIGHTS_POINT_1].position.x = cos(context->time_current);
@@ -290,11 +311,8 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 0
-      lgl_draw(stars);
-#else
       lgl_draw_instanced(stars);
-#endif
+      lgl_draw_instanced(stars_blue);
     }
 
     { // draw the frame to the screen
@@ -312,6 +330,7 @@ int main() {
   }
 
   lgl_object_free(stars);
+  lgl_object_free(stars_blue);
   lgl_framebuffer_free(frame);
   lgl_free(context);
 

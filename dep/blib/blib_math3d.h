@@ -407,11 +407,11 @@ static inline vector3_t vector3_point_in_unit_sphere(unsigned int seed) {
     float d, x, y, z;
     int i = 0;
     do {
-        x = noise3( seed + i + 1, seed + i,     seed + i     ) * 2.0 - 1.0;
-        y = noise3( seed + i,     seed + i + 1, seed + i     ) * 2.0 - 1.0;
-        z = noise3( seed + i,     seed + i,     seed + i + 1 ) * 2.0 - 1.0;
-        d = x*x + y*y + z*z;
-        i++;
+      x = noise3(i + seed + 1, i + seed,     i + seed     ) * 2.0 - 1.0;
+      y = noise3(i + seed,     i + seed + 1, i + seed     ) * 2.0 - 1.0;
+      z = noise3(i + seed,     i + seed,     i + seed + 1 ) * 2.0 - 1.0;
+      d = x*x + y*y + z*z;
+      i++;
     } while(d > 1.0);
     return (vector3_t) { x, y, z };
 }

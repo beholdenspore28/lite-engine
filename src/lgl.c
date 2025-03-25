@@ -254,6 +254,26 @@ void lgl_draw_instanced(const lgl_object_t object) {
     glUseProgram(object.shader);
     glUniform1i(glGetUniformLocation(object.shader, "u_use_instancing"), 1);
 
+    { // Model
+
+      GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
+
+      {
+        GLfloat translation[16]; lgl_mat4_identity(translation);
+        translation[12] = object.position[0].x;
+        translation[13] = object.position[0].y;
+        translation[14] = object.position[0].z;
+
+        GLfloat rotation[16]; lgl_mat4_identity(rotation);
+        quaternion_to_mat4(object.rotation[0], rotation);
+
+        lgl_mat4_multiply(model_matrix, rotation, translation);
+      }
+
+      GLint model_matrix_location = glGetUniformLocation(object.shader, "u_model_matrix");
+      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+    }
+
     { // camera matrix
       GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
 
