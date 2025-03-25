@@ -171,6 +171,70 @@ void galaxy_distribution(
   }
 }
 
+void matrix_buffer(lgl_object_t *object) {
+  GLfloat model_matrices[object->length][16];
+  for(unsigned int i = 0; i < object->length; i++) {
+
+    lgl_mat4_identity(model_matrices[i]);
+
+    {
+      GLfloat scale[16]; lgl_mat4_identity(scale);
+      scale[0 ] = object->scale[i].x;
+      scale[5 ] = object->scale[i].y;
+      scale[10] = object->scale[i].z;
+
+      GLfloat translation[16]; lgl_mat4_identity(translation);
+      translation[12] = object->position[i].x;
+      translation[13] = object->position[i].y;
+      translation[14] = object->position[i].z;
+
+      GLfloat rotation[16] = {0};
+      quaternion_to_mat4(object->rotation[i], rotation);
+
+      lgl_mat4_multiply(model_matrices[i], scale, rotation);
+      lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
+    }
+  }
+
+  // -------------------------
+  // configure instanced array
+
+  GLuint buffer;
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+  glBufferData(
+      GL_ARRAY_BUFFER, object->length * sizeof(GLfloat) * 16,
+      &model_matrices[0], GL_STATIC_DRAW);
+
+  glBindVertexArray(object->VAO);
+
+  // set attribute pointers for matrix (4 times vec4)
+  glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)0);
+
+  glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
+
+  glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
+
+  glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
+
+  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(4);
+  glEnableVertexAttribArray(5);
+  glEnableVertexAttribArray(6);
+
+  glVertexAttribDivisor(3, 1);
+  glVertexAttribDivisor(4, 1);
+  glVertexAttribDivisor(5, 1);
+  glVertexAttribDivisor(6, 1);
+
+  glBindVertexArray(0);
+}
+
 int main() {
   lgl_context_t *context = lgl_start(1600, 900);
 
@@ -252,68 +316,8 @@ int main() {
 
   galaxy_distribution(stars, 10, 0.3, 3, 5, -PI/5);
 
-  GLfloat model_matrices[stars.length][16];
-  for(unsigned int i = 0; i < stars.length; i++) {
-
-    lgl_mat4_identity(model_matrices[i]);
-
-    {
-      GLfloat scale[16]; lgl_mat4_identity(scale);
-      scale[0 ] = stars.scale[i].x;
-      scale[5 ] = stars.scale[i].y;
-      scale[10] = stars.scale[i].z;
-
-      GLfloat translation[16]; lgl_mat4_identity(translation);
-      translation[12] = stars.position[i].x;
-      translation[13] = stars.position[i].y;
-      translation[14] = stars.position[i].z;
-
-      GLfloat rotation[16] = {0};
-      quaternion_to_mat4(stars.rotation[i], rotation);
-
-      lgl_mat4_multiply(model_matrices[i], scale, rotation);
-      lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
-    }
-  }
-
-  // -------------------------
-  // configure instanced array
-
-  GLuint buffer;
-  glGenBuffers(1, &buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-  glBufferData(
-      GL_ARRAY_BUFFER, stars.length * sizeof(GLfloat) * 16,
-      &model_matrices[0], GL_STATIC_DRAW);
-
-  glBindVertexArray(stars.VAO);
-
-  // set attribute pointers for matrix (4 times vec4)
-  glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)0);
-
-  glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
-
-  glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
-
-  glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE,
-      sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
-
-  glEnableVertexAttribArray(3);
-  glEnableVertexAttribArray(4);
-  glEnableVertexAttribArray(5);
-  glEnableVertexAttribArray(6);
-
-  glVertexAttribDivisor(3, 1);
-  glVertexAttribDivisor(4, 1);
-  glVertexAttribDivisor(5, 1);
-  glVertexAttribDivisor(6, 1);
-
-  glBindVertexArray(0);
-
+  matrix_buffer(&stars);
+  
   // ---------------------------------------------------------------
   // Create framebuffer
   
@@ -375,7 +379,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 1
+#if 0
       lgl_draw(stars);
 #else
       lgl_draw_instanced(stars);
