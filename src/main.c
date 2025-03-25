@@ -47,12 +47,6 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-static inline vector3_t swirl(vector3_t point, float strength_01) {
-  float swirl_amount = vector3_square_magnitude(point) * strength_01;
-  return vector3_rotate(point, quaternion_from_euler(vector3_up(swirl_amount)));
-}
-
-
 void galaxy_distribution(
     lgl_object_t       stars,
     float              radius,
@@ -62,17 +56,27 @@ void galaxy_distribution(
     float              tilt) {
 
   for(unsigned int i = 0; i < stars.length; i++) {
+
+    // sphere
     stars.position[i] = vector3_point_in_unit_sphere(i);
+
+    // gravity
     vector3_t gravity = vector3_normalize(stars.position[i]);
     stars.position[i] = vector3_subtract(stars.position[i], gravity);
 
+    // stretch
     stars.position[i].x *= arm_thickness;
     stars.position[i].z *= arm_length;
     
-    stars.position[i] = swirl(stars.position[i], swirl_strength);
+    // swirl
+    float swirl_amount = vector3_square_magnitude(stars.position[i]) * swirl_strength;
+    stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
+    //stars.position[i] = swirl(stars.position[i], swirl_strength);
 
+    // scale
     stars.position[i] = vector3_scale(stars.position[i], radius);
 
+    // tilt
     stars.position[i] = vector3_rotate(
         stars.position[i], quaternion_from_euler(vector3_right(tilt)));
   }
