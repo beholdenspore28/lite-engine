@@ -143,7 +143,7 @@ void matrix_buffer(lgl_object_t *object) {
 }
 
 int main() {
-  lgl_context_t *context = lgl_start(1600, 900);
+  lgl_context_t *context = lgl_start(640, 480);
 
   glClearColor(0,0,0,1);
 
