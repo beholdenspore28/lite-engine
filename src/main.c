@@ -247,7 +247,7 @@ int main() {
   stars.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.scale[i] = vector3_one(0.04);
+    stars.scale[i] = vector3_one(0.1);
   }
 
   galaxy_distribution(stars, 10, 0.3, 3, 5, -PI/5);
@@ -290,10 +290,17 @@ int main() {
   glBindVertexArray(stars.VAO);
 
   // set attribute pointers for matrix (4 times vec4)
-  glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)0);
-  glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
-  glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
-  glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
+  glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)0);
+
+  glVertexAttribPointer( 4, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(1 * sizeof(vector4_t)));
+
+  glVertexAttribPointer( 5, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(2 * sizeof(vector4_t)));
+
+  glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE,
+      sizeof(GLfloat)*16, (void*)(3 * sizeof(vector4_t)));
 
   glEnableVertexAttribArray(3);
   glEnableVertexAttribArray(4);
@@ -368,7 +375,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
-#if 0
+#if 1
       lgl_draw(stars);
 #else
       lgl_draw_instanced(stars);
