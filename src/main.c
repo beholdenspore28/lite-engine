@@ -213,32 +213,40 @@ int main() {
   // --------------------------------------------------------------------------
   // Create stars
 
-  lgl_object_t stars = lgl_object_alloc(20000, LGL_OBJECT_ARCHETYPE_CUBE); 
+  
+  lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
   stars.color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
   stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
-
-  lgl_object_t stars_blue = lgl_object_alloc(20000, LGL_OBJECT_ARCHETYPE_CUBE); 
+  
+  lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars_blue.shader = shader_solid;
   stars_blue.color = (vector4_t) { 1.0, 0.5, 0.5, 1.0 };
   stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
-
+  
   for(unsigned int i = 0; i < stars.length; i++) {
     stars_blue.scale[i] = vector3_one(0.04);
     stars.scale[i]      = vector3_one(0.02);
   }
-
-  galaxy_distribution(stars,      10, 902347, 0.3, 3, 5);
-  galaxy_distribution(stars_blue, 10, 0,      0.3, 3, 5);
-
+  
+  {
+    float radius         = 10;
+    float swirl_strength = 0.3;
+    float arm_thickness  = 3;
+    float arm_length     = 5;
+    
+    galaxy_distribution(stars,      radius, 902347, swirl_strength, arm_thickness, arm_length);
+    galaxy_distribution(stars_blue, radius, 0,      swirl_strength, arm_thickness, arm_length);
+  }
+  
   for(unsigned int i = 0; i < stars.length; i++) {
     stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_right(-PI/8)));
     stars_blue.position[i] = vector3_rotate(stars_blue.position[i], quaternion_from_euler(vector3_right(-PI/8)));
   }
-
+  
   matrix_buffer(&stars);
   matrix_buffer(&stars_blue);
-
+  
   stars.position[0] = vector3_zero();
   stars.rotation[0] = quaternion_identity();
   stars_blue.position[0] = vector3_zero();
