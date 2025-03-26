@@ -4,6 +4,14 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <math.h>
+#include <stdio.h>
+#include <limits.h>
+
+#define SECOND 1
+#define SAMPLING_HZ 44100
+#define AUDIO_BUFFER_LENGTH (SECOND * SAMPLING_HZ)
+#define SOUND_HZ 12000
 
 void camera_update(lgl_context_t *context) {
   { // movement
@@ -164,7 +172,45 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 }
 
 int main() {
-  lgl_context_t *context = lgl_start(640, 480);
+  
+#if 1
+  ALCdevice *device;
+  ALCcontext *al_context;
+  ALshort data[AUDIO_BUFFER_LENGTH*2];
+  ALuint buffer;
+  ALuint source;
+
+  // startup
+  device = alcOpenDevice(NULL);
+  al_context = alcCreateContext(device, NULL);
+  alcMakeContextCurrent(al_context);
+  alGenBuffers(1, &buffer);
+
+  // generate sine wave
+  for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i) {
+    data[i*2] = sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX;
+    data[i*2+1] = -1 * sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX; // antiphase
+  }
+
+  // play audio
+  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
+  alGenSources(1, &source);
+  alSourcei(source, AL_BUFFER, buffer);
+  alSourcei(source, AL_LOOPING, AL_TRUE);
+  alSourcePlay(source);
+
+  sleep(2);
+
+  // cleanup
+  alSourceStop(source);
+  alDeleteSources(1, &source);
+  alDeleteBuffers(1, &buffer);
+  alcMakeContextCurrent(NULL);
+  alcDestroyContext(al_context);
+  alcCloseDevice(device);
+#endif
+
+  lgl_context_t *lgl_context = lgl_start(640, 480);
 
   glClearColor(0,0,0,1);
 
@@ -288,26 +334,26 @@ int main() {
   // --------------------------------------------------------------------------
   // Create camera
 
-  context->camera.rotation   = quaternion_identity();
-  context->camera.position   = vector3_zero();
-  context->camera.position.z = -50;
+  lgl_context->camera.rotation   = quaternion_identity();
+  lgl_context->camera.position   = vector3_zero();
+  lgl_context->camera.position.z = -50;
 
   GLfloat view[16];          lgl_mat4_identity(view);
   GLfloat projection[16];    lgl_mat4_identity(projection);
 
-  context->camera.view       = view;
-  context->camera.projection = projection;
+  lgl_context->camera.view       = view;
+  lgl_context->camera.projection = projection;
 
   // --------------------------------------------------------------------------
   // game loop
   
   float timer = 0;
 
-  while(!glfwWindowShouldClose(context->GLFWwindow)) {
+  while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     lgl_camera_update();
 
-    timer += context->time_delta;
+    timer += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
       timer = 0;
@@ -317,26 +363,26 @@ int main() {
           window_title,
           sizeof(window_title),
           "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
-          context->time_FPS,
-          context->time_delta);
+          lgl_context->time_FPS,
+          lgl_context->time_delta);
 
-      glfwSetWindowTitle(context->GLFWwindow, window_title);
+      glfwSetWindowTitle(lgl_context->GLFWwindow, window_title);
     }
 
     { // update state
-      camera_update(context);
+      camera_update(lgl_context);
 
       stars.rotation[0] = quaternion_from_euler(
-          vector3_up(context->time_current * 0.03));
+          vector3_up(lgl_context->time_current * 0.03));
       stars_blue.rotation[0].x = stars.rotation[0].x;
       stars_blue.rotation[0].y = stars.rotation[0].y;
       stars_blue.rotation[0].z = stars.rotation[0].z;
       stars_blue.rotation[0].w = stars.rotation[0].w;
 
-      lights[LIGHTS_POINT_0].position.x = sin(context->time_current);
-      lights[LIGHTS_POINT_0].position.z = cos(context->time_current);
-      lights[LIGHTS_POINT_1].position.x = cos(context->time_current);
-      lights[LIGHTS_POINT_1].position.z = sin(context->time_current);
+      lights[LIGHTS_POINT_0].position.x = sin(lgl_context->time_current);
+      lights[LIGHTS_POINT_0].position.z = cos(lgl_context->time_current);
+      lights[LIGHTS_POINT_1].position.x = cos(lgl_context->time_current);
+      lights[LIGHTS_POINT_1].position.z = sin(lgl_context->time_current);
     }
 
     { // draw scene to the frame
@@ -368,7 +414,7 @@ int main() {
   lgl_object_free(stars);
   lgl_object_free(stars_blue);
   lgl_framebuffer_free(frame);
-  lgl_free(context);
+  lgl_free(lgl_context);
 
   return 0;
 }
