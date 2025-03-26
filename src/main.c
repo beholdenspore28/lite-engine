@@ -4,6 +4,8 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/alut.h>
+
 #include <math.h>
 #include <stdio.h>
 #include <limits.h>
@@ -172,35 +174,37 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 }
 
 int main() {
-  
-  // startup
-  ALCdevice *device      = alcOpenDevice(NULL);
-  ALCcontext *al_context = alcCreateContext(device, NULL);
-  alcMakeContextCurrent(al_context);
 
-  ALuint buffer;
-  ALuint source;
+  enum {
+    NUM_SOURCES = 1,
+    NUM_BUFFERS = 1,
+  };
 
-  alGenBuffers(1, &buffer);
-  alGenSources(1, &source);
+  /* Sound buffer variable */
+  ALuint buffer = 0;
 
-#if 1
-  ALshort data[AUDIO_BUFFER_LENGTH*2];
-  for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i) {
-    data[i*2] = sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX;
-    data[i*2+1] = -1 * sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX; // antiphase
-  }
-  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
-#else
-  ALshort data[AUDIO_BUFFER_LENGTH*2];
-  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
-#endif
+  /* Sound source varialbe */
+  ALuint source = 0;
 
-  // play audio
+  /* Initialize ALUT */
+  alutInit(0,0);
+
+  /* Generate sound buffer */
+  alGenBuffers(NUM_BUFFERS, &buffer);
+
+  /* Load WAV file */
+  buffer = alutCreateBufferFromFile("res/audio/ammo_deep2.wav");
+
+  /* Generate sound source (sound position in 3D space) */
+  alGenSources(NUM_SOURCES, &source);
+
+  /* Associate source with sound buffer */
   alSourcei(source, AL_BUFFER, buffer);
-  alSourcei(source, AL_LOOPING, AL_TRUE);
+
+  /* Play the sound */
   alSourcePlay(source);
 
+  
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
   glClearColor(0,0,0,1);
@@ -402,13 +406,8 @@ int main() {
     lgl_end_frame();
   }
 
-  // cleanup
-  alSourceStop(source);
-  alDeleteSources(1, &source);
-  alDeleteBuffers(1, &buffer);
-  alcMakeContextCurrent(NULL);
-  alcDestroyContext(al_context);
-  alcCloseDevice(device);
+  /* Exit from ALUT */
+  alutExit();
 
   lgl_object_free(stars);
   lgl_object_free(stars_blue);
