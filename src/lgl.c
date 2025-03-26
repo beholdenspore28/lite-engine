@@ -404,10 +404,10 @@ void lgl_draw(const lgl_object_t data) {
           data.color.w);
     }
 
-#if 0 // lighting uniforms
-    for(GLuint light = 0; light < data[i].lights_count; light++) {
+#if 1 // lighting uniforms
+    for(GLuint light = 0; light < data.lights_count; light++) {
       glUniform1ui(glGetUniformLocation(data.shader, "u_lights_count"),
-          data[i].lights_count);
+          data.lights_count);
       {
         char uniform_name[64] = {0};
 
@@ -418,7 +418,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1i(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].type);
+            data.lights[light].type);
       }
 
       {
@@ -431,9 +431,9 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].position.x,
-            data[i].lights[light].position.y,
-            data[i].lights[light].position.z);
+            data.lights[light].position.x,
+            data.lights[light].position.y,
+            data.lights[light].position.z);
       }
       {
         char uniform_name[64] = {0};
@@ -445,9 +445,9 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].direction.x,
-            data[i].lights[light].direction.y,
-            data[i].lights[light].direction.z);
+            data.lights[light].direction.x,
+            data.lights[light].direction.y,
+            data.lights[light].direction.z);
       }
       {
         char uniform_name[64] = {0};
@@ -459,7 +459,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].cut_off);
+            data.lights[light].cut_off);
       }
       {
         char uniform_name[64] = {0};
@@ -471,7 +471,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].outer_cut_off);
+            data.lights[light].outer_cut_off);
       }
       {
         char uniform_name[64] = {0};
@@ -483,7 +483,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].constant);
+            data.lights[light].constant);
       }
       {
         char uniform_name[64] = {0};
@@ -495,7 +495,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].linear);
+            data.lights[light].linear);
       }
       {
         char uniform_name[64] = {0};
@@ -507,7 +507,7 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].quadratic);
+            data.lights[light].quadratic);
       }
       {
         char uniform_name[64] = {0};
@@ -519,9 +519,9 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].diffuse.x,
-            data[i].lights[light].diffuse.y,
-            data[i].lights[light].diffuse.z);
+            data.lights[light].diffuse.x,
+            data.lights[light].diffuse.y,
+            data.lights[light].diffuse.z);
       }
       {
         char uniform_name[64] = {0};
@@ -533,9 +533,9 @@ void lgl_draw(const lgl_object_t data) {
             light);
 
         glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-            data[i].lights[light].specular.x,
-            data[i].lights[light].specular.y,
-            data[i].lights[light].specular.z);
+            data.lights[light].specular.x,
+            data.lights[light].specular.y,
+            data.lights[light].specular.z);
       }
     }
 #endif

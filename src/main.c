@@ -10,11 +10,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-#define SECOND 1
-#define SAMPLING_HZ 44100
-#define AUDIO_BUFFER_LENGTH (SECOND * SAMPLING_HZ)
-#define SOUND_HZ 12000
-
 void camera_update(lgl_context_t *context) {
   { // movement
     vector3_t movement = vector3_zero(); {
@@ -211,6 +206,18 @@ int main() {
 
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
+  
+  GLuint shader_phong = 0; {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/phong_vertex.glsl",
+        GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/phong_fragment.glsl",
+        GL_FRAGMENT_SHADER);
+
+    shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
+  }
 
   GLuint shader_framebuffer = 0; {
     GLuint vertex_shader = lgl_shader_compile(
@@ -261,8 +268,27 @@ int main() {
   };
 
   // --------------------------------------------------------------------------
-  // Create stars
+  // Create framebuffer
+  
+  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
+  lgl_active_framebuffer_set(&frame);
 
+  // --------------------------------------------------------------------------
+  // Create camera
+
+  lgl_context->camera.rotation   = quaternion_identity();
+  lgl_context->camera.position   = vector3_zero();
+  lgl_context->camera.position.z = -50;
+
+  GLfloat view[16];          lgl_mat4_identity(view);
+  GLfloat projection[16];    lgl_mat4_identity(projection);
+
+  lgl_context->camera.view       = view;
+  lgl_context->camera.projection = projection;
+
+
+  // --------------------------------------------------------------------------
+  // Create stars
   
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
@@ -309,24 +335,18 @@ int main() {
   stars_blue.rotation[0] = quaternion_identity();
   
   // --------------------------------------------------------------------------
-  // Create framebuffer
+  // Create cube
+
+  lgl_object_t cube = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
+  cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  cube.lights = lights;
+  cube.lights_count = LIGHTS_COUNT;
+  cube.shader = shader_phong;
+  cube.position[0] = lgl_context->camera.position;
+  cube.position[0].z += 5;
+  //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  cube.color = (vector4_t) {1,1,1,1};
   
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
-  lgl_active_framebuffer_set(&frame);
-
-  // --------------------------------------------------------------------------
-  // Create camera
-
-  lgl_context->camera.rotation   = quaternion_identity();
-  lgl_context->camera.position   = vector3_zero();
-  lgl_context->camera.position.z = -50;
-
-  GLfloat view[16];          lgl_mat4_identity(view);
-  GLfloat projection[16];    lgl_mat4_identity(projection);
-
-  lgl_context->camera.view       = view;
-  lgl_context->camera.projection = projection;
-
   // --------------------------------------------------------------------------
   // game loop
   
@@ -362,10 +382,7 @@ int main() {
       stars_blue.rotation[0].z = stars.rotation[0].z;
       stars_blue.rotation[0].w = stars.rotation[0].w;
 
-      lights[LIGHTS_POINT_0].position.x = sin(lgl_context->time_current);
-      lights[LIGHTS_POINT_0].position.z = cos(lgl_context->time_current);
-      lights[LIGHTS_POINT_1].position.x = cos(lgl_context->time_current);
-      lights[LIGHTS_POINT_1].position.z = sin(lgl_context->time_current);
+      lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
 
     { // draw scene to the frame
@@ -376,6 +393,7 @@ int main() {
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
 
+      lgl_draw(cube);
       lgl_draw_instanced(stars);
       lgl_draw_instanced(stars_blue);
     }
@@ -397,6 +415,7 @@ int main() {
   /* Exit from ALUT */
   alutExit();
 
+  lgl_object_free(cube);
   lgl_object_free(stars);
   lgl_object_free(stars_blue);
   lgl_framebuffer_free(frame);
