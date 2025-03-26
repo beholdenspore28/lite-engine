@@ -833,6 +833,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   }
   glfwShowWindow(lgl__active_context->GLFWwindow);
 
+  glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
   gladLoadGL(glfwGetProcAddress);
 
   glClearColor(0.3f, 0.4f, 0.5f, 1.0f);

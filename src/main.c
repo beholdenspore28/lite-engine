@@ -16,7 +16,7 @@ void camera_update(lgl_context_t *context) {
       movement.z += glfwGetKey(context->GLFWwindow, GLFW_KEY_UP) -
         glfwGetKey(context->GLFWwindow, GLFW_KEY_DOWN);
     }
-    float speed = glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_CONTROL) ? 10 : 1;
+    float speed = glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_CONTROL) ? 20 : 5;
     movement = vector3_normalize(movement);
     movement = vector3_scale(movement, context->time_delta * speed);
     movement = vector3_rotate(movement, context->camera.rotation);
@@ -24,26 +24,42 @@ void camera_update(lgl_context_t *context) {
   }
 
   // mouse look
-  if (glfwGetMouseButton(context->GLFWwindow, GLFW_MOUSE_BUTTON_1)) {
+  if (!glfwGetMouseButton(context->GLFWwindow, GLFW_MOUSE_BUTTON_1)) {
+
     static int firstFrame = 1;
     static float last_x   = 0;
-    static vector3_t eulerAngles = {0};
+    static float last_y   = 0;
+    static float pitch    = 0;
+    static float yaw      = 0;
 
-    double mouse_x, mouse_y;
-
+    double mouse_x;
+    double mouse_y;
     glfwGetCursorPos(context->GLFWwindow, &mouse_x, &mouse_y);
 
     if (firstFrame) {
       last_x = mouse_x;
+      last_y = mouse_y;
       firstFrame = 0;
     }
 
-    float diff_x = mouse_x - last_x;
+    float diff_x = mouse_x - last_x ;
+    float diff_y = mouse_y - last_y ;
     last_x = mouse_x;
+    last_y = mouse_y;
 
-    eulerAngles.y = diff_x * 0.01;
-    quaternion_t rotation = quaternion_from_euler(eulerAngles);
-    context->camera.rotation = quaternion_multiply(context->camera.rotation, rotation);
+    float sensitivity = 0.01;
+    diff_x *= sensitivity;
+    diff_y *= sensitivity;
+
+    yaw   += diff_x;
+    pitch += diff_y;
+
+    pitch = clamp(pitch, -PI*0.5, PI*0.5);
+
+    quaternion_t rotation = quaternion_multiply(
+        quaternion_from_euler(vector3_up(yaw)),
+        quaternion_from_euler(vector3_right(pitch)));
+    context->camera.rotation = rotation;
   }
 }
 
@@ -78,7 +94,7 @@ void galaxy_distribution(
   }
 }
 
-void matrix_buffer(lgl_object_t *object) {
+void lgl_mat4_buffer(lgl_object_t *object) {
   GLfloat model_matrices[object->length][16];
   for(unsigned int i = 0; i < object->length; i++) {
 
@@ -244,8 +260,8 @@ int main() {
     stars_blue.position[i] = vector3_rotate(stars_blue.position[i], quaternion_from_euler(vector3_right(-PI/8)));
   }
   
-  matrix_buffer(&stars);
-  matrix_buffer(&stars_blue);
+  lgl_mat4_buffer(&stars);
+  lgl_mat4_buffer(&stars_blue);
   
   stars.position[0] = vector3_zero();
   stars.rotation[0] = quaternion_identity();
