@@ -280,8 +280,8 @@ int main() {
   lgl_context->camera.position   = vector3_zero();
   lgl_context->camera.position.z = -50;
 
-  GLfloat view[16];          lgl_mat4_identity(view);
-  GLfloat projection[16];    lgl_mat4_identity(projection);
+  GLfloat view[16];       lgl_mat4_identity(view);
+  GLfloat projection[16]; lgl_mat4_identity(projection);
 
   lgl_context->camera.view       = view;
   lgl_context->camera.projection = projection;
@@ -291,13 +291,13 @@ int main() {
   // Create stars
   
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
-  stars.shader = shader_solid;
-  stars.color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
+  stars.shader       = shader_solid;
+  stars.color        = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
   //stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
   
   lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
-  stars_blue.shader = shader_solid;
-  stars_blue.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
+  stars_blue.shader       = shader_solid;
+  stars_blue.color        = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
   //stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
   
   for(unsigned int i = 0; i < stars.length; i++) {
@@ -311,41 +311,39 @@ int main() {
     float arm_thickness  = 3;
     float arm_length     = 5;
     
-    galaxy_generate(
-        stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
-    galaxy_generate(
-        stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
+    galaxy_generate(stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
+    galaxy_generate(stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
   }
   
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.position[i] = vector3_rotate(
-        stars.position[i],
+
+    stars.position[i] = vector3_rotate(stars.position[i],
         quaternion_from_euler(vector3_right(-PI/8)));
-    stars_blue.position[i] = vector3_rotate(
-        stars_blue.position[i],
+
+    stars_blue.position[i] = vector3_rotate(stars_blue.position[i],
         quaternion_from_euler(vector3_right(-PI/8)));
   }
   
   lgl_mat4_buffer(&stars);
   lgl_mat4_buffer(&stars_blue);
   
-  stars.position[0] = vector3_zero();
-  stars.rotation[0] = quaternion_identity();
+  stars.position[0]      = vector3_zero();
+  stars.rotation[0]      = quaternion_identity();
   stars_blue.position[0] = vector3_zero();
   stars_blue.rotation[0] = quaternion_identity();
   
   // --------------------------------------------------------------------------
   // Create cube
 
-  lgl_object_t cube = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
-  cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  cube.lights = lights;
-  cube.lights_count = LIGHTS_COUNT;
-  cube.shader = shader_phong;
-  cube.position[0] = lgl_context->camera.position;
+  lgl_object_t cube   = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
+  cube.diffuse_map    = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  cube.lights         = lights;
+  cube.lights_count   = LIGHTS_COUNT;
+  cube.shader         = shader_phong;
+  cube.position[0]    = lgl_context->camera.position;
   cube.position[0].z += 5;
+  cube.color          = (vector4_t) {1,1,1,1};
   //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
-  cube.color = (vector4_t) {1,1,1,1};
   
   // --------------------------------------------------------------------------
   // game loop
