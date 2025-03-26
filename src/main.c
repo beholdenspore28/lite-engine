@@ -32,11 +32,11 @@ void camera_update(lgl_context_t *context) {
   }
 
   { // mouse look
-    static int firstFrame = 1;
-    static float last_x   = 0;
-    static float last_y   = 0;
-    static float pitch    = 0;
-    static float yaw      = 0;
+    static int   firstFrame = 1;
+    static float last_x     = 0;
+    static float last_y     = 0;
+    static float pitch      = 0;
+    static float yaw        = 0;
 
     double mouse_x;
     double mouse_y;
@@ -53,7 +53,7 @@ void camera_update(lgl_context_t *context) {
     last_x = mouse_x;
     last_y = mouse_y;
 
-    float sensitivity = context->time_delta * 4;
+    float sensitivity = 0.001;
     diff_x *= sensitivity;
     diff_y *= sensitivity;
 
@@ -374,7 +374,7 @@ int main() {
       camera_update(lgl_context);
 
       stars.rotation[0] = quaternion_from_euler(
-          vector3_up(lgl_context->time_current * 0.03));
+          vector3_up(lgl_context->time_current * -0.03));
       stars_blue.rotation[0].x = stars.rotation[0].x;
       stars_blue.rotation[0].y = stars.rotation[0].y;
       stars_blue.rotation[0].z = stars.rotation[0].z;
