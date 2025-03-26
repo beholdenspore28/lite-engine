@@ -173,27 +173,30 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 
 int main() {
   
-  ALCdevice *device;
-  ALCcontext *al_context;
-  ALshort data[AUDIO_BUFFER_LENGTH*2];
+  // startup
+  ALCdevice *device      = alcOpenDevice(NULL);
+  ALCcontext *al_context = alcCreateContext(device, NULL);
+  alcMakeContextCurrent(al_context);
+
   ALuint buffer;
   ALuint source;
 
-  // startup
-  device = alcOpenDevice(NULL);
-  al_context = alcCreateContext(device, NULL);
-  alcMakeContextCurrent(al_context);
   alGenBuffers(1, &buffer);
+  alGenSources(1, &source);
 
-  // generate sine wave
+#if 1
+  ALshort data[AUDIO_BUFFER_LENGTH*2];
   for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i) {
     data[i*2] = sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX;
     data[i*2+1] = -1 * sin(2 * PI * SOUND_HZ * i / AUDIO_BUFFER_LENGTH) * SHRT_MAX; // antiphase
   }
+  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
+#else
+  ALshort data[AUDIO_BUFFER_LENGTH*2];
+  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
+#endif
 
   // play audio
-  alBufferData(buffer, AL_FORMAT_STEREO16, data, sizeof(data), AUDIO_BUFFER_LENGTH*2);
-  alGenSources(1, &source);
   alSourcei(source, AL_BUFFER, buffer);
   alSourcei(source, AL_LOOPING, AL_TRUE);
   alSourcePlay(source);
