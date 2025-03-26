@@ -47,7 +47,7 @@ void camera_update(lgl_context_t *context) {
     last_x = mouse_x;
     last_y = mouse_y;
 
-    float sensitivity = 0.01;
+    float sensitivity = context->time_delta * 2.0;
     diff_x *= sensitivity;
     diff_y *= sensitivity;
 
@@ -237,7 +237,7 @@ int main() {
   
   lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars_blue.shader = shader_solid;
-  stars_blue.color = (vector4_t) { 1.0, 0.5, 0.5, 1.0 };
+  stars_blue.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
   stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
   
   for(unsigned int i = 0; i < stars.length; i++) {
