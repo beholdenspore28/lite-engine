@@ -315,7 +315,7 @@ int main() {
     { // update state
       camera_update(context);
 
-      stars.rotation[0] = quaternion_from_euler(vector3_up(context->time_current * 0.1));
+      stars.rotation[0] = quaternion_from_euler(vector3_up(context->time_current * 0.03));
       stars_blue.rotation[0].x = stars.rotation[0].x;
       stars_blue.rotation[0].y = stars.rotation[0].y;
       stars_blue.rotation[0].z = stars.rotation[0].z;
