@@ -266,16 +266,16 @@ int main() {
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader = shader_solid;
   stars.color = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
-  stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
   
   lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars_blue.shader = shader_solid;
   stars_blue.color = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
-  stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
   
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars_blue.scale[i] = vector3_one(0.04);
-    stars.scale[i]      = vector3_one(0.02);
+    stars_blue.scale[i] = vector3_one(0.05);
+    stars.scale[i]      = vector3_one(0.05);
   }
   
   {
