@@ -180,30 +180,17 @@ int main() {
     NUM_BUFFERS = 1,
   };
 
-  /* Sound buffer variable */
-  ALuint buffer = 0;
-
-  /* Sound source varialbe */
-  ALuint source = 0;
-
-  /* Initialize ALUT */
   alutInit(0,0);
 
-  /* Generate sound buffer */
+  ALuint buffer = 0;
   alGenBuffers(NUM_BUFFERS, &buffer);
+  buffer = alutCreateBufferFromFile("res/audio/BeepBox-Song.wav");
 
-  /* Load WAV file */
-  buffer = alutCreateBufferFromFile("res/audio/test.wav");
-
-  /* Generate sound source (sound position in 3D space) */
+  ALuint source = 0;
   alGenSources(NUM_SOURCES, &source);
-
-  /* Associate source with sound buffer */
-  alSourcei(source, AL_BUFFER, buffer);
-
-  /* Play the sound */
+  alSourcei(source, AL_BUFFER,  buffer);
+  alSourcei(source, AL_LOOPING, AL_TRUE);
   alSourcePlay(source);
-
   
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
