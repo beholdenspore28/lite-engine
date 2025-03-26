@@ -155,10 +155,13 @@ vec3 light_spot(
   // combine results
   vec3 ambient = u_ambient_light * vec3(
       texture(u_material.diffuse, v_tex_coord));
+
   vec3 diffuse = light.diffuse * diffuse_scale * vec3(
       texture(u_material.diffuse, v_tex_coord));
+
   vec3 specular = light.specular * specular_scale * vec3(
       texture(u_material.specular, v_tex_coord));
+
   ambient *= attenuation * intensity;
   diffuse *= attenuation * intensity;
   specular *= attenuation * intensity;
@@ -172,12 +175,13 @@ void main() {
   vec3 light = vec3(0,0,0);
   for(int i = 0; i < u_lights_count; i++) {
     if (i >= LIGHTS_MAX) { break; };
-    light += light_point(
+    light += light_point_infinite_range(
         u_lights[i], norm, v_fragment_position, view_direction);
   }
 
   frag_color = vec4(light, 1.0);
   float brightness = dot(frag_color.rgb, vec3(0.2126, 0.7152, 0.0722));
+  
   if(brightness > 1.0) {
     bloom_color = vec4(frag_color.rgb, 1.0);
   } else {

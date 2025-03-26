@@ -136,6 +136,8 @@ enum {
 lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype);
 void lgl_object_free(lgl_object_t object);
 
+void lgl_mat4_buffer(lgl_object_t *object);
+
 static inline void lgl_mat4_print(GLfloat *mat) {
     debug_log("");
     for(int j = 0; j < 4; j++) {
