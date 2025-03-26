@@ -184,12 +184,13 @@ int main() {
 
   ALuint buffer = 0;
   alGenBuffers(NUM_BUFFERS, &buffer);
-  buffer = alutCreateBufferFromFile("res/audio/BeepBox-Song.wav");
+  buffer = alutCreateBufferFromFile("res/audio/random (1).wav");
 
   ALuint source = 0;
   alGenSources(NUM_SOURCES, &source);
   alSourcei(source, AL_BUFFER,  buffer);
   alSourcei(source, AL_LOOPING, AL_TRUE);
+  alSourcef(source, AL_GAIN,    0.2);
   alSourcePlay(source);
   
   lgl_context_t *lgl_context = lgl_start(640, 480);
