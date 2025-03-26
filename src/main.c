@@ -193,7 +193,7 @@ int main() {
   alGenBuffers(NUM_BUFFERS, &buffer);
 
   /* Load WAV file */
-  buffer = alutCreateBufferFromFile("res/audio/ammo_deep2.wav");
+  buffer = alutCreateBufferFromFile("res/audio/test.wav");
 
   /* Generate sound source (sound position in 3D space) */
   alGenSources(NUM_SOURCES, &source);
