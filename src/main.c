@@ -2,6 +2,9 @@
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
 void camera_update(lgl_context_t *context) {
   { // movement
     vector3_t movement = vector3_zero(); {
