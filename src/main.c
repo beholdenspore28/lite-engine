@@ -58,7 +58,7 @@ void camera_update(lgl_context_t *context) {
     last_x = mouse_x;
     last_y = mouse_y;
 
-    float sensitivity = context->time_delta * 2.0;
+    float sensitivity = context->time_delta * 4;
     diff_x *= sensitivity;
     diff_y *= sensitivity;
 
@@ -189,7 +189,7 @@ int main() {
   ALuint source = 0;
   alGenSources(NUM_SOURCES, &source);
   alSourcei(source, AL_BUFFER,  buffer);
-  alSourcei(source, AL_LOOPING, AL_TRUE);
+  //alSourcei(source, AL_LOOPING, AL_TRUE);
   alSourcef(source, AL_GAIN,    0.2);
   alSourcePlay(source);
   
