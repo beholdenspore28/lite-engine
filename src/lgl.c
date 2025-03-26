@@ -213,12 +213,16 @@ void lgl_camera_update(void) {
 
   const float aspect = (float)width / height;
 
-  lgl_perspective(lgl__active_context->camera.projection, 70 * (3.14159/180.0), aspect, 0.001, 1000);
+  lgl_perspective(
+      lgl__active_context->camera.projection, 70 * (3.14159/180.0),
+      aspect, 0.001, 1000);
 
   //-----------------------------------------------------------------------
   // View
   {
-    vector3_t offset = vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
+    vector3_t offset = vector3_rotate(
+        vector3_back(1.0),
+        lgl__active_context->camera.rotation);
 
     GLfloat translation[16]; lgl_mat4_identity(translation);
     translation[12] = -lgl__active_context->camera.position.x + offset.x;
@@ -226,7 +230,9 @@ void lgl_camera_update(void) {
     translation[14] = -lgl__active_context->camera.position.z + offset.z;
 
     GLfloat rotation[16]; lgl_mat4_identity(rotation);
-    quaternion_to_mat4(quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
+    quaternion_to_mat4(
+        quaternion_conjugate(lgl__active_context->camera.rotation),
+        rotation);
     lgl_mat4_multiply(lgl__active_context->camera.view, translation, rotation);
   }
 }
@@ -270,7 +276,8 @@ void lgl_draw_instanced(const lgl_object_t object) {
         lgl_mat4_multiply(model_matrix, rotation, translation);
       }
 
-      GLint model_matrix_location = glGetUniformLocation(object.shader, "u_model_matrix");
+      GLint model_matrix_location = glGetUniformLocation(
+          object.shader, "u_model_matrix");
       glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
     }
 
@@ -282,7 +289,8 @@ void lgl_draw_instanced(const lgl_object_t object) {
           lgl__active_context->camera.view,
           lgl__active_context->camera.projection);
 
-      GLint camera_matrix_location = glGetUniformLocation(object.shader, "u_camera_matrix");
+      GLint camera_matrix_location =
+        glGetUniformLocation(object.shader, "u_camera_matrix");
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
@@ -345,7 +353,8 @@ void lgl_draw(const lgl_object_t data) {
         lgl_mat4_multiply(model_matrix, model_matrix, translation);
       }
 
-      GLint model_matrix_location = glGetUniformLocation(data.shader, "u_model_matrix");
+      GLint model_matrix_location =
+        glGetUniformLocation(data.shader, "u_model_matrix");
       glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
     }
 
@@ -357,7 +366,8 @@ void lgl_draw(const lgl_object_t data) {
           lgl__active_context->camera.view,
           lgl__active_context->camera.projection);
 
-      GLint camera_matrix_location = glGetUniformLocation(data.shader, "u_camera_matrix");
+      GLint camera_matrix_location =
+        glGetUniformLocation(data.shader, "u_camera_matrix");
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
@@ -711,9 +721,10 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame) {
 
 static void lgl__framebuffer_resize(const int width, const int height) { 
 
-  // I decided to just delete and recreate all framebuffer attachments for compatibility reasons.
-  // I am not sure (because I haven't tested this on all hardware) but I believe this should be
-  // more compatible than reusing the existing attachments.
+  // I decided to just delete and recreate all framebuffer attachments for
+  // compatibility reasons. I am not sure (because I haven't tested this on
+  // all hardware) but I believe this should be more compatible than reusing
+  // the existing attachments.
 
   { // resize the color attachments
     glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
@@ -753,7 +764,8 @@ static void lgl__framebuffer_resize(const int width, const int height) {
   GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, attachments);
 
-  lgl__active_framebuffer->quad.diffuse_map = lgl__active_framebuffer->color_buffers[0];
+  lgl__active_framebuffer->quad.diffuse_map =
+    lgl__active_framebuffer->color_buffers[0];
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -808,7 +820,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   //glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
-  lgl__active_context->GLFWwindow = glfwCreateWindow(width, height, "Game Window", NULL, NULL);
+  lgl__active_context->GLFWwindow =
+    glfwCreateWindow(width, height, "Game Window", NULL, NULL);
   if (!lgl__active_context->GLFWwindow) {
     debug_error("Failed to create GLFW window");
   }
@@ -859,7 +872,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
 
 void lgl__time_update(void) {
   lgl__active_context->time_current  = glfwGetTime();
-  lgl__active_context->time_delta    = lgl__active_context->time_current - lgl__active_context->time_last;
+  lgl__active_context->time_delta    =
+    lgl__active_context->time_current - lgl__active_context->time_last;
   lgl__active_context->time_last     = lgl__active_context->time_current;
   lgl__active_context->time_FPS      = 1 / lgl__active_context->time_delta;
   lgl__active_context->frame_current++;

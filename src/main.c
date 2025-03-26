@@ -85,8 +85,12 @@ void galaxy_distribution(
     stars.position[i].z *= arm_length;
     
     // swirl
-    float swirl_amount = vector3_square_magnitude(stars.position[i]) * swirl_strength;
-    stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
+    float swirl_amount = vector3_square_magnitude(
+        stars.position[i]) * swirl_strength;
+
+    stars.position[i] = vector3_rotate(
+        stars.position[i],
+        quaternion_from_euler(vector3_up(swirl_amount)));
 
     // scale
     stars.position[i] = vector3_scale(stars.position[i], radius);
@@ -251,13 +255,19 @@ int main() {
     float arm_thickness  = 3;
     float arm_length     = 5;
     
-    galaxy_distribution(stars,      radius, 902347, swirl_strength, arm_thickness, arm_length);
-    galaxy_distribution(stars_blue, radius, 0,      swirl_strength, arm_thickness, arm_length);
+    galaxy_distribution(
+        stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
+    galaxy_distribution(
+        stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
   }
   
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars.position[i] = vector3_rotate(stars.position[i], quaternion_from_euler(vector3_right(-PI/8)));
-    stars_blue.position[i] = vector3_rotate(stars_blue.position[i], quaternion_from_euler(vector3_right(-PI/8)));
+    stars.position[i] = vector3_rotate(
+        stars.position[i],
+        quaternion_from_euler(vector3_right(-PI/8)));
+    stars_blue.position[i] = vector3_rotate(
+        stars_blue.position[i],
+        quaternion_from_euler(vector3_right(-PI/8)));
   }
   
   lgl_mat4_buffer(&stars);
@@ -315,7 +325,8 @@ int main() {
     { // update state
       camera_update(context);
 
-      stars.rotation[0] = quaternion_from_euler(vector3_up(context->time_current * 0.03));
+      stars.rotation[0] = quaternion_from_euler(
+          vector3_up(context->time_current * 0.03));
       stars_blue.rotation[0].x = stars.rotation[0].x;
       stars_blue.rotation[0].y = stars.rotation[0].y;
       stars_blue.rotation[0].z = stars.rotation[0].z;
