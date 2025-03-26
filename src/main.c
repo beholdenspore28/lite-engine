@@ -23,9 +23,7 @@ void camera_update(lgl_context_t *context) {
     context->camera.position = vector3_add(context->camera.position, movement);
   }
 
-  // mouse look
-  if (!glfwGetMouseButton(context->GLFWwindow, GLFW_MOUSE_BUTTON_1)) {
-
+  { // mouse look
     static int firstFrame = 1;
     static float last_x   = 0;
     static float last_y   = 0;
@@ -63,7 +61,7 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-void galaxy_distribution(
+void galaxy_generate(
     lgl_object_t       stars,
     float              radius,
     unsigned int       seed,
@@ -255,9 +253,9 @@ int main() {
     float arm_thickness  = 3;
     float arm_length     = 5;
     
-    galaxy_distribution(
+    galaxy_generate(
         stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
-    galaxy_distribution(
+    galaxy_generate(
         stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
   }
   
