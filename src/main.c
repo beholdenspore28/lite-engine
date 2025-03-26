@@ -173,7 +173,6 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 
 int main() {
   
-#if 1
   ALCdevice *device;
   ALCcontext *al_context;
   ALshort data[AUDIO_BUFFER_LENGTH*2];
@@ -198,17 +197,6 @@ int main() {
   alSourcei(source, AL_BUFFER, buffer);
   alSourcei(source, AL_LOOPING, AL_TRUE);
   alSourcePlay(source);
-
-  sleep(2);
-
-  // cleanup
-  alSourceStop(source);
-  alDeleteSources(1, &source);
-  alDeleteBuffers(1, &buffer);
-  alcMakeContextCurrent(NULL);
-  alcDestroyContext(al_context);
-  alcCloseDevice(device);
-#endif
 
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
@@ -410,6 +398,14 @@ int main() {
 
     lgl_end_frame();
   }
+
+  // cleanup
+  alSourceStop(source);
+  alDeleteSources(1, &source);
+  alDeleteBuffers(1, &buffer);
+  alcMakeContextCurrent(NULL);
+  alcDestroyContext(al_context);
+  alcCloseDevice(device);
 
   lgl_object_free(stars);
   lgl_object_free(stars_blue);
