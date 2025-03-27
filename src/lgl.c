@@ -876,6 +876,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
     debug_error("Failed to initialize GLFW!");
   }
 
+  glfwWindowHint(GLFW_SAMPLES, 4);
+
   glfwSetErrorCallback(lgl__glfw_error_callback);
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -915,7 +917,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   gladLoadGL(glfwGetProcAddress);
 
   glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
-
+  
+  glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_TRUE);

@@ -105,10 +105,9 @@ void galaxy_generate(
 int main() {
 
   alutInit(0,0);
-
   lgl_context_t *lgl_context = lgl_start(640, 480);
-
-  glClearColor(0,0,0,1);
+  
+  glClearColor(1,1,1,1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -308,12 +307,12 @@ int main() {
 
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    
       glClear(
           GL_COLOR_BUFFER_BIT |
           GL_DEPTH_BUFFER_BIT |
           GL_STENCIL_BUFFER_BIT);
-
+    
       lgl_draw(frame.quad);
     }
 
