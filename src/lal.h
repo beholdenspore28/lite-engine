@@ -12,9 +12,9 @@ extern "C" {
 #include <AL/alut.h>
 
   typedef struct {
-    ALuint id;
-    ALuint buffer;
-    unsigned int count;
+    ALuint       *id;
+    ALuint       *buffer;
+    unsigned int  count;
   } lal_audio_source_t;
 
   lal_audio_source_t lal_audio_source_alloc(unsigned int count);

@@ -3,16 +3,19 @@
 lal_audio_source_t lal_audio_source_alloc(unsigned int count){
 
   lal_audio_source_t source;
+  source.buffer = calloc(sizeof(*source.buffer), count);
+  source.id     = calloc(sizeof(*source.id),     count);
 
-  source.buffer = 0;
-  alGenBuffers(count, &source.buffer);
-  source.buffer = alutCreateBufferFromFile("res/audio/random (1).wav");
+  for(unsigned int i = 0; i < count; i++) {
+    alGenBuffers(count, &source.buffer[i]);
+    source.buffer[i] = alutCreateBufferFromFile("res/audio/random (1).wav");
 
-  alGenSources(count,    &source.id);
-  alSourcei(source.id, AL_BUFFER,  source.buffer);
-  alSourcei(source.id, AL_LOOPING, AL_TRUE);
-  alSourcef(source.id, AL_GAIN, 1.0);
-  alSourcePlay(source.id);
+    alGenSources(count,    &source.id[i]);
+    alSourcei(source.id[i], AL_BUFFER,  source.buffer[i]);
+    alSourcei(source.id[i], AL_LOOPING, AL_TRUE);
+    alSourcef(source.id[i], AL_GAIN, 1.0);
+    alSourcePlay(source.id[i]);
+  }
 
   return source;
 }
