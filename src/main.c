@@ -87,7 +87,7 @@ void galaxy_generate(
     // stretch
     stars.position[i].x *= arm_thickness;
     stars.position[i].z *= arm_length;
-    
+
     // swirl
     float swirl_amount = vector3_square_magnitude(
         stars.position[i]) * swirl_strength;
@@ -112,7 +112,7 @@ int main() {
 
   // --------------------------------------------------------------------------
   // Create shaders
-  
+
   GLuint shader_solid = 0; {
     GLuint vertex_shader = lgl_shader_compile(
         "res/shaders/solid_vertex.glsl",
@@ -124,7 +124,7 @@ int main() {
 
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
-  
+
   GLuint shader_phong = 0; {
     GLuint vertex_shader = lgl_shader_compile(
         "res/shaders/phong_vertex.glsl",
@@ -160,20 +160,20 @@ int main() {
 
   lights[LIGHTS_POINT_0] = (lgl_light_t) {
     .type           = 0,
-    .position       = {0.0, 1.0, -5.0},
-    .direction      = {0.0, 0.0, 1.0},
-    .cut_off        = cos(12.5),
-    .outer_cut_off  = cos(15.0),
-    .constant       = 1.0f,
-    .linear         = 0.09f,
-    .quadratic      = 0.032f,
-    .diffuse        = (vector3_t){1.0, 1.0, 1.0},
-    .specular       = vector3_one(0.6),
+      .position       = {0.0, 1.0, -5.0},
+      .direction      = {0.0, 0.0, 1.0},
+      .cut_off        = cos(12.5),
+      .outer_cut_off  = cos(15.0),
+      .constant       = 1.0f,
+      .linear         = 0.09f,
+      .quadratic      = 0.032f,
+      .diffuse        = (vector3_t){1.0, 1.0, 1.0},
+      .specular       = vector3_one(0.6),
   };
 
   // --------------------------------------------------------------------------
   // Create framebuffer
-  
+
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
   lgl_active_framebuffer_set(&frame);
 
@@ -190,35 +190,34 @@ int main() {
   lgl_context->camera.view       = view;
   lgl_context->camera.projection = projection;
 
-
   // --------------------------------------------------------------------------
   // Create stars
-  
+
   lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars.shader       = shader_solid;
   stars.color        = (vector4_t) { 1.0, 1.0, 1.0, 1.0 };
   //stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
-  
+
   lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE); 
   stars_blue.shader       = shader_solid;
   stars_blue.color        = (vector4_t) { 0.5, 0.5, 1.0, 1.0 };
   //stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
-  
+
   for(unsigned int i = 0; i < stars.length; i++) {
     stars_blue.scale[i] = vector3_one(0.05);
     stars.scale[i]      = vector3_one(0.05);
   }
-  
+
   {
     float radius         = 10;
     float swirl_strength = 0.5;
     float arm_thickness  = 3;
     float arm_length     = 5;
-    
+
     galaxy_generate(stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
     galaxy_generate(stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
   }
-  
+
   for(unsigned int i = 0; i < stars.length; i++) {
 
     stars.position[i] = vector3_rotate(stars.position[i],
@@ -227,15 +226,15 @@ int main() {
     stars_blue.position[i] = vector3_rotate(stars_blue.position[i],
         quaternion_from_euler(vector3_right(-PI/8)));
   }
-  
+
   lgl_mat4_buffer(&stars);
   lgl_mat4_buffer(&stars_blue);
-  
+
   stars.position[0]      = vector3_zero();
   stars.rotation[0]      = quaternion_identity();
   stars_blue.position[0] = vector3_zero();
   stars_blue.rotation[0] = quaternion_identity();
-  
+
   // --------------------------------------------------------------------------
   // Create cube
 
@@ -252,14 +251,14 @@ int main() {
 
   // --------------------------------------------------------------------------
   // Create audio source
-  
+
   lal_audio_source_t audio_source = lal_audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
   // game loop
-  
+
   float timer = 0;
-  
+
   while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     lal_audio_source_update(cube, audio_source, lgl_context);

@@ -17,17 +17,17 @@ void lgl_active_context_set(lgl_context_t* context) {
   lgl__active_context = context;
 }
 
-DEFINE_LIST(GLuint)
-DEFINE_LIST(lgl_vertex_t)
+  DEFINE_LIST(GLuint)
+  DEFINE_LIST(lgl_vertex_t)
 DEFINE_LIST(lgl_object_t)
 
-static const float
-             LGL__LEFT    = -1.0,
-             LGL__RIGHT   =  1.0,
-             LGL__UP      =  1.0,
-             LGL__DOWN    = -1.0,
-             LGL__FORWARD =  1.0,
-             LGL__BACK    = -1.0;
+  static const float
+  LGL__LEFT    = -1.0,
+  LGL__RIGHT   =  1.0,
+  LGL__UP      =  1.0,
+  LGL__DOWN    = -1.0,
+  LGL__FORWARD =  1.0,
+  LGL__BACK    = -1.0;
 
 void lgl_perspective(
     float *mat,
@@ -303,71 +303,71 @@ void lgl_camera_update(void) {
 
 void lgl_draw_instanced(const lgl_object_t object) {
 
-    { // render flags
-      if ((object.render_flags & LGL_FLAG_ENABLED) == 0) {
-        return;
-      }
-
-      if (object.render_flags & LGL_FLAG_USE_WIREFRAME) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      } else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      }
-
-      if (object.render_flags & LGL_FLAG_USE_STENCIL) {
-        glStencilMask(0xFF);
-      } else {
-        glStencilMask(0x00);
-      }
-    }
-  
-    glUseProgram(object.shader);
-    glUniform1i(glGetUniformLocation(object.shader, "u_use_instancing"), 1);
-
-    { // Model
-
-      GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
-
-      {
-        GLfloat translation[16]; lgl_mat4_identity(translation);
-        translation[12] = object.position[0].x;
-        translation[13] = object.position[0].y;
-        translation[14] = object.position[0].z;
-
-        GLfloat rotation[16]; lgl_mat4_identity(rotation);
-        quaternion_to_mat4(object.rotation[0], rotation);
-
-        lgl_mat4_multiply(model_matrix, rotation, translation);
-      }
-
-      GLint model_matrix_location = glGetUniformLocation(
-          object.shader, "u_model_matrix");
-      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+  { // render flags
+    if ((object.render_flags & LGL_FLAG_ENABLED) == 0) {
+      return;
     }
 
-    { // camera matrix
-      GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
-
-      lgl_mat4_multiply(
-          camera_matrix,
-          lgl__active_context->camera.view,
-          lgl__active_context->camera.projection);
-
-      GLint camera_matrix_location =
-        glGetUniformLocation(object.shader, "u_camera_matrix");
-      glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
+    if (object.render_flags & LGL_FLAG_USE_WIREFRAME) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    glUniform4f(
-        glGetUniformLocation( object.shader, "u_color"),
-        object.color.x,
-        object.color.y,
-        object.color.z,
-        object.color.w);
+    if (object.render_flags & LGL_FLAG_USE_STENCIL) {
+      glStencilMask(0xFF);
+    } else {
+      glStencilMask(0x00);
+    }
+  }
 
-    glBindVertexArray(object.VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_length, object.length);
-    glUseProgram(0);
+  glUseProgram(object.shader);
+  glUniform1i(glGetUniformLocation(object.shader, "u_use_instancing"), 1);
+
+  { // Model
+
+    GLfloat model_matrix[16]; lgl_mat4_identity(model_matrix);
+
+    {
+      GLfloat translation[16]; lgl_mat4_identity(translation);
+      translation[12] = object.position[0].x;
+      translation[13] = object.position[0].y;
+      translation[14] = object.position[0].z;
+
+      GLfloat rotation[16]; lgl_mat4_identity(rotation);
+      quaternion_to_mat4(object.rotation[0], rotation);
+
+      lgl_mat4_multiply(model_matrix, rotation, translation);
+    }
+
+    GLint model_matrix_location = glGetUniformLocation(
+        object.shader, "u_model_matrix");
+    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+  }
+
+  { // camera matrix
+    GLfloat camera_matrix[16]; lgl_mat4_identity(camera_matrix);
+
+    lgl_mat4_multiply(
+        camera_matrix,
+        lgl__active_context->camera.view,
+        lgl__active_context->camera.projection);
+
+    GLint camera_matrix_location =
+      glGetUniformLocation(object.shader, "u_camera_matrix");
+    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
+  }
+
+  glUniform4f(
+      glGetUniformLocation( object.shader, "u_color"),
+      object.color.x,
+      object.color.y,
+      object.color.z,
+      object.color.w);
+
+  glBindVertexArray(object.VAO);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_length, object.length);
+  glUseProgram(0);
 }
 
 void lgl_draw(const lgl_object_t data) {
@@ -635,89 +635,89 @@ lgl_object_t lgl_object_alloc(
 
   switch (archetype) {
     case LGL_OBJECT_ARCHETYPE_QUAD: {
-      enum { quad_vertices_count = 6 };
-      lgl_vertex_t quad_vertices[quad_vertices_count] = { 
-        //position                        //normal          //tex coord
-        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
-        { { LGL__RIGHT, LGL__DOWN, 0.0 }, vector3_forward(1.0), { 1.0, 0.0 } },
-        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
+                                      enum { quad_vertices_count = 6 };
+                                      lgl_vertex_t quad_vertices[quad_vertices_count] = { 
+                                        //position                        //normal          //tex coord
+                                        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, 0.0 }, vector3_forward(1.0), { 1.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
 
-        { { LGL__LEFT,  LGL__UP,   0.0 }, vector3_forward(1.0), { 0.0, 1.0 } },
-        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
-        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
-      };
-      object.vertices        = quad_vertices;
-      object.vertices_length = quad_vertices_count;
+                                        { { LGL__LEFT,  LGL__UP,   0.0 }, vector3_forward(1.0), { 0.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, 0.0 }, vector3_forward(1.0), { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   0.0 }, vector3_forward(1.0), { 1.0, 1.0 } },
+                                      };
+                                      object.vertices        = quad_vertices;
+                                      object.vertices_length = quad_vertices_count;
 
-      lgl__buffer_vertex_array(
-          &object.VAO,
-          &object.VBO,
-          object.vertices_length,
-          object.vertices);
-    } break;
+                                      lgl__buffer_vertex_array(
+                                          &object.VAO,
+                                          &object.VBO,
+                                          object.vertices_length,
+                                          object.vertices);
+                                    } break;
 
     case LGL_OBJECT_ARCHETYPE_CUBE: {
-      enum { cube_vertices_count = 36 };
-      lgl_vertex_t cube_vertices[cube_vertices_count] = { 
-        //position                                 //normal             //tex coord
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 1.0, 0.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+                                      enum { cube_vertices_count = 36 };
+                                      lgl_vertex_t cube_vertices[cube_vertices_count] = { 
+                                        //position                                 //normal             //tex coord
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 1.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
 
-        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 0.0, 1.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 1.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_back(1.0),    { 0.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_back(1.0),    { 0.0, 0.0 } },
 
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 1.0, 0.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
 
-        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 0.0, 1.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_forward(1.0), { 0.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 0.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_forward(1.0), { 1.0, 1.0 } },
 
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_left(1.0),    { 1.0, 1.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_left(1.0),    { 1.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
 
-        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_left(1.0),    { 0.0, 0.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_left(1.0),    { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_left(1.0),    { 0.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_left(1.0),    { 0.0, 1.0 } },
 
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_right(1.0),   { 1.0, 1.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_right(1.0),   { 1.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
 
-        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_right(1.0),   { 0.0, 0.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_right(1.0),   { 0.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_right(1.0),   { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_right(1.0),   { 1.0, 0.0 } },
 
-        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 1.0, 1.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 1.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
 
-        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
-        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 0.0, 0.0 } },
-        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__BACK    }, vector3_down(1.0),    { 0.0, 1.0 } },
+                                        { { LGL__LEFT,  LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 0.0, 0.0 } },
+                                        { { LGL__RIGHT, LGL__DOWN, LGL__FORWARD }, vector3_down(1.0),    { 1.0, 0.0 } },
 
-        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 1.0, 1.0 } },
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 1.0, 1.0 } },
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
 
-        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 0.0, 0.0 } },
-        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
-      };
+                                        { { LGL__RIGHT, LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 1.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__FORWARD }, vector3_up(1.0),      { 0.0, 0.0 } },
+                                        { { LGL__LEFT,  LGL__UP,   LGL__BACK    }, vector3_up(1.0),      { 0.0, 1.0 } },
+                                      };
 
-      object.vertices        = cube_vertices;
-      object.vertices_length = cube_vertices_count;
+                                      object.vertices        = cube_vertices;
+                                      object.vertices_length = cube_vertices_count;
 
-      lgl__buffer_vertex_array(
-          &object.VAO,
-          &object.VBO,
-          object.vertices_length,
-          object.vertices);
-    } break;
+                                      lgl__buffer_vertex_array(
+                                          &object.VAO,
+                                          &object.VBO,
+                                          object.vertices_length,
+                                          object.vertices);
+                                    } break;
   }
 
   return object;
@@ -854,7 +854,7 @@ void lgl__framebuffer_size_callback(
 
 void lgl__glfw_error_callback(int error, const char* description) {
   (void)error;
-    fprintf(stderr, "Error: %s\n", description);
+  fprintf(stderr, "Error: %s\n", description);
 }
 
 lgl_context_t *lgl_start(const int width, const int height) {
@@ -900,12 +900,12 @@ lgl_context_t *lgl_start(const int width, const int height) {
 
   { // center the window
     const GLFWvidmode * mode       = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    
+
     unsigned int resolution_width  = mode->width;
     unsigned int resolution_height = mode->height;
     unsigned int position_x        = (-width/2 ) + resolution_width/2;
     unsigned int position_y        = (-height/2) + resolution_height/2;
-    
+
     glfwSetWindowPos(lgl__active_context->GLFWwindow, position_x, position_y);
   }
   glfwShowWindow(lgl__active_context->GLFWwindow);
@@ -944,16 +944,16 @@ void lgl__time_update(void) {
 
 #if 0 // log time
   debug_log( "\n"
-    "time_current:   %lf\n"
-    "frame_current:  %llu\n"
-    "time_delta:     %lf\n"
-    "time_last:      %lf\n"
-    "time_FPS:       %lf",
-    lgl__active_context->time_current,
-    lgl__active_context->frame_current,
-    lgl__active_context->time_delta,
-    lgl__active_context->time_last,
-    lgl__active_context->time_FPS);
+      "time_current:   %lf\n"
+      "frame_current:  %llu\n"
+      "time_delta:     %lf\n"
+      "time_last:      %lf\n"
+      "time_FPS:       %lf",
+      lgl__active_context->time_current,
+      lgl__active_context->frame_current,
+      lgl__active_context->time_delta,
+      lgl__active_context->time_last,
+      lgl__active_context->time_FPS);
 #endif // log time
 }
 

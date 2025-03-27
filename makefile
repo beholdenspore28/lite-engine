@@ -1,34 +1,36 @@
-SRC	            :=  src/*.c
-OBJ	            :=  build/*.o
-INC	            := -Isrc -Idep -Idep/glad/include
-OUT	            := -o build/lite_engine
+SRC             :=  src/*.c
+OBJ             :=  build/*.o
+INC             := -Isrc -Idep -Idep/glad/include
+OUT             := -o build/lite_engine
 
-C	              :=  clang
+GCC_ANALYZER    :=  gcc   -fanalyzer
+CLANG_ANALYZER  :=  clang -fsanitize=address,undefined
 
-CFLAGS_DEBUG	  := -g3 
-CFLAGS_RELEASE	:= -O3 -flto
+CC              := ${CLANG_ANALYZER}
 
-CFLAGS		      := -Wall              \
-								   -Wextra            \
-								   -Wpedantic         \
-									 -fsanitize=address \
-								   -std=c99           \
-								   ${CFLAGS_DEBUG}    \
+CFLAGS_DEBUG    := -g3 
+CFLAGS_RELEASE  := -O3 -flto
+
+CFLAGS          := -Wall           \
+                   -Wextra         \
+                   -Wpedantic      \
+                   -std=c99        \
+                   ${CFLAGS_DEBUG} \
 
 LIBS := -lglfw -lm -lopenal -lalut
 
 build: build_directory glad
-	${C} ${SRC} ${OBJ} ${INC} ${LIBS} ${CFLAGS} ${OUT}
+	${CC} ${SRC} ${OBJ} ${INC} ${LIBS} ${CFLAGS} ${OUT}
 	./build/lite_engine
 
 LIBS_WINDOWS := -Ldep -lglfw3 -lgdi32 -lopengl32
 
 build_windows: 
-	${C} ${SRC} ${OBJ} ${INC} ${LIBS_WINDOWS} ${CFLAGS} ${OUT}
+	${CC} ${SRC} ${OBJ} ${INC} ${LIBS_WINDOWS} ${CFLAGS} ${OUT}
 	./build/lite_engine.exe
 
 glad:
-	${C} -c -Idep/glad/include dep/glad/src/gl.c -o build/glad.o
+	${CC} -c -Idep/glad/include dep/glad/src/gl.c -o build/glad.o
 
 build_directory:
 	mkdir -p build

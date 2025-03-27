@@ -22,28 +22,28 @@ void lal_audio_source_update(
     lal_audio_source_t source,
     lgl_context_t      *lgl_context) {
 
-    alSource3f(source.id, AL_POSITION,
-        object.position->x,
-        object.position->y,
-        object.position->z);
+  alSource3f(source.id, AL_POSITION,
+      object.position->x,
+      object.position->y,
+      object.position->z);
 
-    alListener3f(AL_POSITION,
-        lgl_context->camera.position.x,
-        lgl_context->camera.position.y,
-        lgl_context->camera.position.z);
-
-    vector3_t camera_up = vector3_rotate(
-        vector3_up(1.0),
-        lgl_context->camera.rotation);
-
-    float orientation[6] = {
+  alListener3f(AL_POSITION,
       lgl_context->camera.position.x,
       lgl_context->camera.position.y,
-      lgl_context->camera.position.z,
-      camera_up.x,
-      camera_up.y,
-      camera_up.z,
-    };
+      lgl_context->camera.position.z);
 
-    alListenerfv(AL_ORIENTATION, orientation);
+  vector3_t camera_up = vector3_rotate(
+      vector3_up(1.0),
+      lgl_context->camera.rotation);
+
+  float orientation[6] = {
+    lgl_context->camera.position.x,
+    lgl_context->camera.position.y,
+    lgl_context->camera.position.z,
+    camera_up.x,
+    camera_up.y,
+    camera_up.z,
+  };
+
+  alListenerfv(AL_ORIENTATION, orientation);
 }
