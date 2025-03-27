@@ -244,8 +244,8 @@ int main() {
   cube.lights_count   = LIGHTS_COUNT;
   cube.shader         = shader_phong;
   cube.position[0]    = lgl_context->camera.position;
-  cube.position[0].x += 3;
-  cube.position[0].z += 10;
+  cube.position[0].x += 30;
+  cube.position[0].z += 100;
   cube.color          = (vector4_t) {1,1,1,1};
   //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
@@ -320,8 +320,6 @@ int main() {
     lgl_end_frame();
   }
 
-  /* Exit from ALUT */
-  alutExit();
 
   lal_audio_source_free(audio_source);
   lgl_object_free(cube);
@@ -329,6 +327,8 @@ int main() {
   lgl_object_free(stars_blue);
   lgl_framebuffer_free(frame);
   lgl_free(lgl_context);
+
+  alutExit();
 
   return 0;
 }

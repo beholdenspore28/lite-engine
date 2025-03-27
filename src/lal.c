@@ -42,17 +42,19 @@ void lal_audio_source_update(
       lgl_context->camera.position.y,
       lgl_context->camera.position.z);
 
-  vector3_t camera_up = vector3_rotate(
-      vector3_up(1.0),
-      lgl_context->camera.rotation);
+  vector3_t listener_up = (vector3_t) { 0.0,  0.0,  1.0 };
+  vector3_t listener_at = (vector3_t) { 0.0,  1.0,  0.0 };
+
+  listener_at = vector3_rotate(listener_at, lgl_context->camera.rotation);
+  listener_up = vector3_rotate(listener_up, lgl_context->camera.rotation);
 
   float orientation[6] = {
-    lgl_context->camera.position.x,
-    lgl_context->camera.position.y,
-    lgl_context->camera.position.z,
-    camera_up.x,
-    camera_up.y,
-    camera_up.z,
+    listener_at.x,
+    listener_at.y,
+    listener_at.z,
+    listener_up.x,
+    listener_up.y,
+    listener_up.z,
   };
 
   alListenerfv(AL_ORIENTATION, orientation);
