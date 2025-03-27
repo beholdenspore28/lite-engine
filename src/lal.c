@@ -13,6 +13,7 @@ lal_audio_source_t lal_audio_source_alloc(unsigned int count){
   alSourcei(source.id, AL_LOOPING, AL_TRUE);
   alSourcef(source.id, AL_GAIN, 1.0);
   alSourcePlay(source.id);
+
   return source;
 }
 
