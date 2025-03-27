@@ -263,7 +263,6 @@ int main() {
   while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     lal_audio_source_update(cube, audio_source, lgl_context);
-
     lgl_camera_update();
 
     timer += lgl_context->time_delta;
