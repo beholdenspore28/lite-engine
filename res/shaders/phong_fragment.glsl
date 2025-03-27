@@ -175,7 +175,7 @@ void main() {
   vec3 light = vec3(0,0,0);
   for(int i = 0; i < u_lights_count; i++) {
     if (i >= LIGHTS_MAX) { break; };
-    light += light_point_infinite_range(
+    light += light_point(
         u_lights[i], norm, v_fragment_position, view_direction);
   }
 

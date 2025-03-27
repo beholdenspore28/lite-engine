@@ -115,13 +115,13 @@ int main() {
 
   ALuint buffer = 0;
   alGenBuffers(NUM_BUFFERS, &buffer);
-  buffer = alutCreateBufferFromFile("res/audio/BeepBox-Song.wav");
+  buffer = alutCreateBufferFromFile("res/audio/random (1).wav");
 
   ALuint source = 0;
-  alGenSources(NUM_SOURCES, &source);
+  alGenSources(NUM_SOURCES,    &source);
   alSourcei(source, AL_BUFFER,  buffer);
-  //alSourcei(source, AL_LOOPING, AL_TRUE);
-  alSourcef(source, AL_GAIN,    0.8);
+  alSourcei(source, AL_LOOPING, AL_TRUE);
+  alSourcef(source, AL_GAIN, 1.0);
   alSourcePlay(source);
   
   lgl_context_t *lgl_context = lgl_start(640, 480);
@@ -274,6 +274,31 @@ int main() {
   float timer = 0;
 
   while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
+
+    alSource3f(source, AL_POSITION,
+        cube.position->x,
+        cube.position->y,
+        cube.position->z);
+
+    alListener3f(AL_POSITION,
+        lgl_context->camera.position.x,
+        lgl_context->camera.position.y,
+        lgl_context->camera.position.z);
+
+    vector3_t camera_up = vector3_rotate(
+        vector3_up(1.0),
+        lgl_context->camera.rotation);
+
+    float orientation[6] = {
+      lgl_context->camera.position.x,
+      lgl_context->camera.position.y,
+      lgl_context->camera.position.z,
+      camera_up.x,
+      camera_up.y,
+      camera_up.z,
+    };
+
+    alListenerfv(AL_ORIENTATION, orientation);
 
     lgl_camera_update();
 
