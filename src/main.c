@@ -104,26 +104,63 @@ void galaxy_generate(
   }
 }
 
-int main() {
+typedef struct {
+  ALuint id;
+  ALuint buffer;
+  unsigned int count;
+} lal_audio_source_t;
 
-  enum {
-    NUM_SOURCES = 1,
-    NUM_BUFFERS = 1,
-  };
+lal_audio_source_t lal_audio_source_alloc(unsigned int count){
+
+  lal_audio_source_t source;
+
+  source.buffer = 0;
+  alGenBuffers(count, &source.buffer);
+  source.buffer = alutCreateBufferFromFile("res/audio/random (1).wav");
+
+  alGenSources(count,    &source.id);
+  alSourcei(source.id, AL_BUFFER,  source.buffer);
+  alSourcei(source.id, AL_LOOPING, AL_TRUE);
+  alSourcef(source.id, AL_GAIN, 1.0);
+  alSourcePlay(source.id);
+  return source;
+}
+
+void lal_audio_source_update(
+    lgl_object_t       object,
+    lal_audio_source_t source,
+    lgl_context_t      *lgl_context) {
+
+    alSource3f(source.id, AL_POSITION,
+        object.position->x,
+        object.position->y,
+        object.position->z);
+
+    alListener3f(AL_POSITION,
+        lgl_context->camera.position.x,
+        lgl_context->camera.position.y,
+        lgl_context->camera.position.z);
+
+    vector3_t camera_up = vector3_rotate(
+        vector3_up(1.0),
+        lgl_context->camera.rotation);
+
+    float orientation[6] = {
+      lgl_context->camera.position.x,
+      lgl_context->camera.position.y,
+      lgl_context->camera.position.z,
+      camera_up.x,
+      camera_up.y,
+      camera_up.z,
+    };
+
+    alListenerfv(AL_ORIENTATION, orientation);
+}
+
+int main() {
 
   alutInit(0,0);
 
-  ALuint buffer = 0;
-  alGenBuffers(NUM_BUFFERS, &buffer);
-  buffer = alutCreateBufferFromFile("res/audio/random (1).wav");
-
-  ALuint source = 0;
-  alGenSources(NUM_SOURCES,    &source);
-  alSourcei(source, AL_BUFFER,  buffer);
-  alSourcei(source, AL_LOOPING, AL_TRUE);
-  alSourcef(source, AL_GAIN, 1.0);
-  alSourcePlay(source);
-  
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
   glClearColor(0,0,0,1);
@@ -267,38 +304,20 @@ int main() {
   cube.position[0].z += 10;
   cube.color          = (vector4_t) {1,1,1,1};
   //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+
+  // --------------------------------------------------------------------------
+  // Create audio source
   
+  lal_audio_source_t audio_source = lal_audio_source_alloc(1);
+
   // --------------------------------------------------------------------------
   // game loop
   
   float timer = 0;
-
+  
   while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
-    alSource3f(source, AL_POSITION,
-        cube.position->x,
-        cube.position->y,
-        cube.position->z);
-
-    alListener3f(AL_POSITION,
-        lgl_context->camera.position.x,
-        lgl_context->camera.position.y,
-        lgl_context->camera.position.z);
-
-    vector3_t camera_up = vector3_rotate(
-        vector3_up(1.0),
-        lgl_context->camera.rotation);
-
-    float orientation[6] = {
-      lgl_context->camera.position.x,
-      lgl_context->camera.position.y,
-      lgl_context->camera.position.z,
-      camera_up.x,
-      camera_up.y,
-      camera_up.z,
-    };
-
-    alListenerfv(AL_ORIENTATION, orientation);
+    lal_audio_source_update(cube, audio_source, lgl_context);
 
     lgl_camera_update();
 
