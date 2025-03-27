@@ -261,8 +261,8 @@ int main() {
 
   while(!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
-    lal_audio_source_update(cube, audio_source, lgl_context);
     lgl_camera_update();
+    lal_audio_source_update(audio_source, cube, lgl_context);
 
     timer += lgl_context->time_delta;
 
@@ -323,6 +323,7 @@ int main() {
   /* Exit from ALUT */
   alutExit();
 
+  lal_audio_source_free(audio_source);
   lgl_object_free(cube);
   lgl_object_free(stars);
   lgl_object_free(stars_blue);

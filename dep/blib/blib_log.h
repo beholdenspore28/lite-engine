@@ -24,19 +24,19 @@
 #define BLIB_ANSI_COLOR_RESET	"\x1b[0m"
 
 #define debug_log(...) {\
-	fprintf(BLIB_LOG_STREAM, BLIB_ANSI_COLOR_CYAN "[ %s:%d ", __FILE__, __LINE__);\
+	fprintf(BLIB_LOG_STREAM, BLIB_ANSI_COLOR_CYAN "[ MESSAGE %s:%d ", __FILE__, __LINE__);\
 	fprintf(BLIB_LOG_STREAM, BLIB_ANSI_COLOR_CYAN "] " BLIB_ANSI_COLOR_RESET __VA_ARGS__);\
 	fprintf(BLIB_LOG_STREAM, "\n" BLIB_ANSI_COLOR_RESET);\
 }
 
 #define debug_warn(...) {\
-	fprintf(BLIB_WARNING_STREAM, BLIB_ANSI_COLOR_YELLOW "[ %s:%d ", __FILE__, __LINE__);\
+	fprintf(BLIB_WARNING_STREAM, BLIB_ANSI_COLOR_YELLOW "[ WARNING %s:%d ", __FILE__, __LINE__);\
 	fprintf(BLIB_WARNING_STREAM, BLIB_ANSI_COLOR_YELLOW "] " BLIB_ANSI_COLOR_RESET __VA_ARGS__);\
 	fprintf(BLIB_WARNING_STREAM, "\n" BLIB_ANSI_COLOR_RESET);\
 }
 
 #define debug_error(...) {\
-	fprintf(BLIB_ERROR_STREAM, BLIB_ANSI_COLOR_RED "[ %s:%d ", __FILE__, __LINE__);\
+	fprintf(BLIB_ERROR_STREAM, BLIB_ANSI_COLOR_RED "[ ERROR %s:%d ", __FILE__, __LINE__);\
 	fprintf(BLIB_ERROR_STREAM, BLIB_ANSI_COLOR_RED "] " BLIB_ANSI_COLOR_RESET __VA_ARGS__);\
 	fprintf(BLIB_ERROR_STREAM, "\n" BLIB_ANSI_COLOR_RESET);\
 }

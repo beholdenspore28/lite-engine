@@ -3,8 +3,9 @@
 lal_audio_source_t lal_audio_source_alloc(unsigned int count){
 
   lal_audio_source_t source;
-  source.buffer = calloc(sizeof(*source.buffer), count);
-  source.id     = calloc(sizeof(*source.id),     count);
+  source.buffer = calloc(sizeof(ALuint), count);
+  source.id     = calloc(sizeof(ALuint), count);
+  source.count = count;
 
   for(unsigned int i = 0; i < count; i++) {
     alGenBuffers(count, &source.buffer[i]);
@@ -20,15 +21,21 @@ lal_audio_source_t lal_audio_source_alloc(unsigned int count){
   return source;
 }
 
-void lal_audio_source_update(
-    lgl_object_t       object,
-    lal_audio_source_t source,
-    lgl_context_t      *lgl_context) {
+void lal_audio_source_free(lal_audio_source_t source) {
 
-  alSource3f(source.id, AL_POSITION,
-      object.position->x,
-      object.position->y,
-      object.position->z);
+  for(unsigned int i = 0; i < source.count; i++) {
+    alDeleteBuffers(source.count, source.buffer+i);
+    alDeleteSources(source.count, source.id+i);
+  }
+  
+  free(source.buffer);
+  free(source.id);
+}
+
+void lal_audio_source_update(
+    lal_audio_source_t source,
+    lgl_object_t       object,
+    lgl_context_t      *lgl_context) {
 
   alListener3f(AL_POSITION,
       lgl_context->camera.position.x,
@@ -49,4 +56,12 @@ void lal_audio_source_update(
   };
 
   alListenerfv(AL_ORIENTATION, orientation);
+
+  for(unsigned int i = 0; i < source.count; i++) {
+    alSource3f(source.id[i], AL_POSITION,
+        object.position[i].x,
+        object.position[i].y,
+        object.position[i].z);
+  }
+
 }
