@@ -107,7 +107,7 @@ int main() {
   alutInit(0,0);
   lgl_context_t *lgl_context = lgl_start(640, 480);
   
-  glClearColor(1,1,1,1);
+  glClearColor(0,0,0,1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -173,7 +173,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create framebuffer
 
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer);
+  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 1, 3);
   lgl_active_framebuffer_set(&frame);
 
   // --------------------------------------------------------------------------

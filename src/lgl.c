@@ -729,52 +729,88 @@ void lgl_object_free(lgl_object_t object) {
   free(object.rotation);
 }
 
-lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader) { 
+lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint num_color_attachments) { 
 
   lgl_framebuffer_t frame;
   glGenFramebuffers(1, &frame.FBO);
   glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
-
-  glGenTextures(2, frame.color_buffers);
+  frame.color_buffers = calloc(sizeof(*frame.color_buffers), num_color_attachments);
 
   int width, height;
   glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
 
-  for (unsigned int i = 0; i < 2; i++) {
-    glBindTexture(GL_TEXTURE_2D, frame.color_buffers[i]);
+  if (samples > 1) { // configure MSAA enabled framebuffer
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-        0, GL_RGBA, GL_FLOAT, NULL);
+    // configure MSAA framebuffer
+    // --------------------------
+    glGenFramebuffers(1, &frame.FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // create a multisampled color attachment texture
+    unsigned int textureColorBufferMultiSampled;
+    glGenTextures(1, &textureColorBufferMultiSampled);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled, 0);
 
-    // attach texture to framebuffer
-    glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-        GL_TEXTURE_2D, frame.color_buffers[i], 0);
+    // create a (also multisampled) renderbuffer object for depth and stencil attachments
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+
+  } else { // configure framebuffer without MSAA
+    glGenTextures(2, frame.color_buffers);
+
+    for (unsigned int i = 0; i < num_color_attachments; i++) {
+      glBindTexture(GL_TEXTURE_2D, frame.color_buffers[i]);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
+          0, GL_RGBA, GL_FLOAT, NULL);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      // attach texture to framebuffer
+      glFramebufferTexture2D(
+          GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+          GL_TEXTURE_2D, frame.color_buffers[i], 0);
+    }
+
+    glGenRenderbuffers(1, &frame.RBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, frame.RBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
+    glFramebufferRenderbuffer(
+        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_RENDERBUFFER, frame.RBO);
+
+    GLuint attachments[num_color_attachments];
+    for(unsigned int i = 0; i > num_color_attachments; i++) {
+      attachments[i] = GL_COLOR_ATTACHMENT0+i;
+    }
+
+    glDrawBuffers(num_color_attachments, attachments);
+
   }
 
-  glGenRenderbuffers(1, &frame.RBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, frame.RBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    debug_error("Framebuffer is not complete!");
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-      GL_RENDERBUFFER, frame.RBO);
-
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, attachments);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_QUAD); {
     frame.quad.shader        =  shader;
     frame.quad.diffuse_map   =  frame.color_buffers[0];
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   return frame;
 }

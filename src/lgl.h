@@ -94,11 +94,15 @@ extern "C" {
     typedef struct {
       GLuint             FBO;
       GLuint             RBO;
-      GLuint             color_buffers[2];
+      GLuint            *color_buffers;
       lgl_object_t  quad;
     } lgl_framebuffer_t;
 
-  lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader);
+  lgl_framebuffer_t lgl_framebuffer_alloc(
+      GLuint shader,
+      GLuint samples,
+      GLuint num_color_attachments);
+
   void lgl_framebuffer_free(lgl_framebuffer_t frame);
 
   void lgl_active_framebuffer_set(lgl_framebuffer_t* frame);
