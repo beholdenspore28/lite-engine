@@ -178,8 +178,11 @@ int main() {
     NUM_COLOR_BUFFERS = 2,
   };
 
-  lgl_framebuffer_t frame       = lgl_framebuffer_alloc(shader_framebuffer, 1,       NUM_COLOR_BUFFERS);
-  lgl_framebuffer_t frame_MSAA  = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS);
+  int width, height;
+  glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
+
+  lgl_framebuffer_t frame       = lgl_framebuffer_alloc(shader_framebuffer, 1,       NUM_COLOR_BUFFERS, width, height);
+  lgl_framebuffer_t frame_MSAA  = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
 
   lgl_active_framebuffer_set(&frame);
 

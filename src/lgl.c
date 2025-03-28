@@ -729,15 +729,16 @@ void lgl_object_free(lgl_object_t object) {
   free(object.rotation);
 }
 
-lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint num_color_attachments) { 
+lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint num_color_attachments, GLuint width, GLuint height) { 
 
   lgl_framebuffer_t frame;
+
+  frame.color_buffers       = calloc(sizeof(*frame.color_buffers), num_color_attachments);
+  frame.color_buffers_count = num_color_attachments;
+  frame.samples             = samples;
+
   glGenFramebuffers(1, &frame.FBO);
   glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
-  frame.color_buffers = calloc(sizeof(*frame.color_buffers), num_color_attachments);
-
-  int width, height;
-  glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
 
   if (samples > 1) { // configure MSAA enabled framebuffer
 
@@ -819,62 +820,21 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint nu
 }
 
 void lgl_framebuffer_free(lgl_framebuffer_t frame) {
-  free(frame.color_buffers);
   lgl_object_free(frame.quad);
+  free(frame.color_buffers);
+  glDeleteFramebuffers(1, &frame.FBO);
+  glDeleteTextures(frame.color_buffers_count, frame.color_buffers);
+  glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void lgl__framebuffer_resize(const int width, const int height) { 
+static void lgl__framebuffer_resize(unsigned int width, unsigned int height) { 
 
-  // I decided to just delete and recreate all framebuffer attachments for
-  // compatibility reasons. I am not sure (because I haven't tested this on
-  // all hardware) but I believe this should be more compatible than reusing
-  // the existing attachments.
+  GLuint shader              = lgl__active_framebuffer->quad.shader;
+  GLuint samples             = lgl__active_framebuffer->samples;
+  GLuint color_buffers_count = lgl__active_framebuffer->color_buffers_count;
 
-  { // resize the color attachments
-    glBindFramebuffer(GL_FRAMEBUFFER, lgl__active_framebuffer->FBO);
-    glDeleteTextures(2, lgl__active_framebuffer->color_buffers);
-
-    glGenTextures(2, lgl__active_framebuffer->color_buffers);
-    for (unsigned int i = 0; i < 2; i++) {
-      glBindTexture(GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i]);
-
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-          0, GL_RGBA, GL_FLOAT, NULL);
-
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-      // attach texture to framebuffer
-      glFramebufferTexture2D(
-          GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-          GL_TEXTURE_2D, lgl__active_framebuffer->color_buffers[i], 0);
-    }
-  }
-
-  { // resize the render buffer
-    glDeleteRenderbuffers(1, &lgl__active_framebuffer->RBO);
-
-    glGenRenderbuffers(1, &lgl__active_framebuffer->RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-
-    glFramebufferRenderbuffer(
-        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-        GL_RENDERBUFFER, lgl__active_framebuffer->RBO);
-  }
-
-  GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, attachments);
-
-  lgl__active_framebuffer->quad.diffuse_map =
-    lgl__active_framebuffer->color_buffers[0];
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  lgl__active_framebuffer->width  = width;
-  lgl__active_framebuffer->height = height;
+  lgl_framebuffer_free(*lgl__active_framebuffer);
+  *lgl__active_framebuffer = lgl_framebuffer_alloc(shader, samples, color_buffers_count, width, height);
 }
 
 void lgl__framebuffer_size_callback(
@@ -883,16 +843,17 @@ void lgl__framebuffer_size_callback(
     int         height) {
   (void)window;
 
-#if 0
-  debug_log("FBO %d cb0 %d cb1 %d",
+  glViewport(0, 0, width, height);
+  lgl__framebuffer_resize(width, height);
+
+#if 1
+  debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",
+      lgl__active_framebuffer->width,
+      lgl__active_framebuffer->height,
       lgl__active_framebuffer->FBO,
-      lgl__active_framebuffer->color_buffers[0],
-      lgl__active_framebuffer->color_buffers[1]);
+      lgl__active_framebuffer->color_buffers_count);
 #endif
 
-  glViewport(0, 0, width, height);
-
-  lgl__framebuffer_resize(width, height);
 }
 
 void lgl__glfw_error_callback(int error, const char* description) {
@@ -953,7 +914,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
   }
   glfwShowWindow(lgl__active_context->GLFWwindow);
 
-  glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  //glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   gladLoadGL(glfwGetProcAddress);
 

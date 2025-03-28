@@ -92,18 +92,22 @@ extern "C" {
   DECLARE_LIST(lgl_object_t)
 
     typedef struct {
-      GLuint             FBO;
-      GLuint             RBO;
-      GLuint            *color_buffers;
-      GLuint             width;
-      GLuint             height;
-      lgl_object_t  quad;
+      GLuint           FBO;
+      GLuint           RBO;
+      GLuint          *color_buffers;
+      GLuint           color_buffers_count;
+      GLuint           width;
+      GLuint           height;
+      GLuint           samples;
+      lgl_object_t     quad;
     } lgl_framebuffer_t;
 
   lgl_framebuffer_t lgl_framebuffer_alloc(
       GLuint shader,
       GLuint samples,
-      GLuint num_color_attachments);
+      GLuint num_color_attachments,
+      GLuint width,
+      GLuint height);
 
   void lgl_framebuffer_free(lgl_framebuffer_t frame);
 
