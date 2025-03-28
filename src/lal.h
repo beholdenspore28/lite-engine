@@ -11,19 +11,17 @@ extern "C" {
 #include <AL/alc.h>
 #include <AL/alut.h>
 
-  typedef struct {
-    ALuint       *id;
-    ALuint       *buffer;
-    unsigned int  count;
-  } lal_audio_source_t;
+typedef struct {
+  ALuint *id;
+  ALuint *buffer;
+  unsigned int count;
+} lal_audio_source_t;
 
-  lal_audio_source_t lal_audio_source_alloc(unsigned int count);
-  void lal_audio_source_free(lal_audio_source_t source);
+lal_audio_source_t lal_audio_source_alloc(unsigned int count);
+void lal_audio_source_free(lal_audio_source_t source);
 
-  void lal_audio_source_update(
-      lal_audio_source_t source,
-      lgl_object_t       object,
-      lgl_context_t      *lgl_context);
+void lal_audio_source_update(lal_audio_source_t source, lgl_object_t object,
+                             lgl_context_t *lgl_context);
 
 #ifdef __cplusplus
 }
