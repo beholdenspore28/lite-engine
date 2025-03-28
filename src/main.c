@@ -173,7 +173,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create framebuffer
 
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 1, 3);
+  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 8, 2);
   lgl_active_framebuffer_set(&frame);
 
   // --------------------------------------------------------------------------

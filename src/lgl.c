@@ -741,36 +741,38 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint nu
 
   if (samples > 1) { // configure MSAA enabled framebuffer
 
-    // configure MSAA framebuffer
-    // --------------------------
-    glGenFramebuffers(1, &frame.FBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
+    glGenTextures(num_color_attachments, frame.color_buffers);
 
-    // create a multisampled color attachment texture
-    unsigned int textureColorBufferMultiSampled;
-    glGenTextures(1, &textureColorBufferMultiSampled);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
+    for (unsigned int i = 0; i < num_color_attachments; i++) {
+      glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, frame.color_buffers[i]);
+      glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+
+      glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      glFramebufferTexture2D(
+          GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+          GL_TEXTURE_2D_MULTISAMPLE, frame.color_buffers[i], 0);
+    }
+
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled, 0);
 
-    // create a (also multisampled) renderbuffer object for depth and stencil attachments
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
+    glGenRenderbuffers(1, &frame.RBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, frame.RBO);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frame.RBO);
 
   } else { // configure framebuffer without MSAA
-    glGenTextures(2, frame.color_buffers);
+    glGenTextures(num_color_attachments, frame.color_buffers);
 
     for (unsigned int i = 0; i < num_color_attachments; i++) {
       glBindTexture(GL_TEXTURE_2D, frame.color_buffers[i]);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height,
-          0, GL_RGBA, GL_FLOAT, NULL);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,
+          0, GL_RGB, GL_FLOAT, NULL);
 
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -790,19 +792,18 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint nu
     glFramebufferRenderbuffer(
         GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
         GL_RENDERBUFFER, frame.RBO);
-
-    GLuint attachments[num_color_attachments];
-    for(unsigned int i = 0; i > num_color_attachments; i++) {
-      attachments[i] = GL_COLOR_ATTACHMENT0+i;
-    }
-
-    glDrawBuffers(num_color_attachments, attachments);
-
   }
 
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  GLuint attachments[num_color_attachments];
+  for(unsigned int i = 0; i > num_color_attachments; i++) {
+    attachments[i] = GL_COLOR_ATTACHMENT0+i;
+  }
+
+  glDrawBuffers(num_color_attachments, attachments);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     debug_error("Framebuffer is not complete!");
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
