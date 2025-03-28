@@ -174,7 +174,7 @@ int main() {
   // Create framebuffer
 
   enum {
-    SAMPLES = 1,
+    SAMPLES = 2,
     NUM_COLOR_BUFFERS = 2,
   };
 
