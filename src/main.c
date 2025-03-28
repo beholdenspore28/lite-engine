@@ -173,7 +173,13 @@ int main() {
   // --------------------------------------------------------------------------
   // Create framebuffer
 
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(shader_framebuffer, 8, 2);
+  enum {
+    SAMPLES = 1,
+    NUM_COLOR_BUFFERS = 2,
+  };
+
+  lgl_framebuffer_t frame  = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS);
+
   lgl_active_framebuffer_set(&frame);
 
   // --------------------------------------------------------------------------
@@ -203,15 +209,15 @@ int main() {
   //stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   for(unsigned int i = 0; i < stars.length; i++) {
-    stars_blue.scale[i] = vector3_one(0.05);
-    stars.scale[i]      = vector3_one(0.05);
+    stars_blue.scale[i] = vector3_one(0.02);
+    stars.scale[i]      = vector3_one(0.02);
   }
 
   {
-    float radius         = 10;
-    float swirl_strength = 0.5;
-    float arm_thickness  = 3;
-    float arm_length     = 5;
+    float radius         = 5;
+    float swirl_strength = 0.1;
+    float arm_thickness  = 5;
+    float arm_length     = 10;
 
     galaxy_generate(stars, radius, 902347, swirl_strength, arm_thickness, arm_length);
     galaxy_generate(stars_blue, radius, 0, swirl_strength, arm_thickness, arm_length);
