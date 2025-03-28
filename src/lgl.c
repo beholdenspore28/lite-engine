@@ -819,6 +819,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint nu
 }
 
 void lgl_framebuffer_free(lgl_framebuffer_t frame) {
+  free(frame.color_buffers);
   lgl_object_free(frame.quad);
 }
 

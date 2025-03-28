@@ -174,7 +174,7 @@ int main() {
   // Create framebuffer
 
   enum {
-    SAMPLES = 2,
+    SAMPLES = 4,
     NUM_COLOR_BUFFERS = 2,
   };
 
@@ -340,6 +340,7 @@ int main() {
   lgl_object_free(stars);
   lgl_object_free(stars_blue);
   lgl_framebuffer_free(frame);
+  lgl_framebuffer_free(frame_MSAA);
   lgl_free(lgl_context);
 
   alutExit();
