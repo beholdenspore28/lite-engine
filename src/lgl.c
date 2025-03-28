@@ -6,15 +6,11 @@
 #include "stb_image.h"
 #include "blib/blib_file.h"
 
-static lgl_framebuffer_t *lgl__active_framebuffer;
-static lgl_context_t     *lgl__active_context;
+static lgl_framebuffer_t *lgl__active_framebuffer = NULL;
+static lgl_context_t     *lgl__active_context     = NULL;
 
-void lgl_active_framebuffer_set(lgl_framebuffer_t* frame) {
+void lgl_active_framebuffer_set(lgl_framebuffer_t *frame) {
   lgl__active_framebuffer = frame;
-}
-
-void lgl_active_context_set(lgl_context_t* context) {
-  lgl__active_context = context;
 }
 
   DEFINE_LIST(GLuint)
@@ -846,7 +842,7 @@ void lgl__framebuffer_size_callback(
   glViewport(0, 0, width, height);
   lgl__framebuffer_resize(width, height);
 
-#if 1
+#if 0
   debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",
       lgl__active_framebuffer->width,
       lgl__active_framebuffer->height,
@@ -864,10 +860,15 @@ void lgl__glfw_error_callback(int error, const char* description) {
 lgl_context_t *lgl_start(const int width, const int height) {
   debug_log("Rev up those fryers!");
 
-  {
-    lgl_context_t *context = malloc(sizeof(*context));
-    lgl_active_context_set(context);
+  if (lgl__active_context != NULL) {
+    debug_warn(
+        "Failed to initialize lgl context. "
+        "A context has already been created."
+        "Returning NULL!");
+    return NULL;
   }
+
+  lgl__active_context = malloc(sizeof(*lgl__active_context));
 
   lgl__active_context->is_running     = 1;
   lgl__active_context->time_current   = 0;
