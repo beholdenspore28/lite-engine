@@ -178,7 +178,8 @@ int main() {
     NUM_COLOR_BUFFERS = 2,
   };
 
-  lgl_framebuffer_t frame  = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS);
+  lgl_framebuffer_t frame       = lgl_framebuffer_alloc(shader_framebuffer, 1,       NUM_COLOR_BUFFERS);
+  lgl_framebuffer_t frame_MSAA  = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS);
 
   lgl_active_framebuffer_set(&frame);
 
@@ -299,7 +300,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, frame.FBO);
+      glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
 
       glClear(
           GL_COLOR_BUFFER_BIT |
@@ -310,6 +311,14 @@ int main() {
       lgl_draw_instanced(stars);
       lgl_draw_instanced(stars_blue);
     }
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame.FBO);
+    glBlitFramebuffer(
+        0, 0, frame_MSAA.width, frame_MSAA.height,
+        0, 0, frame.width,      frame.height,
+        GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
 
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -808,8 +808,10 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples, GLuint nu
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_QUAD); {
-    frame.quad.shader        =  shader;
-    frame.quad.diffuse_map   =  frame.color_buffers[0];
+    frame.quad.shader        = shader;
+    frame.quad.diffuse_map   = frame.color_buffers[0];
+    frame.width              = width;
+    frame.height             = height;
     //frame.quad.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
@@ -869,6 +871,9 @@ static void lgl__framebuffer_resize(const int width, const int height) {
     lgl__active_framebuffer->color_buffers[0];
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  lgl__active_framebuffer->width  = width;
+  lgl__active_framebuffer->height = height;
 }
 
 void lgl__framebuffer_size_callback(

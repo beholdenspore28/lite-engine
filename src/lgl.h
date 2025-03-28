@@ -95,6 +95,8 @@ extern "C" {
       GLuint             FBO;
       GLuint             RBO;
       GLuint            *color_buffers;
+      GLuint             width;
+      GLuint             height;
       lgl_object_t  quad;
     } lgl_framebuffer_t;
 
