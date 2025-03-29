@@ -76,6 +76,8 @@ typedef struct {
   vector3_t *scale;
   quaternion_t *rotation;
 
+  GLfloat *model_matrices;
+
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;

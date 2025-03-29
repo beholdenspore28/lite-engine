@@ -146,10 +146,11 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
 }
 
 void lgl_mat4_buffer(lgl_object_t *object) {
-  GLfloat model_matrices[object->length][16];
-  for (unsigned int i = 0; i < object->length; i++) {
 
-    lgl_mat4_identity(model_matrices[i]);
+  unsigned int i = 0;
+  for (i = 0; i < object->length; i++) {
+
+    lgl_mat4_identity(object->model_matrices+i*16);
 
     {
       GLfloat scale[16];
@@ -167,9 +168,10 @@ void lgl_mat4_buffer(lgl_object_t *object) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(object->rotation[i], rotation);
 
-      lgl_mat4_multiply(model_matrices[i], scale, rotation);
-      lgl_mat4_multiply(model_matrices[i], model_matrices[i], translation);
+      lgl_mat4_multiply(object->model_matrices+i*16, scale, rotation);
+      lgl_mat4_multiply(object->model_matrices+i*16, object->model_matrices+i*16, translation);
     }
+
   }
 
   // --------------------------------------------------------------------------
@@ -180,7 +182,7 @@ void lgl_mat4_buffer(lgl_object_t *object) {
   glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
   glBufferData(GL_ARRAY_BUFFER, object->length * sizeof(GLfloat) * 16,
-               &model_matrices[0], GL_STATIC_DRAW);
+               &object->model_matrices[0], GL_STATIC_DRAW);
 
   glBindVertexArray(object->VAO);
 
@@ -523,6 +525,8 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
   object.position = calloc(sizeof(*object.position), length);
   object.rotation = calloc(sizeof(*object.rotation), length);
 
+  object.model_matrices = calloc(sizeof(*object.model_matrices)*16, length);
+
   object.length = length;
 
   for (unsigned int j = 0; j < length; j++) {
@@ -628,6 +632,7 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
 }
 
 void lgl_object_free(lgl_object_t object) {
+  free(object.model_matrices);
   free(object.scale);
   free(object.position);
   free(object.rotation);
