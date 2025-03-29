@@ -829,8 +829,8 @@ lgl_context_t *lgl_start(const int width, const int height) {
   }
   glfwShowWindow(lgl__active_context->GLFWwindow);
 
-  // glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR,
-  // GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR,
+      GLFW_CURSOR_DISABLED);
 
   gladLoadGL(glfwGetProcAddress);
 
