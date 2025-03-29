@@ -7,10 +7,15 @@
 #include "stb_image.h"
 
 static lgl_framebuffer_t *lgl__active_framebuffer = NULL;
+static lgl_framebuffer_t *lgl__active_framebuffer_2 = NULL;
 static lgl_context_t *lgl__active_context = NULL;
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t *frame) {
   lgl__active_framebuffer = frame;
+}
+
+void lgl_active_framebuffer_set_2(lgl_framebuffer_t *frame) {
+  lgl__active_framebuffer_2 = frame;
 }
 
 DEFINE_LIST(GLuint)
@@ -204,45 +209,6 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 
   glBindVertexArray(0);
 }
-
-#if 0
-void lgl_outline(
-    const size_t         data.length,
-    lgl_object_t   *data,
-    const GLuint         outline_shader,
-    const float          thickness){
-
-  for(size_t i = 0; i < data.length; i++) { 
-
-    if ((data[i].render_flags & LGL_FLAG_USE_STENCIL) == 0) {
-      debug_warn(
-          "object[%zu] is not set to use the stencil buffer, "
-          "but you are trying to outline it.", i);
-    }
-    glStencilFunc (GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask (0x00);
-
-    GLuint shader_tmp = data[i].shader;
-
-    glUseProgram(outline_shader);
-
-    data[i].shader = outline_shader;
-
-    glUniform4f(glGetUniformLocation(outline_shader, "u_color"),
-        0.0, 1.0, 0.5, 1.0);
-
-    vector3_t scale_tmp = data[i].scale;
-    data[i].scale.x *= (1+thickness);
-    data[i].scale.y *= (1+thickness);
-    data[i].scale.z *= (1+thickness);
-
-    lgl_draw(1, &data[i]);
-
-    data[i].scale  = scale_tmp;
-    data[i].shader = shader_tmp;
-  }
-}
-#endif
 
 void lgl_camera_update(void) {
 
@@ -774,14 +740,14 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame) {
   glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void lgl__framebuffer_resize(unsigned int width, unsigned int height) {
+static void lgl__framebuffer_resize(lgl_framebuffer_t *frame, unsigned int width, unsigned int height) {
 
-  GLuint shader = lgl__active_framebuffer->quad.shader;
-  GLuint samples = lgl__active_framebuffer->samples;
-  GLuint color_buffers_count = lgl__active_framebuffer->color_buffers_count;
+  GLuint shader = frame->quad.shader;
+  GLuint samples = frame->samples;
+  GLuint color_buffers_count = frame->color_buffers_count;
 
-  lgl_framebuffer_free(*lgl__active_framebuffer);
-  *lgl__active_framebuffer = lgl_framebuffer_alloc(
+  lgl_framebuffer_free(*frame);
+  *frame = lgl_framebuffer_alloc(
       shader, samples, color_buffers_count, width, height);
 }
 
@@ -789,7 +755,8 @@ void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   (void)window;
 
   glViewport(0, 0, width, height);
-  lgl__framebuffer_resize(width, height);
+  lgl__framebuffer_resize(lgl__active_framebuffer,   width, height);
+  lgl__framebuffer_resize(lgl__active_framebuffer_2, width, height);
 
 #if 0
   debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",

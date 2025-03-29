@@ -180,6 +180,7 @@ int main() {
       shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
 
   lgl_active_framebuffer_set(&frame);
+  lgl_active_framebuffer_set_2(&frame_MSAA);
 
   // --------------------------------------------------------------------------
   // Create camera
