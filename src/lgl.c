@@ -171,7 +171,6 @@ void lgl_mat4_buffer(lgl_object_t *object) {
       lgl_mat4_multiply(object->model_matrices+i*16, scale, rotation);
       lgl_mat4_multiply(object->model_matrices+i*16, object->model_matrices+i*16, translation);
     }
-
   }
 
   // --------------------------------------------------------------------------
