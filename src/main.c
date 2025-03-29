@@ -9,6 +9,8 @@
 #include <stdio.h>
 
 void camera_update(lgl_context_t *context) {
+  lgl_camera_update();
+
   { // movement
     vector3_t movement = vector3_zero();
     {
@@ -205,7 +207,8 @@ int main() {
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  lgl_object_t particles_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles_blue =
+      lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles_blue.shader = shader_solid;
   particles_blue.color = (vector4_t){0.5, 0.5, 1.0, 1.0};
   // particles_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -232,8 +235,9 @@ int main() {
     particles.position[i] = vector3_rotate(
         particles.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
 
-    particles_blue.position[i] = vector3_rotate(
-        particles_blue.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
+    particles_blue.position[i] =
+        vector3_rotate(particles_blue.position[i],
+                       quaternion_from_euler(vector3_right(-PI / 8)));
   }
 
   lgl_mat4_buffer(&particles);
@@ -270,9 +274,6 @@ int main() {
 
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
-    lgl_camera_update();
-    lal_audio_source_update(audio_source, cube, lgl_context);
-
     timer += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
@@ -287,6 +288,7 @@ int main() {
     }
 
     { // update state
+      lal_audio_source_update(audio_source, cube, lgl_context);
       camera_update(lgl_context);
 
       particles.rotation[0] =

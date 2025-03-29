@@ -150,7 +150,7 @@ void lgl_mat4_buffer(lgl_object_t *object) {
   unsigned int i = 0;
   for (i = 0; i < object->length; i++) {
 
-    lgl_mat4_identity(object->model_matrices+i*16);
+    lgl_mat4_identity(object->model_matrices + i * 16);
 
     {
       GLfloat scale[16];
@@ -168,8 +168,9 @@ void lgl_mat4_buffer(lgl_object_t *object) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(object->rotation[i], rotation);
 
-      lgl_mat4_multiply(object->model_matrices+i*16, scale, rotation);
-      lgl_mat4_multiply(object->model_matrices+i*16, object->model_matrices+i*16, translation);
+      lgl_mat4_multiply(object->model_matrices + i * 16, scale, rotation);
+      lgl_mat4_multiply(object->model_matrices + i * 16,
+                        object->model_matrices + i * 16, translation);
     }
   }
 
@@ -524,7 +525,7 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
   object.position = calloc(sizeof(*object.position), length);
   object.rotation = calloc(sizeof(*object.rotation), length);
 
-  object.model_matrices = calloc(sizeof(*object.model_matrices)*16, length);
+  object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, length);
 
   object.length = length;
 
@@ -744,22 +745,23 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame) {
   glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void lgl__framebuffer_resize(lgl_framebuffer_t *frame, unsigned int width, unsigned int height) {
+static void lgl__framebuffer_resize(lgl_framebuffer_t *frame,
+                                    unsigned int width, unsigned int height) {
 
   GLuint shader = frame->quad.shader;
   GLuint samples = frame->samples;
   GLuint color_buffers_count = frame->color_buffers_count;
 
   lgl_framebuffer_free(*frame);
-  *frame = lgl_framebuffer_alloc(
-      shader, samples, color_buffers_count, width, height);
+  *frame = lgl_framebuffer_alloc(shader, samples, color_buffers_count, width,
+                                 height);
 }
 
 void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   (void)window;
 
   glViewport(0, 0, width, height);
-  lgl__framebuffer_resize(lgl__active_framebuffer,   width, height);
+  lgl__framebuffer_resize(lgl__active_framebuffer, width, height);
   lgl__framebuffer_resize(lgl__active_framebuffer_2, width, height);
 
 #if 0
@@ -834,7 +836,7 @@ lgl_context_t *lgl_start(const int width, const int height) {
   glfwShowWindow(lgl__active_context->GLFWwindow);
 
   glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR,
-      GLFW_CURSOR_DISABLED);
+                   GLFW_CURSOR_DISABLED);
 
   gladLoadGL(glfwGetProcAddress);
 
