@@ -102,7 +102,6 @@ int main() {
 
   alutInit(0, 0);
   lgl_context_t *lgl_context = lgl_start(640, 480);
-  lgl_context_t *lgl_context_2 = lgl_start(640, 480);
 
   glClearColor(0, 0, 0, 1);
 
