@@ -198,21 +198,21 @@ int main() {
   lgl_context->camera.projection = projection;
 
   // --------------------------------------------------------------------------
-  // Create stars
+  // Create particles
 
-  lgl_object_t stars = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
-  stars.shader = shader_solid;
-  stars.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
-  // stars.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  lgl_object_t particles = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
+  particles.shader = shader_solid;
+  particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
+  // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  lgl_object_t stars_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
-  stars_blue.shader = shader_solid;
-  stars_blue.color = (vector4_t){0.5, 0.5, 1.0, 1.0};
-  // stars_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  lgl_object_t particles_blue = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
+  particles_blue.shader = shader_solid;
+  particles_blue.color = (vector4_t){0.5, 0.5, 1.0, 1.0};
+  // particles_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  for (unsigned int i = 0; i < stars.length; i++) {
-    stars_blue.scale[i] = vector3_one(0.02);
-    stars.scale[i] = vector3_one(0.02);
+  for (unsigned int i = 0; i < particles.length; i++) {
+    particles_blue.scale[i] = vector3_one(0.02);
+    particles.scale[i] = vector3_one(0.02);
   }
 
   {
@@ -221,28 +221,28 @@ int main() {
     float arm_thickness = 5;
     float arm_length = 10;
 
-    galaxy_generate(stars, radius, 902347, swirl_strength, arm_thickness,
+    galaxy_generate(particles, radius, 902347, swirl_strength, arm_thickness,
                     arm_length);
-    galaxy_generate(stars_blue, radius, 0, swirl_strength, arm_thickness,
+    galaxy_generate(particles_blue, radius, 0, swirl_strength, arm_thickness,
                     arm_length);
   }
 
-  for (unsigned int i = 0; i < stars.length; i++) {
+  for (unsigned int i = 0; i < particles.length; i++) {
 
-    stars.position[i] = vector3_rotate(
-        stars.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
+    particles.position[i] = vector3_rotate(
+        particles.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
 
-    stars_blue.position[i] = vector3_rotate(
-        stars_blue.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
+    particles_blue.position[i] = vector3_rotate(
+        particles_blue.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
   }
 
-  lgl_mat4_buffer(&stars);
-  lgl_mat4_buffer(&stars_blue);
+  lgl_mat4_buffer(&particles);
+  lgl_mat4_buffer(&particles_blue);
 
-  stars.position[0] = vector3_zero();
-  stars.rotation[0] = quaternion_identity();
-  stars_blue.position[0] = vector3_zero();
-  stars_blue.rotation[0] = quaternion_identity();
+  particles.position[0] = vector3_zero();
+  particles.rotation[0] = quaternion_identity();
+  particles_blue.position[0] = vector3_zero();
+  particles_blue.rotation[0] = quaternion_identity();
 
   // --------------------------------------------------------------------------
   // Create cube
@@ -289,12 +289,12 @@ int main() {
     { // update state
       camera_update(lgl_context);
 
-      stars.rotation[0] =
+      particles.rotation[0] =
           quaternion_from_euler(vector3_up(lgl_context->time_current * -0.03));
-      stars_blue.rotation[0].x = stars.rotation[0].x;
-      stars_blue.rotation[0].y = stars.rotation[0].y;
-      stars_blue.rotation[0].z = stars.rotation[0].z;
-      stars_blue.rotation[0].w = stars.rotation[0].w;
+      particles_blue.rotation[0].x = particles.rotation[0].x;
+      particles_blue.rotation[0].y = particles.rotation[0].y;
+      particles_blue.rotation[0].z = particles.rotation[0].z;
+      particles_blue.rotation[0].w = particles.rotation[0].w;
 
       lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
@@ -306,8 +306,8 @@ int main() {
               GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(cube);
-      lgl_draw_instanced(stars);
-      lgl_draw_instanced(stars_blue);
+      lgl_draw_instanced(particles);
+      lgl_draw_instanced(particles_blue);
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
@@ -330,8 +330,8 @@ int main() {
 
   lal_audio_source_free(audio_source);
   lgl_object_free(cube);
-  lgl_object_free(stars);
-  lgl_object_free(stars_blue);
+  lgl_object_free(particles);
+  lgl_object_free(particles_blue);
   lgl_framebuffer_free(frame);
   lgl_framebuffer_free(frame_MSAA);
   lgl_free(lgl_context);
