@@ -272,7 +272,6 @@ int main() {
 
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
-
     timer += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
@@ -299,8 +298,9 @@ int main() {
         particles_blue.rotation[0].w = particles.rotation[0].w;
 
         for(unsigned int i = 0; i < particles.length; i++) {
-          particles.position[i].y -= 9.8 * lgl_context->time_delta;
-          particles_blue.position[i].y -= 9.8 * lgl_context->time_delta;
+          quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
+          particles.position[i] = vector3_rotate(particles.position[i], rotation);
+          particles_blue.position[i] = vector3_rotate(particles_blue.position[i], rotation);
         }
 
         lgl_mat4_buffer(&particles);
