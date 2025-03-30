@@ -100,6 +100,31 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
   }
 }
 
+void particles_random(lgl_object_t particles, lgl_context_t *lgl_context,
+                      float time, float step) {
+  for (unsigned int i = 0; i < particles.length; i++) {
+
+    particles.velocity[i] = vector3_point_in_unit_cube(time + i);
+
+    particles.velocity[i] = vector3_scale(particles.velocity[i], step);
+
+    particles.position[i] =
+        vector3_add(particles.position[i], particles.velocity[i]);
+
+    particles.position[i].x =
+        wrap(particles.position[i].x, lgl_context->camera.position.x - 20,
+             lgl_context->camera.position.x + 20);
+
+    particles.position[i].y =
+        wrap(particles.position[i].y, lgl_context->camera.position.y - 20,
+             lgl_context->camera.position.y + 20);
+
+    particles.position[i].z =
+        wrap(particles.position[i].z, lgl_context->camera.position.z - 20,
+             lgl_context->camera.position.z + 20);
+  }
+}
+
 int main() {
 
   alutInit(0, 0);
@@ -215,8 +240,9 @@ int main() {
 
 #if 1 // random particles in sphere
   for (unsigned int i = 0; i < particles.length; i++) {
-    particles.position[i] = vector3_point_in_unit_sphere(
-        particles.length * lgl_context->time_current + i);
+    particles.position[i] = vector3_point_in_unit_cube(
+        particles.length * 10 * lgl_context->time_current + i);
+    particles.position[i] = vector3_scale(particles.position[i], 100);
   }
 #endif
 
@@ -274,19 +300,8 @@ int main() {
           swirl_strength, arm_thickness, arm_length);
 #endif
 
-#if 1 // physics
-      for (unsigned int i = 0; i < particles.length; i++) {
-        particles.velocity[i] =
-            vector3_point_in_unit_sphere(lgl_context->time_current + i);
-        particles.velocity[i] =
-            vector3_scale(particles.velocity[i], lgl_context->time_delta);
-        particles.position[i] =
-            vector3_add(particles.position[i], particles.velocity[i]);
-        particles.position[i].x = wrap(particles.position[i].x, -10, 10);
-        particles.position[i].y = wrap(particles.position[i].y, -10, 10);
-        particles.position[i].z = wrap(particles.position[i].z, -10, 10);
-      }
-#endif
+      particles_random(particles, lgl_context, lgl_context->time_current,
+                       lgl_context->time_delta);
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
