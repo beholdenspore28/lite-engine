@@ -45,6 +45,14 @@ static inline float rad2deg(const float n) { return n * (180.0f / PI); }
 
 static inline float deg2rad(const float n) { return n * (PI / 180.0f); }
 
+static inline float wrap_max(float n, float max) {
+  return fmod(max + fmod(n, max), max);
+}
+
+static inline float wrap(float n, float min, float max) {
+  return min + wrap_max(n - min, max - min);
+}
+
 static inline float wrapAngle(float a) {
   a = fmod(a, 2 * PI);
   if (a < 0) {

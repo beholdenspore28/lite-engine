@@ -105,7 +105,7 @@ int main() {
   alutInit(0, 0);
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
-  glClearColor(0, 0, 0, 1);
+  glClearColor(0.2, 0.2, 0.2, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -189,7 +189,7 @@ int main() {
 
   lgl_context->camera.rotation = quaternion_identity();
   lgl_context->camera.position = vector3_zero();
-  lgl_context->camera.position.z = -50;
+  lgl_context->camera.position.z = -10;
 
   GLfloat view[16];
   lgl_mat4_identity(view);
@@ -202,49 +202,25 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(4000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  lgl_object_t particles_blue =
-      lgl_object_alloc(4000, LGL_OBJECT_ARCHETYPE_CUBE);
-  particles_blue.shader = shader_solid;
-  particles_blue.color = (vector4_t){0.5, 0.5, 1.0, 1.0};
-  // particles_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
-
   for (unsigned int i = 0; i < particles.length; i++) {
-    particles_blue.scale[i] = vector3_one(0.02);
-    particles.scale[i] = vector3_one(0.02);
+    particles.scale[i] = vector3_one(0.01);
   }
 
-  {
-    float radius = 5;
-    float swirl_strength = 0.1;
-    float arm_thickness = 5;
-    float arm_length = 10;
+  vector3_t particles_offset = (vector3_t){2, 0, 0};
 
-    galaxy_generate(particles, radius, 902347, swirl_strength, arm_thickness,
-                    arm_length);
-    galaxy_generate(particles_blue, radius, 0, swirl_strength, arm_thickness,
-                    arm_length);
-  }
-
+#if 1 // random particles in sphere
   for (unsigned int i = 0; i < particles.length; i++) {
-
-    particles.position[i] = vector3_rotate(
-        particles.position[i], quaternion_from_euler(vector3_right(-PI / 8)));
-
-    particles_blue.position[i] =
-        vector3_rotate(particles_blue.position[i],
-                       quaternion_from_euler(vector3_right(-PI / 8)));
+    particles.position[i] = vector3_point_in_unit_sphere(
+        particles.length * lgl_context->time_current + i);
   }
+#endif
 
-
-  particles.position[0] = vector3_zero();
-  particles.rotation[0] = quaternion_identity();
-  particles_blue.position[0] = vector3_zero();
-  particles_blue.rotation[0] = quaternion_identity();
+  lgl_mat4_buffer(&particles);
 
   // --------------------------------------------------------------------------
   // Create cube
@@ -254,10 +230,8 @@ int main() {
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
   cube.shader = shader_phong;
-  cube.position[0] = lgl_context->camera.position;
-  cube.position[0].x += 30;
-  cube.position[0].z += 100;
   cube.color = (vector4_t){1, 1, 1, 1};
+  cube.position[0] = (vector3_t){-2, 0, 0};
   // cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   // --------------------------------------------------------------------------
@@ -289,27 +263,42 @@ int main() {
       lal_audio_source_update(audio_source, cube, lgl_context);
       camera_update(lgl_context);
 
-      { // update particles
-        particles.rotation[0] =
-          quaternion_from_euler(vector3_up(lgl_context->time_current * -0.03));
-        particles_blue.rotation[0].x = particles.rotation[0].x;
-        particles_blue.rotation[0].y = particles.rotation[0].y;
-        particles_blue.rotation[0].z = particles.rotation[0].z;
-        particles_blue.rotation[0].w = particles.rotation[0].w;
+#if 0 // galaxy particle system
+      float radius = 5;
+      float swirl_strength = 0.1;
+      float arm_thickness = 5;
+      float arm_length = 10;
 
-        for(unsigned int i = 0; i < particles.length; i++) {
-          quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
-          particles.position[i] = vector3_rotate(particles.position[i], rotation);
-          particles_blue.position[i] = vector3_rotate(particles_blue.position[i], rotation);
-        }
+      galaxy_generate(particles, radius,
+          particles.length * lgl_context->time_current,
+          swirl_strength, arm_thickness, arm_length);
+#endif
 
-        lgl_mat4_buffer(&particles);
-        lgl_mat4_buffer(&particles_blue);
+#if 1 // physics
+      for (unsigned int i = 0; i < particles.length; i++) {
+        particles.velocity[i] =
+            vector3_point_in_unit_sphere(lgl_context->time_current + i);
+        particles.velocity[i] =
+            vector3_scale(particles.velocity[i], lgl_context->time_delta);
+        particles.position[i] =
+            vector3_add(particles.position[i], particles.velocity[i]);
+        particles.position[i].x = wrap(particles.position[i].x, -10, 10);
+        particles.position[i].y = wrap(particles.position[i].y, -10, 10);
+        particles.position[i].z = wrap(particles.position[i].z, -10, 10);
       }
+#endif
 
-      { // update lights
-        lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
+#if 0 // speen (rotate particles around 0,0,0)
+      quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
+      for(unsigned int i = 0; i < particles.length; i++) {
+        particles.position[i] = vector3_rotate(particles.position[i], rotation);
       }
+#endif
+
+      lgl_mat4_buffer(&particles);
+
+      // update lights
+      lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
 
     { // draw scene to the frame
@@ -320,7 +309,6 @@ int main() {
 
       lgl_draw(cube);
       lgl_draw_instanced(particles);
-      lgl_draw_instanced(particles_blue);
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
@@ -344,7 +332,6 @@ int main() {
   lal_audio_source_free(audio_source);
   lgl_object_free(cube);
   lgl_object_free(particles);
-  lgl_object_free(particles_blue);
   lgl_framebuffer_free(frame);
   lgl_framebuffer_free(frame_MSAA);
   lgl_free(lgl_context);
