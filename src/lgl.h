@@ -77,6 +77,7 @@ typedef struct {
   quaternion_t *rotation;
 
   GLfloat *model_matrices;
+  GLuint model_matrix_buffer;
 
   GLuint shader;
   GLuint diffuse_map;

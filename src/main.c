@@ -202,13 +202,13 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(4000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lgl_object_t particles_blue =
-      lgl_object_alloc(10000, LGL_OBJECT_ARCHETYPE_CUBE);
+      lgl_object_alloc(4000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles_blue.shader = shader_solid;
   particles_blue.color = (vector4_t){0.5, 0.5, 1.0, 1.0};
   // particles_blue.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -240,8 +240,6 @@ int main() {
                        quaternion_from_euler(vector3_right(-PI / 8)));
   }
 
-  lgl_mat4_buffer(&particles);
-  lgl_mat4_buffer(&particles_blue);
 
   particles.position[0] = vector3_zero();
   particles.rotation[0] = quaternion_identity();
@@ -274,6 +272,7 @@ int main() {
 
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
+
     timer += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
@@ -291,14 +290,26 @@ int main() {
       lal_audio_source_update(audio_source, cube, lgl_context);
       camera_update(lgl_context);
 
-      particles.rotation[0] =
+      { // update particles
+        particles.rotation[0] =
           quaternion_from_euler(vector3_up(lgl_context->time_current * -0.03));
-      particles_blue.rotation[0].x = particles.rotation[0].x;
-      particles_blue.rotation[0].y = particles.rotation[0].y;
-      particles_blue.rotation[0].z = particles.rotation[0].z;
-      particles_blue.rotation[0].w = particles.rotation[0].w;
+        particles_blue.rotation[0].x = particles.rotation[0].x;
+        particles_blue.rotation[0].y = particles.rotation[0].y;
+        particles_blue.rotation[0].z = particles.rotation[0].z;
+        particles_blue.rotation[0].w = particles.rotation[0].w;
 
-      lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
+        for(unsigned int i = 0; i < particles.length; i++) {
+          particles.position[i].y -= 9.8 * lgl_context->time_delta;
+          particles_blue.position[i].y -= 9.8 * lgl_context->time_delta;
+        }
+
+        lgl_mat4_buffer(&particles);
+        lgl_mat4_buffer(&particles_blue);
+      }
+
+      { // update lights
+        lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
+      }
     }
 
     { // draw scene to the frame

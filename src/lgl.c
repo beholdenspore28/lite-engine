@@ -147,8 +147,7 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
 
 void lgl_mat4_buffer(lgl_object_t *object) {
 
-  unsigned int i = 0;
-  for (i = 0; i < object->length; i++) {
+  for (unsigned int i = 0; i < object->length; i++) {
 
     lgl_mat4_identity(object->model_matrices + i * 16);
 
@@ -177,9 +176,7 @@ void lgl_mat4_buffer(lgl_object_t *object) {
   // --------------------------------------------------------------------------
   // configure instanced array
 
-  GLuint buffer;
-  glGenBuffers(1, &buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, object->model_matrix_buffer);
 
   glBufferData(GL_ARRAY_BUFFER, object->length * sizeof(GLfloat) * 16,
                &object->model_matrices[0], GL_STATIC_DRAW);
@@ -526,6 +523,7 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
   object.rotation = calloc(sizeof(*object.rotation), length);
 
   object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, length);
+  glGenBuffers(1, &object.model_matrix_buffer);
 
   object.length = length;
 
@@ -632,6 +630,7 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
 }
 
 void lgl_object_free(lgl_object_t object) {
+  glDeleteBuffers(1, &object.model_matrix_buffer);
   free(object.model_matrices);
   free(object.scale);
   free(object.position);
