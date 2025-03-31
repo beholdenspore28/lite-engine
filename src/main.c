@@ -237,7 +237,7 @@ int main() {
   lgl_object_t particles = lgl_object_alloc(2000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
-  //particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   for (unsigned int i = 0; i < particles.length; i++) {
     particles.scale[i] = vector3_one(0.01);
@@ -305,11 +305,12 @@ int main() {
       camera_update(lgl_context);
 
       lal_audio_source_update(audio_source, cube, lgl_context);
-      cube.rotation[0] = quaternion_multiply(cube.rotation[0],
+      cube.rotation[0] = quaternion_multiply(
+          cube.rotation[0],
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
 #if 1
-      particles_random(particles, lgl_context, (vector3_t) {0.5,-1,0.5});
+      particles_random(particles, lgl_context, (vector3_t){0.5, -1, 0.5});
 #endif
 
 #if 0 // speen (rotate particles around 0,0,0)
