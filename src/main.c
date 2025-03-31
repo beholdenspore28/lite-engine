@@ -100,19 +100,19 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
   }
 }
 
-void particles_wrap(lgl_object_t particles, lgl_context_t *lgl_context) {
-  for (unsigned int i = 0; i < particles.count; i++) {
+void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
+  for (unsigned int i = 0; i < object.count; i++) {
 
-    particles.position[i].x =
-        wrap(particles.position[i].x, lgl_context->camera.position.x - 15,
+    object.position[i].x =
+        wrap(object.position[i].x, lgl_context->camera.position.x - 15,
              lgl_context->camera.position.x + 15);
 
-    particles.position[i].y =
-        wrap(particles.position[i].y, lgl_context->camera.position.y - 15,
+    object.position[i].y =
+        wrap(object.position[i].y, lgl_context->camera.position.y - 15,
              lgl_context->camera.position.y + 15);
 
-    particles.position[i].z =
-        wrap(particles.position[i].z, lgl_context->camera.position.z - 15,
+    object.position[i].z =
+        wrap(object.position[i].z, lgl_context->camera.position.z - 15,
              lgl_context->camera.position.z + 15);
   }
 }
@@ -120,9 +120,37 @@ void particles_wrap(lgl_object_t particles, lgl_context_t *lgl_context) {
 typedef struct {
   vector3_t *position_old;
   unsigned int count;
-} verlet_particle_t;
+} l_verlet_t;
 
-void verlet_particles_alloc(void) {}
+l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
+  l_verlet_t verlet;
+  verlet.position_old = calloc(sizeof(vector3_t), object.count);
+  verlet.count = object.count;
+
+  for (unsigned int i = 0; i < verlet.count; i++) {
+    verlet.position_old[i] = object.position[i];
+    verlet.position_old[i] =
+        vector3_subtract(verlet.position_old[i], initial_velocity);
+  }
+
+  return verlet;
+}
+
+void l_verlet_free(l_verlet_t verlet) { free(verlet.position_old); }
+
+void l_verlet_update(lgl_object_t object, l_verlet_t points, float dt) {
+
+  for (unsigned int i = 0; i < points.count; i++) {
+
+    vector3_t velocity =
+        vector3_subtract(object.position[i], points.position_old[i]);
+
+    // debug_log("%f %f %f", velocity.x, velocity.y, velocity.z);
+
+    points.position_old[i] = object.position[i];
+    object.position[i] = vector3_add(object.position[i], velocity);
+  }
+}
 
 int main() {
 
@@ -256,6 +284,8 @@ int main() {
 
   lgl_mat4_buffer(&particles);
 
+  l_verlet_t particles_verlet = l_verlet_alloc(particles, vector3_up(0.1));
+
   // --------------------------------------------------------------------------
   // Create cube
 
@@ -301,7 +331,8 @@ int main() {
           cube.rotation[0],
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
-      particles_wrap(particles, lgl_context);
+      wrap_position(particles, lgl_context);
+      l_verlet_update(particles, particles_verlet, lgl_context->time_delta);
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
@@ -344,6 +375,7 @@ int main() {
     lgl_end_frame();
   }
 
+  l_verlet_free(particles_verlet);
   lal_audio_source_free(audio_source);
   lgl_object_free(cube);
   lgl_object_free(particles);
