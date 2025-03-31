@@ -100,6 +100,92 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
   }
 }
 
+typedef struct {
+  vector3_t *position_old;
+  float bounce;
+  float gravity;
+  unsigned int count;
+} l_verlet_t;
+
+l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
+  l_verlet_t verlet;
+  verlet.position_old = calloc(sizeof(vector3_t), object.count);
+  verlet.count = object.count;
+  verlet.bounce = 0.8;
+  verlet.gravity = -0.005;
+
+  for (unsigned int i = 0; i < verlet.count; i++) {
+    verlet.position_old[i] = object.position[i];
+    verlet.position_old[i] =
+        vector3_subtract(verlet.position_old[i],
+                         vector3_scale(vector3_point_in_unit_sphere(i), 0.1));
+  }
+
+  return verlet;
+}
+
+void l_verlet_free(l_verlet_t verlet) { free(verlet.position_old); }
+
+void l_verlet_update(lgl_object_t object, l_verlet_t points) {
+
+  for (unsigned int i = 0; i < points.count; i++) {
+
+    vector3_t velocity =
+        vector3_subtract(object.position[i], points.position_old[i]);
+
+    // debug_log("%f %f %f", velocity.x, velocity.y, velocity.z);
+
+    points.position_old[i] = object.position[i];
+    object.position[i] = vector3_add(object.position[i], velocity);
+    object.position[i].y += points.gravity;
+  }
+}
+
+void l_verlet_confine(l_verlet_t verlet, lgl_object_t object) {
+
+  for (unsigned int i = 0; i < object.count; i++) {
+
+    vector3_t velocity =
+        vector3_subtract(object.position[i], verlet.position_old[i]);
+
+    if (object.position[i].x > 10) {
+      object.position[i].x = 10;
+      verlet.position_old[i].x =
+          object.position[i].x + velocity.x * verlet.bounce;
+    }
+
+    if (object.position[i].y > 10) {
+      object.position[i].y = 10;
+      verlet.position_old[i].y =
+          object.position[i].y + velocity.y * verlet.bounce;
+    }
+
+    if (object.position[i].z > 10) {
+      object.position[i].z = 10;
+      verlet.position_old[i].z =
+          object.position[i].z + velocity.z * verlet.bounce;
+    }
+
+    if (object.position[i].x < -10) {
+      object.position[i].x = -10;
+      verlet.position_old[i].x =
+          object.position[i].x + velocity.x * verlet.bounce;
+    }
+
+    if (object.position[i].y < -10) {
+      object.position[i].y = -10;
+      verlet.position_old[i].y =
+          object.position[i].y + velocity.y * verlet.bounce;
+    }
+
+    if (object.position[i].z < -10) {
+      object.position[i].z = -10;
+      verlet.position_old[i].z =
+          object.position[i].z + velocity.z * verlet.bounce;
+    }
+  }
+}
+
 void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -114,41 +200,6 @@ void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
     object.position[i].z =
         wrap(object.position[i].z, lgl_context->camera.position.z - 15,
              lgl_context->camera.position.z + 15);
-  }
-}
-
-typedef struct {
-  vector3_t *position_old;
-  unsigned int count;
-} l_verlet_t;
-
-l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
-  l_verlet_t verlet;
-  verlet.position_old = calloc(sizeof(vector3_t), object.count);
-  verlet.count = object.count;
-
-  for (unsigned int i = 0; i < verlet.count; i++) {
-    verlet.position_old[i] = object.position[i];
-    verlet.position_old[i] =
-        vector3_subtract(verlet.position_old[i], initial_velocity);
-  }
-
-  return verlet;
-}
-
-void l_verlet_free(l_verlet_t verlet) { free(verlet.position_old); }
-
-void l_verlet_update(lgl_object_t object, l_verlet_t points, float dt) {
-
-  for (unsigned int i = 0; i < points.count; i++) {
-
-    vector3_t velocity =
-        vector3_subtract(object.position[i], points.position_old[i]);
-
-    // debug_log("%f %f %f", velocity.x, velocity.y, velocity.z);
-
-    points.position_old[i] = object.position[i];
-    object.position[i] = vector3_add(object.position[i], velocity);
   }
 }
 
@@ -284,7 +335,8 @@ int main() {
 
   lgl_mat4_buffer(&particles);
 
-  l_verlet_t particles_verlet = l_verlet_alloc(particles, vector3_up(0.1));
+  l_verlet_t particles_verlet =
+      l_verlet_alloc(particles, (vector3_t){0.05, 0.02, 0.01});
 
   // --------------------------------------------------------------------------
   // Create cube
@@ -331,8 +383,9 @@ int main() {
           cube.rotation[0],
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
-      wrap_position(particles, lgl_context);
-      l_verlet_update(particles, particles_verlet, lgl_context->time_delta);
+      // wrap_position(particles, lgl_context);
+      l_verlet_confine(particles_verlet, particles);
+      l_verlet_update(particles, particles_verlet);
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
