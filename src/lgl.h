@@ -70,7 +70,7 @@ typedef struct {
   GLuint VBO;
 
   lgl_vertex_t *vertices;
-  GLuint vertices_length;
+  GLuint vertices_count;
 
   vector3_t *position;
   vector3_t *scale;
@@ -91,7 +91,7 @@ typedef struct {
   lgl_light_t *lights;
   GLuint lights_count;
   GLint render_flags;
-  GLuint length;
+  GLuint count;
 } lgl_object_t;
 
 DECLARE_LIST(lgl_object_t)
@@ -130,9 +130,6 @@ void lgl_end_frame(void);
 void lgl_free(lgl_context_t *context);
 void lgl_viewport_set(const float width, const float height);
 
-void lgl_outline(const size_t data_length, lgl_object_t *data,
-                 const GLuint outline_shader, const float thickness);
-
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
@@ -142,7 +139,7 @@ enum {
   LGL_OBJECT_ARCHETYPE_QUAD,
 };
 
-lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype);
+lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype);
 void lgl_object_free(lgl_object_t object);
 
 void lgl_mat4_buffer(lgl_object_t *object);

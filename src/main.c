@@ -75,7 +75,7 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
                      float swirl_strength, float arm_thickness,
                      float arm_length) {
 
-  for (unsigned int i = 0; i < stars.length; i++) {
+  for (unsigned int i = 0; i < stars.count; i++) {
 
     // sphere
     stars.position[i] = vector3_point_in_unit_sphere(seed + i);
@@ -100,24 +100,8 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
   }
 }
 
-void particles_random(lgl_object_t particles, lgl_context_t *lgl_context,
-                      vector3_t velocity_scale) {
-
-  const float step = lgl_context->time_delta;
-  const float time = lgl_context->time_current;
-
-  for (unsigned int i = 0; i < particles.length; i++) {
-
-    if (i % 2 == 0) {
-      velocity_scale.x *= -1;
-    }
-
-    particles.velocity[i] = vector3_point_in_unit_cube(time * 10 + i);
-    particles.velocity[i] = vector3_scale(particles.velocity[i], step * 0.5);
-
-    particles.velocity[i].x += velocity_scale.x * step;
-    particles.velocity[i].y += velocity_scale.y * step;
-    particles.velocity[i].z += velocity_scale.z * step;
+void particles_wrap(lgl_object_t particles, lgl_context_t *lgl_context) {
+  for (unsigned int i = 0; i < particles.count; i++) {
 
     particles.position[i] =
         vector3_add(particles.position[i], particles.velocity[i]);
@@ -135,6 +119,13 @@ void particles_random(lgl_object_t particles, lgl_context_t *lgl_context,
              lgl_context->camera.position.z + 15);
   }
 }
+
+typedef struct {
+  vector3_t *position_old;
+  unsigned int count;
+} verlet_particle_t;
+
+void verlet_particles_alloc(void) {}
 
 int main() {
 
@@ -243,14 +234,14 @@ int main() {
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  for (unsigned int i = 0; i < particles.length; i++) {
-    particles.scale[i] = vector3_one(0.005);
+  for (unsigned int i = 0; i < particles.count; i++) {
+    particles.scale[i] = vector3_one(0.01);
   }
 
-#if 0 // randomize particles positions
-  for (unsigned int i = 0; i < particles.length; i++) {
+#if 1 // randomize particles positions
+  for (unsigned int i = 0; i < particles.count; i++) {
     particles.position[i] = vector3_point_in_unit_cube(
-        particles.length * 10 * lgl_context->time_current + i);
+        particles.count * 10 * lgl_context->time_current + i);
     particles.position[i] = vector3_scale(particles.position[i], 100);
   }
 #endif
@@ -262,7 +253,7 @@ int main() {
       float arm_length = 10;
 
       galaxy_generate(particles, radius,
-          particles.length * lgl_context->time_current,
+          particles.count * lgl_context->time_current,
           swirl_strength, arm_thickness, arm_length);
 #endif
 
@@ -313,13 +304,11 @@ int main() {
           cube.rotation[0],
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
-#if 1
-      particles_random(particles, lgl_context, (vector3_t){0,0,0});
-#endif
+      particles_wrap(particles, lgl_context);
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
-      for(unsigned int i = 0; i < particles.length; i++) {
+      for(unsigned int i = 0; i < particles.count; i++) {
         particles.position[i] = vector3_rotate(particles.position[i], rotation);
       }
 #endif
@@ -336,7 +325,7 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-      //lgl_draw(cube);
+      // lgl_draw(cube);
       lgl_draw_instanced(particles);
     }
 

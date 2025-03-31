@@ -147,7 +147,7 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
 
 void lgl_mat4_buffer(lgl_object_t *object) {
 
-  for (unsigned int i = 0; i < object->length; i++) {
+  for (unsigned int i = 0; i < object->count; i++) {
 
     lgl_mat4_identity(object->model_matrices + i * 16);
 
@@ -178,7 +178,7 @@ void lgl_mat4_buffer(lgl_object_t *object) {
 
   glBindBuffer(GL_ARRAY_BUFFER, object->model_matrix_buffer);
 
-  glBufferData(GL_ARRAY_BUFFER, object->length * sizeof(GLfloat) * 16,
+  glBufferData(GL_ARRAY_BUFFER, object->count * sizeof(GLfloat) * 16,
                &object->model_matrices[0], GL_STATIC_DRAW);
 
   glBindVertexArray(object->VAO);
@@ -305,13 +305,13 @@ void lgl_draw_instanced(const lgl_object_t object) {
               object.color.y, object.color.z, object.color.w);
 
   glBindVertexArray(object.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_length, object.length);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_count, object.count);
   glUseProgram(0);
 }
 
 void lgl_draw(const lgl_object_t data) {
 
-  for (size_t i = 0; i < data.length; i++) {
+  for (size_t i = 0; i < data.count; i++) {
 
     { // render flags
       if ((data.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -509,27 +509,27 @@ void lgl_draw(const lgl_object_t data) {
 #endif
 
     glBindVertexArray(data.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, data.vertices_length);
+    glDrawArrays(GL_TRIANGLES, 0, data.vertices_count);
     glUseProgram(0);
   }
 }
 
-lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
+lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
 
   lgl_object_t object = {0};
 
-  object.scale = calloc(sizeof(*object.scale), length);
-  object.position = calloc(sizeof(*object.position), length);
-  object.rotation = calloc(sizeof(*object.rotation), length);
+  object.scale = calloc(sizeof(*object.scale), count);
+  object.position = calloc(sizeof(*object.position), count);
+  object.rotation = calloc(sizeof(*object.rotation), count);
 
-  object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, length);
+  object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, count);
   glGenBuffers(1, &object.model_matrix_buffer);
 
-  object.velocity = calloc(sizeof(*object.velocity), length);
+  object.velocity = calloc(sizeof(*object.velocity), count);
 
-  object.length = length;
+  object.count = count;
 
-  for (unsigned int j = 0; j < length; j++) {
+  for (unsigned int j = 0; j < count; j++) {
 
     object.scale[j] = vector3_one(1.0);
     object.position[j] = vector3_zero();
@@ -554,9 +554,9 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
         {{LGL__RIGHT, LGL__UP, 0.0}, vector3_forward(1.0), {1.0, 1.0}},
     };
     object.vertices = quad_vertices;
-    object.vertices_length = quad_vertices_count;
+    object.vertices_count = quad_vertices_count;
 
-    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_length,
+    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_count,
                              object.vertices);
   } break;
 
@@ -621,9 +621,9 @@ lgl_object_t lgl_object_alloc(unsigned int length, unsigned int archetype) {
     };
 
     object.vertices = cube_vertices;
-    object.vertices_length = cube_vertices_count;
+    object.vertices_count = cube_vertices_count;
 
-    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_length,
+    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_count,
                              object.vertices);
   } break;
   }
