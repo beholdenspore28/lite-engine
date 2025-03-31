@@ -104,6 +104,7 @@ typedef struct {
   vector3_t *position_old;
   float bounce;
   float gravity;
+  float friction;
   unsigned int count;
 } l_verlet_t;
 
@@ -111,14 +112,27 @@ l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
   l_verlet_t verlet;
   verlet.position_old = calloc(sizeof(vector3_t), object.count);
   verlet.count = object.count;
-  verlet.bounce = 0.8;
+  verlet.bounce = 0.99;
   verlet.gravity = -0.005;
+  verlet.friction = 0.99;
 
+  // set up initial state of the particles
   for (unsigned int i = 0; i < verlet.count; i++) {
-    verlet.position_old[i] = object.position[i];
+
+    object.scale[i] = vector3_one(0.1);
+
+#if 0
+    object.position[i] = vector3_point_in_unit_cube(
+        object.count * 10 + i);
+    object.position[i] = vector3_scale(object.position[i], 100);
+#endif
+
+    object.position[i] = verlet.position_old[i] =
+      object.position[i];
+
     verlet.position_old[i] =
-        vector3_subtract(verlet.position_old[i],
-                         vector3_scale(vector3_point_in_unit_sphere(i), 0.1));
+      vector3_subtract(verlet.position_old[i],
+          vector3_scale(vector3_point_in_unit_sphere(i), 0.5));
   }
 
   return verlet;
@@ -133,6 +147,8 @@ void l_verlet_update(lgl_object_t object, l_verlet_t points) {
     vector3_t velocity =
         vector3_subtract(object.position[i], points.position_old[i]);
 
+    velocity = vector3_scale(velocity, points.friction);
+
     // debug_log("%f %f %f", velocity.x, velocity.y, velocity.z);
 
     points.position_old[i] = object.position[i];
@@ -141,45 +157,45 @@ void l_verlet_update(lgl_object_t object, l_verlet_t points) {
   }
 }
 
-void l_verlet_confine(l_verlet_t verlet, lgl_object_t object) {
+void l_verlet_confine(l_verlet_t verlet, lgl_object_t object, vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
     vector3_t velocity =
         vector3_subtract(object.position[i], verlet.position_old[i]);
 
-    if (object.position[i].x > 10) {
-      object.position[i].x = 10;
+    if (object.position[i].x > bounds.x) {
+      object.position[i].x = bounds.x;
       verlet.position_old[i].x =
           object.position[i].x + velocity.x * verlet.bounce;
     }
 
-    if (object.position[i].y > 10) {
-      object.position[i].y = 10;
+    if (object.position[i].y > bounds.y) {
+      object.position[i].y = bounds.y;
       verlet.position_old[i].y =
           object.position[i].y + velocity.y * verlet.bounce;
     }
 
-    if (object.position[i].z > 10) {
-      object.position[i].z = 10;
+    if (object.position[i].z > bounds.z) {
+      object.position[i].z = bounds.z;
       verlet.position_old[i].z =
           object.position[i].z + velocity.z * verlet.bounce;
     }
 
-    if (object.position[i].x < -10) {
-      object.position[i].x = -10;
+    if (object.position[i].x < -bounds.x) {
+      object.position[i].x = -bounds.x;
       verlet.position_old[i].x =
           object.position[i].x + velocity.x * verlet.bounce;
     }
 
-    if (object.position[i].y < -10) {
-      object.position[i].y = -10;
+    if (object.position[i].y < -bounds.y) {
+      object.position[i].y = -bounds.y;
       verlet.position_old[i].y =
           object.position[i].y + velocity.y * verlet.bounce;
     }
 
-    if (object.position[i].z < -10) {
-      object.position[i].z = -10;
+    if (object.position[i].z < -bounds.z) {
+      object.position[i].z = -bounds.z;
       verlet.position_old[i].z =
           object.position[i].z + velocity.z * verlet.bounce;
     }
@@ -206,7 +222,7 @@ void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
 int main() {
 
   alutInit(0, 0);
-  lgl_context_t *lgl_context = lgl_start(640, 480);
+  lgl_context_t *lgl_context = lgl_start(1000, 800);
 
   glClearColor(0.0, 0.0, 0.0, 1);
 
@@ -292,7 +308,7 @@ int main() {
 
   lgl_context->camera.rotation = quaternion_identity();
   lgl_context->camera.position = vector3_zero();
-  lgl_context->camera.position.z = -5;
+  lgl_context->camera.position.z = -50;
 
   GLfloat view[16];
   lgl_mat4_identity(view);
@@ -310,33 +326,21 @@ int main() {
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.scale[i] = vector3_one(0.01);
-  }
-
-#if 1 // randomize particles positions
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.position[i] = vector3_point_in_unit_cube(
-        particles.count * 10 * lgl_context->time_current + i);
-    particles.position[i] = vector3_scale(particles.position[i], 100);
-  }
-#endif
+  l_verlet_t particles_verlet =
+      l_verlet_alloc(particles, (vector3_t){0.05, 0.02, 0.01});
 
 #if 0 // galaxy particle system
-      float radius = 5;
-      float swirl_strength = 0.1;
-      float arm_thickness = 5;
-      float arm_length = 10;
+  float radius = 5;
+  float swirl_strength = 0.1;
+  float arm_thickness = 5;
+  float arm_length = 10;
 
-      galaxy_generate(particles, radius,
-          particles.count * lgl_context->time_current,
-          swirl_strength, arm_thickness, arm_length);
+  galaxy_generate(particles, radius,
+      particles.count * lgl_context->time_current,
+      swirl_strength, arm_thickness, arm_length);
 #endif
 
   lgl_mat4_buffer(&particles);
-
-  l_verlet_t particles_verlet =
-      l_verlet_alloc(particles, (vector3_t){0.05, 0.02, 0.01});
 
   // --------------------------------------------------------------------------
   // Create cube
@@ -345,10 +349,11 @@ int main() {
   cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
-  cube.shader = shader_phong;
+  cube.shader = shader_solid;
   cube.color = (vector4_t){1, 1, 1, 1};
+  cube.scale[0] = vector3_one(20);
   cube.position[0] = (vector3_t){0, 0, 0};
-  // cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   // --------------------------------------------------------------------------
   // Create audio source
@@ -379,12 +384,15 @@ int main() {
       camera_update(lgl_context);
 
       lal_audio_source_update(audio_source, cube, lgl_context);
+
+#if 0
       cube.rotation[0] = quaternion_multiply(
           cube.rotation[0],
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
+#endif
 
       // wrap_position(particles, lgl_context);
-      l_verlet_confine(particles_verlet, particles);
+      l_verlet_confine(particles_verlet, particles, vector3_one(20));
       l_verlet_update(particles, particles_verlet);
 
 #if 0 // speen (rotate particles around 0,0,0)
@@ -406,7 +414,10 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-      // lgl_draw(cube);
+      glDisable(GL_CULL_FACE); // TODO add cull face render flag
+      lgl_draw(cube);
+      glEnable(GL_CULL_FACE);
+
       lgl_draw_instanced(particles);
     }
 
