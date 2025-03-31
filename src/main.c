@@ -101,27 +101,34 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
 }
 
 void particles_random(lgl_object_t particles, lgl_context_t *lgl_context,
-                      float time, float step) {
+                      vector3_t velocity_scale) {
+
+  const float step = lgl_context->time_delta;
+  const float time = lgl_context->time_current;
+
   for (unsigned int i = 0; i < particles.length; i++) {
 
-    particles.velocity[i] = vector3_point_in_unit_cube(time + i);
-
+    particles.velocity[i] = vector3_point_in_unit_cube(time * 10 + i);
     particles.velocity[i] = vector3_scale(particles.velocity[i], step);
+
+    particles.velocity[i].x += velocity_scale.x * step;
+    particles.velocity[i].y += velocity_scale.y * step;
+    particles.velocity[i].z += velocity_scale.z * step;
 
     particles.position[i] =
         vector3_add(particles.position[i], particles.velocity[i]);
 
     particles.position[i].x =
-        wrap(particles.position[i].x, lgl_context->camera.position.x - 20,
-             lgl_context->camera.position.x + 20);
+        wrap(particles.position[i].x, lgl_context->camera.position.x - 15,
+             lgl_context->camera.position.x + 15);
 
     particles.position[i].y =
-        wrap(particles.position[i].y, lgl_context->camera.position.y - 20,
-             lgl_context->camera.position.y + 20);
+        wrap(particles.position[i].y, lgl_context->camera.position.y - 15,
+             lgl_context->camera.position.y + 15);
 
     particles.position[i].z =
-        wrap(particles.position[i].z, lgl_context->camera.position.z - 20,
-             lgl_context->camera.position.z + 20);
+        wrap(particles.position[i].z, lgl_context->camera.position.z - 15,
+             lgl_context->camera.position.z + 15);
   }
 }
 
@@ -130,7 +137,7 @@ int main() {
   alutInit(0, 0);
   lgl_context_t *lgl_context = lgl_start(640, 480);
 
-  glClearColor(0.2, 0.2, 0.2, 1);
+  glClearColor(0.0, 0.0, 0.0, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -179,7 +186,7 @@ int main() {
 
   lights[LIGHTS_POINT_0] = (lgl_light_t){
       .type = 0,
-      .position = {0.0, 1.0, -5.0},
+      .position = {0.0, 0.0, 0.0},
       .direction = {0.0, 0.0, 1.0},
       .cut_off = cos(12.5),
       .outer_cut_off = cos(15.0),
@@ -214,7 +221,7 @@ int main() {
 
   lgl_context->camera.rotation = quaternion_identity();
   lgl_context->camera.position = vector3_zero();
-  lgl_context->camera.position.z = -10;
+  lgl_context->camera.position.z = -5;
 
   GLfloat view[16];
   lgl_mat4_identity(view);
@@ -227,23 +234,32 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(2000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
-  // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   for (unsigned int i = 0; i < particles.length; i++) {
     particles.scale[i] = vector3_one(0.01);
   }
 
-  vector3_t particles_offset = (vector3_t){2, 0, 0};
-
-#if 1 // random particles in sphere
+#if 1 // randomize particles positions
   for (unsigned int i = 0; i < particles.length; i++) {
     particles.position[i] = vector3_point_in_unit_cube(
         particles.length * 10 * lgl_context->time_current + i);
     particles.position[i] = vector3_scale(particles.position[i], 100);
   }
+#endif
+
+#if 0 // galaxy particle system
+      float radius = 5;
+      float swirl_strength = 0.1;
+      float arm_thickness = 5;
+      float arm_length = 10;
+
+      galaxy_generate(particles, radius,
+          particles.length * lgl_context->time_current,
+          swirl_strength, arm_thickness, arm_length);
 #endif
 
   lgl_mat4_buffer(&particles);
@@ -257,7 +273,7 @@ int main() {
   cube.lights_count = LIGHTS_COUNT;
   cube.shader = shader_phong;
   cube.color = (vector4_t){1, 1, 1, 1};
-  cube.position[0] = (vector3_t){-2, 0, 0};
+  cube.position[0] = (vector3_t){0, 0, 0};
   // cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   // --------------------------------------------------------------------------
@@ -286,22 +302,15 @@ int main() {
     }
 
     { // update state
-      lal_audio_source_update(audio_source, cube, lgl_context);
       camera_update(lgl_context);
 
-#if 0 // galaxy particle system
-      float radius = 5;
-      float swirl_strength = 0.1;
-      float arm_thickness = 5;
-      float arm_length = 10;
+      lal_audio_source_update(audio_source, cube, lgl_context);
+      cube.rotation[0] = quaternion_multiply(cube.rotation[0],
+          quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
-      galaxy_generate(particles, radius,
-          particles.length * lgl_context->time_current,
-          swirl_strength, arm_thickness, arm_length);
+#if 1
+      particles_random(particles, lgl_context, (vector3_t) {0.5,-1,0.5});
 #endif
-
-      particles_random(particles, lgl_context, lgl_context->time_current,
-                       lgl_context->time_delta);
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
