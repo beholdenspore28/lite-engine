@@ -108,8 +108,12 @@ void particles_random(lgl_object_t particles, lgl_context_t *lgl_context,
 
   for (unsigned int i = 0; i < particles.length; i++) {
 
+    if (i % 2 == 0) {
+      velocity_scale.x *= -1;
+    }
+
     particles.velocity[i] = vector3_point_in_unit_cube(time * 10 + i);
-    particles.velocity[i] = vector3_scale(particles.velocity[i], step);
+    particles.velocity[i] = vector3_scale(particles.velocity[i], step * 0.5);
 
     particles.velocity[i].x += velocity_scale.x * step;
     particles.velocity[i].y += velocity_scale.y * step;
@@ -234,16 +238,16 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(2000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   for (unsigned int i = 0; i < particles.length; i++) {
-    particles.scale[i] = vector3_one(0.01);
+    particles.scale[i] = vector3_one(0.005);
   }
 
-#if 1 // randomize particles positions
+#if 0 // randomize particles positions
   for (unsigned int i = 0; i < particles.length; i++) {
     particles.position[i] = vector3_point_in_unit_cube(
         particles.length * 10 * lgl_context->time_current + i);
@@ -310,7 +314,7 @@ int main() {
           quaternion_from_euler(vector3_up(lgl_context->time_delta)));
 
 #if 1
-      particles_random(particles, lgl_context, (vector3_t){0.5, -1, 0.5});
+      particles_random(particles, lgl_context, (vector3_t){0,0,0});
 #endif
 
 #if 0 // speen (rotate particles around 0,0,0)
@@ -332,7 +336,7 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(cube);
+      //lgl_draw(cube);
       lgl_draw_instanced(particles);
     }
 
