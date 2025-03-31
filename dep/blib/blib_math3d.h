@@ -933,6 +933,10 @@ quaternion_from_euler(vector3_t eulerAngles) {
 	return q;
 }
 
+static inline quaternion_t quaternion_rotate_euler(quaternion_t q, vector3_t euler_angles) {
+  return quaternion_multiply(q, quaternion_from_euler(euler_angles));
+}
+
 static inline float *quaternion_to_mat4(quaternion_t q, GLfloat *mat) {
 	float xx = q.x * q.x;
 	float xy = q.x * q.y;

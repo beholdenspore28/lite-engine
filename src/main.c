@@ -112,28 +112,9 @@ l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
   l_verlet_t verlet;
   verlet.position_old = calloc(sizeof(vector3_t), object.count);
   verlet.count = object.count;
-  verlet.bounce = 0.99;
+  verlet.bounce = 0.9;
   verlet.gravity = -0.005;
   verlet.friction = 0.99;
-
-  // set up initial state of the particles
-  for (unsigned int i = 0; i < verlet.count; i++) {
-
-    object.scale[i] = vector3_one(0.1);
-
-#if 0
-    object.position[i] = vector3_point_in_unit_cube(
-        object.count * 10 + i);
-    object.position[i] = vector3_scale(object.position[i], 100);
-#endif
-
-    object.position[i] = verlet.position_old[i] =
-      object.position[i];
-
-    verlet.position_old[i] =
-      vector3_subtract(verlet.position_old[i],
-          vector3_scale(vector3_point_in_unit_sphere(i), 0.5));
-  }
 
   return verlet;
 }
@@ -321,13 +302,32 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(1000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
   // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_t particles_verlet =
       l_verlet_alloc(particles, (vector3_t){0.05, 0.02, 0.01});
+
+  // set up initial state of the particles
+  for (unsigned int i = 0; i < particles_verlet.count; i++) {
+
+    particles.scale[i] = vector3_one(0.1);
+
+#if 1
+    //particles.position[i] = vector3_point_in_unit_cube(
+    //particles.count * 10 + i);
+    particles.position[i] = vector3_scale(particles.position[i], 100);
+#endif
+
+    particles.position[i] = particles_verlet.position_old[i] =
+      particles.position[i];
+
+    particles_verlet.position_old[i] =
+      vector3_subtract(particles_verlet.position_old[i],
+          vector3_scale(vector3_point_in_unit_sphere(i), 0.5));
+  }
 
 #if 0 // galaxy particle system
   float radius = 5;
@@ -385,15 +385,11 @@ int main() {
 
       lal_audio_source_update(audio_source, cube, lgl_context);
 
-#if 0
-      cube.rotation[0] = quaternion_multiply(
-          cube.rotation[0],
-          quaternion_from_euler(vector3_up(lgl_context->time_delta)));
-#endif
-
       // wrap_position(particles, lgl_context);
-      l_verlet_confine(particles_verlet, particles, vector3_one(20));
+      l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       l_verlet_update(particles, particles_verlet);
+
+      //cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0], vector3_up(lgl_context->time_delta));
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
