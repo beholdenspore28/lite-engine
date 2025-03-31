@@ -525,8 +525,6 @@ lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
   object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, count);
   glGenBuffers(1, &object.model_matrix_buffer);
 
-  object.velocity = calloc(sizeof(*object.velocity), count);
-
   object.count = count;
 
   for (unsigned int j = 0; j < count; j++) {
@@ -632,7 +630,6 @@ lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
 }
 
 void lgl_object_free(lgl_object_t object) {
-  free(object.velocity);
   glDeleteBuffers(1, &object.model_matrix_buffer);
   free(object.model_matrices);
   free(object.scale);

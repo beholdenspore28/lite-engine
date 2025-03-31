@@ -79,8 +79,6 @@ typedef struct {
   GLfloat *model_matrices;
   GLuint model_matrix_buffer;
 
-  vector3_t *velocity;
-
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;

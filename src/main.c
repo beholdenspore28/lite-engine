@@ -103,9 +103,6 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
 void particles_wrap(lgl_object_t particles, lgl_context_t *lgl_context) {
   for (unsigned int i = 0; i < particles.count; i++) {
 
-    particles.position[i] =
-        vector3_add(particles.position[i], particles.velocity[i]);
-
     particles.position[i].x =
         wrap(particles.position[i].x, lgl_context->camera.position.x - 15,
              lgl_context->camera.position.x + 15);
