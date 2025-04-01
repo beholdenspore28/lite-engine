@@ -318,27 +318,25 @@ int main() {
 
   lgl_object_t particles = lgl_object_alloc(3, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
-  particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
+  particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
   {
     for (unsigned int i = 0; i < particles.count; i++) {
-      particles.scale[i] = vector3_one(0.1);
+      particles.scale[i] = vector3_one(0.2);
     }
 
-    particles.position[0] = (vector3_t){0.0, 0.1, 0.0};
-    particles.position[1] = (vector3_t){0.1, 0.0, 0.0};
-    particles.position[2] = (vector3_t){0.0, 0.0, 0.1};
+    particles.position[0] = vector3_up(1);
+    particles.position[1] = vector3_right(1);
+    particles.position[2] = vector3_forward(1);
 
     vector3_t offset = vector3_up(0.1);
-    particles_verlet.position_old[0] =
-        vector3_add(particles.position[0], offset);
-    particles_verlet.position_old[1] =
-        vector3_add(particles.position[1], offset);
-    particles_verlet.position_old[2] =
-        vector3_add(particles.position[2], offset);
+
+    particles_verlet.position_old[0] = vector3_add(particles.position[0], offset);
+    particles_verlet.position_old[1] = vector3_add(particles.position[1], offset);
+    particles_verlet.position_old[2] = vector3_add(particles.position[2], offset);
   }
 
 #if 0 // galaxy particle system
@@ -403,9 +401,9 @@ int main() {
       // wrap_position(particles, lgl_context);
       l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       l_verlet_update(particles, particles_verlet);
-      l_verlet_constrain_distance(particles, 0, 1, 2);
-      l_verlet_constrain_distance(particles, 1, 2, 2);
-      l_verlet_constrain_distance(particles, 2, 0, 2);
+      l_verlet_constrain_distance(particles, 0, 1, 10);
+      l_verlet_constrain_distance(particles, 1, 2, 10);
+      l_verlet_constrain_distance(particles, 2, 0, 10);
 
       // cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0],
       // vector3_up(lgl_context->time_delta));
