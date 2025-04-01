@@ -158,6 +158,8 @@ int main() {
   int width, height;
   glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
 
+  l_object_t frame_obj = l_object_alloc(1);
+
   lgl_framebuffer_t frame = lgl_framebuffer_alloc(
       shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
   lgl_framebuffer_t frame_MSAA = lgl_framebuffer_alloc(
@@ -295,7 +297,7 @@ int main() {
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
@@ -313,16 +315,14 @@ int main() {
                       frame.width, frame.height, GL_COLOR_BUFFER_BIT,
                       GL_NEAREST);
 
-#if 0
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw((l_object_t){0}, frame.quad);
+      lgl_draw(frame_obj, frame.quad);
     }
-#endif
 
     lgl_end_frame();
   }
@@ -334,8 +334,11 @@ int main() {
   lal_audio_source_free(cube_audio_source);
   lgl_batch_free(cube);
   lgl_batch_free(particles);
+
+  l_object_free(frame_obj);
   lgl_framebuffer_free(frame);
   lgl_framebuffer_free(frame_MSAA);
+
   lgl_free(lgl_context);
 
   alutExit();
