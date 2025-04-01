@@ -238,7 +238,8 @@ int main() {
 
     timer += lgl_context->time_delta;
 
-    if (timer > 1) { // window titlebar
+    if (timer > 5) { // window titlebar
+
       timer = 0;
       char window_title[64] = {0};
 

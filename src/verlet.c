@@ -4,7 +4,7 @@ l_verlet_t l_verlet_alloc(l_object_t object) {
   l_verlet_t verlet;
   verlet.count = object.count;
   verlet.bounce = 0.4;
-  verlet.gravity = -0.0981;
+  verlet.gravity = -0.05;
   verlet.friction = 0.9;
 
   verlet.position_old =
