@@ -102,6 +102,7 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
 
 typedef struct {
   vector3_t *position_old;
+  unsigned int *is_pinned;
   float bounce;
   float gravity;
   float friction;
@@ -110,20 +111,33 @@ typedef struct {
 
 l_verlet_t l_verlet_alloc(lgl_object_t object) {
   l_verlet_t verlet;
-  verlet.position_old = calloc(sizeof(vector3_t), object.count);
   verlet.count = object.count;
   verlet.bounce = 0.4;
-  verlet.gravity = -0.01;
+  verlet.gravity = -0.0981;
   verlet.friction = 0.99;
+
+  verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
+  verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
+
+  for (unsigned int i = 0; i < object.count; i++) {
+    verlet.position_old[i] = vector3_zero();
+    verlet.is_pinned[i] = 0;
+  }
 
   return verlet;
 }
 
-void l_verlet_free(l_verlet_t verlet) { free(verlet.position_old); }
+void l_verlet_free(l_verlet_t verlet) {
+  free(verlet.position_old);
+  free(verlet.is_pinned);
+}
 
 void l_verlet_update(lgl_object_t object, l_verlet_t points) {
 
   for (unsigned int i = 0; i < points.count; i++) {
+
+    if (points.is_pinned[i])
+      continue;
 
     vector3_t velocity =
         vector3_subtract(object.position[i], points.position_old[i]);
@@ -184,8 +198,8 @@ void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,
   }
 }
 
-void l_verlet_constrain_distance(lgl_object_t object, unsigned int point_a,
-                                 unsigned int point_b,
+void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,
+                                 unsigned int point_a, unsigned int point_b,
                                  float distance_constraint) {
 
   vector3_t diff =
@@ -194,8 +208,13 @@ void l_verlet_constrain_distance(lgl_object_t object, unsigned int point_a,
   float adjustment = (distance_constraint - distance) / distance * 0.5;
   vector3_t offset = vector3_scale(diff, adjustment);
 
-  object.position[point_a] = vector3_subtract(object.position[point_a], offset);
-  object.position[point_b] = vector3_add(object.position[point_b], offset);
+  if (!verlet.is_pinned[point_a]) {
+    object.position[point_a] =
+        vector3_subtract(object.position[point_a], offset);
+  }
+  if (!verlet.is_pinned[point_b]) {
+    object.position[point_b] = vector3_add(object.position[point_b], offset);
+  }
 }
 
 void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
@@ -329,28 +348,30 @@ int main() {
       particles.scale[i] = vector3_one(0.2);
     }
 
-    particles.position[0] = (vector3_t) { -1,  1,  1 }; // 0 front top left
-    particles.position[1] = (vector3_t) {  1,  1,  1 }; // 1 front top right
-    particles.position[2] = (vector3_t) { -1, -1,  1 }; // 2 front bottom left
-    particles.position[3] = (vector3_t) {  1, -1,  1 }; // 3 front bottom right
-    particles.position[4] = (vector3_t) { -1,  1, -1 }; // 4 back top left
-    particles.position[5] = (vector3_t) {  1,  1, -1 }; // 5 back top right
-    particles.position[6] = (vector3_t) { -1, -1, -1 }; // 6 back bottom left
-    particles.position[7] = (vector3_t) {  1, -1, -1 }; // 7 back bottom right
+    particles_verlet.is_pinned[0] = 1;
+
+    particles.position[0] = (vector3_t){-1, 1, 1};   // 0 front top left
+    particles.position[1] = (vector3_t){1, 1, 1};    // 1 front top right
+    particles.position[2] = (vector3_t){-1, -1, 1};  // 2 front bottom left
+    particles.position[3] = (vector3_t){1, -1, 1};   // 3 front bottom right
+    particles.position[4] = (vector3_t){-1, 1, -1};  // 4 back top left
+    particles.position[5] = (vector3_t){1, 1, -1};   // 5 back top right
+    particles.position[6] = (vector3_t){-1, -1, -1}; // 6 back bottom left
+    particles.position[7] = (vector3_t){1, -1, -1};  // 7 back bottom right
 
     vector3_t offset = vector3_up(0.1);
 
 #if 1 // speen (rotate particles around 0,0,0)
-      quaternion_t rotation = quaternion_from_euler(vector3_one(PI/5));
-      for(unsigned int i = 0; i < particles.count; i++) {
-        particles.position[i] = vector3_rotate(particles.position[i], rotation);
-      }
+    quaternion_t rotation = quaternion_from_euler(vector3_one(PI / 5));
+    for (unsigned int i = 0; i < particles.count; i++) {
+      particles.position[i] = vector3_rotate(particles.position[i], rotation);
+    }
 #endif
 
-    for(unsigned int i = 0; i < particles.count; i++) {
-      particles.position[i] = vector3_rotate(particles.position[i], quaternion_from_euler(vector3_up(PI)));
+    for (unsigned int i = 0; i < particles.count; i++) {
+      particles.position[i] = vector3_rotate(
+          particles.position[i], quaternion_from_euler(vector3_up(PI)));
       particles_verlet.position_old[i] = particles.position[i];
-
     }
   }
 
@@ -376,7 +397,7 @@ int main() {
   cube.lights_count = LIGHTS_COUNT;
   cube.shader = shader_solid;
   cube.color = (vector4_t){1, 1, 1, 1};
-  cube.scale[0] = vector3_one(20);
+  cube.scale[0] = vector3_one(40);
   cube.position[0] = (vector3_t){0, 0, 0};
   cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
@@ -410,36 +431,39 @@ int main() {
     camera_update(lgl_context);
     lal_audio_source_update(audio_source, cube, lgl_context);
 
-    if (timer_physics > 0.033) { // update state
+    if (timer_physics > 0.016) { // update state
       timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
       l_verlet_update(particles, particles_verlet);
 
-      for(unsigned int i = 0; i < 5; i++) {
+      for (unsigned int i = 0; i < 10; i++) {
 
-        l_verlet_constrain_distance(particles, 0, 7, 20);
-        l_verlet_constrain_distance(particles, 1, 6, 20);
-        l_verlet_constrain_distance(particles, 2, 5, 20);
-        l_verlet_constrain_distance(particles, 3, 4, 20);
+        // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
+
+        // constrain diagonally
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 7, 18);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 6, 18);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 5, 18);
+        l_verlet_constrain_distance(particles, particles_verlet, 3, 4, 18);
 
         // x constraints
-        l_verlet_constrain_distance(particles, 0, 1, 10);
-        l_verlet_constrain_distance(particles, 2, 3, 10);
-        l_verlet_constrain_distance(particles, 4, 5, 10);
-        l_verlet_constrain_distance(particles, 6, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 1, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 3, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 4, 5, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 6, 7, 10);
 
         // y constraints
-        l_verlet_constrain_distance(particles, 0, 2, 10);
-        l_verlet_constrain_distance(particles, 1, 3, 10);
-        l_verlet_constrain_distance(particles, 4, 6, 10);
-        l_verlet_constrain_distance(particles, 5, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 2, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 3, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 4, 6, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 5, 7, 10);
 
         // z constraints
-        l_verlet_constrain_distance(particles, 0, 4, 10);
-        l_verlet_constrain_distance(particles, 1, 5, 10);
-        l_verlet_constrain_distance(particles, 2, 6, 10);
-        l_verlet_constrain_distance(particles, 3, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 4, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 5, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 6, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 3, 7, 10);
 
         l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       }
