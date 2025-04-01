@@ -340,15 +340,6 @@ int main() {
 
   particles_verlet.is_pinned[0] = 1;
 
-  particles.position[0] = (vector3_t){-1, 1, 1};   // 0 front top left
-  particles.position[1] = (vector3_t){1, 1, 1};    // 1 front top right
-  particles.position[2] = (vector3_t){-1, -1, 1};  // 2 front bottom left
-  particles.position[3] = (vector3_t){1, -1, 1};   // 3 front bottom right
-  particles.position[4] = (vector3_t){-1, 1, -1};  // 4 back top left
-  particles.position[5] = (vector3_t){1, 1, -1};   // 5 back top right
-  particles.position[6] = (vector3_t){-1, -1, -1}; // 6 back bottom left
-  particles.position[7] = (vector3_t){1, -1, -1};  // 7 back bottom right
-
 #if 0 // galaxy particle system
   float radius = 5;
   float swirl_strength = 0.1;
