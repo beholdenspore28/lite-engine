@@ -194,11 +194,11 @@ int main() {
   cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
-  cube.shader = shader_phong;
+  cube.shader = shader_solid;
   cube.color = (vector4_t){1, 1, 1, 1};
   cube.scale[0] = vector3_one(10);
-  cube.position[0] = (vector3_t){0, 0, 20};
-  //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  cube.position[0] = (vector3_t){0, 0, 0};
+  cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
 
