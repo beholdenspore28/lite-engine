@@ -195,16 +195,16 @@ int main() {
   // --------------------------------------------------------------------------
   // Create cube
 
-  l_object_t cube_obj = l_object_alloc(1);
-  lgl_batch_t cube = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
-  cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  cube.lights = lights;
-  cube.lights_count = LIGHTS_COUNT;
-  cube.shader = shader_solid;
-  cube.color = (vector4_t){1, 1, 1, 1};
-  cube_obj.transform.scale[0] = vector3_one(10);
-  cube_obj.transform.position[0] = (vector3_t){0, 0, 0};
-  cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  l_object_t cube = l_object_alloc(1);
+  lgl_batch_t cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
+  cube_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  cube_batch.lights = lights;
+  cube_batch.lights_count = LIGHTS_COUNT;
+  cube_batch.shader = shader_solid;
+  cube_batch.color = (vector4_t){1, 1, 1, 1};
+  cube.transform.scale[0] = vector3_one(10);
+  cube.transform.position[0] = (vector3_t){0, 0, 0};
+  cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
 
@@ -251,7 +251,7 @@ int main() {
     }
 
     camera_update(lgl_context);
-    lal_audio_source_update(cube_audio_source, cube_obj, lgl_context);
+    lal_audio_source_update(cube_audio_source, cube, lgl_context);
 
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state
@@ -304,7 +304,7 @@ int main() {
               GL_STENCIL_BUFFER_BIT);
 
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
-      lgl_draw(cube_obj, cube);
+      lgl_draw(cube, cube_batch);
       glEnable(GL_CULL_FACE);
 
       lgl_draw_instanced(particles, particles_batch);
@@ -329,11 +329,11 @@ int main() {
   }
 
   l_object_free(particles);
-  l_object_free(cube_obj);
+  l_object_free(cube);
   lgl_camera_free(lgl_context->camera);
   l_verlet_free(particles_batch_verlet);
   lal_audio_source_free(cube_audio_source);
-  lgl_batch_free(cube);
+  lgl_batch_free(cube_batch);
   lgl_batch_free(particles_batch);
 
   l_object_free(frame_obj);
