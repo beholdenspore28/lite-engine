@@ -120,7 +120,7 @@ l_verlet_t l_verlet_alloc(lgl_object_t object) {
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
 
   for (unsigned int i = 0; i < object.count; i++) {
-    verlet.position_old[i] = vector3_zero();
+    verlet.position_old[i] = object.position[i];
     verlet.is_pinned[i] = 0;
   }
 
@@ -143,8 +143,6 @@ void l_verlet_update(lgl_object_t object, l_verlet_t points) {
         vector3_subtract(object.position[i], points.position_old[i]);
 
     velocity = vector3_scale(velocity, points.friction);
-
-    // debug_log("%f %f %f", velocity.x, velocity.y, velocity.z);
 
     points.position_old[i] = object.position[i];
     object.position[i] = vector3_add(object.position[i], velocity);
@@ -217,21 +215,12 @@ void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,
   }
 }
 
-void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
-  for (unsigned int i = 0; i < object.count; i++) {
+static inline void wrap_position(vector3_t position, vector3_t target,
+                                 float range) {
 
-    object.position[i].x =
-        wrap(object.position[i].x, lgl_context->camera.position.x - 15,
-             lgl_context->camera.position.x + 15);
-
-    object.position[i].y =
-        wrap(object.position[i].y, lgl_context->camera.position.y - 15,
-             lgl_context->camera.position.y + 15);
-
-    object.position[i].z =
-        wrap(object.position[i].z, lgl_context->camera.position.z - 15,
-             lgl_context->camera.position.z + 15);
-  }
+  position.x = wrap(position.x, target.x - range, target.x + range);
+  position.y = wrap(position.y, target.y - range, target.y + range);
+  position.z = wrap(position.z, target.z - range, target.z + range);
 }
 
 int main() {
@@ -336,44 +325,29 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(8, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
-  {
-    for (unsigned int i = 0; i < particles.count; i++) {
-      particles.scale[i] = vector3_one(0.2);
-    }
-
-    particles_verlet.is_pinned[0] = 1;
-
-    particles.position[0] = (vector3_t){-1, 1, 1};   // 0 front top left
-    particles.position[1] = (vector3_t){1, 1, 1};    // 1 front top right
-    particles.position[2] = (vector3_t){-1, -1, 1};  // 2 front bottom left
-    particles.position[3] = (vector3_t){1, -1, 1};   // 3 front bottom right
-    particles.position[4] = (vector3_t){-1, 1, -1};  // 4 back top left
-    particles.position[5] = (vector3_t){1, 1, -1};   // 5 back top right
-    particles.position[6] = (vector3_t){-1, -1, -1}; // 6 back bottom left
-    particles.position[7] = (vector3_t){1, -1, -1};  // 7 back bottom right
-
-    vector3_t offset = vector3_up(0.1);
-
-#if 1 // speen (rotate particles around 0,0,0)
-    quaternion_t rotation = quaternion_from_euler(vector3_one(PI / 5));
-    for (unsigned int i = 0; i < particles.count; i++) {
-      particles.position[i] = vector3_rotate(particles.position[i], rotation);
-    }
-#endif
-
-    for (unsigned int i = 0; i < particles.count; i++) {
-      particles.position[i] = vector3_rotate(
-          particles.position[i], quaternion_from_euler(vector3_up(PI)));
-      particles_verlet.position_old[i] = particles.position[i];
-    }
+  for (unsigned int i = 0; i < particles.count; i++) {
+    particles.scale[i] = vector3_one(0.2);
+    particles.position[i] = vector3_zero();
+    particles_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
   }
+
+  particles_verlet.is_pinned[0] = 1;
+
+  particles.position[0] = (vector3_t){-1, 1, 1};   // 0 front top left
+  particles.position[1] = (vector3_t){1, 1, 1};    // 1 front top right
+  particles.position[2] = (vector3_t){-1, -1, 1};  // 2 front bottom left
+  particles.position[3] = (vector3_t){1, -1, 1};   // 3 front bottom right
+  particles.position[4] = (vector3_t){-1, 1, -1};  // 4 back top left
+  particles.position[5] = (vector3_t){1, 1, -1};   // 5 back top right
+  particles.position[6] = (vector3_t){-1, -1, -1}; // 6 back bottom left
+  particles.position[7] = (vector3_t){1, -1, -1};  // 7 back bottom right
 
 #if 0 // galaxy particle system
   float radius = 5;
@@ -385,8 +359,6 @@ int main() {
       particles.count * lgl_context->time_current,
       swirl_strength, arm_thickness, arm_length);
 #endif
-
-  lgl_mat4_buffer(&particles);
 
   // --------------------------------------------------------------------------
   // Create cube
