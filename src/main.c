@@ -197,7 +197,8 @@ int main() {
 
   l_object_t cube = l_object_alloc(1);
   lgl_batch_t cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
-  cube_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  cube_batch.diffuse_map =
+      lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube_batch.lights = lights;
   cube_batch.lights_count = LIGHTS_COUNT;
   cube_batch.shader = shader_solid;
@@ -296,6 +297,13 @@ int main() {
       // update lights
       lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
+
+    cube.transform.rotation[0] =
+        quaternion_rotate_euler(cube.transform.rotation[0],
+                                vector3_up(PI / 5 * lgl_context->time_delta));
+    cube.transform.position[0] = vector3_add(
+        cube.transform.position[0],
+        l_object_forward(cube.transform, 0, lgl_context->time_delta * 10));
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
