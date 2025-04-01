@@ -530,25 +530,39 @@ void lgl_draw(const lgl_batch_t batch) {
   }
 }
 
+l_object_t l_object_alloc(unsigned int count) {
+
+  l_object_t object;
+  object.transform.scale = calloc(sizeof(*object.transform.scale), count);
+  object.transform.position = calloc(sizeof(*object.transform.position), count);
+  object.transform.rotation = calloc(sizeof(*object.transform.rotation), count);
+  object.transform.matrix = calloc(sizeof(*object.transform.matrix) * 16, count);
+  object.count = count;
+
+  for (unsigned int j = 0; j < count; j++) {
+    object.transform.scale[j] = vector3_one(1.0);
+    object.transform.position[j] = vector3_zero();
+    object.transform.rotation[j] = quaternion_identity();
+  }
+  return object;
+}
+
+void l_object_free(l_object_t object) {
+  free(object.transform.matrix);
+  free(object.transform.scale);
+  free(object.transform.position);
+  free(object.transform.rotation);
+}
+
 lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
   lgl_batch_t batch = {0};
 
-  batch.object.transform.scale = calloc(sizeof(*batch.object.transform.scale), count);
-  batch.object.transform.position = calloc(sizeof(*batch.object.transform.position), count);
-  batch.object.transform.rotation = calloc(sizeof(*batch.object.transform.rotation), count);
+  batch.object = l_object_alloc(count);
 
-  batch.object.transform.matrix = calloc(sizeof(*batch.object.transform.matrix) * 16, count);
   glGenBuffers(1, &batch.model_matrix_buffer);
 
-  batch.object.count = count;
-
   for (unsigned int j = 0; j < count; j++) {
-
-    batch.object.transform.scale[j] = vector3_one(1.0);
-    batch.object.transform.position[j] = vector3_zero();
-    batch.object.transform.rotation[j] = quaternion_identity();
-
     batch.texture_offset = vector2_zero();
     batch.texture_scale = vector2_one(1.0);
     batch.render_flags = LGL_FLAG_ENABLED;
@@ -647,10 +661,7 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
 void lgl_batch_free(lgl_batch_t batch) {
   glDeleteBuffers(1, &batch.model_matrix_buffer);
-  free(batch.object.transform.matrix);
-  free(batch.object.transform.scale);
-  free(batch.object.transform.position);
-  free(batch.object.transform.rotation);
+  l_object_free(batch.object);
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
