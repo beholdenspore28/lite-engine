@@ -108,12 +108,12 @@ typedef struct {
   unsigned int count;
 } l_verlet_t;
 
-l_verlet_t l_verlet_alloc(lgl_object_t object, vector3_t initial_velocity) {
+l_verlet_t l_verlet_alloc(lgl_object_t object) {
   l_verlet_t verlet;
   verlet.position_old = calloc(sizeof(vector3_t), object.count);
   verlet.count = object.count;
   verlet.bounce = 0.9;
-  verlet.gravity = -0.005;
+  verlet.gravity = 0;
   verlet.friction = 0.99;
 
   return verlet;
@@ -138,7 +138,8 @@ void l_verlet_update(lgl_object_t object, l_verlet_t points) {
   }
 }
 
-void l_verlet_confine(l_verlet_t verlet, lgl_object_t object, vector3_t bounds) {
+void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,
+                      vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -183,6 +184,20 @@ void l_verlet_confine(l_verlet_t verlet, lgl_object_t object, vector3_t bounds) 
   }
 }
 
+void l_verlet_constrain_distance(lgl_object_t object, unsigned int point_a,
+                                 unsigned int point_b,
+                                 float distance_constraint) {
+
+  vector3_t diff =
+      vector3_subtract(object.position[point_b], object.position[point_a]);
+  float distance = vector3_magnitude(diff);
+  float adjustment = (distance_constraint - distance) / distance * 0.5;
+  vector3_t offset = vector3_scale(diff, adjustment);
+
+  object.position[point_a] = vector3_subtract(object.position[point_a], offset);
+  object.position[point_b] = vector3_add(object.position[point_b], offset);
+}
+
 void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -201,7 +216,6 @@ void wrap_position(lgl_object_t object, lgl_context_t *lgl_context) {
 }
 
 int main() {
-
   alutInit(0, 0);
   lgl_context_t *lgl_context = lgl_start(1000, 800);
 
@@ -302,32 +316,24 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(1000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(3, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 1.0, 1.0, 1.0};
-  // particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  l_verlet_t particles_verlet =
-      l_verlet_alloc(particles, (vector3_t){0.05, 0.02, 0.01});
+  l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
-  // set up initial state of the particles
-  for (unsigned int i = 0; i < particles_verlet.count; i++) {
-
+  for(unsigned int i = 0; i < particles.count; i++) {
     particles.scale[i] = vector3_one(0.1);
-
-#if 1
-    //particles.position[i] = vector3_point_in_unit_cube(
-    //particles.count * 10 + i);
-    particles.position[i] = vector3_scale(particles.position[i], 100);
-#endif
-
-    particles.position[i] = particles_verlet.position_old[i] =
-      particles.position[i];
-
-    particles_verlet.position_old[i] =
-      vector3_subtract(particles_verlet.position_old[i],
-          vector3_scale(vector3_point_in_unit_sphere(i), 0.5));
   }
+
+  particles.position[0] = (vector3_t) { 0.0, 0.1, 0.0 };
+  particles.position[1] = (vector3_t) { 0.1, 0.0, 0.0 };
+  particles.position[2] = (vector3_t) { 0.0, 0.0, 0.1 };
+
+  particles_verlet.position_old[0] = (vector3_t) { 0.1, 0.1, 0.0 };
+  particles_verlet.position_old[1] = (vector3_t) { 0.2, 0.0, 0.0 };
+  particles_verlet.position_old[2] = (vector3_t) { 0.1, 0.0, 0.1 };
 
 #if 0 // galaxy particle system
   float radius = 5;
@@ -388,8 +394,12 @@ int main() {
       // wrap_position(particles, lgl_context);
       l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       l_verlet_update(particles, particles_verlet);
+      l_verlet_constrain_distance(particles, 0, 1, 2);
+      l_verlet_constrain_distance(particles, 1, 2, 2);
+      l_verlet_constrain_distance(particles, 2, 0, 2);
 
-      //cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0], vector3_up(lgl_context->time_delta));
+      // cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0],
+      // vector3_up(lgl_context->time_delta));
 
 #if 0 // speen (rotate particles around 0,0,0)
       quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
