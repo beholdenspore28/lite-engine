@@ -194,7 +194,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create cube
 
-  lgl_batch_t cube = lgl_batch_alloc(1, LGL_BATCH_ARCHETYPE_CUBE);
+  lgl_batch_t cube = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
   cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
@@ -209,7 +209,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_batch_t particles = lgl_batch_alloc(1000, LGL_BATCH_ARCHETYPE_CUBE);
+  lgl_batch_t particles = lgl_batch_alloc(1000, L_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;

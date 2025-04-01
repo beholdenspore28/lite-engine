@@ -533,31 +533,6 @@ void lgl_draw(const lgl_batch_t batch) {
   }
 }
 
-l_object_t l_object_alloc(unsigned int count) {
-
-  l_object_t object;
-  object.transform.scale = calloc(sizeof(*object.transform.scale), count);
-  object.transform.position = calloc(sizeof(*object.transform.position), count);
-  object.transform.rotation = calloc(sizeof(*object.transform.rotation), count);
-  object.transform.matrix =
-      calloc(sizeof(*object.transform.matrix) * 16, count);
-  object.count = count;
-
-  for (unsigned int j = 0; j < count; j++) {
-    object.transform.scale[j] = vector3_one(1.0);
-    object.transform.position[j] = vector3_zero();
-    object.transform.rotation[j] = quaternion_identity();
-  }
-  return object;
-}
-
-void l_object_free(l_object_t object) {
-  free(object.transform.matrix);
-  free(object.transform.scale);
-  free(object.transform.position);
-  free(object.transform.rotation);
-}
-
 lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
   lgl_batch_t batch = {0};
@@ -573,7 +548,7 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
   }
 
   switch (archetype) {
-  case LGL_BATCH_ARCHETYPE_QUAD: {
+  case L_ARCHETYPE_QUAD: {
     enum { quad_vertices_count = 6 };
     lgl_vertex_t quad_vertices[quad_vertices_count] = {
         // position                        //normal          //tex coord
@@ -592,7 +567,7 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
                              batch.vertices);
   } break;
 
-  case LGL_BATCH_ARCHETYPE_CUBE: {
+  case L_ARCHETYPE_CUBE: {
     enum { cube_vertices_count = 36 };
     lgl_vertex_t cube_vertices[cube_vertices_count] = {
         // position                                 //normal             //tex
@@ -755,7 +730,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  frame.quad = lgl_batch_alloc(1, LGL_BATCH_ARCHETYPE_QUAD);
+  frame.quad = lgl_batch_alloc(1, L_ARCHETYPE_QUAD);
   {
     frame.quad.shader = shader;
     frame.quad.diffuse_map = frame.color_buffers[0];

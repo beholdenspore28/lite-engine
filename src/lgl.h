@@ -12,6 +12,8 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
+#include "engine.h"
+
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
 
@@ -66,18 +68,6 @@ typedef struct {
   double time_last;
   double time_FPS;
 } lgl_context_t;
-
-typedef struct {
-  vector3_t *position;
-  vector3_t *scale;
-  quaternion_t *rotation;
-  GLfloat *matrix;
-} l_transform_t;
-
-typedef struct {
-  l_transform_t transform;
-  GLuint count;
-} l_object_t;
 
 typedef struct {
   l_object_t object;
@@ -140,12 +130,6 @@ void lgl_viewport_set(const float width, const float height);
 
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
-
-enum {
-  LGL_BATCH_ARCHETYPE_EMPTY,
-  LGL_BATCH_ARCHETYPE_CUBE,
-  LGL_BATCH_ARCHETYPE_QUAD,
-};
 
 lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype);
 void lgl_batch(lgl_batch_t batch);
