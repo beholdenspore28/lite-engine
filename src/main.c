@@ -303,6 +303,7 @@ int main() {
 
   lgl_context->camera.rotation = quaternion_identity();
   lgl_context->camera.position = vector3_zero();
+  lgl_context->camera.position.y = -20;
   lgl_context->camera.position.z = -50;
 
   GLfloat view[16];
@@ -339,9 +340,17 @@ int main() {
 
     vector3_t offset = vector3_up(0.1);
 
+#if 1 // speen (rotate particles around 0,0,0)
+      quaternion_t rotation = quaternion_from_euler(vector3_one(PI/5));
+      for(unsigned int i = 0; i < particles.count; i++) {
+        particles.position[i] = vector3_rotate(particles.position[i], rotation);
+      }
+#endif
+
     for(unsigned int i = 0; i < particles.count; i++) {
-      particles_verlet.position_old[i] =
-        vector3_add(particles.position[i], offset);
+      particles.position[i] = vector3_rotate(particles.position[i], quaternion_from_euler(vector3_up(PI)));
+      particles_verlet.position_old[i] = particles.position[i];
+
     }
   }
 
@@ -407,39 +416,36 @@ int main() {
       // wrap_position(particles, lgl_context);
       l_verlet_update(particles, particles_verlet);
 
-      // x constraints
-      l_verlet_constrain_distance(particles, 0, 1, 10);
-      l_verlet_constrain_distance(particles, 2, 3, 10);
-      l_verlet_constrain_distance(particles, 4, 5, 10);
-      l_verlet_constrain_distance(particles, 6, 7, 10);
+      for(unsigned int i = 0; i < 5; i++) {
 
-      // y constraints
-      l_verlet_constrain_distance(particles, 0, 2, 10);
-      l_verlet_constrain_distance(particles, 1, 3, 10);
-      l_verlet_constrain_distance(particles, 4, 6, 10);
-      l_verlet_constrain_distance(particles, 5, 7, 10);
+        l_verlet_constrain_distance(particles, 0, 7, 20);
+        l_verlet_constrain_distance(particles, 1, 6, 20);
+        l_verlet_constrain_distance(particles, 2, 5, 20);
+        l_verlet_constrain_distance(particles, 3, 4, 20);
 
-      // z constraints
-      l_verlet_constrain_distance(particles, 0, 4, 10);
-      l_verlet_constrain_distance(particles, 1, 5, 10);
-      l_verlet_constrain_distance(particles, 2, 6, 10);
-      l_verlet_constrain_distance(particles, 3, 7, 10);
+        // x constraints
+        l_verlet_constrain_distance(particles, 0, 1, 10);
+        l_verlet_constrain_distance(particles, 2, 3, 10);
+        l_verlet_constrain_distance(particles, 4, 5, 10);
+        l_verlet_constrain_distance(particles, 6, 7, 10);
 
-      // cross constraints
-      //l_verlet_constrain_distance(particles, 0, 7, 10);
-      //l_verlet_constrain_distance(particles, 1, 6, 10);
+        // y constraints
+        l_verlet_constrain_distance(particles, 0, 2, 10);
+        l_verlet_constrain_distance(particles, 1, 3, 10);
+        l_verlet_constrain_distance(particles, 4, 6, 10);
+        l_verlet_constrain_distance(particles, 5, 7, 10);
 
-      l_verlet_confine(particles_verlet, particles, cube.scale[0]);
+        // z constraints
+        l_verlet_constrain_distance(particles, 0, 4, 10);
+        l_verlet_constrain_distance(particles, 1, 5, 10);
+        l_verlet_constrain_distance(particles, 2, 6, 10);
+        l_verlet_constrain_distance(particles, 3, 7, 10);
+
+        l_verlet_confine(particles_verlet, particles, cube.scale[0]);
+      }
 
       // cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0],
       // vector3_up(lgl_context->time_delta));
-
-#if 0 // speen (rotate particles around 0,0,0)
-      quaternion_t rotation = quaternion_from_euler(vector3_up(0.2 * lgl_context->time_delta));
-      for(unsigned int i = 0; i < particles.count; i++) {
-        particles.position[i] = vector3_rotate(particles.position[i], rotation);
-      }
-#endif
 
       lgl_mat4_buffer(&particles);
 
