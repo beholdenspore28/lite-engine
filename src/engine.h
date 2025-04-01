@@ -36,8 +36,8 @@ static inline vector3_t l_object_left(l_transform_t transform,
   return vector3_rotate(vector3_left(magnitude), transform.rotation[index]);
 }
 
-static inline vector3_t l_object_up(l_transform_t transform,
-                                    unsigned int index, float magnitude) {
+static inline vector3_t l_object_up(l_transform_t transform, unsigned int index,
+                                    float magnitude) {
   return vector3_rotate(vector3_up(magnitude), transform.rotation[index]);
 }
 
