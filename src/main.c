@@ -83,7 +83,8 @@ void galaxy_generate(lgl_batch_t stars, float radius, unsigned int seed,
 
     // gravity
     vector3_t gravity = vector3_normalize(stars.object.transform.position[i]);
-    stars.object.transform.position[i] = vector3_subtract(stars.object.transform.position[i], gravity);
+    stars.object.transform.position[i] =
+        vector3_subtract(stars.object.transform.position[i], gravity);
 
     // stretch
     stars.object.transform.position[i].x *= arm_thickness;
@@ -91,13 +92,16 @@ void galaxy_generate(lgl_batch_t stars, float radius, unsigned int seed,
 
     // swirl
     float swirl_amount =
-        vector3_square_magnitude(stars.object.transform.position[i]) * swirl_strength;
+        vector3_square_magnitude(stars.object.transform.position[i]) *
+        swirl_strength;
 
-    stars.object.transform.position[i] = vector3_rotate(
-        stars.object.transform.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
+    stars.object.transform.position[i] =
+        vector3_rotate(stars.object.transform.position[i],
+                       quaternion_from_euler(vector3_up(swirl_amount)));
 
     // scale
-    stars.object.transform.position[i] = vector3_scale(stars.object.transform.position[i], radius);
+    stars.object.transform.position[i] =
+        vector3_scale(stars.object.transform.position[i], radius);
   }
 }
 

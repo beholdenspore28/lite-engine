@@ -163,7 +163,8 @@ void lgl_mat4_buffer(lgl_batch_t *batch) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(batch->object.transform.rotation[i], rotation);
 
-      lgl_mat4_multiply(batch->object.transform.matrix + i * 16, scale, rotation);
+      lgl_mat4_multiply(batch->object.transform.matrix + i * 16, scale,
+                        rotation);
       lgl_mat4_multiply(batch->object.transform.matrix + i * 16,
                         batch->object.transform.matrix + i * 16, translation);
     }
@@ -321,7 +322,8 @@ void lgl_draw_instanced(const lgl_batch_t batch) {
               batch.color.y, batch.color.z, batch.color.w);
 
   glBindVertexArray(batch.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count, batch.object.count);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count,
+                        batch.object.count);
   glUseProgram(0);
 }
 
@@ -507,7 +509,8 @@ void lgl_draw(const lgl_batch_t batch) {
                  light);
 
         glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].diffuse.x, batch.lights[light].diffuse.y,
+                    batch.lights[light].diffuse.x,
+                    batch.lights[light].diffuse.y,
                     batch.lights[light].diffuse.z);
       }
       {
@@ -536,7 +539,8 @@ l_object_t l_object_alloc(unsigned int count) {
   object.transform.scale = calloc(sizeof(*object.transform.scale), count);
   object.transform.position = calloc(sizeof(*object.transform.position), count);
   object.transform.rotation = calloc(sizeof(*object.transform.rotation), count);
-  object.transform.matrix = calloc(sizeof(*object.transform.matrix) * 16, count);
+  object.transform.matrix =
+      calloc(sizeof(*object.transform.matrix) * 16, count);
   object.count = count;
 
   for (unsigned int j = 0; j < count; j++) {
