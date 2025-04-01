@@ -209,6 +209,28 @@ void lgl_mat4_buffer(lgl_object_t *object) {
   glBindVertexArray(0);
 }
 
+lgl_camera_t lgl_camera_alloc(void) {
+  lgl_camera_t camera;
+  camera.rotation = quaternion_identity();
+  camera.position = vector3_zero();
+  camera.position.y = -20;
+  camera.position.z = -50;
+
+  camera.view = calloc(sizeof(*camera.view), 16);
+  camera.projection = calloc(sizeof(*camera.projection), 16);
+  lgl_mat4_identity(camera.view);
+  lgl_mat4_identity(camera.projection);
+
+  debug_log("Startup completed successfuly");
+  debug_log("Success!");
+  return camera;
+}
+
+void lgl_camera_free(lgl_camera_t camera) {
+  free(camera.view);
+  free(camera.projection);
+}
+
 void lgl_camera_update(void) {
 
   //-----------------------------------------------------------------------
@@ -852,9 +874,6 @@ lgl_context_t *lgl_start(const int width, const int height) {
 
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-  debug_log("Startup completed successfuly");
-  debug_log("Success!");
 
   return lgl__active_context;
 }

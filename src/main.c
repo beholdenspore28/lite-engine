@@ -1,8 +1,9 @@
 #include "lgl.h"
+#include "lal.h"
+#include "physics.h"
+
 #define BLIB_IMPLEMENTATION
 #include "blib/blib_math3d.h"
-
-#include "lal.h"
 
 #include <limits.h>
 #include <math.h>
@@ -100,129 +101,6 @@ void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
   }
 }
 
-typedef struct {
-  vector3_t *position_old;
-  unsigned int *is_pinned;
-  float bounce;
-  float gravity;
-  float friction;
-  unsigned int count;
-} l_verlet_t;
-
-l_verlet_t l_verlet_alloc(lgl_object_t object) {
-  l_verlet_t verlet;
-  verlet.count = object.count;
-  verlet.bounce = 0.4;
-  verlet.gravity = -0.0981;
-  verlet.friction = 0.99;
-
-  verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
-  verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
-
-  for (unsigned int i = 0; i < object.count; i++) {
-    verlet.position_old[i] = object.position[i];
-    verlet.is_pinned[i] = 0;
-  }
-
-  return verlet;
-}
-
-void l_verlet_free(l_verlet_t verlet) {
-  free(verlet.position_old);
-  free(verlet.is_pinned);
-}
-
-void l_verlet_update(lgl_object_t object, l_verlet_t points) {
-
-  for (unsigned int i = 0; i < points.count; i++) {
-
-    if (points.is_pinned[i])
-      continue;
-
-    vector3_t velocity =
-        vector3_subtract(object.position[i], points.position_old[i]);
-
-    velocity = vector3_scale(velocity, points.friction);
-
-    points.position_old[i] = object.position[i];
-    object.position[i] = vector3_add(object.position[i], velocity);
-    object.position[i].y += points.gravity;
-  }
-}
-
-void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,
-                      vector3_t bounds) {
-
-  for (unsigned int i = 0; i < object.count; i++) {
-
-    vector3_t velocity =
-        vector3_subtract(object.position[i], verlet.position_old[i]);
-
-    if (object.position[i].x > bounds.x) {
-      object.position[i].x = bounds.x;
-      verlet.position_old[i].x =
-          object.position[i].x + velocity.x * verlet.bounce;
-    }
-
-    if (object.position[i].y > bounds.y) {
-      object.position[i].y = bounds.y;
-      verlet.position_old[i].y =
-          object.position[i].y + velocity.y * verlet.bounce;
-    }
-
-    if (object.position[i].z > bounds.z) {
-      object.position[i].z = bounds.z;
-      verlet.position_old[i].z =
-          object.position[i].z + velocity.z * verlet.bounce;
-    }
-
-    if (object.position[i].x < -bounds.x) {
-      object.position[i].x = -bounds.x;
-      verlet.position_old[i].x =
-          object.position[i].x + velocity.x * verlet.bounce;
-    }
-
-    if (object.position[i].y < -bounds.y) {
-      object.position[i].y = -bounds.y;
-      verlet.position_old[i].y =
-          object.position[i].y + velocity.y * verlet.bounce;
-    }
-
-    if (object.position[i].z < -bounds.z) {
-      object.position[i].z = -bounds.z;
-      verlet.position_old[i].z =
-          object.position[i].z + velocity.z * verlet.bounce;
-    }
-  }
-}
-
-void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,
-                                 unsigned int point_a, unsigned int point_b,
-                                 float distance_constraint) {
-
-  vector3_t diff =
-      vector3_subtract(object.position[point_b], object.position[point_a]);
-  float distance = vector3_magnitude(diff);
-  float adjustment = (distance_constraint - distance) / distance * 0.5;
-  vector3_t offset = vector3_scale(diff, adjustment);
-
-  if (!verlet.is_pinned[point_a]) {
-    object.position[point_a] =
-        vector3_subtract(object.position[point_a], offset);
-  }
-  if (!verlet.is_pinned[point_b]) {
-    object.position[point_b] = vector3_add(object.position[point_b], offset);
-  }
-}
-
-static inline void wrap_position(vector3_t position, vector3_t target,
-                                 float range) {
-
-  position.x = wrap(position.x, target.x - range, target.x + range);
-  position.y = wrap(position.y, target.y - range, target.y + range);
-  position.z = wrap(position.z, target.z - range, target.z + range);
-}
-
 int main() {
   alutInit(0, 0);
   lgl_context_t *lgl_context = lgl_start(1000, 800);
@@ -266,7 +144,26 @@ int main() {
   }
 
   // --------------------------------------------------------------------------
-  // Create lights
+  // Create framebuffer
+
+  enum {
+    SAMPLES = 4,
+    NUM_COLOR_BUFFERS = 2,
+  };
+
+  int width, height;
+  glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
+
+  lgl_framebuffer_t frame = lgl_framebuffer_alloc(
+      shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
+  lgl_framebuffer_t frame_MSAA = lgl_framebuffer_alloc(
+      shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
+
+  lgl_active_framebuffer_set(&frame);
+  lgl_active_framebuffer_set_2(&frame_MSAA);
+
+  // --------------------------------------------------------------------------
+  // Create lights and camera
 
   enum {
     LIGHTS_POINT_0,
@@ -287,45 +184,12 @@ int main() {
       .specular = vector3_one(0.6),
   };
 
-  // --------------------------------------------------------------------------
-  // Create framebuffer
-
-  enum {
-    SAMPLES = 4,
-    NUM_COLOR_BUFFERS = 2,
-  };
-
-  int width, height;
-  glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
-
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(
-      shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
-  lgl_framebuffer_t frame_MSAA = lgl_framebuffer_alloc(
-      shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
-
-  lgl_active_framebuffer_set(&frame);
-  lgl_active_framebuffer_set_2(&frame_MSAA);
-
-  // --------------------------------------------------------------------------
-  // Create camera
-
-  lgl_context->camera.rotation = quaternion_identity();
-  lgl_context->camera.position = vector3_zero();
-  lgl_context->camera.position.y = -20;
-  lgl_context->camera.position.z = -50;
-
-  GLfloat view[16];
-  lgl_mat4_identity(view);
-  GLfloat projection[16];
-  lgl_mat4_identity(projection);
-
-  lgl_context->camera.view = view;
-  lgl_context->camera.projection = projection;
+  lgl_context->camera = lgl_camera_alloc();
 
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(5000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(1000, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -394,13 +258,13 @@ int main() {
     camera_update(lgl_context);
     lal_audio_source_update(audio_source, cube, lgl_context);
 
-    if (timer_physics > 0.016) { // update state
+    if (timer_physics > 0.01) { // update state
       timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
       l_verlet_update(particles, particles_verlet);
 
-      for (unsigned int i = 0; i < 10; i++) {
+      for (unsigned int i = 0; i < 3; i++) {
 
         // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
 
@@ -471,6 +335,7 @@ int main() {
     lgl_end_frame();
   }
 
+  lgl_camera_free(lgl_context->camera);
   l_verlet_free(particles_verlet);
   lal_audio_source_free(audio_source);
   lgl_object_free(cube);

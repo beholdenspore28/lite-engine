@@ -52,6 +52,8 @@ typedef struct {
   GLfloat *projection;
 } lgl_camera_t;
 
+lgl_camera_t lgl_camera_alloc(void);
+void lgl_camera_free(lgl_camera_t camera);
 void lgl_camera_update(void);
 
 typedef struct {
