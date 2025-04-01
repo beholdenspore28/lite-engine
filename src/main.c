@@ -1,5 +1,5 @@
-#include "lgl.h"
 #include "lal.h"
+#include "lgl.h"
 #include "physics.h"
 
 #define BLIB_IMPLEMENTATION
@@ -242,9 +242,8 @@ int main() {
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     timer += lgl_context->time_delta;
-    timer_physics += lgl_context->time_delta;
 
-    if (timer > 1) { // window titlebar
+    if (timer > 0.3) { // window titlebar
       timer = 0;
       char window_title[64] = {0};
 
@@ -258,6 +257,7 @@ int main() {
     camera_update(lgl_context);
     lal_audio_source_update(audio_source, cube, lgl_context);
 
+    timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.01) { // update state
       timer_physics = 0;
 
@@ -294,9 +294,6 @@ int main() {
 
         l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       }
-
-      // cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0],
-      // vector3_up(lgl_context->time_delta));
 
       lgl_mat4_buffer(&particles);
 

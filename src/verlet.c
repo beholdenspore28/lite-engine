@@ -105,4 +105,3 @@ void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,
     object.position[point_b] = vector3_add(object.position[point_b], offset);
   }
 }
-

@@ -1,8 +1,8 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include "lgl.h"
 #include "blib/blib_math3d.h"
+#include "lgl.h"
 
 typedef struct {
   vector3_t *position_old;
@@ -18,8 +18,7 @@ void l_verlet_free(l_verlet_t verlet);
 
 void l_verlet_update(lgl_object_t object, l_verlet_t points);
 
-void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,
-                      vector3_t bounds);
+void l_verlet_confine(l_verlet_t verlet, lgl_object_t object, vector3_t bounds);
 
 void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,
                                  unsigned int point_a, unsigned int point_b,

@@ -1,0 +1,62 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/benis/repos/lite-engine/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+BLIB_IMPLEMENTATION	src/main.c	/^#define BLIB_IMPLEMENTATION$/;"	d	file:
+GLFW_INCLUDE_NONE	src/lgl.c	/^#define GLFW_INCLUDE_NONE$/;"	d	file:
+LIGHTS_COUNT	src/main.c	/^    LIGHTS_COUNT, \/\/ this should ALWAYS be at the end of the enum$/;"	e	enum:main::__anon6a96e1720203	file:
+LIGHTS_POINT_0	src/main.c	/^    LIGHTS_POINT_0,$/;"	e	enum:main::__anon6a96e1720203	file:
+NUM_COLOR_BUFFERS	src/main.c	/^    NUM_COLOR_BUFFERS = 2,$/;"	e	enum:main::__anon6a96e1720103	file:
+SAMPLES	src/main.c	/^    SAMPLES = 4,$/;"	e	enum:main::__anon6a96e1720103	file:
+STB_IMAGE_IMPLEMENTATION	src/lgl.c	/^#define STB_IMAGE_IMPLEMENTATION$/;"	d	file:
+__anon6a96e1720103	src/main.c	/^  enum {$/;"	g	function:main	file:
+__anon6a96e1720203	src/main.c	/^  enum {$/;"	g	function:main	file:
+__anonb598b1ac0103	src/lgl.c	/^    enum { quad_vertices_count = 6 };$/;"	g	function:lgl_object_alloc	file:
+__anonb598b1ac0203	src/lgl.c	/^    enum { cube_vertices_count = 36 };$/;"	g	function:lgl_object_alloc	file:
+camera_update	src/main.c	/^void camera_update(lgl_context_t *context) {$/;"	f	typeref:typename:void
+cube_vertices_count	src/lgl.c	/^    enum { cube_vertices_count = 36 };$/;"	e	enum:lgl_object_alloc::__anonb598b1ac0203	file:
+galaxy_generate	src/main.c	/^void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,$/;"	f	typeref:typename:void
+l_verlet_alloc	src/verlet.c	/^l_verlet_t l_verlet_alloc(lgl_object_t object) {$/;"	f	typeref:typename:l_verlet_t
+l_verlet_confine	src/verlet.c	/^void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,$/;"	f	typeref:typename:void
+l_verlet_constrain_distance	src/verlet.c	/^void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,$/;"	f	typeref:typename:void
+l_verlet_free	src/verlet.c	/^void l_verlet_free(l_verlet_t verlet) {$/;"	f	typeref:typename:void
+l_verlet_update	src/verlet.c	/^void l_verlet_update(lgl_object_t object, l_verlet_t points) {$/;"	f	typeref:typename:void
+lal_audio_source_alloc	src/lal.c	/^lal_audio_source_t lal_audio_source_alloc(unsigned int count) {$/;"	f	typeref:typename:lal_audio_source_t
+lal_audio_source_free	src/lal.c	/^void lal_audio_source_free(lal_audio_source_t source) {$/;"	f	typeref:typename:void
+lal_audio_source_update	src/lal.c	/^void lal_audio_source_update(lal_audio_source_t source, lgl_object_t object,$/;"	f	typeref:typename:void
+lgl__active_context	src/lgl.c	/^static lgl_context_t *lgl__active_context = NULL;$/;"	v	typeref:typename:lgl_context_t *	file:
+lgl__active_framebuffer	src/lgl.c	/^static lgl_framebuffer_t *lgl__active_framebuffer = NULL;$/;"	v	typeref:typename:lgl_framebuffer_t *	file:
+lgl__active_framebuffer_2	src/lgl.c	/^static lgl_framebuffer_t *lgl__active_framebuffer_2 = NULL;$/;"	v	typeref:typename:lgl_framebuffer_t *	file:
+lgl__buffer_vertex_array	src/lgl.c	/^void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,$/;"	f	typeref:typename:void
+lgl__framebuffer_resize	src/lgl.c	/^static void lgl__framebuffer_resize(lgl_framebuffer_t *frame,$/;"	f	typeref:typename:void	file:
+lgl__framebuffer_size_callback	src/lgl.c	/^void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {$/;"	f	typeref:typename:void
+lgl__glfw_error_callback	src/lgl.c	/^void lgl__glfw_error_callback(int error, const char *description) {$/;"	f	typeref:typename:void
+lgl__time_update	src/lgl.c	/^void lgl__time_update(void) {$/;"	f	typeref:typename:void
+lgl_active_framebuffer_set	src/lgl.c	/^void lgl_active_framebuffer_set(lgl_framebuffer_t *frame) {$/;"	f	typeref:typename:void
+lgl_active_framebuffer_set_2	src/lgl.c	/^void lgl_active_framebuffer_set_2(lgl_framebuffer_t *frame) {$/;"	f	typeref:typename:void
+lgl_camera_alloc	src/lgl.c	/^lgl_camera_t lgl_camera_alloc(void) {$/;"	f	typeref:typename:lgl_camera_t
+lgl_camera_free	src/lgl.c	/^void lgl_camera_free(lgl_camera_t camera) {$/;"	f	typeref:typename:void
+lgl_camera_update	src/lgl.c	/^void lgl_camera_update(void) {$/;"	f	typeref:typename:void
+lgl_draw	src/lgl.c	/^void lgl_draw(const lgl_object_t data) {$/;"	f	typeref:typename:void
+lgl_draw_instanced	src/lgl.c	/^void lgl_draw_instanced(const lgl_object_t object) {$/;"	f	typeref:typename:void
+lgl_end_frame	src/lgl.c	/^void lgl_end_frame(void) {$/;"	f	typeref:typename:void
+lgl_framebuffer_alloc	src/lgl.c	/^lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,$/;"	f	typeref:typename:lgl_framebuffer_t
+lgl_framebuffer_free	src/lgl.c	/^void lgl_framebuffer_free(lgl_framebuffer_t frame) {$/;"	f	typeref:typename:void
+lgl_free	src/lgl.c	/^void lgl_free(lgl_context_t *context) {$/;"	f	typeref:typename:void
+lgl_mat4_buffer	src/lgl.c	/^void lgl_mat4_buffer(lgl_object_t *object) {$/;"	f	typeref:typename:void
+lgl_object_alloc	src/lgl.c	/^lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {$/;"	f	typeref:typename:lgl_object_t
+lgl_object_free	src/lgl.c	/^void lgl_object_free(lgl_object_t object) {$/;"	f	typeref:typename:void
+lgl_perspective	src/lgl.c	/^void lgl_perspective(float *mat, const float fov, const float aspect,$/;"	f	typeref:typename:void
+lgl_shader_compile	src/lgl.c	/^GLuint lgl_shader_compile(const char *file_path, GLenum type) {$/;"	f	typeref:typename:GLuint
+lgl_shader_link	src/lgl.c	/^GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader) {$/;"	f	typeref:typename:GLuint
+lgl_start	src/lgl.c	/^lgl_context_t *lgl_start(const int width, const int height) {$/;"	f	typeref:typename:lgl_context_t *
+lgl_texture_alloc	src/lgl.c	/^GLuint lgl_texture_alloc(const char *imageFile) {$/;"	f	typeref:typename:GLuint
+main	src/main.c	/^int main() {$/;"	f	typeref:typename:int
+quad_vertices_count	src/lgl.c	/^    enum { quad_vertices_count = 6 };$/;"	e	enum:lgl_object_alloc::__anonb598b1ac0103	file:
