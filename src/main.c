@@ -92,8 +92,7 @@ void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
 
     // swirl
     float swirl_amount =
-        vector3_square_magnitude(stars.transform.position[i]) *
-        swirl_strength;
+        vector3_square_magnitude(stars.transform.position[i]) * swirl_strength;
 
     stars.transform.position[i] =
         vector3_rotate(stars.transform.position[i],
@@ -210,23 +209,24 @@ int main() {
   lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
-  // Create particles
+  // Create particles_batch
 
-  l_object_t particles_obj = l_object_alloc(2000);
-  lgl_batch_t particles = lgl_batch_alloc(2000, L_ARCHETYPE_CUBE);
-  particles.shader = shader_solid;
-  particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
-  particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  l_object_t particles = l_object_alloc(2000);
+  lgl_batch_t particles_batch =
+      lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
+  particles_batch.shader = shader_solid;
+  particles_batch.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
+  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  l_verlet_t particles_verlet = l_verlet_alloc(particles_obj);
+  l_verlet_t particles_batch_verlet = l_verlet_alloc(particles);
 
-  for (unsigned int i = 0; i < particles_obj.count; i++) {
-    particles_obj.transform.scale[i] = vector3_one(0.05);
-    particles_obj.transform.position[i] = vector3_zero();
-    particles_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
+  for (unsigned int i = 0; i < particles.count; i++) {
+    particles.transform.scale[i] = vector3_one(0.05);
+    particles.transform.position[i] = vector3_zero();
+    particles_batch_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
   }
 
-  particles_verlet.is_pinned[0] = 1;
+  particles_batch_verlet.is_pinned[0] = 1;
 
   // --------------------------------------------------------------------------
   // game loop
@@ -257,41 +257,41 @@ int main() {
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
-      // wrap_position(particles, lgl_context);
-      l_verlet_update(particles_obj, particles_verlet);
+      // wrap_position(particles_batch, lgl_context);
+      l_verlet_update(particles, particles_batch_verlet);
 
       for (unsigned int i = 0; i < 5; i++) {
 
         // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
 
         // constrain diagonally
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 7, 2);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 6, 2);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 5, 2);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 3, 4, 2);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 7, 2);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 6, 2);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 5, 2);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 3, 4, 2);
 
         // x constraints
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 1, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 3, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 4, 5, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 6, 7, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 1, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 3, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 4, 5, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 6, 7, 1);
 
         // y constraints
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 2, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 3, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 4, 6, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 5, 7, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 2, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 3, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 4, 6, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 5, 7, 1);
 
         // z constraints
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 4, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 5, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 6, 1);
-        l_verlet_constrain_distance(particles_obj, particles_verlet, 3, 7, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 4, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 5, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 6, 1);
+        l_verlet_constrain_distance(particles, particles_batch_verlet, 3, 7, 1);
 
-        l_verlet_confine(particles_obj, particles_verlet, vector3_one(10));
+        l_verlet_confine(particles, particles_batch_verlet, vector3_one(10));
       }
 
-      lgl_mat4_buffer(particles_obj, &particles);
+      lgl_mat4_buffer(particles, &particles_batch);
 
       // update lights
       lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
@@ -307,7 +307,7 @@ int main() {
       lgl_draw(cube_obj, cube);
       glEnable(GL_CULL_FACE);
 
-      lgl_draw_instanced(particles_obj, particles);
+      lgl_draw_instanced(particles, particles_batch);
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
@@ -328,13 +328,13 @@ int main() {
     lgl_end_frame();
   }
 
-  l_object_free(particles_obj);
+  l_object_free(particles);
   l_object_free(cube_obj);
   lgl_camera_free(lgl_context->camera);
-  l_verlet_free(particles_verlet);
+  l_verlet_free(particles_batch_verlet);
   lal_audio_source_free(cube_audio_source);
   lgl_batch_free(cube);
-  lgl_batch_free(particles);
+  lgl_batch_free(particles_batch);
 
   l_object_free(frame_obj);
   lgl_framebuffer_free(frame);

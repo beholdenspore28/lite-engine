@@ -163,8 +163,7 @@ void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(object.transform.rotation[i], rotation);
 
-      lgl_mat4_multiply(object.transform.matrix + i * 16, scale,
-                        rotation);
+      lgl_mat4_multiply(object.transform.matrix + i * 16, scale, rotation);
       lgl_mat4_multiply(object.transform.matrix + i * 16,
                         object.transform.matrix + i * 16, translation);
     }
@@ -322,8 +321,7 @@ void lgl_draw_instanced(l_object_t object, const lgl_batch_t batch) {
               batch.color.y, batch.color.z, batch.color.w);
 
   glBindVertexArray(batch.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count,
-                        object.count);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count, object.count);
   glUseProgram(0);
 }
 

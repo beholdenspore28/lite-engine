@@ -7,8 +7,7 @@ l_verlet_t l_verlet_alloc(l_object_t object) {
   verlet.gravity = -0.05;
   verlet.friction = 0.9;
 
-  verlet.position_old =
-      calloc(sizeof(*verlet.position_old), object.count);
+  verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
 
   for (unsigned int i = 0; i < object.count; i++) {
@@ -31,8 +30,8 @@ void l_verlet_update(l_object_t object, l_verlet_t points) {
     if (points.is_pinned[i])
       continue;
 
-    vector3_t velocity = vector3_subtract(object.transform.position[i],
-                                          points.position_old[i]);
+    vector3_t velocity =
+        vector3_subtract(object.transform.position[i], points.position_old[i]);
 
     velocity = vector3_scale(velocity, points.friction);
 
@@ -47,8 +46,8 @@ void l_verlet_confine(l_object_t object, l_verlet_t verlet, vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
-    vector3_t velocity = vector3_subtract(object.transform.position[i],
-                                          verlet.position_old[i]);
+    vector3_t velocity =
+        vector3_subtract(object.transform.position[i], verlet.position_old[i]);
 
     if (object.transform.position[i].x > bounds.x) {
       object.transform.position[i].x = bounds.x;

@@ -24,4 +24,3 @@ void l_object_free(l_object_t object) {
   free(object.transform.position);
   free(object.transform.rotation);
 }
-
