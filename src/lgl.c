@@ -145,27 +145,27 @@ void lgl_mat4_buffer(lgl_batch_t *batch) {
 
   for (unsigned int i = 0; i < batch->count; i++) {
 
-    lgl_mat4_identity(batch->model_matrices + i * 16);
+    lgl_mat4_identity(batch->transform.matrix + i * 16);
 
     {
       GLfloat scale[16];
       lgl_mat4_identity(scale);
-      scale[0] = batch->scale[i].x;
-      scale[5] = batch->scale[i].y;
-      scale[10] = batch->scale[i].z;
+      scale[0] = batch->transform.scale[i].x;
+      scale[5] = batch->transform.scale[i].y;
+      scale[10] = batch->transform.scale[i].z;
 
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = batch->position[i].x;
-      translation[13] = batch->position[i].y;
-      translation[14] = batch->position[i].z;
+      translation[12] = batch->transform.position[i].x;
+      translation[13] = batch->transform.position[i].y;
+      translation[14] = batch->transform.position[i].z;
 
       GLfloat rotation[16] = {0};
-      quaternion_to_mat4(batch->rotation[i], rotation);
+      quaternion_to_mat4(batch->transform.rotation[i], rotation);
 
-      lgl_mat4_multiply(batch->model_matrices + i * 16, scale, rotation);
-      lgl_mat4_multiply(batch->model_matrices + i * 16,
-                        batch->model_matrices + i * 16, translation);
+      lgl_mat4_multiply(batch->transform.matrix + i * 16, scale, rotation);
+      lgl_mat4_multiply(batch->transform.matrix + i * 16,
+                        batch->transform.matrix + i * 16, translation);
     }
   }
 
@@ -175,7 +175,7 @@ void lgl_mat4_buffer(lgl_batch_t *batch) {
   glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
 
   glBufferData(GL_ARRAY_BUFFER, batch->count * sizeof(GLfloat) * 16,
-               &batch->model_matrices[0], GL_STATIC_DRAW);
+               &batch->transform.matrix[0], GL_STATIC_DRAW);
 
   glBindVertexArray(batch->VAO);
 
@@ -289,13 +289,13 @@ void lgl_draw_instanced(const lgl_batch_t batch) {
     {
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = batch.position[0].x;
-      translation[13] = batch.position[0].y;
-      translation[14] = batch.position[0].z;
+      translation[12] = batch.transform.position[0].x;
+      translation[13] = batch.transform.position[0].y;
+      translation[14] = batch.transform.position[0].z;
 
       GLfloat rotation[16];
       lgl_mat4_identity(rotation);
-      quaternion_to_mat4(batch.rotation[0], rotation);
+      quaternion_to_mat4(batch.transform.rotation[0], rotation);
 
       lgl_mat4_multiply(model_matrix, rotation, translation);
     }
@@ -325,30 +325,30 @@ void lgl_draw_instanced(const lgl_batch_t batch) {
   glUseProgram(0);
 }
 
-void lgl_draw(const lgl_batch_t data) {
+void lgl_draw(const lgl_batch_t batch) {
 
-  for (size_t i = 0; i < data.count; i++) {
+  for (size_t i = 0; i < batch.count; i++) {
 
     { // render flags
-      if ((data.render_flags & LGL_FLAG_ENABLED) == 0) {
+      if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
         continue;
       }
 
-      if (data.render_flags & LGL_FLAG_USE_WIREFRAME) {
+      if (batch.render_flags & LGL_FLAG_USE_WIREFRAME) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       }
 
-      if (data.render_flags & LGL_FLAG_USE_STENCIL) {
+      if (batch.render_flags & LGL_FLAG_USE_STENCIL) {
         glStencilMask(0xFF);
       } else {
         glStencilMask(0x00);
       }
     }
 
-    glUseProgram(data.shader);
-    glUniform1i(glGetUniformLocation(data.shader, "u_use_instancing"), 0);
+    glUseProgram(batch.shader);
+    glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 0);
 
     { // Model
 
@@ -358,25 +358,25 @@ void lgl_draw(const lgl_batch_t data) {
       {
         GLfloat scale[16];
         lgl_mat4_identity(scale);
-        scale[0] = data.scale[i].x;
-        scale[5] = data.scale[i].y;
-        scale[10] = data.scale[i].z;
+        scale[0] = batch.transform.scale[i].x;
+        scale[5] = batch.transform.scale[i].y;
+        scale[10] = batch.transform.scale[i].z;
 
         GLfloat translation[16];
         lgl_mat4_identity(translation);
-        translation[12] = data.position[i].x;
-        translation[13] = data.position[i].y;
-        translation[14] = data.position[i].z;
+        translation[12] = batch.transform.position[i].x;
+        translation[13] = batch.transform.position[i].y;
+        translation[14] = batch.transform.position[i].z;
 
         GLfloat rotation[16] = {0};
-        quaternion_to_mat4(data.rotation[i], rotation);
+        quaternion_to_mat4(batch.transform.rotation[i], rotation);
 
         lgl_mat4_multiply(model_matrix, scale, rotation);
         lgl_mat4_multiply(model_matrix, model_matrix, translation);
       }
 
       GLint model_matrix_location =
-          glGetUniformLocation(data.shader, "u_model_matrix");
+          glGetUniformLocation(batch.shader, "u_model_matrix");
       glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
     }
 
@@ -388,49 +388,49 @@ void lgl_draw(const lgl_batch_t data) {
                         lgl__active_context->camera.projection);
 
       GLint camera_matrix_location =
-          glGetUniformLocation(data.shader, "u_camera_matrix");
+          glGetUniformLocation(batch.shader, "u_camera_matrix");
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
     { // textures
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, data.diffuse_map);
+      glBindTexture(GL_TEXTURE_2D, batch.diffuse_map);
 
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, data.specular_map);
+      glBindTexture(GL_TEXTURE_2D, batch.specular_map);
 
-      glUniform2f(glGetUniformLocation(data.shader, "u_texture_offset"),
-                  data.texture_offset.x, data.texture_offset.y);
+      glUniform2f(glGetUniformLocation(batch.shader, "u_texture_offset"),
+                  batch.texture_offset.x, batch.texture_offset.y);
 
-      glUniform2f(glGetUniformLocation(data.shader, "u_texture_scale"),
-                  data.texture_scale.x, data.texture_scale.y);
+      glUniform2f(glGetUniformLocation(batch.shader, "u_texture_scale"),
+                  batch.texture_scale.x, batch.texture_scale.y);
     }
 
     { // other material properties
-      glUniform1i(glGetUniformLocation(data.shader, "u_material.diffuse"), 0);
-      glUniform1i(glGetUniformLocation(data.shader, "u_material.specular"), 1);
-      glUniform1f(glGetUniformLocation(data.shader, "u_material.shininess"),
+      glUniform1i(glGetUniformLocation(batch.shader, "u_material.diffuse"), 0);
+      glUniform1i(glGetUniformLocation(batch.shader, "u_material.specular"), 1);
+      glUniform1f(glGetUniformLocation(batch.shader, "u_material.shininess"),
                   8.0f);
 
-      glUniform3f(glGetUniformLocation(data.shader, "u_ambient_light"), 0.2,
+      glUniform3f(glGetUniformLocation(batch.shader, "u_ambient_light"), 0.2,
                   0.2, 0.2);
 
-      glUniform4f(glGetUniformLocation(data.shader, "u_color"), data.color.x,
-                  data.color.y, data.color.z, data.color.w);
+      glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
+                  batch.color.y, batch.color.z, batch.color.w);
     }
 
 #if 1 // lighting uniforms
-    for (GLuint light = 0; light < data.lights_count; light++) {
-      glUniform1ui(glGetUniformLocation(data.shader, "u_lights_count"),
-                   data.lights_count);
+    for (GLuint light = 0; light < batch.lights_count; light++) {
+      glUniform1ui(glGetUniformLocation(batch.shader, "u_lights_count"),
+                   batch.lights_count);
       {
         char uniform_name[64] = {0};
 
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type",
                  light);
 
-        glUniform1i(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].type);
+        glUniform1i(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].type);
       }
 
       {
@@ -439,10 +439,10 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position",
                  light);
 
-        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].position.x,
-                    data.lights[light].position.y,
-                    data.lights[light].position.z);
+        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].position.x,
+                    batch.lights[light].position.y,
+                    batch.lights[light].position.z);
       }
       {
         char uniform_name[64] = {0};
@@ -450,10 +450,10 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction",
                  light);
 
-        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].direction.x,
-                    data.lights[light].direction.y,
-                    data.lights[light].direction.z);
+        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].direction.x,
+                    batch.lights[light].direction.y,
+                    batch.lights[light].direction.z);
       }
       {
         char uniform_name[64] = {0};
@@ -461,8 +461,8 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off",
                  light);
 
-        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].cut_off);
+        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].cut_off);
       }
       {
         char uniform_name[64] = {0};
@@ -470,8 +470,8 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name),
                  "u_lights[%d].outer_cut_off", light);
 
-        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].outer_cut_off);
+        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].outer_cut_off);
       }
       {
         char uniform_name[64] = {0};
@@ -479,8 +479,8 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].constant",
                  light);
 
-        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].constant);
+        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].constant);
       }
       {
         char uniform_name[64] = {0};
@@ -488,8 +488,8 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].linear",
                  light);
 
-        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].linear);
+        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].linear);
       }
       {
         char uniform_name[64] = {0};
@@ -497,8 +497,8 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].quadratic",
                  light);
 
-        glUniform1f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].quadratic);
+        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].quadratic);
       }
       {
         char uniform_name[64] = {0};
@@ -506,9 +506,9 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].diffuse",
                  light);
 
-        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].diffuse.x, data.lights[light].diffuse.y,
-                    data.lights[light].diffuse.z);
+        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].diffuse.x, batch.lights[light].diffuse.y,
+                    batch.lights[light].diffuse.z);
       }
       {
         char uniform_name[64] = {0};
@@ -516,16 +516,16 @@ void lgl_draw(const lgl_batch_t data) {
         snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].specular",
                  light);
 
-        glUniform3f(glGetUniformLocation(data.shader, uniform_name),
-                    data.lights[light].specular.x,
-                    data.lights[light].specular.y,
-                    data.lights[light].specular.z);
+        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
+                    batch.lights[light].specular.x,
+                    batch.lights[light].specular.y,
+                    batch.lights[light].specular.z);
       }
     }
 #endif
 
-    glBindVertexArray(data.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, data.vertices_count);
+    glBindVertexArray(batch.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, batch.vertices_count);
     glUseProgram(0);
   }
 }
@@ -534,20 +534,20 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
   lgl_batch_t batch = {0};
 
-  batch.scale = calloc(sizeof(*batch.scale), count);
-  batch.position = calloc(sizeof(*batch.position), count);
-  batch.rotation = calloc(sizeof(*batch.rotation), count);
+  batch.transform.scale = calloc(sizeof(*batch.transform.scale), count);
+  batch.transform.position = calloc(sizeof(*batch.transform.position), count);
+  batch.transform.rotation = calloc(sizeof(*batch.transform.rotation), count);
 
-  batch.model_matrices = calloc(sizeof(*batch.model_matrices) * 16, count);
+  batch.transform.matrix = calloc(sizeof(*batch.transform.matrix) * 16, count);
   glGenBuffers(1, &batch.model_matrix_buffer);
 
   batch.count = count;
 
   for (unsigned int j = 0; j < count; j++) {
 
-    batch.scale[j] = vector3_one(1.0);
-    batch.position[j] = vector3_zero();
-    batch.rotation[j] = quaternion_identity();
+    batch.transform.scale[j] = vector3_one(1.0);
+    batch.transform.position[j] = vector3_zero();
+    batch.transform.rotation[j] = quaternion_identity();
 
     batch.texture_offset = vector2_zero();
     batch.texture_scale = vector2_one(1.0);
@@ -647,10 +647,10 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
 void lgl_batch_free(lgl_batch_t batch) {
   glDeleteBuffers(1, &batch.model_matrix_buffer);
-  free(batch.model_matrices);
-  free(batch.scale);
-  free(batch.position);
-  free(batch.rotation);
+  free(batch.transform.matrix);
+  free(batch.transform.scale);
+  free(batch.transform.position);
+  free(batch.transform.rotation);
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,

@@ -68,17 +68,22 @@ typedef struct {
 } lgl_context_t;
 
 typedef struct {
+  vector3_t *position;
+  vector3_t *scale;
+  quaternion_t *rotation;
+  GLfloat *matrix;
+} l_transform_t;
+
+
+typedef struct {
   GLuint VAO;
   GLuint VBO;
 
   lgl_vertex_t *vertices;
   GLuint vertices_count;
 
-  vector3_t *position;
-  vector3_t *scale;
-  quaternion_t *rotation;
+  l_transform_t transform;
 
-  GLfloat *model_matrices;
   GLuint model_matrix_buffer;
 
   GLuint shader;

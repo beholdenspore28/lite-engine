@@ -52,7 +52,7 @@ void lal_audio_source_update(lal_audio_source_t source, lgl_batch_t batch,
   alListenerfv(AL_ORIENTATION, orientation);
 
   for (unsigned int i = 0; i < source.count; i++) {
-    alSource3f(source.id[i], AL_POSITION, batch.position[i].x,
-               batch.position[i].y, batch.position[i].z);
+    alSource3f(source.id[i], AL_POSITION, batch.transform.position[i].x,
+               batch.transform.position[i].y, batch.transform.position[i].z);
   }
 }
