@@ -32,7 +32,7 @@ void lal_audio_source_free(lal_audio_source_t source) {
   free(source.id);
 }
 
-void lal_audio_source_update(lal_audio_source_t source, lgl_object_t object,
+void lal_audio_source_update(lal_audio_source_t source, lgl_batch_t batch,
                              lgl_context_t *lgl_context) {
 
   alListener3f(AL_POSITION, lgl_context->camera.position.x,
@@ -52,7 +52,7 @@ void lal_audio_source_update(lal_audio_source_t source, lgl_object_t object,
   alListenerfv(AL_ORIENTATION, orientation);
 
   for (unsigned int i = 0; i < source.count; i++) {
-    alSource3f(source.id[i], AL_POSITION, object.position[i].x,
-               object.position[i].y, object.position[i].z);
+    alSource3f(source.id[i], AL_POSITION, batch.position[i].x,
+               batch.position[i].y, batch.position[i].z);
   }
 }

@@ -92,9 +92,9 @@ typedef struct {
   GLuint lights_count;
   GLint render_flags;
   GLuint count;
-} lgl_object_t;
+} lgl_batch_t;
 
-DECLARE_LIST(lgl_object_t)
+DECLARE_LIST(lgl_batch_t)
 
 typedef struct {
   GLuint FBO;
@@ -104,7 +104,7 @@ typedef struct {
   GLuint width;
   GLuint height;
   GLuint samples;
-  lgl_object_t quad;
+  lgl_batch_t quad;
 } lgl_framebuffer_t;
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
@@ -115,8 +115,8 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t *frame);
 
-void lgl_draw(const lgl_object_t object);
-void lgl_draw_instanced(const lgl_object_t object);
+void lgl_draw(const lgl_batch_t batch);
+void lgl_draw_instanced(const lgl_batch_t batch);
 
 enum {
   LGL_FLAG_ENABLED = 1,
@@ -134,15 +134,15 @@ GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 enum {
-  LGL_OBJECT_ARCHETYPE_EMPTY,
-  LGL_OBJECT_ARCHETYPE_CUBE,
-  LGL_OBJECT_ARCHETYPE_QUAD,
+  LGL_BATCH_ARCHETYPE_EMPTY,
+  LGL_BATCH_ARCHETYPE_CUBE,
+  LGL_BATCH_ARCHETYPE_QUAD,
 };
 
-lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype);
-void lgl_object_free(lgl_object_t object);
+lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype);
+void lgl_batch(lgl_batch_t batch);
 
-void lgl_mat4_buffer(lgl_object_t *object);
+void lgl_mat4_buffer(lgl_batch_t *batch);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
   debug_log("");

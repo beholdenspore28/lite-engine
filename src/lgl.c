@@ -18,10 +18,6 @@ void lgl_active_framebuffer_set_2(lgl_framebuffer_t *frame) {
   lgl__active_framebuffer_2 = frame;
 }
 
-DEFINE_LIST(GLuint)
-DEFINE_LIST(lgl_vertex_t)
-DEFINE_LIST(lgl_object_t)
-
 static const float LGL__LEFT = -1.0, LGL__RIGHT = 1.0, LGL__UP = 1.0,
                    LGL__DOWN = -1.0, LGL__FORWARD = 1.0, LGL__BACK = -1.0;
 
@@ -145,43 +141,43 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
   glEnableVertexAttribArray(2);
 }
 
-void lgl_mat4_buffer(lgl_object_t *object) {
+void lgl_mat4_buffer(lgl_batch_t *batch) {
 
-  for (unsigned int i = 0; i < object->count; i++) {
+  for (unsigned int i = 0; i < batch->count; i++) {
 
-    lgl_mat4_identity(object->model_matrices + i * 16);
+    lgl_mat4_identity(batch->model_matrices + i * 16);
 
     {
       GLfloat scale[16];
       lgl_mat4_identity(scale);
-      scale[0] = object->scale[i].x;
-      scale[5] = object->scale[i].y;
-      scale[10] = object->scale[i].z;
+      scale[0] = batch->scale[i].x;
+      scale[5] = batch->scale[i].y;
+      scale[10] = batch->scale[i].z;
 
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = object->position[i].x;
-      translation[13] = object->position[i].y;
-      translation[14] = object->position[i].z;
+      translation[12] = batch->position[i].x;
+      translation[13] = batch->position[i].y;
+      translation[14] = batch->position[i].z;
 
       GLfloat rotation[16] = {0};
-      quaternion_to_mat4(object->rotation[i], rotation);
+      quaternion_to_mat4(batch->rotation[i], rotation);
 
-      lgl_mat4_multiply(object->model_matrices + i * 16, scale, rotation);
-      lgl_mat4_multiply(object->model_matrices + i * 16,
-                        object->model_matrices + i * 16, translation);
+      lgl_mat4_multiply(batch->model_matrices + i * 16, scale, rotation);
+      lgl_mat4_multiply(batch->model_matrices + i * 16,
+                        batch->model_matrices + i * 16, translation);
     }
   }
 
   // --------------------------------------------------------------------------
   // configure instanced array
 
-  glBindBuffer(GL_ARRAY_BUFFER, object->model_matrix_buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
 
-  glBufferData(GL_ARRAY_BUFFER, object->count * sizeof(GLfloat) * 16,
-               &object->model_matrices[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, batch->count * sizeof(GLfloat) * 16,
+               &batch->model_matrices[0], GL_STATIC_DRAW);
 
-  glBindVertexArray(object->VAO);
+  glBindVertexArray(batch->VAO);
 
   // set attribute pointers for matrix (4 times vec4)
   glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
@@ -262,28 +258,28 @@ void lgl_camera_update(void) {
   }
 }
 
-void lgl_draw_instanced(const lgl_object_t object) {
+void lgl_draw_instanced(const lgl_batch_t batch) {
 
   { // render flags
-    if ((object.render_flags & LGL_FLAG_ENABLED) == 0) {
+    if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
       return;
     }
 
-    if (object.render_flags & LGL_FLAG_USE_WIREFRAME) {
+    if (batch.render_flags & LGL_FLAG_USE_WIREFRAME) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     } else {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    if (object.render_flags & LGL_FLAG_USE_STENCIL) {
+    if (batch.render_flags & LGL_FLAG_USE_STENCIL) {
       glStencilMask(0xFF);
     } else {
       glStencilMask(0x00);
     }
   }
 
-  glUseProgram(object.shader);
-  glUniform1i(glGetUniformLocation(object.shader, "u_use_instancing"), 1);
+  glUseProgram(batch.shader);
+  glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 1);
 
   { // Model
 
@@ -293,19 +289,19 @@ void lgl_draw_instanced(const lgl_object_t object) {
     {
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = object.position[0].x;
-      translation[13] = object.position[0].y;
-      translation[14] = object.position[0].z;
+      translation[12] = batch.position[0].x;
+      translation[13] = batch.position[0].y;
+      translation[14] = batch.position[0].z;
 
       GLfloat rotation[16];
       lgl_mat4_identity(rotation);
-      quaternion_to_mat4(object.rotation[0], rotation);
+      quaternion_to_mat4(batch.rotation[0], rotation);
 
       lgl_mat4_multiply(model_matrix, rotation, translation);
     }
 
     GLint model_matrix_location =
-        glGetUniformLocation(object.shader, "u_model_matrix");
+        glGetUniformLocation(batch.shader, "u_model_matrix");
     glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
   }
 
@@ -317,19 +313,19 @@ void lgl_draw_instanced(const lgl_object_t object) {
                       lgl__active_context->camera.projection);
 
     GLint camera_matrix_location =
-        glGetUniformLocation(object.shader, "u_camera_matrix");
+        glGetUniformLocation(batch.shader, "u_camera_matrix");
     glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
   }
 
-  glUniform4f(glGetUniformLocation(object.shader, "u_color"), object.color.x,
-              object.color.y, object.color.z, object.color.w);
+  glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
+              batch.color.y, batch.color.z, batch.color.w);
 
-  glBindVertexArray(object.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, object.vertices_count, object.count);
+  glBindVertexArray(batch.VAO);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count, batch.count);
   glUseProgram(0);
 }
 
-void lgl_draw(const lgl_object_t data) {
+void lgl_draw(const lgl_batch_t data) {
 
   for (size_t i = 0; i < data.count; i++) {
 
@@ -534,32 +530,32 @@ void lgl_draw(const lgl_object_t data) {
   }
 }
 
-lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
+lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
-  lgl_object_t object = {0};
+  lgl_batch_t batch = {0};
 
-  object.scale = calloc(sizeof(*object.scale), count);
-  object.position = calloc(sizeof(*object.position), count);
-  object.rotation = calloc(sizeof(*object.rotation), count);
+  batch.scale = calloc(sizeof(*batch.scale), count);
+  batch.position = calloc(sizeof(*batch.position), count);
+  batch.rotation = calloc(sizeof(*batch.rotation), count);
 
-  object.model_matrices = calloc(sizeof(*object.model_matrices) * 16, count);
-  glGenBuffers(1, &object.model_matrix_buffer);
+  batch.model_matrices = calloc(sizeof(*batch.model_matrices) * 16, count);
+  glGenBuffers(1, &batch.model_matrix_buffer);
 
-  object.count = count;
+  batch.count = count;
 
   for (unsigned int j = 0; j < count; j++) {
 
-    object.scale[j] = vector3_one(1.0);
-    object.position[j] = vector3_zero();
-    object.rotation[j] = quaternion_identity();
+    batch.scale[j] = vector3_one(1.0);
+    batch.position[j] = vector3_zero();
+    batch.rotation[j] = quaternion_identity();
 
-    object.texture_offset = vector2_zero();
-    object.texture_scale = vector2_one(1.0);
-    object.render_flags = LGL_FLAG_ENABLED;
+    batch.texture_offset = vector2_zero();
+    batch.texture_scale = vector2_one(1.0);
+    batch.render_flags = LGL_FLAG_ENABLED;
   }
 
   switch (archetype) {
-  case LGL_OBJECT_ARCHETYPE_QUAD: {
+  case LGL_BATCH_ARCHETYPE_QUAD: {
     enum { quad_vertices_count = 6 };
     lgl_vertex_t quad_vertices[quad_vertices_count] = {
         // position                        //normal          //tex coord
@@ -571,14 +567,14 @@ lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
         {{LGL__LEFT, LGL__DOWN, 0.0}, vector3_forward(1.0), {0.0, 0.0}},
         {{LGL__RIGHT, LGL__UP, 0.0}, vector3_forward(1.0), {1.0, 1.0}},
     };
-    object.vertices = quad_vertices;
-    object.vertices_count = quad_vertices_count;
+    batch.vertices = quad_vertices;
+    batch.vertices_count = quad_vertices_count;
 
-    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_count,
-                             object.vertices);
+    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices_count,
+                             batch.vertices);
   } break;
 
-  case LGL_OBJECT_ARCHETYPE_CUBE: {
+  case LGL_BATCH_ARCHETYPE_CUBE: {
     enum { cube_vertices_count = 36 };
     lgl_vertex_t cube_vertices[cube_vertices_count] = {
         // position                                 //normal             //tex
@@ -638,23 +634,23 @@ lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {
         {{LGL__LEFT, LGL__UP, LGL__BACK}, vector3_up(1.0), {0.0, 1.0}},
     };
 
-    object.vertices = cube_vertices;
-    object.vertices_count = cube_vertices_count;
+    batch.vertices = cube_vertices;
+    batch.vertices_count = cube_vertices_count;
 
-    lgl__buffer_vertex_array(&object.VAO, &object.VBO, object.vertices_count,
-                             object.vertices);
+    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices_count,
+                             batch.vertices);
   } break;
   }
 
-  return object;
+  return batch;
 }
 
-void lgl_object_free(lgl_object_t object) {
-  glDeleteBuffers(1, &object.model_matrix_buffer);
-  free(object.model_matrices);
-  free(object.scale);
-  free(object.position);
-  free(object.rotation);
+void lgl_batch_free(lgl_batch_t batch) {
+  glDeleteBuffers(1, &batch.model_matrix_buffer);
+  free(batch.model_matrices);
+  free(batch.scale);
+  free(batch.position);
+  free(batch.rotation);
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
@@ -744,7 +740,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  frame.quad = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_QUAD);
+  frame.quad = lgl_batch_alloc(1, LGL_BATCH_ARCHETYPE_QUAD);
   {
     frame.quad.shader = shader;
     frame.quad.diffuse_map = frame.color_buffers[0];
@@ -757,7 +753,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 }
 
 void lgl_framebuffer_free(lgl_framebuffer_t frame) {
-  lgl_object_free(frame.quad);
+  lgl_batch_free(frame.quad);
   free(frame.color_buffers);
   glDeleteFramebuffers(1, &frame.FBO);
   glDeleteTextures(frame.color_buffers_count, frame.color_buffers);

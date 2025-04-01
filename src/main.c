@@ -72,7 +72,7 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,
+void galaxy_generate(lgl_batch_t stars, float radius, unsigned int seed,
                      float swirl_strength, float arm_thickness,
                      float arm_length) {
 
@@ -190,7 +190,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create cube
 
-  lgl_object_t cube = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_batch_t cube = lgl_batch_alloc(1, LGL_BATCH_ARCHETYPE_CUBE);
   cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
@@ -205,7 +205,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(1000, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_batch_t particles = lgl_batch_alloc(1000, LGL_BATCH_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -322,8 +322,8 @@ int main() {
   lgl_camera_free(lgl_context->camera);
   l_verlet_free(particles_verlet);
   lal_audio_source_free(cube_audio_source);
-  lgl_object_free(cube);
-  lgl_object_free(particles);
+  lgl_batch_free(cube);
+  lgl_batch_free(particles);
   lgl_framebuffer_free(frame);
   lgl_framebuffer_free(frame_MSAA);
   lgl_free(lgl_context);
