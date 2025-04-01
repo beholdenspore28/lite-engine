@@ -112,8 +112,8 @@ l_verlet_t l_verlet_alloc(lgl_object_t object) {
   l_verlet_t verlet;
   verlet.position_old = calloc(sizeof(vector3_t), object.count);
   verlet.count = object.count;
-  verlet.bounce = 0.9;
-  verlet.gravity = 0;
+  verlet.bounce = 0.4;
+  verlet.gravity = -0.01;
   verlet.friction = 0.99;
 
   return verlet;
@@ -323,17 +323,23 @@ int main() {
 
   l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
-  for(unsigned int i = 0; i < particles.count; i++) {
-    particles.scale[i] = vector3_one(0.1);
+  {
+    for (unsigned int i = 0; i < particles.count; i++) {
+      particles.scale[i] = vector3_one(0.1);
+    }
+
+    particles.position[0] = (vector3_t){0.0, 0.1, 0.0};
+    particles.position[1] = (vector3_t){0.1, 0.0, 0.0};
+    particles.position[2] = (vector3_t){0.0, 0.0, 0.1};
+
+    vector3_t offset = vector3_up(0.1);
+    particles_verlet.position_old[0] =
+        vector3_add(particles.position[0], offset);
+    particles_verlet.position_old[1] =
+        vector3_add(particles.position[1], offset);
+    particles_verlet.position_old[2] =
+        vector3_add(particles.position[2], offset);
   }
-
-  particles.position[0] = (vector3_t) { 0.0, 0.1, 0.0 };
-  particles.position[1] = (vector3_t) { 0.1, 0.0, 0.0 };
-  particles.position[2] = (vector3_t) { 0.0, 0.0, 0.1 };
-
-  particles_verlet.position_old[0] = (vector3_t) { 0.1, 0.1, 0.0 };
-  particles_verlet.position_old[1] = (vector3_t) { 0.2, 0.0, 0.0 };
-  particles_verlet.position_old[2] = (vector3_t) { 0.1, 0.0, 0.1 };
 
 #if 0 // galaxy particle system
   float radius = 5;
@@ -370,10 +376,12 @@ int main() {
   // game loop
 
   float timer = 0;
+  float timer_physics = 0;
 
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     timer += lgl_context->time_delta;
+    timer_physics += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
       timer = 0;
@@ -386,10 +394,11 @@ int main() {
       glfwSetWindowTitle(lgl_context->GLFWwindow, window_title);
     }
 
-    { // update state
-      camera_update(lgl_context);
+    camera_update(lgl_context);
+    lal_audio_source_update(audio_source, cube, lgl_context);
 
-      lal_audio_source_update(audio_source, cube, lgl_context);
+    if (timer_physics > 0.02) { // update state
+      timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
       l_verlet_confine(particles_verlet, particles, cube.scale[0]);
