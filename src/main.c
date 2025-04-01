@@ -76,28 +76,28 @@ void galaxy_generate(lgl_batch_t stars, float radius, unsigned int seed,
                      float swirl_strength, float arm_thickness,
                      float arm_length) {
 
-  for (unsigned int i = 0; i < stars.count; i++) {
+  for (unsigned int i = 0; i < stars.object.count; i++) {
 
     // sphere
-    stars.transform.position[i] = vector3_point_in_unit_sphere(seed + i);
+    stars.object.transform.position[i] = vector3_point_in_unit_sphere(seed + i);
 
     // gravity
-    vector3_t gravity = vector3_normalize(stars.transform.position[i]);
-    stars.transform.position[i] = vector3_subtract(stars.transform.position[i], gravity);
+    vector3_t gravity = vector3_normalize(stars.object.transform.position[i]);
+    stars.object.transform.position[i] = vector3_subtract(stars.object.transform.position[i], gravity);
 
     // stretch
-    stars.transform.position[i].x *= arm_thickness;
-    stars.transform.position[i].z *= arm_length;
+    stars.object.transform.position[i].x *= arm_thickness;
+    stars.object.transform.position[i].z *= arm_length;
 
     // swirl
     float swirl_amount =
-        vector3_square_magnitude(stars.transform.position[i]) * swirl_strength;
+        vector3_square_magnitude(stars.object.transform.position[i]) * swirl_strength;
 
-    stars.transform.position[i] = vector3_rotate(
-        stars.transform.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
+    stars.object.transform.position[i] = vector3_rotate(
+        stars.object.transform.position[i], quaternion_from_euler(vector3_up(swirl_amount)));
 
     // scale
-    stars.transform.position[i] = vector3_scale(stars.transform.position[i], radius);
+    stars.object.transform.position[i] = vector3_scale(stars.object.transform.position[i], radius);
   }
 }
 
@@ -196,8 +196,8 @@ int main() {
   cube.lights_count = LIGHTS_COUNT;
   cube.shader = shader_solid;
   cube.color = (vector4_t){1, 1, 1, 1};
-  cube.transform.scale[0] = vector3_one(10);
-  cube.transform.position[0] = (vector3_t){0, 0, 0};
+  cube.object.transform.scale[0] = vector3_one(10);
+  cube.object.transform.position[0] = (vector3_t){0, 0, 0};
   cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
@@ -212,9 +212,9 @@ int main() {
 
   l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.05);
-    particles.transform.position[i] = vector3_zero();
+  for (unsigned int i = 0; i < particles.object.count; i++) {
+    particles.object.transform.scale[i] = vector3_one(0.05);
+    particles.object.transform.position[i] = vector3_zero();
     particles_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
   }
 
@@ -242,7 +242,7 @@ int main() {
     }
 
     camera_update(lgl_context);
-    lal_audio_source_update(cube_audio_source, cube, lgl_context);
+    lal_audio_source_update(cube_audio_source, cube.object, lgl_context);
 
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state

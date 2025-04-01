@@ -143,29 +143,29 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
 
 void lgl_mat4_buffer(lgl_batch_t *batch) {
 
-  for (unsigned int i = 0; i < batch->count; i++) {
+  for (unsigned int i = 0; i < batch->object.count; i++) {
 
-    lgl_mat4_identity(batch->transform.matrix + i * 16);
+    lgl_mat4_identity(batch->object.transform.matrix + i * 16);
 
     {
       GLfloat scale[16];
       lgl_mat4_identity(scale);
-      scale[0] = batch->transform.scale[i].x;
-      scale[5] = batch->transform.scale[i].y;
-      scale[10] = batch->transform.scale[i].z;
+      scale[0] = batch->object.transform.scale[i].x;
+      scale[5] = batch->object.transform.scale[i].y;
+      scale[10] = batch->object.transform.scale[i].z;
 
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = batch->transform.position[i].x;
-      translation[13] = batch->transform.position[i].y;
-      translation[14] = batch->transform.position[i].z;
+      translation[12] = batch->object.transform.position[i].x;
+      translation[13] = batch->object.transform.position[i].y;
+      translation[14] = batch->object.transform.position[i].z;
 
       GLfloat rotation[16] = {0};
-      quaternion_to_mat4(batch->transform.rotation[i], rotation);
+      quaternion_to_mat4(batch->object.transform.rotation[i], rotation);
 
-      lgl_mat4_multiply(batch->transform.matrix + i * 16, scale, rotation);
-      lgl_mat4_multiply(batch->transform.matrix + i * 16,
-                        batch->transform.matrix + i * 16, translation);
+      lgl_mat4_multiply(batch->object.transform.matrix + i * 16, scale, rotation);
+      lgl_mat4_multiply(batch->object.transform.matrix + i * 16,
+                        batch->object.transform.matrix + i * 16, translation);
     }
   }
 
@@ -174,8 +174,8 @@ void lgl_mat4_buffer(lgl_batch_t *batch) {
 
   glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
 
-  glBufferData(GL_ARRAY_BUFFER, batch->count * sizeof(GLfloat) * 16,
-               &batch->transform.matrix[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, batch->object.count * sizeof(GLfloat) * 16,
+               &batch->object.transform.matrix[0], GL_STATIC_DRAW);
 
   glBindVertexArray(batch->VAO);
 
@@ -289,13 +289,13 @@ void lgl_draw_instanced(const lgl_batch_t batch) {
     {
       GLfloat translation[16];
       lgl_mat4_identity(translation);
-      translation[12] = batch.transform.position[0].x;
-      translation[13] = batch.transform.position[0].y;
-      translation[14] = batch.transform.position[0].z;
+      translation[12] = batch.object.transform.position[0].x;
+      translation[13] = batch.object.transform.position[0].y;
+      translation[14] = batch.object.transform.position[0].z;
 
       GLfloat rotation[16];
       lgl_mat4_identity(rotation);
-      quaternion_to_mat4(batch.transform.rotation[0], rotation);
+      quaternion_to_mat4(batch.object.transform.rotation[0], rotation);
 
       lgl_mat4_multiply(model_matrix, rotation, translation);
     }
@@ -321,13 +321,13 @@ void lgl_draw_instanced(const lgl_batch_t batch) {
               batch.color.y, batch.color.z, batch.color.w);
 
   glBindVertexArray(batch.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count, batch.count);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices_count, batch.object.count);
   glUseProgram(0);
 }
 
 void lgl_draw(const lgl_batch_t batch) {
 
-  for (size_t i = 0; i < batch.count; i++) {
+  for (size_t i = 0; i < batch.object.count; i++) {
 
     { // render flags
       if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -358,18 +358,18 @@ void lgl_draw(const lgl_batch_t batch) {
       {
         GLfloat scale[16];
         lgl_mat4_identity(scale);
-        scale[0] = batch.transform.scale[i].x;
-        scale[5] = batch.transform.scale[i].y;
-        scale[10] = batch.transform.scale[i].z;
+        scale[0] = batch.object.transform.scale[i].x;
+        scale[5] = batch.object.transform.scale[i].y;
+        scale[10] = batch.object.transform.scale[i].z;
 
         GLfloat translation[16];
         lgl_mat4_identity(translation);
-        translation[12] = batch.transform.position[i].x;
-        translation[13] = batch.transform.position[i].y;
-        translation[14] = batch.transform.position[i].z;
+        translation[12] = batch.object.transform.position[i].x;
+        translation[13] = batch.object.transform.position[i].y;
+        translation[14] = batch.object.transform.position[i].z;
 
         GLfloat rotation[16] = {0};
-        quaternion_to_mat4(batch.transform.rotation[i], rotation);
+        quaternion_to_mat4(batch.object.transform.rotation[i], rotation);
 
         lgl_mat4_multiply(model_matrix, scale, rotation);
         lgl_mat4_multiply(model_matrix, model_matrix, translation);
@@ -534,20 +534,20 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
   lgl_batch_t batch = {0};
 
-  batch.transform.scale = calloc(sizeof(*batch.transform.scale), count);
-  batch.transform.position = calloc(sizeof(*batch.transform.position), count);
-  batch.transform.rotation = calloc(sizeof(*batch.transform.rotation), count);
+  batch.object.transform.scale = calloc(sizeof(*batch.object.transform.scale), count);
+  batch.object.transform.position = calloc(sizeof(*batch.object.transform.position), count);
+  batch.object.transform.rotation = calloc(sizeof(*batch.object.transform.rotation), count);
 
-  batch.transform.matrix = calloc(sizeof(*batch.transform.matrix) * 16, count);
+  batch.object.transform.matrix = calloc(sizeof(*batch.object.transform.matrix) * 16, count);
   glGenBuffers(1, &batch.model_matrix_buffer);
 
-  batch.count = count;
+  batch.object.count = count;
 
   for (unsigned int j = 0; j < count; j++) {
 
-    batch.transform.scale[j] = vector3_one(1.0);
-    batch.transform.position[j] = vector3_zero();
-    batch.transform.rotation[j] = quaternion_identity();
+    batch.object.transform.scale[j] = vector3_one(1.0);
+    batch.object.transform.position[j] = vector3_zero();
+    batch.object.transform.rotation[j] = quaternion_identity();
 
     batch.texture_offset = vector2_zero();
     batch.texture_scale = vector2_one(1.0);
@@ -647,10 +647,10 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
 void lgl_batch_free(lgl_batch_t batch) {
   glDeleteBuffers(1, &batch.model_matrix_buffer);
-  free(batch.transform.matrix);
-  free(batch.transform.scale);
-  free(batch.transform.position);
-  free(batch.transform.rotation);
+  free(batch.object.transform.matrix);
+  free(batch.object.transform.scale);
+  free(batch.object.transform.position);
+  free(batch.object.transform.rotation);
 }
 
 lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,

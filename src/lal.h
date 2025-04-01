@@ -20,7 +20,7 @@ typedef struct {
 lal_audio_source_t lal_audio_source_alloc(unsigned int count);
 void lal_audio_source_free(lal_audio_source_t source);
 
-void lal_audio_source_update(lal_audio_source_t source, lgl_batch_t batch,
+void lal_audio_source_update(lal_audio_source_t source, l_object_t object,
                              lgl_context_t *lgl_context);
 
 #ifdef __cplusplus

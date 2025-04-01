@@ -74,15 +74,19 @@ typedef struct {
   GLfloat *matrix;
 } l_transform_t;
 
+typedef struct {
+  l_transform_t transform;
+  GLuint count;
+} l_object_t;
 
 typedef struct {
+  l_object_t object;
+
   GLuint VAO;
   GLuint VBO;
 
   lgl_vertex_t *vertices;
   GLuint vertices_count;
-
-  l_transform_t transform;
 
   GLuint model_matrix_buffer;
 
@@ -96,7 +100,6 @@ typedef struct {
   lgl_light_t *lights;
   GLuint lights_count;
   GLint render_flags;
-  GLuint count;
 } lgl_batch_t;
 
 DECLARE_LIST(lgl_batch_t)
