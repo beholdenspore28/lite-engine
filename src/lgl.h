@@ -70,8 +70,6 @@ typedef struct {
 } lgl_context_t;
 
 typedef struct {
-  l_object_t object;
-
   GLuint VAO;
   GLuint VBO;
 
@@ -113,8 +111,8 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame);
 
 void lgl_active_framebuffer_set(lgl_framebuffer_t *frame);
 
-void lgl_draw(const lgl_batch_t batch);
-void lgl_draw_instanced(const lgl_batch_t batch);
+void lgl_draw(l_object_t object, const lgl_batch_t batch);
+void lgl_draw_instanced(l_object_t object, const lgl_batch_t batch);
 
 enum {
   LGL_FLAG_ENABLED = 1,
@@ -132,9 +130,10 @@ GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype);
+void lgl_batch_free(lgl_batch_t batch);
 void lgl_batch(lgl_batch_t batch);
 
-void lgl_mat4_buffer(lgl_batch_t *batch);
+void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
   debug_log("");

@@ -72,36 +72,36 @@ void camera_update(lgl_context_t *context) {
   }
 }
 
-void galaxy_generate(lgl_batch_t stars, float radius, unsigned int seed,
+void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
                      float swirl_strength, float arm_thickness,
                      float arm_length) {
 
-  for (unsigned int i = 0; i < stars.object.count; i++) {
+  for (unsigned int i = 0; i < stars.count; i++) {
 
     // sphere
-    stars.object.transform.position[i] = vector3_point_in_unit_sphere(seed + i);
+    stars.transform.position[i] = vector3_point_in_unit_sphere(seed + i);
 
     // gravity
-    vector3_t gravity = vector3_normalize(stars.object.transform.position[i]);
-    stars.object.transform.position[i] =
-        vector3_subtract(stars.object.transform.position[i], gravity);
+    vector3_t gravity = vector3_normalize(stars.transform.position[i]);
+    stars.transform.position[i] =
+        vector3_subtract(stars.transform.position[i], gravity);
 
     // stretch
-    stars.object.transform.position[i].x *= arm_thickness;
-    stars.object.transform.position[i].z *= arm_length;
+    stars.transform.position[i].x *= arm_thickness;
+    stars.transform.position[i].z *= arm_length;
 
     // swirl
     float swirl_amount =
-        vector3_square_magnitude(stars.object.transform.position[i]) *
+        vector3_square_magnitude(stars.transform.position[i]) *
         swirl_strength;
 
-    stars.object.transform.position[i] =
-        vector3_rotate(stars.object.transform.position[i],
+    stars.transform.position[i] =
+        vector3_rotate(stars.transform.position[i],
                        quaternion_from_euler(vector3_up(swirl_amount)));
 
     // scale
-    stars.object.transform.position[i] =
-        vector3_scale(stars.object.transform.position[i], radius);
+    stars.transform.position[i] =
+        vector3_scale(stars.transform.position[i], radius);
   }
 }
 
@@ -194,14 +194,15 @@ int main() {
   // --------------------------------------------------------------------------
   // Create cube
 
+  l_object_t cube_obj = l_object_alloc(1);
   lgl_batch_t cube = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
   cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube.lights = lights;
   cube.lights_count = LIGHTS_COUNT;
   cube.shader = shader_solid;
   cube.color = (vector4_t){1, 1, 1, 1};
-  cube.object.transform.scale[0] = vector3_one(10);
-  cube.object.transform.position[0] = (vector3_t){0, 0, 0};
+  cube_obj.transform.scale[0] = vector3_one(10);
+  cube_obj.transform.position[0] = (vector3_t){0, 0, 0};
   cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
@@ -209,16 +210,17 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_batch_t particles = lgl_batch_alloc(1000, L_ARCHETYPE_CUBE);
+  l_object_t particles_obj = l_object_alloc(2000);
+  lgl_batch_t particles = lgl_batch_alloc(2000, L_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  l_verlet_t particles_verlet = l_verlet_alloc(particles);
+  l_verlet_t particles_verlet = l_verlet_alloc(particles_obj);
 
-  for (unsigned int i = 0; i < particles.object.count; i++) {
-    particles.object.transform.scale[i] = vector3_one(0.05);
-    particles.object.transform.position[i] = vector3_zero();
+  for (unsigned int i = 0; i < particles_obj.count; i++) {
+    particles_obj.transform.scale[i] = vector3_one(0.05);
+    particles_obj.transform.position[i] = vector3_zero();
     particles_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
   }
 
@@ -234,7 +236,7 @@ int main() {
 
     timer += lgl_context->time_delta;
 
-    if (timer > 0.3) { // window titlebar
+    if (timer > 1) { // window titlebar
       timer = 0;
       char window_title[64] = {0};
 
@@ -246,63 +248,63 @@ int main() {
     }
 
     camera_update(lgl_context);
-    lal_audio_source_update(cube_audio_source, cube.object, lgl_context);
+    lal_audio_source_update(cube_audio_source, cube_obj, lgl_context);
 
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
-      l_verlet_update(particles, particles_verlet);
+      l_verlet_update(particles_obj, particles_verlet);
 
       for (unsigned int i = 0; i < 5; i++) {
 
         // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
 
         // constrain diagonally
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 7, 2);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 6, 2);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 5, 2);
-        l_verlet_constrain_distance(particles, particles_verlet, 3, 4, 2);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 7, 2);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 6, 2);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 5, 2);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 3, 4, 2);
 
         // x constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 1, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 3, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 4, 5, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 6, 7, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 1, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 3, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 4, 5, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 6, 7, 1);
 
         // y constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 2, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 3, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 4, 6, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 5, 7, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 2, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 3, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 4, 6, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 5, 7, 1);
 
         // z constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 4, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 5, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 6, 1);
-        l_verlet_constrain_distance(particles, particles_verlet, 3, 7, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 0, 4, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 1, 5, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 2, 6, 1);
+        l_verlet_constrain_distance(particles_obj, particles_verlet, 3, 7, 1);
 
-        l_verlet_confine(particles_verlet, particles, vector3_one(10));
+        l_verlet_confine(particles_obj, particles_verlet, vector3_one(10));
       }
 
-      lgl_mat4_buffer(&particles);
+      lgl_mat4_buffer(particles_obj, &particles);
 
       // update lights
       lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
-      lgl_draw(cube);
+      lgl_draw(cube_obj, cube);
       glEnable(GL_CULL_FACE);
 
-      lgl_draw_instanced(particles);
+      lgl_draw_instanced(particles_obj, particles);
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
@@ -311,18 +313,22 @@ int main() {
                       frame.width, frame.height, GL_COLOR_BUFFER_BIT,
                       GL_NEAREST);
 
+#if 0
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(frame.quad);
+      lgl_draw((l_object_t){0}, frame.quad);
     }
+#endif
 
     lgl_end_frame();
   }
 
+  l_object_free(particles_obj);
+  l_object_free(cube_obj);
   lgl_camera_free(lgl_context->camera);
   l_verlet_free(particles_verlet);
   lal_audio_source_free(cube_audio_source);
