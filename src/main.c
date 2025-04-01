@@ -185,6 +185,22 @@ int main() {
   };
 
   lgl_context->camera = lgl_camera_alloc();
+  lgl_context->camera.position.z -= 25;
+
+  // --------------------------------------------------------------------------
+  // Create cube
+
+  lgl_object_t cube = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
+  cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  cube.lights = lights;
+  cube.lights_count = LIGHTS_COUNT;
+  cube.shader = shader_phong;
+  cube.color = (vector4_t){1, 1, 1, 1};
+  cube.scale[0] = vector3_one(10);
+  cube.position[0] = (vector3_t){0, 0, 20};
+  //cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
+
+  lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
   // Create particles
@@ -197,41 +213,12 @@ int main() {
   l_verlet_t particles_verlet = l_verlet_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.scale[i] = vector3_one(0.2);
+    particles.scale[i] = vector3_one(0.05);
     particles.position[i] = vector3_zero();
     particles_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
   }
 
   particles_verlet.is_pinned[0] = 1;
-
-#if 0 // galaxy particle system
-  float radius = 5;
-  float swirl_strength = 0.1;
-  float arm_thickness = 5;
-  float arm_length = 10;
-
-  galaxy_generate(particles, radius,
-      particles.count * lgl_context->time_current,
-      swirl_strength, arm_thickness, arm_length);
-#endif
-
-  // --------------------------------------------------------------------------
-  // Create cube
-
-  lgl_object_t cube = lgl_object_alloc(1, LGL_OBJECT_ARCHETYPE_CUBE);
-  cube.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  cube.lights = lights;
-  cube.lights_count = LIGHTS_COUNT;
-  cube.shader = shader_solid;
-  cube.color = (vector4_t){1, 1, 1, 1};
-  cube.scale[0] = vector3_one(40);
-  cube.position[0] = (vector3_t){0, 0, 0};
-  cube.render_flags |= LGL_FLAG_USE_WIREFRAME;
-
-  // --------------------------------------------------------------------------
-  // Create audio source
-
-  lal_audio_source_t audio_source = lal_audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
   // game loop
@@ -255,44 +242,44 @@ int main() {
     }
 
     camera_update(lgl_context);
-    lal_audio_source_update(audio_source, cube, lgl_context);
+    lal_audio_source_update(cube_audio_source, cube, lgl_context);
 
     timer_physics += lgl_context->time_delta;
-    if (timer_physics > 0.01) { // update state
+    if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
       l_verlet_update(particles, particles_verlet);
 
-      for (unsigned int i = 0; i < 3; i++) {
+      for (unsigned int i = 0; i < 5; i++) {
 
         // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
 
         // constrain diagonally
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 7, 18);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 6, 18);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 5, 18);
-        l_verlet_constrain_distance(particles, particles_verlet, 3, 4, 18);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 7, 2);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 6, 2);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 5, 2);
+        l_verlet_constrain_distance(particles, particles_verlet, 3, 4, 2);
 
         // x constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 1, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 3, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 4, 5, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 6, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 1, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 3, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 4, 5, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 6, 7, 1);
 
         // y constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 2, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 3, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 4, 6, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 5, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 2, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 3, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 4, 6, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 5, 7, 1);
 
         // z constraints
-        l_verlet_constrain_distance(particles, particles_verlet, 0, 4, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 1, 5, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 2, 6, 10);
-        l_verlet_constrain_distance(particles, particles_verlet, 3, 7, 10);
+        l_verlet_constrain_distance(particles, particles_verlet, 0, 4, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 1, 5, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 2, 6, 1);
+        l_verlet_constrain_distance(particles, particles_verlet, 3, 7, 1);
 
-        l_verlet_confine(particles_verlet, particles, cube.scale[0]);
+        l_verlet_confine(particles_verlet, particles, vector3_one(10));
       }
 
       lgl_mat4_buffer(&particles);
@@ -334,7 +321,7 @@ int main() {
 
   lgl_camera_free(lgl_context->camera);
   l_verlet_free(particles_verlet);
-  lal_audio_source_free(audio_source);
+  lal_audio_source_free(cube_audio_source);
   lgl_object_free(cube);
   lgl_object_free(particles);
   lgl_framebuffer_free(frame);

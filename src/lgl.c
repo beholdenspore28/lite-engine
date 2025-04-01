@@ -213,8 +213,6 @@ lgl_camera_t lgl_camera_alloc(void) {
   lgl_camera_t camera;
   camera.rotation = quaternion_identity();
   camera.position = vector3_zero();
-  camera.position.y = -20;
-  camera.position.z = -50;
 
   camera.view = calloc(sizeof(*camera.view), 16);
   camera.projection = calloc(sizeof(*camera.projection), 16);
