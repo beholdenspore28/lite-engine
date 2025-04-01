@@ -316,7 +316,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles
 
-  lgl_object_t particles = lgl_object_alloc(3, LGL_OBJECT_ARCHETYPE_CUBE);
+  lgl_object_t particles = lgl_object_alloc(8, LGL_OBJECT_ARCHETYPE_CUBE);
   particles.shader = shader_solid;
   particles.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -328,15 +328,21 @@ int main() {
       particles.scale[i] = vector3_one(0.2);
     }
 
-    particles.position[0] = vector3_up(1);
-    particles.position[1] = vector3_right(1);
-    particles.position[2] = vector3_forward(1);
+    particles.position[0] = (vector3_t) { -1,  1,  1 }; // 0 front top left
+    particles.position[1] = (vector3_t) {  1,  1,  1 }; // 1 front top right
+    particles.position[2] = (vector3_t) { -1, -1,  1 }; // 2 front bottom left
+    particles.position[3] = (vector3_t) {  1, -1,  1 }; // 3 front bottom right
+    particles.position[4] = (vector3_t) { -1,  1, -1 }; // 4 back top left
+    particles.position[5] = (vector3_t) {  1,  1, -1 }; // 5 back top right
+    particles.position[6] = (vector3_t) { -1, -1, -1 }; // 6 back bottom left
+    particles.position[7] = (vector3_t) {  1, -1, -1 }; // 7 back bottom right
 
     vector3_t offset = vector3_up(0.1);
 
-    particles_verlet.position_old[0] = vector3_add(particles.position[0], offset);
-    particles_verlet.position_old[1] = vector3_add(particles.position[1], offset);
-    particles_verlet.position_old[2] = vector3_add(particles.position[2], offset);
+    for(unsigned int i = 0; i < particles.count; i++) {
+      particles_verlet.position_old[i] =
+        vector3_add(particles.position[i], offset);
+    }
   }
 
 #if 0 // galaxy particle system
@@ -395,15 +401,35 @@ int main() {
     camera_update(lgl_context);
     lal_audio_source_update(audio_source, cube, lgl_context);
 
-    if (timer_physics > 0.02) { // update state
+    if (timer_physics > 0.033) { // update state
       timer_physics = 0;
 
       // wrap_position(particles, lgl_context);
-      l_verlet_confine(particles_verlet, particles, cube.scale[0]);
       l_verlet_update(particles, particles_verlet);
+
+      // x constraints
       l_verlet_constrain_distance(particles, 0, 1, 10);
-      l_verlet_constrain_distance(particles, 1, 2, 10);
-      l_verlet_constrain_distance(particles, 2, 0, 10);
+      l_verlet_constrain_distance(particles, 2, 3, 10);
+      l_verlet_constrain_distance(particles, 4, 5, 10);
+      l_verlet_constrain_distance(particles, 6, 7, 10);
+
+      // y constraints
+      l_verlet_constrain_distance(particles, 0, 2, 10);
+      l_verlet_constrain_distance(particles, 1, 3, 10);
+      l_verlet_constrain_distance(particles, 4, 6, 10);
+      l_verlet_constrain_distance(particles, 5, 7, 10);
+
+      // z constraints
+      l_verlet_constrain_distance(particles, 0, 4, 10);
+      l_verlet_constrain_distance(particles, 1, 5, 10);
+      l_verlet_constrain_distance(particles, 2, 6, 10);
+      l_verlet_constrain_distance(particles, 3, 7, 10);
+
+      // cross constraints
+      //l_verlet_constrain_distance(particles, 0, 7, 10);
+      //l_verlet_constrain_distance(particles, 1, 6, 10);
+
+      l_verlet_confine(particles_verlet, particles, cube.scale[0]);
 
       // cube.rotation[0] = quaternion_rotate_euler(cube.rotation[0],
       // vector3_up(lgl_context->time_delta));
