@@ -269,8 +269,13 @@ void physics_demo(void) {
       timer_physics = 0;
 
       for (unsigned int i = 0; i < particles.count; i++) {
-        l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.01));
+        vector3 force = vector3_normalize(particles.transform.position[i]);
+        force = vector3_negate(force);
+        force = vector3_scale(force, 0.1);
+        l_verlet_body_accelerate(particles_verlet, i, force);
+        //l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.01));
       }
+
 
       l_verlet_body_update(particles, particles_verlet);
 

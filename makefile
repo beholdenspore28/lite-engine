@@ -14,7 +14,7 @@ CFLAGS_RELEASE  := -O3 -flto
 CFLAGS          := -Wall           \
                    -Wextra         \
                    -Wpedantic      \
-                   -std=c99        \
+                   -std=c11        \
                    ${CFLAGS_DEBUG} \
 
 LIBS := -lglfw -lm -lopenal -lalut
