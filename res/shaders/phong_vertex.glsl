@@ -20,7 +20,7 @@ uniform bool u_use_instancing;
 void main(){
   mat4 mvp;
   if(u_use_instancing){
-    mvp = u_camera_matrix * u_model_matrix * a_instance_matrix;
+    mvp = u_camera_matrix * a_instance_matrix;
   }else{
     mvp = u_camera_matrix * u_model_matrix;
   }

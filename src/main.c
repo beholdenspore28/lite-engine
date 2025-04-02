@@ -108,7 +108,7 @@ int main() {
   alutInit(0, 0);
   lgl_context *lgl_context = lgl_start(1000, 800);
 
-  glClearColor(0.0, 0.0, 0.0, 1);
+  //glClearColor(0.0, 0.0, 0.0, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -202,10 +202,10 @@ int main() {
   cube_batch.lights = lights;
   cube_batch.lights_count = LIGHTS_COUNT;
   cube_batch.shader = shader_solid;
-  cube_batch.color = (vector4){1, 1, 1, 1};
-  cube.transform.scale[0] = vector3_one(10);
-  cube.transform.position[0] = (vector3){0, 0, 0};
-  cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  cube_batch.color = (vector4){1, 0.5, 0.5, 1};
+  cube.transform.scale[0] = vector3_one(1);
+  cube.transform.position[0] = (vector3){0, 0, -15};
+  //cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source cube_audio_source = lal_audio_source_alloc(1);
 
@@ -215,9 +215,13 @@ int main() {
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
-  particles_batch.shader = shader_solid;
-  particles_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
-  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  particles_batch.diffuse_map =
+      lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  particles_batch.lights = lights;
+  particles_batch.lights_count = LIGHTS_COUNT;
+  particles_batch.shader = shader_phong;
+  particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+  //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
@@ -270,7 +274,7 @@ int main() {
 
       for (unsigned int j = 0; j < 2; j++) {
         l_verlet_resolve_collisions(particles, particles_verlet);
-        l_verlet_body_confine(particles, particles_verlet, cube.transform.scale[0]);
+        l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
       }
 
       lgl_mat4_buffer(particles, &particles_batch);
