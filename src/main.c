@@ -273,7 +273,7 @@ void physics_demo(void) {
         force = vector3_negate(force);
         force = vector3_scale(force, 0.1);
         l_verlet_body_accelerate(particles_verlet, i, force);
-        //l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.01));
+        l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
       }
 
 
@@ -298,7 +298,9 @@ void physics_demo(void) {
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
       glEnable(GL_CULL_FACE);
 
+      glDisable(GL_CULL_FACE);
       lgl_draw(cube, cube_batch);
+      glEnable(GL_CULL_FACE);
       lgl_draw_instanced(particles, particles_batch);
     }
 
