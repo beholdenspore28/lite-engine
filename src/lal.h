@@ -21,7 +21,7 @@ audio_source_t audio_source_alloc(unsigned int count);
 void audio_source_free(audio_source_t source);
 
 void audio_source_update(audio_source_t source, l_object_t object,
-                             lgl_context_t *lgl_context);
+                         lgl_context_t *lgl_context);
 
 #ifdef __cplusplus
 }

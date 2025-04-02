@@ -247,7 +247,6 @@ int main() {
   while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
 
     timer += lgl_context->time_delta;
-
     if (timer > 1) { // window titlebar
       timer = 0;
       char window_title[64] = {0};
@@ -258,9 +257,6 @@ int main() {
 
       glfwSetWindowTitle(lgl_context->GLFWwindow, window_title);
     }
-
-    camera_update(lgl_context);
-    audio_source_update(cube_audio_source, cube, lgl_context);
 
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state
@@ -279,6 +275,9 @@ int main() {
 
     // update lights
     lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
+
+    camera_update(lgl_context);
+    audio_source_update(cube_audio_source, cube, lgl_context);
 
 #if 0
     cube.transform.rotation[0] =

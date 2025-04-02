@@ -49,7 +49,8 @@ void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
   }
 }
 
-void l_verlet_body_confine(l_object_t object, l_verlet_body verlet, vector3_t bounds) {
+void l_verlet_body_confine(l_object_t object, l_verlet_body verlet,
+                           vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -58,39 +59,46 @@ void l_verlet_body_confine(l_object_t object, l_verlet_body verlet, vector3_t bo
 
     if (object.transform.position[i].x > bounds.x) {
       object.transform.position[i].x = bounds.x;
-      verlet.position_old[i].x = object.transform.position[i].x + velocity.x * verlet.bounciness;
+      verlet.position_old[i].x =
+          object.transform.position[i].x + velocity.x * verlet.bounciness;
     }
 
     if (object.transform.position[i].y > bounds.y) {
       object.transform.position[i].y = bounds.y;
-      verlet.position_old[i].y = object.transform.position[i].y + velocity.y * verlet.bounciness;
+      verlet.position_old[i].y =
+          object.transform.position[i].y + velocity.y * verlet.bounciness;
     }
 
     if (object.transform.position[i].z > bounds.z) {
       object.transform.position[i].z = bounds.z;
-      verlet.position_old[i].z = object.transform.position[i].z + velocity.z * verlet.bounciness;
+      verlet.position_old[i].z =
+          object.transform.position[i].z + velocity.z * verlet.bounciness;
     }
 
     if (object.transform.position[i].x < -bounds.x) {
       object.transform.position[i].x = -bounds.x;
-      verlet.position_old[i].x = object.transform.position[i].x + velocity.x * verlet.bounciness;
+      verlet.position_old[i].x =
+          object.transform.position[i].x + velocity.x * verlet.bounciness;
     }
 
     if (object.transform.position[i].y < -bounds.y) {
       object.transform.position[i].y = -bounds.y;
-      verlet.position_old[i].y = object.transform.position[i].y + velocity.y * verlet.bounciness;
+      verlet.position_old[i].y =
+          object.transform.position[i].y + velocity.y * verlet.bounciness;
     }
 
     if (object.transform.position[i].z < -bounds.z) {
       object.transform.position[i].z = -bounds.z;
-      verlet.position_old[i].z = object.transform.position[i].z + velocity.z * verlet.bounciness;
+      verlet.position_old[i].z =
+          object.transform.position[i].z + velocity.z * verlet.bounciness;
     }
   }
 }
 
 void l_verlet_body_constrain_distance(l_object_t object, l_verlet_body verlet,
-                                 unsigned int point_a, unsigned int point_b,
-                                 float distance_constraint) {
+                                      unsigned int point_a,
+                                      unsigned int point_b,
+                                      float distance_constraint) {
 
   vector3_t diff = vector3_subtract(object.transform.position[point_b],
                                     object.transform.position[point_a]);
