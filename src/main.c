@@ -54,6 +54,7 @@ void camera_update(lgl_context *context) {
     context->camera.position = vector3_add(context->camera.position, movement);
   }
 
+#if 0
   { // mouse look
     static int firstFrame = 1;
     static float last_x = 0;
@@ -90,6 +91,7 @@ void camera_update(lgl_context *context) {
                             quaternion_from_euler(vector3_right(pitch)));
     context->camera.rotation = rotation;
   }
+#endif
 }
 
 void galaxy_generate(l_object stars, float radius, unsigned int seed,
@@ -240,22 +242,22 @@ void icosphere_demo(void) {
     sphere.transform.scale[0] = vector3_one(1);
     sphere.transform.position[0] = (vector3){0, 0, -15};
     sphere_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
-    //sphere_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
+    sphere_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   }
-
-  glPointSize(5);
 
   while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
     update_window_title();
 
-    lgl_camera_update();
-    //camera_update(graphics_context);
+    //lgl_camera_update();
+    camera_update(graphics_context);
 
+#if 1
     // sphere.transform.position[0].y = sinf(graphics_context->time_current);
     sphere.transform.rotation[0] = quaternion_rotate_euler(
         sphere.transform.rotation[0],
         vector3_one(0.5 * graphics_context->time_delta));
+#endif
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);

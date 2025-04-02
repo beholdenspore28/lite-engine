@@ -561,14 +561,16 @@ void lgl_draw(l_object object, const lgl_batch batch) {
     lgl__uniform_materials(batch);
     lgl__uniform_lights(batch);
 
-    const GLenum mode = batch.render_flags & LGL_FLAG_DRAW_POINTS ? GL_POINTS : GL_TRIANGLES;
-
     glBindVertexArray(batch.VAO);
+
+    if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
+      glDrawArrays(GL_POINTS, 0, batch.vertices.length); // for debugging geometry
+    }
+
     if (batch.render_flags & LGL_FLAG_INDEXED_DRAW) {
-      glDrawArrays(GL_POINTS, 0, batch.vertices.length);
-      glDrawElements(mode, batch.indices.length, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT, 0);
     } else {
-      glDrawArrays(mode, 0, batch.vertices.length);
+      glDrawArrays(GL_TRIANGLES, 0, batch.vertices.length);
     }
 
     glUseProgram(0);
@@ -592,13 +594,19 @@ lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
     batch.vertices = list_lgl_vertex_alloc();
     // clang-format off
     // position                    //normal                    //tex coord
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{ 1, -1, 0.0}, vector3_forward(1.0), {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{ 1, -1, 0.0}, vector3_forward(1.0), {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{-1,  1, 0.0}, vector3_forward(1.0), {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{-1,  1, 0.0}, vector3_forward(1.0), {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
 
     lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices.length,
                              batch.vertices.array);
@@ -608,53 +616,89 @@ lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
   case L_ARCHETYPE_CUBE: {
     // clang-format off
     batch.vertices = list_lgl_vertex_alloc();
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_back(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_back(1.0),   {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_back(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_back(1.0),   {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_forward(1.0),{1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_forward(1.0),{1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_forward(1.0),{0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_forward(1.0),{0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_left(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_left(1.0),   {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_left(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_left(1.0),   {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_right(1.0),  {1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_right(1.0),  {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_right(1.0),  {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_right(1.0),  {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_down(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_down(1.0),   {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_down(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_down(1.0),   {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_up(1.0),     {1.0, 1.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_up(1.0),     {1.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
 
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_up(1.0),     {0.0, 0.0}});
-    list_lgl_vertex_add(&batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_up(1.0),     {0.0, 0.0}});
+    list_lgl_vertex_add(
+        &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
     // clang-format on
 
     lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices.length,
@@ -919,6 +963,7 @@ lgl_context *lgl_start(const int width, const int height) {
   gladLoadGL(glfwGetProcAddress);
 
   glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
+  glPointSize(5);
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
