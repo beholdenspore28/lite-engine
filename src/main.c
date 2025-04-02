@@ -22,8 +22,8 @@ void update_window_title(void) {
     char window_title[64] = {0};
 
     snprintf(window_title, sizeof(window_title),
-        "Lite-Engine Demo. | %.0lf FPS | %.4f DT", graphics_context->time_FPS,
-        graphics_context->time_delta);
+             "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
+             graphics_context->time_FPS, graphics_context->time_delta);
 
     glfwSetWindowTitle(graphics_context->GLFWwindow, window_title);
   }
@@ -148,15 +148,16 @@ void spinning_cube_demo(void) {
   l_object cube = l_object_alloc(1);
   lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
 
-  { 
+  {
     GLuint vertex_shader =
-      lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+        lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile(
         "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
 
     cube_batch.shader = lgl_shader_link(vertex_shader, fragment_shader);
 
-    cube_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+    cube_batch.diffuse_map =
+        lgl_texture_alloc("res/textures/lite-engine-cube.png");
     cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
     cube_batch.lights = &light;
     cube_batch.lights_count = 1;
@@ -168,7 +169,7 @@ void spinning_cube_demo(void) {
   // cube audio source component
   lal_audio_source cube_audio_source = lal_audio_source_alloc(cube.count);
 
-  while(!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
+  while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
     update_window_title();
 
@@ -181,7 +182,7 @@ void spinning_cube_demo(void) {
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-          GL_STENCIL_BUFFER_BIT);
+              GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(cube, cube_batch);
     }
@@ -220,16 +221,17 @@ void icosphere_demo(void) {
   l_object sphere = l_object_alloc(1);
   lgl_batch sphere_batch = lgl_batch_alloc(1, L_ARCHETYPE_EMPTY);
 
-  { 
+  {
     lgl_icosphere_mesh_alloc(&sphere_batch);
     GLuint vertex_shader =
-      lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+        lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
     GLuint fragment_shader = lgl_shader_compile(
         "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
 
     sphere_batch.shader = lgl_shader_link(vertex_shader, fragment_shader);
 
-    sphere_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+    sphere_batch.diffuse_map =
+        lgl_texture_alloc("res/textures/lite-engine-cube.png");
     sphere_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
     sphere_batch.lights = &light;
     sphere_batch.lights_count = 1;
@@ -240,19 +242,19 @@ void icosphere_demo(void) {
 
   glPointSize(5);
 
-  while(!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
+  while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
     update_window_title();
 
     camera_update(graphics_context);
 
-    //sphere.transform.position[0].y = sinf(graphics_context->time_current);
+    // sphere.transform.position[0].y = sinf(graphics_context->time_current);
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-          GL_STENCIL_BUFFER_BIT);
+              GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(sphere, sphere_batch);
     }
@@ -266,7 +268,7 @@ void icosphere_demo(void) {
 
 void physics_demo(void) {
 
-  glClearColor(0,0,0,1);
+  glClearColor(0, 0, 0, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -288,7 +290,7 @@ void physics_demo(void) {
   l_object cube = l_object_alloc(1);
   lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
 
-  { 
+  {
     cube_batch.shader = shader_solid;
 
     cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
@@ -301,7 +303,7 @@ void physics_demo(void) {
 
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
-    lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
+      lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -346,12 +348,12 @@ void physics_demo(void) {
         l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
       }
 
-
       l_verlet_body_update(particles, particles_verlet);
 
       for (unsigned int j = 0; j < 2; j++) {
         l_verlet_resolve_collisions(particles);
-        l_verlet_body_confine(particles, particles_verlet, cube.transform.scale[0]);
+        l_verlet_body_confine(particles, particles_verlet,
+                              cube.transform.scale[0]);
       }
 
       lgl_mat4_buffer(particles, &particles_batch);
@@ -363,7 +365,7 @@ void physics_demo(void) {
       glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_MSAA.FBO);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-          GL_STENCIL_BUFFER_BIT);
+              GL_STENCIL_BUFFER_BIT);
 
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
       glEnable(GL_CULL_FACE);
@@ -376,15 +378,15 @@ void physics_demo(void) {
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_MSAA.FBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.FBO);
-    glBlitFramebuffer(0, 0, framebuffer_MSAA.width, framebuffer_MSAA.height, 0, 0,
-        framebuffer.width, framebuffer.height, GL_COLOR_BUFFER_BIT,
-        GL_NEAREST);
+    glBlitFramebuffer(0, 0, framebuffer_MSAA.width, framebuffer_MSAA.height, 0,
+                      0, framebuffer.width, framebuffer.height,
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-          GL_STENCIL_BUFFER_BIT);
+              GL_STENCIL_BUFFER_BIT);
 
       lgl_draw(frame_obj, framebuffer.quad);
     }
@@ -427,10 +429,10 @@ int main() {
 
   frame_obj = l_object_alloc(1);
 
-  framebuffer = lgl_framebuffer_alloc(
-      shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
-  framebuffer_MSAA = lgl_framebuffer_alloc(
-      shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
+  framebuffer = lgl_framebuffer_alloc(shader_framebuffer, 1, NUM_COLOR_BUFFERS,
+                                      width, height);
+  framebuffer_MSAA = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES,
+                                           NUM_COLOR_BUFFERS, width, height);
 
   lgl_active_framebuffer_set(&framebuffer);
   lgl_active_framebuffer_set_2(&framebuffer_MSAA);
