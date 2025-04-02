@@ -223,13 +223,20 @@ int main() {
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0.1);
-#if 0
+  }
+
+#if 1 // random points in a box
+  for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.position[i] = vector3_random_box(i, vector3_one(5));
     particles_verlet.position_old[i] = particles.transform.position[i];
-#else
-    l_verlet_body_accelerate(particles_verlet, i, vector3_random(i, 1.0));
-#endif
   }
+#endif
+
+#if 0 // explode in random directions from the origin
+  for (unsigned int i = 0; i < particles.count; i++) {
+    l_verlet_body_accelerate(particles_verlet, i, vector3_random(i, 1.0));
+  }
+#endif
 
   // --------------------------------------------------------------------------
   // game loop
