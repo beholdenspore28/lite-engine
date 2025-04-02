@@ -1,6 +1,6 @@
 #include "physics.h"
 
-l_verlet_body l_verlet_body_alloc(l_object_t object) {
+l_verlet_body l_verlet_body_alloc(l_object object) {
   l_verlet_body verlet;
   verlet.acceleration = calloc(sizeof(*verlet.acceleration), object.count);
   verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
@@ -24,14 +24,14 @@ void l_verlet_body_free(l_verlet_body verlet) {
   free(verlet.is_pinned);
 }
 
-void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
+void l_verlet_body_update(l_object object, l_verlet_body verlet) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
     if (verlet.is_pinned[i])
       continue;
 
-    vector3_t velocity =
+    vector3 velocity =
         vector3_subtract(object.transform.position[i], verlet.position_old[i]);
 
     // TODO. This is unreallistic as hell. not how friction works...
@@ -49,12 +49,12 @@ void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
   }
 }
 
-void l_verlet_body_confine(l_object_t object, l_verlet_body verlet,
-                           vector3_t bounds) {
+void l_verlet_body_confine(l_object object, l_verlet_body verlet,
+                           vector3 bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
-    vector3_t velocity =
+    vector3 velocity =
         vector3_subtract(object.transform.position[i], verlet.position_old[i]);
 
     if (object.transform.position[i].x > bounds.x) {
@@ -95,17 +95,17 @@ void l_verlet_body_confine(l_object_t object, l_verlet_body verlet,
   }
 }
 
-void l_verlet_resolve_collisions(l_object_t object, l_verlet_body verlet) {
+void l_verlet_resolve_collisions(l_object object, l_verlet_body verlet) {
   for (unsigned int i = 0; i < object.count; i++) {
     for (unsigned int j = 0; j < object.count; j++) {
-        vector3_t direction = vector3_subtract(object.transform.position[i],
+        vector3 direction = vector3_subtract(object.transform.position[i],
             object.transform.position[j]);
 
         float distance = vector3_magnitude(direction);
 
         if (distance < 1) { // <- 1 is arbitrary for now
 
-          vector3_t correction = vector3_scale(direction, distance-1);
+          vector3 correction = vector3_scale(direction, distance-1);
 
           object.transform.position[i] = vector3_subtract(
               object.transform.position[i], correction);
@@ -117,16 +117,16 @@ void l_verlet_resolve_collisions(l_object_t object, l_verlet_body verlet) {
   }
 }
 
-void l_verlet_body_constrain_distance(l_object_t object, l_verlet_body verlet,
+void l_verlet_body_constrain_distance(l_object object, l_verlet_body verlet,
                                       unsigned int point_a,
                                       unsigned int point_b,
                                       float distance_constraint) {
 
-  vector3_t diff = vector3_subtract(object.transform.position[point_b],
+  vector3 diff = vector3_subtract(object.transform.position[point_b],
                                     object.transform.position[point_a]);
   float distance = vector3_magnitude(diff);
   float adjustment = (distance_constraint - distance) / distance * 0.5;
-  vector3_t offset = vector3_scale(diff, adjustment);
+  vector3 offset = vector3_scale(diff, adjustment);
 
   if (!verlet.is_pinned[point_a]) {
     object.transform.position[point_a] =

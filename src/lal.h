@@ -15,13 +15,13 @@ typedef struct {
   ALuint *id;
   ALuint *buffer;
   unsigned int count;
-} audio_source_t;
+} lal_audio_source;
 
-audio_source_t audio_source_alloc(unsigned int count);
-void audio_source_free(audio_source_t source);
+lal_audio_source lal_audio_source_alloc(unsigned int count);
+void lal_audio_source_free(lal_audio_source source);
 
-void audio_source_update(audio_source_t source, l_object_t object,
-                         lgl_context_t *lgl_context);
+void lal_audio_source_update(lal_audio_source source, l_object object,
+                         lgl_context *lgl_context);
 
 #ifdef __cplusplus
 }

@@ -1,8 +1,8 @@
 #include "engine.h"
 
-l_object_t l_object_alloc(unsigned int count) {
+l_object l_object_alloc(unsigned int count) {
 
-  l_object_t object;
+  l_object object;
   object.transform.scale = calloc(sizeof(*object.transform.scale), count);
   object.transform.position = calloc(sizeof(*object.transform.position), count);
   object.transform.rotation = calloc(sizeof(*object.transform.rotation), count);
@@ -18,7 +18,7 @@ l_object_t l_object_alloc(unsigned int count) {
   return object;
 }
 
-void l_object_free(l_object_t object) {
+void l_object_free(l_object object) {
   free(object.transform.matrix);
   free(object.transform.scale);
   free(object.transform.position);

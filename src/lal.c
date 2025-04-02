@@ -1,8 +1,8 @@
 #include "lal.h"
 
-audio_source_t audio_source_alloc(unsigned int count) {
+lal_audio_source lal_audio_source_alloc(unsigned int count) {
 
-  audio_source_t source;
+  lal_audio_source source;
   source.buffer = calloc(sizeof(ALuint), count);
   source.id = calloc(sizeof(ALuint), count);
   source.count = count;
@@ -21,7 +21,7 @@ audio_source_t audio_source_alloc(unsigned int count) {
   return source;
 }
 
-void audio_source_free(audio_source_t source) {
+void lal_audio_source_free(lal_audio_source source) {
 
   for (unsigned int i = 0; i < source.count; i++) {
     alDeleteBuffers(source.count, source.buffer + i);
@@ -32,14 +32,14 @@ void audio_source_free(audio_source_t source) {
   free(source.id);
 }
 
-void audio_source_update(audio_source_t source, l_object_t object,
-                         lgl_context_t *lgl_context) {
+void lal_audio_source_update(lal_audio_source source, l_object object,
+                         lgl_context *lgl_context) {
 
   alListener3f(AL_POSITION, lgl_context->camera.position.x,
                lgl_context->camera.position.y, lgl_context->camera.position.z);
 
-  vector3_t listener_up = (vector3_t){0.0, 0.0, 1.0};
-  vector3_t listener_at = (vector3_t){0.0, 1.0, 0.0};
+  vector3 listener_up = (vector3){0.0, 0.0, 1.0};
+  vector3 listener_at = (vector3){0.0, 1.0, 0.0};
 
   listener_at = vector3_rotate(listener_at, lgl_context->camera.rotation);
   listener_up = vector3_rotate(listener_up, lgl_context->camera.rotation);

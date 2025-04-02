@@ -9,11 +9,11 @@
 #include <math.h>
 #include <stdio.h>
 
-void camera_update(lgl_context_t *context) {
+void camera_update(lgl_context *context) {
   lgl_camera_update();
 
   { // movement
-    vector3_t movement = vector3_zero();
+    vector3 movement = vector3_zero();
     {
       movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -
                     glfwGetKey(context->GLFWwindow, GLFW_KEY_LEFT_SHIFT);
@@ -65,14 +65,14 @@ void camera_update(lgl_context_t *context) {
 
     pitch = clamp(pitch, -PI * 0.5, PI * 0.5);
 
-    quaternion_t rotation =
+    quaternion rotation =
         quaternion_multiply(quaternion_from_euler(vector3_up(yaw)),
                             quaternion_from_euler(vector3_right(pitch)));
     context->camera.rotation = rotation;
   }
 }
 
-void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
+void galaxy_generate(l_object stars, float radius, unsigned int seed,
                      float swirl_strength, float arm_thickness,
                      float arm_length) {
 
@@ -82,7 +82,7 @@ void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
     stars.transform.position[i] = vector3_random(seed + i, 1.0);
 
     // gravity
-    vector3_t gravity = vector3_normalize(stars.transform.position[i]);
+    vector3 gravity = vector3_normalize(stars.transform.position[i]);
     stars.transform.position[i] =
         vector3_subtract(stars.transform.position[i], gravity);
 
@@ -106,7 +106,7 @@ void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
 
 int main() {
   alutInit(0, 0);
-  lgl_context_t *lgl_context = lgl_start(1000, 800);
+  lgl_context *lgl_context = lgl_start(1000, 800);
 
   glClearColor(0.0, 0.0, 0.0, 1);
 
@@ -157,11 +157,11 @@ int main() {
   int width, height;
   glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
 
-  l_object_t frame_obj = l_object_alloc(1);
+  l_object frame_obj = l_object_alloc(1);
 
-  lgl_framebuffer_t frame = lgl_framebuffer_alloc(
+  lgl_framebuffer frame = lgl_framebuffer_alloc(
       shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
-  lgl_framebuffer_t frame_MSAA = lgl_framebuffer_alloc(
+  lgl_framebuffer frame_MSAA = lgl_framebuffer_alloc(
       shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
 
   lgl_active_framebuffer_set(&frame);
@@ -174,9 +174,9 @@ int main() {
     LIGHTS_POINT_0,
     LIGHTS_COUNT, // this should ALWAYS be at the end of the enum
   };
-  lgl_light_t lights[LIGHTS_COUNT] = {0};
+  lgl_light lights[LIGHTS_COUNT] = {0};
 
-  lights[LIGHTS_POINT_0] = (lgl_light_t){
+  lights[LIGHTS_POINT_0] = (lgl_light){
       .type = 0,
       .position = {0.0, 0.0, 0.0},
       .direction = {0.0, 0.0, 1.0},
@@ -185,7 +185,7 @@ int main() {
       .constant = 1.0f,
       .linear = 0.09f,
       .quadratic = 0.032f,
-      .diffuse = (vector3_t){1.0, 1.0, 1.0},
+      .diffuse = (vector3){1.0, 1.0, 1.0},
       .specular = vector3_one(0.6),
   };
 
@@ -195,28 +195,28 @@ int main() {
   // --------------------------------------------------------------------------
   // Create cube
 
-  l_object_t cube = l_object_alloc(1);
-  lgl_batch_t cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
+  l_object cube = l_object_alloc(1);
+  lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
   cube_batch.diffuse_map =
       lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube_batch.lights = lights;
   cube_batch.lights_count = LIGHTS_COUNT;
   cube_batch.shader = shader_solid;
-  cube_batch.color = (vector4_t){1, 1, 1, 1};
+  cube_batch.color = (vector4){1, 1, 1, 1};
   cube.transform.scale[0] = vector3_one(10);
-  cube.transform.position[0] = (vector3_t){0, 0, 0};
+  cube.transform.position[0] = (vector3){0, 0, 0};
   cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  audio_source_t cube_audio_source = audio_source_alloc(1);
+  lal_audio_source cube_audio_source = lal_audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
   // Create particles_batch
 
-  l_object_t particles = l_object_alloc(200);
-  lgl_batch_t particles_batch =
+  l_object particles = l_object_alloc(200);
+  lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
-  particles_batch.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
+  particles_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
   particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
@@ -280,7 +280,7 @@ int main() {
     lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
 
     camera_update(lgl_context);
-    audio_source_update(cube_audio_source, cube, lgl_context);
+    lal_audio_source_update(cube_audio_source, cube, lgl_context);
 
 #if 0
     cube.transform.rotation[0] =
@@ -326,7 +326,7 @@ int main() {
   l_object_free(cube);
   lgl_camera_free(lgl_context->camera);
   l_verlet_body_free(particles_verlet);
-  audio_source_free(cube_audio_source);
+  lal_audio_source_free(cube_audio_source);
   lgl_batch_free(cube_batch);
   lgl_batch_free(particles_batch);
 

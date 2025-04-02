@@ -27,53 +27,53 @@ extern "C" {
 DECLARE_LIST(GLuint)
 
 typedef struct {
-  vector3_t position;
-  vector3_t normal;
-  vector2_t texture_coordinates;
-} lgl_vertex_t;
+  vector3 position;
+  vector3 normal;
+  vector2 texture_coordinates;
+} lgl_vertex;
 
-DECLARE_LIST(lgl_vertex_t)
+DECLARE_LIST(lgl_vertex)
 
 typedef struct {
   int type;
-  vector3_t position;
-  vector3_t direction;
+  vector3 position;
+  vector3 direction;
   float cut_off;
   float outer_cut_off;
   float constant;
   float linear;
   float quadratic;
-  vector3_t diffuse;
-  vector3_t specular;
-} lgl_light_t;
+  vector3 diffuse;
+  vector3 specular;
+} lgl_light;
 
 typedef struct {
-  vector3_t position;
-  quaternion_t rotation;
+  vector3 position;
+  quaternion rotation;
   GLfloat *view;
   GLfloat *projection;
-} lgl_camera_t;
+} lgl_camera;
 
-lgl_camera_t lgl_camera_alloc(void);
-void lgl_camera_free(lgl_camera_t camera);
+lgl_camera lgl_camera_alloc(void);
+void lgl_camera_free(lgl_camera camera);
 void lgl_camera_update(void);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
-  lgl_camera_t camera;
+  lgl_camera camera;
   int is_running;
   double time_current;
   long long frame_current;
   double time_delta;
   double time_last;
   double time_FPS;
-} lgl_context_t;
+} lgl_context;
 
 typedef struct {
   GLuint VAO;
   GLuint VBO;
 
-  lgl_vertex_t *vertices;
+  lgl_vertex *vertices;
   GLuint vertices_count;
 
   GLuint model_matrix_buffer;
@@ -81,16 +81,16 @@ typedef struct {
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;
-  vector2_t texture_offset;
-  vector2_t texture_scale;
-  vector4_t color;
+  vector2 texture_offset;
+  vector2 texture_scale;
+  vector4 color;
 
-  lgl_light_t *lights;
+  lgl_light *lights;
   GLuint lights_count;
   GLint render_flags;
-} lgl_batch_t;
+} lgl_batch;
 
-DECLARE_LIST(lgl_batch_t)
+DECLARE_LIST(lgl_batch)
 
 typedef struct {
   GLuint FBO;
@@ -100,19 +100,19 @@ typedef struct {
   GLuint width;
   GLuint height;
   GLuint samples;
-  lgl_batch_t quad;
-} lgl_framebuffer_t;
+  lgl_batch quad;
+} lgl_framebuffer;
 
-lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
+lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
                                         GLuint num_color_attachments,
                                         GLuint width, GLuint height);
 
-void lgl_framebuffer_free(lgl_framebuffer_t frame);
+void lgl_framebuffer_free(lgl_framebuffer frame);
 
-void lgl_active_framebuffer_set(lgl_framebuffer_t *frame);
+void lgl_active_framebuffer_set(lgl_framebuffer *frame);
 
-void lgl_draw(l_object_t object, const lgl_batch_t batch);
-void lgl_draw_instanced(l_object_t object, const lgl_batch_t batch);
+void lgl_draw(l_object object, const lgl_batch batch);
+void lgl_draw_instanced(l_object object, const lgl_batch batch);
 
 enum {
   LGL_FLAG_ENABLED = 1,
@@ -120,20 +120,19 @@ enum {
   LGL_FLAG_USE_WIREFRAME = 1 << 2,
 };
 
-lgl_context_t *lgl_start(const int width, const int height);
+lgl_context *lgl_start(const int width, const int height);
 
 void lgl_end_frame(void);
-void lgl_free(lgl_context_t *context);
+void lgl_free(lgl_context *context);
 void lgl_viewport_set(const float width, const float height);
 
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype);
-void lgl_batch_free(lgl_batch_t batch);
-void lgl_batch(lgl_batch_t batch);
+lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype);
+void lgl_batch_free(lgl_batch batch);
 
-void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch);
+void lgl_mat4_buffer(l_object object, lgl_batch *batch);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
   debug_log("");

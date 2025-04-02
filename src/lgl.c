@@ -6,15 +6,15 @@
 #include "blib/blib_file.h"
 #include "stb_image.h"
 
-static lgl_framebuffer_t *lgl__active_framebuffer = NULL;
-static lgl_framebuffer_t *lgl__active_framebuffer_2 = NULL;
-static lgl_context_t *lgl__active_context = NULL;
+static lgl_framebuffer *lgl__active_framebuffer = NULL;
+static lgl_framebuffer *lgl__active_framebuffer_2 = NULL;
+static lgl_context *lgl__active_context = NULL;
 
-void lgl_active_framebuffer_set(lgl_framebuffer_t *frame) {
+void lgl_active_framebuffer_set(lgl_framebuffer *frame) {
   lgl__active_framebuffer = frame;
 }
 
-void lgl_active_framebuffer_set_2(lgl_framebuffer_t *frame) {
+void lgl_active_framebuffer_set_2(lgl_framebuffer *frame) {
   lgl__active_framebuffer_2 = frame;
 }
 
@@ -117,31 +117,31 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader) {
 }
 
 void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
-                              lgl_vertex_t *vertices) {
+                              lgl_vertex *vertices) {
   glGenVertexArrays(1, VAO);
   glBindVertexArray(*VAO);
 
   glGenBuffers(1, VBO);
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(lgl_vertex_t), vertices,
+  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(lgl_vertex), vertices,
                GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
-                        (void *)offsetof(lgl_vertex_t, position));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, position));
 
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
-                        (void *)offsetof(lgl_vertex_t, normal));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, normal));
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex_t),
-                        (void *)offsetof(lgl_vertex_t, texture_coordinates));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, texture_coordinates));
 
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
 }
 
-void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch) {
+void lgl_mat4_buffer(l_object object, lgl_batch *batch) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -184,13 +184,13 @@ void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch) {
                         (void *)0);
 
   glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(1 * sizeof(vector4_t)));
+                        (void *)(1 * sizeof(vector4)));
 
   glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(2 * sizeof(vector4_t)));
+                        (void *)(2 * sizeof(vector4)));
 
   glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(3 * sizeof(vector4_t)));
+                        (void *)(3 * sizeof(vector4)));
 
   glEnableVertexAttribArray(3);
   glEnableVertexAttribArray(4);
@@ -205,8 +205,8 @@ void lgl_mat4_buffer(l_object_t object, lgl_batch_t *batch) {
   glBindVertexArray(0);
 }
 
-lgl_camera_t lgl_camera_alloc(void) {
-  lgl_camera_t camera;
+lgl_camera lgl_camera_alloc(void) {
+  lgl_camera camera;
   camera.rotation = quaternion_identity();
   camera.position = vector3_zero();
 
@@ -220,7 +220,7 @@ lgl_camera_t lgl_camera_alloc(void) {
   return camera;
 }
 
-void lgl_camera_free(lgl_camera_t camera) {
+void lgl_camera_free(lgl_camera camera) {
   free(camera.view);
   free(camera.projection);
 }
@@ -241,7 +241,7 @@ void lgl_camera_update(void) {
   //-----------------------------------------------------------------------
   // View
   {
-    vector3_t offset =
+    vector3 offset =
         vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
 
     GLfloat translation[16];
@@ -258,7 +258,7 @@ void lgl_camera_update(void) {
   }
 }
 
-void lgl_draw_instanced(l_object_t object, const lgl_batch_t batch) {
+void lgl_draw_instanced(l_object object, const lgl_batch batch) {
 
   { // render flags
     if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -325,7 +325,7 @@ void lgl_draw_instanced(l_object_t object, const lgl_batch_t batch) {
   glUseProgram(0);
 }
 
-void lgl_draw(l_object_t object, const lgl_batch_t batch) {
+void lgl_draw(l_object object, const lgl_batch batch) {
 
   for (size_t i = 0; i < object.count; i++) {
 
@@ -531,9 +531,9 @@ void lgl_draw(l_object_t object, const lgl_batch_t batch) {
   }
 }
 
-lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
+lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
-  lgl_batch_t batch = {0};
+  lgl_batch batch = {0};
 
   glGenBuffers(1, &batch.model_matrix_buffer);
 
@@ -546,7 +546,7 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
   switch (archetype) {
   case L_ARCHETYPE_QUAD: {
     enum { quad_vertices_count = 6 };
-    lgl_vertex_t quad_vertices[quad_vertices_count] = {
+    lgl_vertex quad_vertices[quad_vertices_count] = {
         // position                        //normal          //tex coord
         {{LGL__LEFT, LGL__DOWN, 0.0}, vector3_forward(1.0), {0.0, 0.0}},
         {{LGL__RIGHT, LGL__DOWN, 0.0}, vector3_forward(1.0), {1.0, 0.0}},
@@ -565,7 +565,7 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
 
   case L_ARCHETYPE_CUBE: {
     enum { cube_vertices_count = 36 };
-    lgl_vertex_t cube_vertices[cube_vertices_count] = {
+    lgl_vertex cube_vertices[cube_vertices_count] = {
         // position                                 //normal             //tex
         // coord
         {{LGL__LEFT, LGL__DOWN, LGL__BACK}, vector3_back(1.0), {0.0, 0.0}},
@@ -634,15 +634,15 @@ lgl_batch_t lgl_batch_alloc(unsigned int count, unsigned int archetype) {
   return batch;
 }
 
-void lgl_batch_free(lgl_batch_t batch) {
+void lgl_batch_free(lgl_batch batch) {
   glDeleteBuffers(1, &batch.model_matrix_buffer);
 }
 
-lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
+lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
                                         GLuint num_color_attachments,
                                         GLuint width, GLuint height) {
 
-  lgl_framebuffer_t frame;
+  lgl_framebuffer frame;
 
   frame.color_buffers =
       calloc(sizeof(*frame.color_buffers), num_color_attachments);
@@ -737,7 +737,7 @@ lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,
   return frame;
 }
 
-void lgl_framebuffer_free(lgl_framebuffer_t frame) {
+void lgl_framebuffer_free(lgl_framebuffer frame) {
   lgl_batch_free(frame.quad);
   free(frame.color_buffers);
   glDeleteFramebuffers(1, &frame.FBO);
@@ -745,7 +745,7 @@ void lgl_framebuffer_free(lgl_framebuffer_t frame) {
   glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void lgl__framebuffer_resize(lgl_framebuffer_t *frame,
+static void lgl__framebuffer_resize(lgl_framebuffer *frame,
                                     unsigned int width, unsigned int height) {
 
   GLuint shader = frame->quad.shader;
@@ -778,7 +778,7 @@ void lgl__glfw_error_callback(int error, const char *description) {
   fprintf(stderr, "Error: %s\n", description);
 }
 
-lgl_context_t *lgl_start(const int width, const int height) {
+lgl_context *lgl_start(const int width, const int height) {
   debug_log("Rev up those fryers!");
 
   if (lgl__active_context != NULL) {
@@ -880,7 +880,7 @@ void lgl__time_update(void) {
 #endif // log time
 }
 
-void lgl_free(lgl_context_t *context) {
+void lgl_free(lgl_context *context) {
   debug_log("Shutting down...");
 
   context->is_running = 0;
