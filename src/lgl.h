@@ -73,8 +73,8 @@ typedef struct {
   GLuint VAO;
   GLuint VBO;
 
-  lgl_vertex *vertices;
-  GLuint vertices_count;
+  list_lgl_vertex vertices;
+  list_GLuint indices;
 
   GLuint model_matrix_buffer;
 
