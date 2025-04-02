@@ -11,6 +11,7 @@ static lgl_framebuffer *lgl__active_framebuffer_2 = NULL;
 static lgl_context *lgl__active_context = NULL;
 
 DEFINE_LIST(lgl_vertex)
+DEFINE_LIST(GLuint)
 
 void lgl_active_framebuffer_set(lgl_framebuffer *frame) {
   lgl__active_framebuffer = frame;
@@ -125,6 +126,35 @@ void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
 
   glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(lgl_vertex), vertices,
                GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, position));
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, normal));
+
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
+                        (void *)offsetof(lgl_vertex, texture_coordinates));
+
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
+}
+
+void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO, GLuint vertex_count,
+                              lgl_vertex *vertices, GLuint indices_count, GLuint *indices) {
+  glGenVertexArrays(1, VAO);
+  glBindVertexArray(*VAO);
+
+  glGenBuffers(1, VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+
+  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(lgl_vertex), vertices,
+               GL_STATIC_DRAW);
+
+  glGenBuffers(1, EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
                         (void *)offsetof(lgl_vertex, position));
@@ -531,8 +561,16 @@ void lgl_draw(l_object object, const lgl_batch batch) {
     lgl__uniform_materials(batch);
     lgl__uniform_lights(batch);
 
+    const GLenum mode = batch.render_flags & LGL_FLAG_DRAW_POINTS ? GL_POINTS : GL_TRIANGLES;
+
     glBindVertexArray(batch.VAO);
-    glDrawArrays(GL_POINTS, 0, batch.vertices.length);
+    if (batch.render_flags & LGL_FLAG_INDEXED_DRAW) {
+      glDrawArrays(GL_POINTS, 0, batch.vertices.length);
+      glDrawElements(mode, batch.indices.length, GL_UNSIGNED_INT, 0);
+    } else {
+      glDrawArrays(mode, 0, batch.vertices.length);
+    }
+
     glUseProgram(0);
   }
 }
@@ -650,12 +688,28 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 0}});
   // clang-format on
 
-  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices.length,
-                           batch->vertices.array);
+  batch->indices = list_GLuint_alloc();
+  batch->render_flags |= LGL_FLAG_INDEXED_DRAW;
+
+  {
+    enum { indices_count = 60 };
+    const GLuint indices[indices_count] = {
+      0, 11, 5,  0, 5,  1, 0, 1, 7, 0, 7,  10, 0, 10, 11, 1, 5, 9, 5, 11,
+      4, 11, 10, 2, 10, 7, 6, 7, 1, 8, 3,  9,  4, 3,  4,  2, 3, 2, 6, 3,
+      6, 8,  3,  8, 9,  4, 9, 5, 2, 4, 11, 6,  2, 10, 8,  6, 7, 9, 8, 1};
+
+    for (unsigned int i = 0; i < indices_count; i++) {
+      list_GLuint_add(&batch->indices, indices[i]);
+    }
+  }
+
+  lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO, batch->vertices.length,
+                           batch->vertices.array, batch->indices.length, batch->indices.array);
 }
 
 void lgl_batch_free(lgl_batch batch) {
   list_lgl_vertex_free(&batch.vertices);
+  list_GLuint_free(&batch.indices);
   glDeleteBuffers(1, &batch.model_matrix_buffer);
 }
 

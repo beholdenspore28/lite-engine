@@ -199,6 +199,8 @@ void icosphere_demo(void) {
 
   glClearColor(0.5, 0.5, 0.5, 1.0);
 
+  graphics_context->camera.position.z = -20;
+
   // --------------------------------------------------------------------------
   // Create lights
 
@@ -237,7 +239,8 @@ void icosphere_demo(void) {
     sphere_batch.lights_count = 1;
     sphere.transform.scale[0] = vector3_one(1);
     sphere.transform.position[0] = (vector3){0, 0, -15};
-    // sphere_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+    sphere_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+    //sphere_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   }
 
   glPointSize(5);
@@ -246,10 +249,13 @@ void icosphere_demo(void) {
 
     update_window_title();
 
-    camera_update(graphics_context);
+    lgl_camera_update();
+    //camera_update(graphics_context);
 
     // sphere.transform.position[0].y = sinf(graphics_context->time_current);
-    sphere.transform.rotation[0] = quaternion_rotate_euler(sphere.transform.rotation[0], vector3_one(graphics_context->time_delta));
+    sphere.transform.rotation[0] = quaternion_rotate_euler(
+        sphere.transform.rotation[0],
+        vector3_one(0.5 * graphics_context->time_delta));
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -257,6 +263,7 @@ void icosphere_demo(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
+  glDisable(GL_CULL_FACE);
       lgl_draw(sphere, sphere_batch);
     }
 

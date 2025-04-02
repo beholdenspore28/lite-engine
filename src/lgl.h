@@ -72,6 +72,7 @@ typedef struct {
 typedef struct {
   GLuint VAO;
   GLuint VBO;
+  GLuint EBO;
 
   list_lgl_vertex vertices;
   list_GLuint indices;
@@ -118,6 +119,9 @@ enum {
   LGL_FLAG_ENABLED = 1,
   LGL_FLAG_USE_STENCIL = 1 << 1,
   LGL_FLAG_USE_WIREFRAME = 1 << 2,
+  LGL_FLAG_DRAW_POINTS = 1 << 3, // tells the renderer to draw a black dot at
+                                 // the location of the vertex
+  LGL_FLAG_INDEXED_DRAW = 1 << 4,// tells the renderer to use the mesh's index array
 };
 
 lgl_context *lgl_start(const int width, const int height);
