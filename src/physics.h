@@ -1,5 +1,5 @@
-#ifndef PHYSICS_H
-#define PHYSICS_H
+#ifndef L_PHYSICS_H
+#define L_PHYSICS_H
 
 #include "blib/blib_math3d.h"
 #include "lgl.h"
@@ -25,4 +25,4 @@ void l_verlet_body_confine(l_object_t object, l_verlet_body verlet, vector3_t bo
 void l_verlet_body_constrain_distance(l_object_t object, l_verlet_body verlet,
                                  unsigned int point_a, unsigned int point_b,
                                  float distance_constraint);
-#endif // PHYSICS_H
+#endif // L_PHYSICS_H

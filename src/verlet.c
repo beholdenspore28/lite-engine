@@ -31,8 +31,10 @@ void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
         vector3_subtract(object.transform.position[i], verlet.position_old[i]);
 
     verlet.position_old[i] = object.transform.position[i];
+
     object.transform.position[i] =
         vector3_add(object.transform.position[i], velocity);
+
     object.transform.position[i] =
         vector3_add(object.transform.position[i], verlet.acceleration[i]);
     verlet.acceleration[i] = vector3_zero();

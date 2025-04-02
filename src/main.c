@@ -223,10 +223,6 @@ int main() {
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0.05);
-    particles.transform.position[i] = vector3_zero();
-    vector3_t force = vector3_scale(vector3_point_in_unit_sphere(i), 1);
-    particles_verlet.acceleration[i] =
-        vector3_add(particles_verlet.acceleration[i], force);
   }
 
   particles_verlet.is_pinned[0] = 1;
@@ -256,9 +252,10 @@ int main() {
     camera_update(lgl_context);
     audio_source_update(cube_audio_source, cube, lgl_context);
 
-    for (unsigned int i = 0; i < particles.count; i++) {
-      vector3_t gravity = vector3_down(0.004);
-      l_verlet_body_accelerate(particles_verlet, i, gravity);
+    for (unsigned int i = 9; i < particles.count; i++) {
+      l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.001));
+      l_verlet_body_accelerate(particles_verlet, i, vector3_scale(
+            vector3_point_in_unit_sphere(i+lgl_context->time_current*10), 0.0001));
     }
 
     timer_physics += lgl_context->time_delta;
