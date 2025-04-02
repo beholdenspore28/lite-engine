@@ -196,7 +196,7 @@ void spinning_cube_demo(void) {
 
 void icosphere_demo(void) {
 
-  glClearColor(1,1,1,1);
+  glClearColor(0.5, 0.5, 0.5, 1.0);
 
   // --------------------------------------------------------------------------
   // Create lights
@@ -238,7 +238,7 @@ void icosphere_demo(void) {
     // sphere_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
-  glPointSize(10);
+  glPointSize(5);
 
   while(!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
@@ -246,7 +246,7 @@ void icosphere_demo(void) {
 
     camera_update(graphics_context);
 
-    sphere.transform.position[0].y = sinf(graphics_context->time_current);
+    //sphere.transform.position[0].y = sinf(graphics_context->time_current);
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);

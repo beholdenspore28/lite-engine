@@ -10,6 +10,8 @@ static lgl_framebuffer *lgl__active_framebuffer = NULL;
 static lgl_framebuffer *lgl__active_framebuffer_2 = NULL;
 static lgl_context *lgl__active_context = NULL;
 
+DEFINE_LIST(lgl_vertex)
+
 void lgl_active_framebuffer_set(lgl_framebuffer *frame) {
   lgl__active_framebuffer = frame;
 }
@@ -651,25 +653,36 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
 
   const float t = (1.0 + sqrt(5.0)) / 2.0;
 
-  lgl_vertex vertices[] = {
-    // position       //normal         //tex coord
-    {{ -1,  t,  0  }, {  0,  0,  0  }, {0,  0}},
-    {{  1,  t,  0  }, {  0,  0,  0  }, {0,  0}},
-    {{ -1, -t,  0  }, {  0,  0,  0  }, {0,  0}},
-    {{  1, -t,  0  }, {  0,  0,  0  }, {0,  0}},
+  list_lgl_vertex vertices = list_lgl_vertex_alloc();
+  // position       //normal         //tex coord
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{ -1,  t,  0  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  1,  t,  0  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{ -1, -t,  0  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  1, -t,  0  }, {  0,  0,  0  }, {0,  0}});
 
-    {{  0, -1,  t }, {  0,  0,  0  }, {0,  0}},
-    {{  0,  1,  t }, {  0,  0,  0  }, {0,  0}},
-    {{  0, -1, -t }, {  0,  0,  0  }, {0,  0}},
-    {{  0,  1, -t }, {  0,  0,  0  }, {0,  0}},
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  0, -1,  t  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  0,  1,  t  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  0, -1, -t  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  0,  1, -t  }, {  0,  0,  0  }, {0,  0}});
 
-    {{  t,  0, -1 }, {  0,  0,  0  }, {0,  0}},
-    {{  t,  0,  1 }, {  0,  0,  0  }, {0,  0}},
-    {{ -t,  0, -1 }, {  0,  0,  0  }, {0,  0}},
-    {{ -t,  0,  1 }, {  0,  0,  0  }, {0,  0}},
-  };
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  t,  0, -1  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{  t,  0,  1  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{ -t,  0, -1  }, {  0,  0,  0  }, {0,  0}});
+  list_lgl_vertex_add(
+      &vertices, (lgl_vertex){{ -t,  0,  1  }, {  0,  0,  0  }, {0,  0}});
 
-  batch->vertices = vertices;
+  batch->vertices = vertices.array;
   batch->vertices_count = 12;
 
   lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices_count,
