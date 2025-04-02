@@ -1,12 +1,8 @@
 #include "physics.h"
 
-l_verlet_t l_verlet_alloc(l_object_t object) {
-  l_verlet_t verlet;
-  verlet.count = object.count;
-  verlet.bounce = 0.4;
-  verlet.gravity = -0.05;
-  verlet.friction = 0.9;
-
+verlet_body verlet_body_alloc(l_object_t object) {
+  verlet_body verlet;
+  verlet.acceleration = calloc(sizeof(*verlet.acceleration), object.count);
   verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
 
@@ -18,31 +14,32 @@ l_verlet_t l_verlet_alloc(l_object_t object) {
   return verlet;
 }
 
-void l_verlet_free(l_verlet_t verlet) {
+void verlet_body_free(verlet_body verlet) {
+  free(verlet.acceleration);
   free(verlet.position_old);
   free(verlet.is_pinned);
 }
 
-void l_verlet_update(l_object_t object, l_verlet_t points) {
+void verlet_body_update(l_object_t object, verlet_body verlet) {
 
-  for (unsigned int i = 0; i < points.count; i++) {
+  for (unsigned int i = 0; i < object.count; i++) {
 
-    if (points.is_pinned[i])
+    if (verlet.is_pinned[i])
       continue;
 
-    vector3_t velocity =
-        vector3_subtract(object.transform.position[i], points.position_old[i]);
+    const vector3_t velocity =
+        vector3_subtract(object.transform.position[i], verlet.position_old[i]);
 
-    velocity = vector3_scale(velocity, points.friction);
-
-    points.position_old[i] = object.transform.position[i];
+    verlet.position_old[i] = object.transform.position[i];
     object.transform.position[i] =
         vector3_add(object.transform.position[i], velocity);
-    object.transform.position[i].y += points.gravity;
+    object.transform.position[i] =
+        vector3_add(object.transform.position[i], verlet.acceleration[i]);
+    verlet.acceleration[i] = vector3_zero();
   }
 }
 
-void l_verlet_confine(l_object_t object, l_verlet_t verlet, vector3_t bounds) {
+void verlet_body_confine(l_object_t object, verlet_body verlet, vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -51,43 +48,37 @@ void l_verlet_confine(l_object_t object, l_verlet_t verlet, vector3_t bounds) {
 
     if (object.transform.position[i].x > bounds.x) {
       object.transform.position[i].x = bounds.x;
-      verlet.position_old[i].x =
-          object.transform.position[i].x + velocity.x * verlet.bounce;
+      verlet.position_old[i].x = object.transform.position[i].x + velocity.x;
     }
 
     if (object.transform.position[i].y > bounds.y) {
       object.transform.position[i].y = bounds.y;
-      verlet.position_old[i].y =
-          object.transform.position[i].y + velocity.y * verlet.bounce;
+      verlet.position_old[i].y = object.transform.position[i].y + velocity.y;
     }
 
     if (object.transform.position[i].z > bounds.z) {
       object.transform.position[i].z = bounds.z;
-      verlet.position_old[i].z =
-          object.transform.position[i].z + velocity.z * verlet.bounce;
+      verlet.position_old[i].z = object.transform.position[i].z + velocity.z;
     }
 
     if (object.transform.position[i].x < -bounds.x) {
       object.transform.position[i].x = -bounds.x;
-      verlet.position_old[i].x =
-          object.transform.position[i].x + velocity.x * verlet.bounce;
+      verlet.position_old[i].x = object.transform.position[i].x + velocity.x;
     }
 
     if (object.transform.position[i].y < -bounds.y) {
       object.transform.position[i].y = -bounds.y;
-      verlet.position_old[i].y =
-          object.transform.position[i].y + velocity.y * verlet.bounce;
+      verlet.position_old[i].y = object.transform.position[i].y + velocity.y;
     }
 
     if (object.transform.position[i].z < -bounds.z) {
       object.transform.position[i].z = -bounds.z;
-      verlet.position_old[i].z =
-          object.transform.position[i].z + velocity.z * verlet.bounce;
+      verlet.position_old[i].z = object.transform.position[i].z + velocity.z;
     }
   }
 }
 
-void l_verlet_constrain_distance(l_object_t object, l_verlet_t verlet,
+void verlet_body_constrain_distance(l_object_t object, verlet_body verlet,
                                  unsigned int point_a, unsigned int point_b,
                                  float distance_constraint) {
 

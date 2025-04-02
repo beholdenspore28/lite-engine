@@ -212,22 +212,24 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles_batch
 
-  l_object_t particles = l_object_alloc(2000);
+  l_object_t particles = l_object_alloc(100);
   lgl_batch_t particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
   particles_batch.color = (vector4_t){1.0, 0.5, 0.5, 1.0};
   particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  l_verlet_t particles_batch_verlet = l_verlet_alloc(particles);
+  verlet_body particles_verlet = verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0.05);
     particles.transform.position[i] = vector3_zero();
-    particles_batch_verlet.position_old[i] = vector3_point_in_unit_sphere(i);
+    vector3_t force = vector3_scale(vector3_point_in_unit_sphere(i), 1);
+    particles_verlet.acceleration[i] =
+        vector3_add(particles_verlet.acceleration[i], force);
   }
 
-  particles_batch_verlet.is_pinned[0] = 1;
+  particles_verlet.is_pinned[0] = 1;
 
   // --------------------------------------------------------------------------
   // game loop
@@ -254,42 +256,47 @@ int main() {
     camera_update(lgl_context);
     lal_audio_source_update(cube_audio_source, cube, lgl_context);
 
+    for (unsigned int i = 0; i < particles.count; i++) {
+      vector3_t gravity = vector3_down(0.004);
+      verlet_body_accelerate(particles_verlet, i, gravity);
+    }
+
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
       // wrap_position(particles_batch, lgl_context);
-      l_verlet_update(particles, particles_batch_verlet);
+      verlet_body_update(particles, particles_verlet);
 
       for (unsigned int i = 0; i < 5; i++) {
 
         // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
 
         // constrain diagonally
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 7, 2);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 6, 2);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 5, 2);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 3, 4, 2);
+        verlet_body_constrain_distance(particles, particles_verlet, 0, 7, 2);
+        verlet_body_constrain_distance(particles, particles_verlet, 1, 6, 2);
+        verlet_body_constrain_distance(particles, particles_verlet, 2, 5, 2);
+        verlet_body_constrain_distance(particles, particles_verlet, 3, 4, 2);
 
         // x constraints
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 1, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 3, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 4, 5, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 6, 7, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 0, 1, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 2, 3, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 4, 5, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 6, 7, 1);
 
         // y constraints
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 2, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 3, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 4, 6, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 5, 7, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 0, 2, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 1, 3, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 4, 6, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 5, 7, 1);
 
         // z constraints
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 0, 4, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 1, 5, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 2, 6, 1);
-        l_verlet_constrain_distance(particles, particles_batch_verlet, 3, 7, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 0, 4, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 1, 5, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 2, 6, 1);
+        verlet_body_constrain_distance(particles, particles_verlet, 3, 7, 1);
 
-        l_verlet_confine(particles, particles_batch_verlet, vector3_one(10));
+        verlet_body_confine(particles, particles_verlet, vector3_one(10));
       }
 
       lgl_mat4_buffer(particles, &particles_batch);
@@ -298,12 +305,14 @@ int main() {
       lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
     }
 
+#if 0
     cube.transform.rotation[0] =
         quaternion_rotate_euler(cube.transform.rotation[0],
                                 vector3_up(PI / 5 * lgl_context->time_delta));
     cube.transform.position[0] = vector3_add(
         cube.transform.position[0],
         l_object_forward(cube.transform, 0, lgl_context->time_delta * 10));
+#endif
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
@@ -339,7 +348,7 @@ int main() {
   l_object_free(particles);
   l_object_free(cube);
   lgl_camera_free(lgl_context->camera);
-  l_verlet_free(particles_batch_verlet);
+  verlet_body_free(particles_verlet);
   lal_audio_source_free(cube_audio_source);
   lgl_batch_free(cube_batch);
   lgl_batch_free(particles_batch);

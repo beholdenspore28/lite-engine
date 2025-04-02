@@ -6,21 +6,23 @@
 
 typedef struct {
   vector3_t *position_old;
+  vector3_t *acceleration;
   unsigned int *is_pinned;
-  float bounce;
-  float gravity;
-  float friction;
-  unsigned int count;
-} l_verlet_t;
+} verlet_body;
 
-l_verlet_t l_verlet_alloc(l_object_t object);
-void l_verlet_free(l_verlet_t verlet);
+verlet_body verlet_body_alloc(l_object_t object);
+void verlet_body_free(verlet_body verlet);
 
-void l_verlet_update(l_object_t object, l_verlet_t points);
+void verlet_body_update(l_object_t object, verlet_body verlet);
 
-void l_verlet_confine(l_object_t object, l_verlet_t verlet, vector3_t bounds);
+static inline void verlet_body_accelerate(verlet_body verlet, unsigned int index,
+                                       vector3_t force) {
+  verlet.acceleration[index] = vector3_add(verlet.acceleration[index], force);
+}
 
-void l_verlet_constrain_distance(l_object_t object, l_verlet_t verlet,
+void verlet_body_confine(l_object_t object, verlet_body verlet, vector3_t bounds);
+
+void verlet_body_constrain_distance(l_object_t object, verlet_body verlet,
                                  unsigned int point_a, unsigned int point_b,
                                  float distance_constraint);
 #endif // PHYSICS_H
