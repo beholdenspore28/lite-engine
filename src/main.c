@@ -249,6 +249,7 @@ void icosphere_demo(void) {
     camera_update(graphics_context);
 
     // sphere.transform.position[0].y = sinf(graphics_context->time_current);
+    sphere.transform.rotation[0] = quaternion_rotate_euler(sphere.transform.rotation[0], vector3_one(graphics_context->time_delta));
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
