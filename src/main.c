@@ -202,7 +202,7 @@ int main() {
   cube_batch.lights = lights;
   cube_batch.lights_count = LIGHTS_COUNT;
   cube_batch.shader = shader_phong;
-  cube_batch.color = (vector4){1, 0.5, 0.5, 1};
+  cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   cube.transform.scale[0] = vector3_one(1);
   cube.transform.position[0] = (vector3){0, 0, -15};
   //cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
@@ -273,7 +273,7 @@ int main() {
       l_verlet_body_update(particles, particles_verlet);
 
       for (unsigned int j = 0; j < 2; j++) {
-        l_verlet_resolve_collisions(particles, particles_verlet);
+        l_verlet_resolve_collisions(particles);
         l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
       }
 

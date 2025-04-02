@@ -95,7 +95,7 @@ void l_verlet_body_confine(l_object object, l_verlet_body verlet,
   }
 }
 
-void l_verlet_resolve_collisions(l_object object, l_verlet_body verlet) {
+void l_verlet_resolve_collisions(l_object object) {
   for (unsigned int i = 0; i < object.count; i++) {
     for (unsigned int j = 0; j < object.count; j++) {
         vector3 direction = vector3_subtract(object.transform.position[i],
