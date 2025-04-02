@@ -194,6 +194,76 @@ void spinning_cube_demo(void) {
   lgl_batch_free(cube_batch);
 }
 
+void icosphere_demo(void) {
+
+  glClearColor(1,1,1,1);
+
+  // --------------------------------------------------------------------------
+  // Create lights
+
+  lgl_light light = (lgl_light){
+      .type = 0,
+      .position = {0.0, 0.0, 0.0},
+      .direction = {0.0, 0.0, 1.0},
+      .cut_off = cos(12.5),
+      .outer_cut_off = cos(15.0),
+      .constant = 1.0f,
+      .linear = 0.09f,
+      .quadratic = 0.032f,
+      .diffuse = (vector3){1.0, 1.0, 1.0},
+      .specular = vector3_one(0.6),
+  };
+
+  // --------------------------------------------------------------------------
+  // Create sphere
+
+  l_object sphere = l_object_alloc(1);
+  lgl_batch sphere_batch = lgl_batch_alloc(1, L_ARCHETYPE_EMPTY);
+
+  { 
+    lgl_icosphere_mesh_alloc(&sphere_batch);
+    GLuint vertex_shader =
+      lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
+
+    sphere_batch.shader = lgl_shader_link(vertex_shader, fragment_shader);
+
+    sphere_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+    sphere_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+    sphere_batch.lights = &light;
+    sphere_batch.lights_count = 1;
+    sphere.transform.scale[0] = vector3_one(1);
+    sphere.transform.position[0] = (vector3){0, 0, -15};
+    // sphere_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  }
+
+  glPointSize(10);
+
+  while(!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
+
+    update_window_title();
+
+    camera_update(graphics_context);
+
+    sphere.transform.position[0].y = sinf(graphics_context->time_current);
+
+    { // draw scene to the frame
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+          GL_STENCIL_BUFFER_BIT);
+
+      lgl_draw(sphere, sphere_batch);
+    }
+
+    lgl_end_frame();
+  }
+
+  l_object_free(sphere);
+  lgl_batch_free(sphere_batch);
+}
+
 void physics_demo(void) {
 
   glClearColor(0,0,0,1);
@@ -227,7 +297,7 @@ void physics_demo(void) {
   }
 
   // --------------------------------------------------------------------------
-  // Create particles_batch
+  // Create particles
 
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
@@ -368,12 +438,16 @@ int main() {
   graphics_context->camera = lgl_camera_alloc();
   graphics_context->camera.position.z -= 25;
 
-#if 1
-  physics_demo();
+#if 0
+  spinning_cube_demo();
 #endif
 
 #if 0
-  spinning_cube_demo();
+  physics_demo();
+#endif
+
+#if 1
+  icosphere_demo();
 #endif
 
   lgl_camera_free(graphics_context->camera);

@@ -533,7 +533,7 @@ void lgl_draw(l_object object, const lgl_batch batch) {
     lgl__uniform_lights(batch);
 
     glBindVertexArray(batch.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, batch.vertices_count);
+    glDrawArrays(GL_POINTS, 0, batch.vertices_count);
     glUseProgram(0);
   }
 }
@@ -636,9 +636,44 @@ lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
     lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices_count,
                              batch.vertices);
   } break;
+
+  default: {
+    batch.vertices = NULL;
+    batch.vertices_count = 0;
+  } break;
+
   }
 
   return batch;
+}
+
+void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
+
+  const float t = (1.0 + sqrt(5.0)) / 2.0;
+
+  lgl_vertex vertices[] = {
+    // position       //normal         //tex coord
+    {{ -1,  t,  0  }, {  0,  0,  0  }, {0,  0}},
+    {{  1,  t,  0  }, {  0,  0,  0  }, {0,  0}},
+    {{ -1, -t,  0  }, {  0,  0,  0  }, {0,  0}},
+    {{  1, -t,  0  }, {  0,  0,  0  }, {0,  0}},
+
+    {{  0, -1,  t }, {  0,  0,  0  }, {0,  0}},
+    {{  0,  1,  t }, {  0,  0,  0  }, {0,  0}},
+    {{  0, -1, -t }, {  0,  0,  0  }, {0,  0}},
+    {{  0,  1, -t }, {  0,  0,  0  }, {0,  0}},
+
+    {{  t,  0, -1 }, {  0,  0,  0  }, {0,  0}},
+    {{  t,  0,  1 }, {  0,  0,  0  }, {0,  0}},
+    {{ -t,  0, -1 }, {  0,  0,  0  }, {0,  0}},
+    {{ -t,  0,  1 }, {  0,  0,  0  }, {0,  0}},
+  };
+
+  batch->vertices = vertices;
+  batch->vertices_count = 12;
+
+  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices_count,
+      batch->vertices);
 }
 
 void lgl_batch_free(lgl_batch batch) {
