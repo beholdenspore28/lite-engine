@@ -195,6 +195,9 @@ void spinning_cube_demo(void) {
 }
 
 void physics_demo(void) {
+
+  glClearColor(0,0,0,1);
+
   // --------------------------------------------------------------------------
   // Create shaders
 
@@ -210,6 +213,20 @@ void physics_demo(void) {
   }
 
   // --------------------------------------------------------------------------
+  // Create boundary cube
+
+  l_object cube = l_object_alloc(1);
+  lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
+
+  { 
+    cube_batch.shader = shader_solid;
+
+    cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+    cube.transform.scale[0] = vector3_one(10);
+    cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  }
+
+  // --------------------------------------------------------------------------
   // Create particles_batch
 
   l_object particles = l_object_alloc(200);
@@ -217,12 +234,12 @@ void physics_demo(void) {
     lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-  // particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.5);
+    particles.transform.scale[i] = vector3_one(0.2);
   }
 
 #if 1 // random points in a box
@@ -259,7 +276,7 @@ void physics_demo(void) {
 
       for (unsigned int j = 0; j < 2; j++) {
         l_verlet_resolve_collisions(particles);
-        l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
+        l_verlet_body_confine(particles, particles_verlet, cube.transform.scale[0]);
       }
 
       lgl_mat4_buffer(particles, &particles_batch);
@@ -276,6 +293,7 @@ void physics_demo(void) {
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
       glEnable(GL_CULL_FACE);
 
+      lgl_draw(cube, cube_batch);
       lgl_draw_instanced(particles, particles_batch);
     }
 
@@ -297,6 +315,8 @@ void physics_demo(void) {
     lgl_end_frame();
   }
 
+  l_object_free(cube);
+  lgl_batch_free(cube_batch);
   l_object_free(particles);
   l_verlet_body_free(particles_verlet);
   lgl_batch_free(particles_batch);
@@ -341,8 +361,13 @@ int main() {
   graphics_context->camera = lgl_camera_alloc();
   graphics_context->camera.position.z -= 25;
 
-  // physics_demo();
+#if 1
+  physics_demo();
+#endif
+
+#if 0
   spinning_cube_demo();
+#endif
 
   lgl_camera_free(graphics_context->camera);
   l_object_free(frame_obj);
