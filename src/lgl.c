@@ -154,7 +154,7 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO, GLuint ver
 
   glGenBuffers(1, EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*indices)*indices_count, indices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(lgl_vertex),
                         (void *)offsetof(lgl_vertex, position));
