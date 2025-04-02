@@ -201,7 +201,7 @@ int main() {
       lgl_texture_alloc("res/textures/lite-engine-cube.png");
   cube_batch.lights = lights;
   cube_batch.lights_count = LIGHTS_COUNT;
-  cube_batch.shader = shader_solid;
+  cube_batch.shader = shader_phong;
   cube_batch.color = (vector4){1, 0.5, 0.5, 1};
   cube.transform.scale[0] = vector3_one(1);
   cube.transform.position[0] = (vector3){0, 0, -15};

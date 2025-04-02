@@ -258,65 +258,7 @@ void lgl_camera_update(void) {
   }
 }
 
-void lgl_draw_instanced(l_object object, const lgl_batch batch) {
-
-  { // render flags
-    if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
-      return;
-    }
-
-    if (batch.render_flags & LGL_FLAG_USE_WIREFRAME) {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    } else {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    if (batch.render_flags & LGL_FLAG_USE_STENCIL) {
-      glStencilMask(0xFF);
-    } else {
-      glStencilMask(0x00);
-    }
-  }
-
-  glUseProgram(batch.shader);
-  glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 1);
-
-  { // Model
-
-    GLfloat model_matrix[16];
-    lgl_mat4_identity(model_matrix);
-
-    {
-      GLfloat translation[16];
-      lgl_mat4_identity(translation);
-      translation[12] = object.transform.position[0].x;
-      translation[13] = object.transform.position[0].y;
-      translation[14] = object.transform.position[0].z;
-
-      GLfloat rotation[16];
-      lgl_mat4_identity(rotation);
-      quaternion_to_mat4(object.transform.rotation[0], rotation);
-
-      lgl_mat4_multiply(model_matrix, rotation, translation);
-    }
-
-    GLint model_matrix_location =
-        glGetUniformLocation(batch.shader, "u_model_matrix");
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
-  }
-
-  { // camera matrix
-    GLfloat camera_matrix[16];
-    lgl_mat4_identity(camera_matrix);
-
-    lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.view,
-                      lgl__active_context->camera.projection);
-
-    GLint camera_matrix_location =
-        glGetUniformLocation(batch.shader, "u_camera_matrix");
-    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
-  }
-
+void lgl__uniform_materials(lgl_batch batch) {
   { // textures
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, batch.diffuse_map);
@@ -343,8 +285,10 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
     glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
         batch.color.y, batch.color.z, batch.color.w);
   }
+}
 
-#if 1 // lighting uniforms
+void lgl__uniform_lights(lgl_batch batch) {
+
   for (GLuint light = 0; light < batch.lights_count; light++) {
     glUniform1ui(glGetUniformLocation(batch.shader, "u_lights_count"),
         batch.lights_count);
@@ -448,8 +392,69 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
           batch.lights[light].specular.z);
     }
   }
-#endif
+}
 
+void lgl_draw_instanced(l_object object, const lgl_batch batch) {
+
+  { // render flags
+    if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
+      return;
+    }
+
+    if (batch.render_flags & LGL_FLAG_USE_WIREFRAME) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (batch.render_flags & LGL_FLAG_USE_STENCIL) {
+      glStencilMask(0xFF);
+    } else {
+      glStencilMask(0x00);
+    }
+  }
+
+  glUseProgram(batch.shader);
+  glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 1);
+
+  { // Model
+
+    GLfloat model_matrix[16];
+    lgl_mat4_identity(model_matrix);
+
+    {
+      GLfloat translation[16];
+      lgl_mat4_identity(translation);
+      translation[12] = object.transform.position[0].x;
+      translation[13] = object.transform.position[0].y;
+      translation[14] = object.transform.position[0].z;
+
+      GLfloat rotation[16];
+      lgl_mat4_identity(rotation);
+      quaternion_to_mat4(object.transform.rotation[0], rotation);
+
+      lgl_mat4_multiply(model_matrix, rotation, translation);
+    }
+
+    GLint model_matrix_location =
+        glGetUniformLocation(batch.shader, "u_model_matrix");
+    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+  }
+
+  { // camera matrix
+    GLfloat camera_matrix[16];
+    lgl_mat4_identity(camera_matrix);
+
+    lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.view,
+                      lgl__active_context->camera.projection);
+
+    GLint camera_matrix_location =
+        glGetUniformLocation(batch.shader, "u_camera_matrix");
+    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
+  }
+
+  lgl__uniform_materials(batch);
+  lgl__uniform_lights(batch);
 
   glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
               batch.color.y, batch.color.z, batch.color.w);
@@ -526,138 +531,8 @@ void lgl_draw(l_object object, const lgl_batch batch) {
       glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
     }
 
-    { // textures
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, batch.diffuse_map);
-
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, batch.specular_map);
-
-      glUniform2f(glGetUniformLocation(batch.shader, "u_texture_offset"),
-                  batch.texture_offset.x, batch.texture_offset.y);
-
-      glUniform2f(glGetUniformLocation(batch.shader, "u_texture_scale"),
-                  batch.texture_scale.x, batch.texture_scale.y);
-    }
-
-    { // other material properties
-      glUniform1i(glGetUniformLocation(batch.shader, "u_material.diffuse"), 0);
-      glUniform1i(glGetUniformLocation(batch.shader, "u_material.specular"), 1);
-      glUniform1f(glGetUniformLocation(batch.shader, "u_material.shininess"),
-                  8.0f);
-
-      glUniform3f(glGetUniformLocation(batch.shader, "u_ambient_light"), 0.2,
-                  0.2, 0.2);
-
-      glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
-                  batch.color.y, batch.color.z, batch.color.w);
-    }
-
-#if 1 // lighting uniforms
-    for (GLuint light = 0; light < batch.lights_count; light++) {
-      glUniform1ui(glGetUniformLocation(batch.shader, "u_lights_count"),
-                   batch.lights_count);
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type",
-                 light);
-
-        glUniform1i(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].type);
-      }
-
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position",
-                 light);
-
-        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].position.x,
-                    batch.lights[light].position.y,
-                    batch.lights[light].position.z);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction",
-                 light);
-
-        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].direction.x,
-                    batch.lights[light].direction.y,
-                    batch.lights[light].direction.z);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off",
-                 light);
-
-        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].cut_off);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name),
-                 "u_lights[%d].outer_cut_off", light);
-
-        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].outer_cut_off);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].constant",
-                 light);
-
-        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].constant);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].linear",
-                 light);
-
-        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].linear);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].quadratic",
-                 light);
-
-        glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].quadratic);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].diffuse",
-                 light);
-
-        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].diffuse.x,
-                    batch.lights[light].diffuse.y,
-                    batch.lights[light].diffuse.z);
-      }
-      {
-        char uniform_name[64] = {0};
-
-        snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].specular",
-                 light);
-
-        glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-                    batch.lights[light].specular.x,
-                    batch.lights[light].specular.y,
-                    batch.lights[light].specular.z);
-      }
-    }
-#endif
+    lgl__uniform_materials(batch);
+    lgl__uniform_lights(batch);
 
     glBindVertexArray(batch.VAO);
     glDrawArrays(GL_TRIANGLES, 0, batch.vertices_count);
