@@ -6,7 +6,7 @@ l_verlet_body l_verlet_body_alloc(l_object_t object) {
   verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
 
-  verlet.bounciness = 0.5;
+  verlet.bounciness = 0.2;
   verlet.friction = 0.995;
 
   for (unsigned int i = 0; i < object.count; i++) {
@@ -91,6 +91,28 @@ void l_verlet_body_confine(l_object_t object, l_verlet_body verlet,
       object.transform.position[i].z = -bounds.z;
       verlet.position_old[i].z =
           object.transform.position[i].z + velocity.z * verlet.bounciness;
+    }
+  }
+}
+
+void l_verlet_resolve_collisions(l_object_t object, l_verlet_body verlet) {
+  for (unsigned int i = 0; i < object.count; i++) {
+    for (unsigned int j = 0; j < object.count; j++) {
+        vector3_t direction = vector3_subtract(object.transform.position[i],
+            object.transform.position[j]);
+
+        float distance = vector3_magnitude(direction);
+
+        if (distance < 1) { // <- 1 is arbitrary for now
+
+          vector3_t correction = vector3_scale(direction, distance-1);
+
+          object.transform.position[i] = vector3_subtract(
+              object.transform.position[i], correction);
+
+          object.transform.position[j] = vector3_add(
+              object.transform.position[j], correction);
+        }
     }
   }
 }

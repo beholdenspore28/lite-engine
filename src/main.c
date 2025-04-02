@@ -212,7 +212,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles_batch
 
-  l_object_t particles = l_object_alloc(1000);
+  l_object_t particles = l_object_alloc(200);
   lgl_batch_t particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
@@ -222,7 +222,7 @@ int main() {
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.1);
+    particles.transform.scale[i] = vector3_one(0.5);
   }
 
 #if 1 // random points in a box
@@ -266,9 +266,12 @@ int main() {
         l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.01));
       }
 
-      // wrap_position(particles_batch, lgl_context);
       l_verlet_body_update(particles, particles_verlet);
-      l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
+
+      for (unsigned int j = 0; j < 2; j++) {
+        l_verlet_resolve_collisions(particles, particles_verlet);
+        l_verlet_body_confine(particles, particles_verlet, cube.transform.scale[0]);
+      }
 
       lgl_mat4_buffer(particles, &particles_batch);
     }
