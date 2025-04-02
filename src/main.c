@@ -9,6 +9,26 @@
 #include <math.h>
 #include <stdio.h>
 
+lgl_context *graphics_context;
+lgl_framebuffer framebuffer;
+lgl_framebuffer framebuffer_MSAA;
+l_object frame_obj;
+
+void update_window_title(void) {
+  static float timer = 0;
+  timer += graphics_context->time_delta;
+  if (timer > 1) { // window titlebar
+    timer = 0;
+    char window_title[64] = {0};
+
+    snprintf(window_title, sizeof(window_title),
+        "Lite-Engine Demo. | %.0lf FPS | %.4f DT", graphics_context->time_FPS,
+        graphics_context->time_delta);
+
+    glfwSetWindowTitle(graphics_context->GLFWwindow, window_title);
+  }
+}
+
 void camera_update(lgl_context *context) {
   lgl_camera_update();
 
@@ -104,12 +124,77 @@ void galaxy_generate(l_object stars, float radius, unsigned int seed,
   }
 }
 
-int main() {
-  alutInit(0, 0);
-  lgl_context *lgl_context = lgl_start(1000, 800);
+void spinning_cube_demo(void) {
 
-  // glClearColor(0.0, 0.0, 0.0, 1);
+  // --------------------------------------------------------------------------
+  // Create lights
 
+  lgl_light light = (lgl_light){
+      .type = 0,
+      .position = {0.0, 0.0, 0.0},
+      .direction = {0.0, 0.0, 1.0},
+      .cut_off = cos(12.5),
+      .outer_cut_off = cos(15.0),
+      .constant = 1.0f,
+      .linear = 0.09f,
+      .quadratic = 0.032f,
+      .diffuse = (vector3){1.0, 1.0, 1.0},
+      .specular = vector3_one(0.6),
+  };
+
+  // --------------------------------------------------------------------------
+  // Create cube
+
+  l_object cube = l_object_alloc(1);
+  lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
+
+  { 
+    GLuint vertex_shader =
+      lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
+
+    cube_batch.shader = lgl_shader_link(vertex_shader, fragment_shader);
+
+    cube_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-cube.png");
+    cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+    cube_batch.lights = &light;
+    cube_batch.lights_count = 1;
+    cube.transform.scale[0] = vector3_one(1);
+    cube.transform.position[0] = (vector3){0, 0, -15};
+    // cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  }
+
+  // cube audio source component
+  lal_audio_source cube_audio_source = lal_audio_source_alloc(cube.count);
+
+  while(!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
+
+    update_window_title();
+
+    lal_audio_source_update(cube_audio_source, cube, graphics_context);
+    camera_update(graphics_context);
+
+    cube.transform.position[0].y = sinf(graphics_context->time_current);
+
+    { // draw scene to the frame
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+          GL_STENCIL_BUFFER_BIT);
+
+      lgl_draw(cube, cube_batch);
+    }
+
+    lgl_end_frame();
+  }
+
+  l_object_free(cube);
+  lal_audio_source_free(cube_audio_source);
+  lgl_batch_free(cube_batch);
+}
+
+void physics_demo(void) {
   // --------------------------------------------------------------------------
   // Create shaders
 
@@ -124,102 +209,13 @@ int main() {
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
 
-  GLuint shader_phong = 0;
-  {
-    GLuint vertex_shader =
-        lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
-
-    shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-
-  GLuint shader_framebuffer = 0;
-  {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
-
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_default_fragment.glsl", GL_FRAGMENT_SHADER);
-
-    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-
-  // --------------------------------------------------------------------------
-  // Create framebuffer
-
-  enum {
-    SAMPLES = 4,
-    NUM_COLOR_BUFFERS = 2,
-  };
-
-  int width, height;
-  glfwGetFramebufferSize(lgl_context->GLFWwindow, &width, &height);
-
-  l_object frame_obj = l_object_alloc(1);
-
-  lgl_framebuffer frame = lgl_framebuffer_alloc(
-      shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
-  lgl_framebuffer frame_MSAA = lgl_framebuffer_alloc(
-      shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
-
-  lgl_active_framebuffer_set(&frame);
-  lgl_active_framebuffer_set_2(&frame_MSAA);
-
-  // --------------------------------------------------------------------------
-  // Create lights and camera
-
-  enum {
-    LIGHTS_POINT_0,
-    LIGHTS_COUNT, // this should ALWAYS be at the end of the enum
-  };
-  lgl_light lights[LIGHTS_COUNT] = {0};
-
-  lights[LIGHTS_POINT_0] = (lgl_light){
-      .type = 0,
-      .position = {0.0, 0.0, 0.0},
-      .direction = {0.0, 0.0, 1.0},
-      .cut_off = cos(12.5),
-      .outer_cut_off = cos(15.0),
-      .constant = 1.0f,
-      .linear = 0.09f,
-      .quadratic = 0.032f,
-      .diffuse = (vector3){1.0, 1.0, 1.0},
-      .specular = vector3_one(0.6),
-  };
-
-  lgl_context->camera = lgl_camera_alloc();
-  lgl_context->camera.position.z -= 25;
-
-  // --------------------------------------------------------------------------
-  // Create cube
-
-  l_object cube = l_object_alloc(1);
-  lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
-  cube_batch.diffuse_map =
-      lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  cube_batch.lights = lights;
-  cube_batch.lights_count = LIGHTS_COUNT;
-  cube_batch.shader = shader_phong;
-  cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-  cube.transform.scale[0] = vector3_one(1);
-  cube.transform.position[0] = (vector3){0, 0, -15};
-  // cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
-
-  lal_audio_source cube_audio_source = lal_audio_source_alloc(1);
-
   // --------------------------------------------------------------------------
   // Create particles_batch
 
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
-      lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
-  particles_batch.diffuse_map =
-      lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  particles_batch.lights = lights;
-  particles_batch.lights_count = LIGHTS_COUNT;
-  particles_batch.shader = shader_phong;
+    lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
+  particles_batch.shader = shader_solid;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   // particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
@@ -245,24 +241,13 @@ int main() {
   // --------------------------------------------------------------------------
   // game loop
 
-  float timer = 0;
   float timer_physics = 0;
 
-  while (!glfwWindowShouldClose(lgl_context->GLFWwindow)) {
+  while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
-    timer += lgl_context->time_delta;
-    if (timer > 1) { // window titlebar
-      timer = 0;
-      char window_title[64] = {0};
+    update_window_title();
 
-      snprintf(window_title, sizeof(window_title),
-               "Lite-Engine Demo. | %.0lf FPS | %.4f DT", lgl_context->time_FPS,
-               lgl_context->time_delta);
-
-      glfwSetWindowTitle(lgl_context->GLFWwindow, window_title);
-    }
-
-    timer_physics += lgl_context->time_delta;
+    timer_physics += graphics_context->time_delta;
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
@@ -280,65 +265,91 @@ int main() {
       lgl_mat4_buffer(particles, &particles_batch);
     }
 
-    // update lights
-    lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
-
-    camera_update(lgl_context);
-    lal_audio_source_update(cube_audio_source, cube, lgl_context);
-
-#if 0
-    cube.transform.rotation[0] =
-        quaternion_rotate_euler(cube.transform.rotation[0],
-                                vector3_up(PI / 5 * lgl_context->time_delta));
-    cube.transform.position[0] = vector3_add(
-        cube.transform.position[0],
-        l_object_forward(cube.transform, 0, lgl_context->time_delta * 10));
-#endif
+    camera_update(graphics_context);
 
     { // draw scene to the frame
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_MSAA.FBO);
+      glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_MSAA.FBO);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-              GL_STENCIL_BUFFER_BIT);
+          GL_STENCIL_BUFFER_BIT);
 
       glDisable(GL_CULL_FACE); // TODO add cull face render flag
-      lgl_draw(cube, cube_batch);
       glEnable(GL_CULL_FACE);
 
       lgl_draw_instanced(particles, particles_batch);
     }
 
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_MSAA.FBO);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame.FBO);
-    glBlitFramebuffer(0, 0, frame_MSAA.width, frame_MSAA.height, 0, 0,
-                      frame.width, frame.height, GL_COLOR_BUFFER_BIT,
-                      GL_NEAREST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_MSAA.FBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.FBO);
+    glBlitFramebuffer(0, 0, framebuffer_MSAA.width, framebuffer_MSAA.height, 0, 0,
+        framebuffer.width, framebuffer.height, GL_COLOR_BUFFER_BIT,
+        GL_NEAREST);
 
     { // draw the frame to the screen
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-              GL_STENCIL_BUFFER_BIT);
+          GL_STENCIL_BUFFER_BIT);
 
-      lgl_draw(frame_obj, frame.quad);
+      lgl_draw(frame_obj, framebuffer.quad);
     }
 
     lgl_end_frame();
   }
 
   l_object_free(particles);
-  l_object_free(cube);
-  lgl_camera_free(lgl_context->camera);
   l_verlet_body_free(particles_verlet);
-  lal_audio_source_free(cube_audio_source);
-  lgl_batch_free(cube_batch);
   lgl_batch_free(particles_batch);
+}
 
+int main() {
+  alutInit(0, 0);
+  graphics_context = lgl_start(1000, 800);
+
+  GLuint shader_framebuffer = 0;
+  {
+    GLuint vertex_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/frame_buffer_default_fragment.glsl", GL_FRAGMENT_SHADER);
+
+    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
+  // --------------------------------------------------------------------------
+  // Create framebuffer
+
+  enum {
+    SAMPLES = 4,
+    NUM_COLOR_BUFFERS = 2,
+  };
+
+  int width, height;
+  glfwGetFramebufferSize(graphics_context->GLFWwindow, &width, &height);
+
+  frame_obj = l_object_alloc(1);
+
+  framebuffer = lgl_framebuffer_alloc(
+      shader_framebuffer, 1, NUM_COLOR_BUFFERS, width, height);
+  framebuffer_MSAA = lgl_framebuffer_alloc(
+      shader_framebuffer, SAMPLES, NUM_COLOR_BUFFERS, width, height);
+
+  lgl_active_framebuffer_set(&framebuffer);
+  lgl_active_framebuffer_set_2(&framebuffer_MSAA);
+
+  graphics_context->camera = lgl_camera_alloc();
+  graphics_context->camera.position.z -= 25;
+
+  // physics_demo();
+  spinning_cube_demo();
+
+  lgl_camera_free(graphics_context->camera);
   l_object_free(frame_obj);
-  lgl_framebuffer_free(frame);
-  lgl_framebuffer_free(frame_MSAA);
+  lgl_framebuffer_free(framebuffer);
+  lgl_framebuffer_free(framebuffer_MSAA);
 
-  lgl_free(lgl_context);
+  lgl_free(graphics_context);
 
   alutExit();
 
