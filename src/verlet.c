@@ -6,8 +6,12 @@ l_verlet_body l_verlet_body_alloc(l_object_t object) {
   verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
 
+  verlet.bounciness = 0.5;
+  verlet.friction = 0.995;
+
   for (unsigned int i = 0; i < object.count; i++) {
     verlet.position_old[i] = object.transform.position[i];
+    verlet.acceleration[i] = vector3_zero();
     verlet.is_pinned[i] = 0;
   }
 
@@ -27,8 +31,12 @@ void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
     if (verlet.is_pinned[i])
       continue;
 
-    const vector3_t velocity =
+    vector3_t velocity =
         vector3_subtract(object.transform.position[i], verlet.position_old[i]);
+
+    // TODO. This is unreallistic as hell. not how friction works...
+    // i mainly just did this to keep the points from moving forever.
+    velocity = vector3_scale(velocity, verlet.friction);
 
     verlet.position_old[i] = object.transform.position[i];
 
@@ -50,32 +58,32 @@ void l_verlet_body_confine(l_object_t object, l_verlet_body verlet, vector3_t bo
 
     if (object.transform.position[i].x > bounds.x) {
       object.transform.position[i].x = bounds.x;
-      verlet.position_old[i].x = object.transform.position[i].x + velocity.x;
+      verlet.position_old[i].x = object.transform.position[i].x + velocity.x * verlet.bounciness;
     }
 
     if (object.transform.position[i].y > bounds.y) {
       object.transform.position[i].y = bounds.y;
-      verlet.position_old[i].y = object.transform.position[i].y + velocity.y;
+      verlet.position_old[i].y = object.transform.position[i].y + velocity.y * verlet.bounciness;
     }
 
     if (object.transform.position[i].z > bounds.z) {
       object.transform.position[i].z = bounds.z;
-      verlet.position_old[i].z = object.transform.position[i].z + velocity.z;
+      verlet.position_old[i].z = object.transform.position[i].z + velocity.z * verlet.bounciness;
     }
 
     if (object.transform.position[i].x < -bounds.x) {
       object.transform.position[i].x = -bounds.x;
-      verlet.position_old[i].x = object.transform.position[i].x + velocity.x;
+      verlet.position_old[i].x = object.transform.position[i].x + velocity.x * verlet.bounciness;
     }
 
     if (object.transform.position[i].y < -bounds.y) {
       object.transform.position[i].y = -bounds.y;
-      verlet.position_old[i].y = object.transform.position[i].y + velocity.y;
+      verlet.position_old[i].y = object.transform.position[i].y + velocity.y * verlet.bounciness;
     }
 
     if (object.transform.position[i].z < -bounds.z) {
       object.transform.position[i].z = -bounds.z;
-      verlet.position_old[i].z = object.transform.position[i].z + velocity.z;
+      verlet.position_old[i].z = object.transform.position[i].z + velocity.z * verlet.bounciness;
     }
   }
 }

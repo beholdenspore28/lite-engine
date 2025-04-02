@@ -8,6 +8,8 @@ typedef struct {
   vector3_t *position_old;
   vector3_t *acceleration;
   unsigned int *is_pinned;
+  float bounciness;
+  float friction;
 } l_verlet_body;
 
 l_verlet_body l_verlet_body_alloc(l_object_t object);

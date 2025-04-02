@@ -79,7 +79,7 @@ void galaxy_generate(l_object_t stars, float radius, unsigned int seed,
   for (unsigned int i = 0; i < stars.count; i++) {
 
     // sphere
-    stars.transform.position[i] = vector3_point_in_unit_sphere(seed + i);
+    stars.transform.position[i] = vector3_random(seed + i, 1.0);
 
     // gravity
     vector3_t gravity = vector3_normalize(stars.transform.position[i]);
@@ -212,7 +212,7 @@ int main() {
   // --------------------------------------------------------------------------
   // Create particles_batch
 
-  l_object_t particles = l_object_alloc(100);
+  l_object_t particles = l_object_alloc(1000);
   lgl_batch_t particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_solid;
@@ -222,10 +222,14 @@ int main() {
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.05);
+    particles.transform.scale[i] = vector3_one(0.1);
+#if 0
+    particles.transform.position[i] = vector3_random_box(i, vector3_one(5));
+    particles_verlet.position_old[i] = particles.transform.position[i];
+#else
+    l_verlet_body_accelerate(particles_verlet, i, vector3_random(i, 1.0));
+#endif
   }
-
-  particles_verlet.is_pinned[0] = 1;
 
   // --------------------------------------------------------------------------
   // game loop
@@ -238,7 +242,6 @@ int main() {
     timer += lgl_context->time_delta;
 
     if (timer > 1) { // window titlebar
-
       timer = 0;
       char window_title[64] = {0};
 
@@ -252,55 +255,23 @@ int main() {
     camera_update(lgl_context);
     audio_source_update(cube_audio_source, cube, lgl_context);
 
-    for (unsigned int i = 9; i < particles.count; i++) {
-      l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.001));
-      l_verlet_body_accelerate(particles_verlet, i, vector3_scale(
-            vector3_point_in_unit_sphere(i+lgl_context->time_current*10), 0.0001));
-    }
-
     timer_physics += lgl_context->time_delta;
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
-      // wrap_position(particles_batch, lgl_context);
-      l_verlet_body_update(particles, particles_verlet);
-
-      for (unsigned int i = 0; i < 5; i++) {
-
-        // !! THE ORDER OF CONSTRAINT CALLS MATTERS !!
-
-        // constrain diagonally
-        l_verlet_body_constrain_distance(particles, particles_verlet, 0, 7, 2);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 1, 6, 2);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 2, 5, 2);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 3, 4, 2);
-
-        // x constraints
-        l_verlet_body_constrain_distance(particles, particles_verlet, 0, 1, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 2, 3, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 4, 5, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 6, 7, 1);
-
-        // y constraints
-        l_verlet_body_constrain_distance(particles, particles_verlet, 0, 2, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 1, 3, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 4, 6, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 5, 7, 1);
-
-        // z constraints
-        l_verlet_body_constrain_distance(particles, particles_verlet, 0, 4, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 1, 5, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 2, 6, 1);
-        l_verlet_body_constrain_distance(particles, particles_verlet, 3, 7, 1);
-
-        l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
+      for (unsigned int i = 0; i < particles.count; i++) {
+        l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.01));
       }
 
-      lgl_mat4_buffer(particles, &particles_batch);
+      // wrap_position(particles_batch, lgl_context);
+      l_verlet_body_update(particles, particles_verlet);
+      l_verlet_body_confine(particles, particles_verlet, vector3_one(10));
 
-      // update lights
-      lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
+      lgl_mat4_buffer(particles, &particles_batch);
     }
+
+    // update lights
+    lights[LIGHTS_POINT_0].position = lgl_context->camera.position;
 
 #if 0
     cube.transform.rotation[0] =
