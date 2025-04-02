@@ -711,6 +711,9 @@ void lgl_batch_free(lgl_batch batch) {
   list_lgl_vertex_free(&batch.vertices);
   list_GLuint_free(&batch.indices);
   glDeleteBuffers(1, &batch.model_matrix_buffer);
+  glDeleteBuffers(1, &batch.VBO);
+  glDeleteBuffers(1, &batch.EBO);
+  glDeleteVertexArrays(1, &batch.VAO);
 }
 
 lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
