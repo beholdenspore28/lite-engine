@@ -1,7 +1,7 @@
 #include "physics.h"
 
-verlet_body verlet_body_alloc(l_object_t object) {
-  verlet_body verlet;
+l_verlet_body l_verlet_body_alloc(l_object_t object) {
+  l_verlet_body verlet;
   verlet.acceleration = calloc(sizeof(*verlet.acceleration), object.count);
   verlet.position_old = calloc(sizeof(*verlet.position_old), object.count);
   verlet.is_pinned = calloc(sizeof(*verlet.is_pinned), object.count);
@@ -14,13 +14,13 @@ verlet_body verlet_body_alloc(l_object_t object) {
   return verlet;
 }
 
-void verlet_body_free(verlet_body verlet) {
+void l_verlet_body_free(l_verlet_body verlet) {
   free(verlet.acceleration);
   free(verlet.position_old);
   free(verlet.is_pinned);
 }
 
-void verlet_body_update(l_object_t object, verlet_body verlet) {
+void l_verlet_body_update(l_object_t object, l_verlet_body verlet) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -39,7 +39,7 @@ void verlet_body_update(l_object_t object, verlet_body verlet) {
   }
 }
 
-void verlet_body_confine(l_object_t object, verlet_body verlet, vector3_t bounds) {
+void l_verlet_body_confine(l_object_t object, l_verlet_body verlet, vector3_t bounds) {
 
   for (unsigned int i = 0; i < object.count; i++) {
 
@@ -78,7 +78,7 @@ void verlet_body_confine(l_object_t object, verlet_body verlet, vector3_t bounds
   }
 }
 
-void verlet_body_constrain_distance(l_object_t object, verlet_body verlet,
+void l_verlet_body_constrain_distance(l_object_t object, l_verlet_body verlet,
                                  unsigned int point_a, unsigned int point_b,
                                  float distance_constraint) {
 
