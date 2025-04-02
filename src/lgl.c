@@ -267,23 +267,23 @@ void lgl__uniform_materials(lgl_batch batch) {
     glBindTexture(GL_TEXTURE_2D, batch.specular_map);
 
     glUniform2f(glGetUniformLocation(batch.shader, "u_texture_offset"),
-        batch.texture_offset.x, batch.texture_offset.y);
+                batch.texture_offset.x, batch.texture_offset.y);
 
     glUniform2f(glGetUniformLocation(batch.shader, "u_texture_scale"),
-        batch.texture_scale.x, batch.texture_scale.y);
+                batch.texture_scale.x, batch.texture_scale.y);
   }
 
   { // other material properties
     glUniform1i(glGetUniformLocation(batch.shader, "u_material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(batch.shader, "u_material.specular"), 1);
     glUniform1f(glGetUniformLocation(batch.shader, "u_material.shininess"),
-        8.0f);
+                8.0f);
 
-    glUniform3f(glGetUniformLocation(batch.shader, "u_ambient_light"), 0.2,
-        0.2, 0.2);
+    glUniform3f(glGetUniformLocation(batch.shader, "u_ambient_light"), 0.2, 0.2,
+                0.2);
 
     glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
-        batch.color.y, batch.color.z, batch.color.w);
+                batch.color.y, batch.color.z, batch.color.w);
   }
 }
 
@@ -291,105 +291,103 @@ void lgl__uniform_lights(lgl_batch batch) {
 
   for (GLuint light = 0; light < batch.lights_count; light++) {
     glUniform1ui(glGetUniformLocation(batch.shader, "u_lights_count"),
-        batch.lights_count);
+                 batch.lights_count);
     {
       char uniform_name[64] = {0};
 
-      snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type",
-          light);
+      snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].type", light);
 
       glUniform1i(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].type);
+                  batch.lights[light].type);
     }
 
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].position",
-          light);
+               light);
 
       glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].position.x,
-          batch.lights[light].position.y,
-          batch.lights[light].position.z);
+                  batch.lights[light].position.x,
+                  batch.lights[light].position.y,
+                  batch.lights[light].position.z);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].direction",
-          light);
+               light);
 
       glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].direction.x,
-          batch.lights[light].direction.y,
-          batch.lights[light].direction.z);
+                  batch.lights[light].direction.x,
+                  batch.lights[light].direction.y,
+                  batch.lights[light].direction.z);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].cut_off",
-          light);
+               light);
 
       glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].cut_off);
+                  batch.lights[light].cut_off);
     }
     {
       char uniform_name[64] = {0};
 
-      snprintf(uniform_name, sizeof(uniform_name),
-          "u_lights[%d].outer_cut_off", light);
+      snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].outer_cut_off",
+               light);
 
       glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].outer_cut_off);
+                  batch.lights[light].outer_cut_off);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].constant",
-          light);
+               light);
 
       glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].constant);
+                  batch.lights[light].constant);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].linear",
-          light);
+               light);
 
       glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].linear);
+                  batch.lights[light].linear);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].quadratic",
-          light);
+               light);
 
       glUniform1f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].quadratic);
+                  batch.lights[light].quadratic);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].diffuse",
-          light);
+               light);
 
       glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].diffuse.x,
-          batch.lights[light].diffuse.y,
-          batch.lights[light].diffuse.z);
+                  batch.lights[light].diffuse.x, batch.lights[light].diffuse.y,
+                  batch.lights[light].diffuse.z);
     }
     {
       char uniform_name[64] = {0};
 
       snprintf(uniform_name, sizeof(uniform_name), "u_lights[%d].specular",
-          light);
+               light);
 
       glUniform3f(glGetUniformLocation(batch.shader, uniform_name),
-          batch.lights[light].specular.x,
-          batch.lights[light].specular.y,
-          batch.lights[light].specular.z);
+                  batch.lights[light].specular.x,
+                  batch.lights[light].specular.y,
+                  batch.lights[light].specular.z);
     }
   }
 }
@@ -648,8 +646,8 @@ void lgl_batch_free(lgl_batch batch) {
 }
 
 lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
-                                        GLuint num_color_attachments,
-                                        GLuint width, GLuint height) {
+                                      GLuint num_color_attachments,
+                                      GLuint width, GLuint height) {
 
   lgl_framebuffer frame;
 
@@ -754,8 +752,8 @@ void lgl_framebuffer_free(lgl_framebuffer frame) {
   glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void lgl__framebuffer_resize(lgl_framebuffer *frame,
-                                    unsigned int width, unsigned int height) {
+static void lgl__framebuffer_resize(lgl_framebuffer *frame, unsigned int width,
+                                    unsigned int height) {
 
   GLuint shader = frame->quad.shader;
   GLuint samples = frame->samples;

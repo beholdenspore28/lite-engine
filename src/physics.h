@@ -27,8 +27,7 @@ void l_verlet_body_constrain_distance(l_object object, l_verlet_body verlet,
                                       float distance_constraint);
 
 static inline void l_verlet_body_accelerate(l_verlet_body verlet,
-                                            unsigned int index,
-                                            vector3 force) {
+                                            unsigned int index, vector3 force) {
   verlet.acceleration[index] = vector3_add(verlet.acceleration[index], force);
 }
 

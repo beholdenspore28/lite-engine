@@ -33,7 +33,7 @@ void lal_audio_source_free(lal_audio_source source) {
 }
 
 void lal_audio_source_update(lal_audio_source source, l_object object,
-                         lgl_context *lgl_context) {
+                             lgl_context *lgl_context) {
 
   alListener3f(AL_POSITION, lgl_context->camera.position.x,
                lgl_context->camera.position.y, lgl_context->camera.position.z);

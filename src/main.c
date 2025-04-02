@@ -108,7 +108,7 @@ int main() {
   alutInit(0, 0);
   lgl_context *lgl_context = lgl_start(1000, 800);
 
-  //glClearColor(0.0, 0.0, 0.0, 1);
+  // glClearColor(0.0, 0.0, 0.0, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -205,7 +205,7 @@ int main() {
   cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   cube.transform.scale[0] = vector3_one(1);
   cube.transform.position[0] = (vector3){0, 0, -15};
-  //cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  // cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   lal_audio_source cube_audio_source = lal_audio_source_alloc(1);
 
@@ -221,7 +221,7 @@ int main() {
   particles_batch.lights_count = LIGHTS_COUNT;
   particles_batch.shader = shader_phong;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-  //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  // particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 

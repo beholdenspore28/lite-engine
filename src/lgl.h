@@ -104,8 +104,8 @@ typedef struct {
 } lgl_framebuffer;
 
 lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
-                                        GLuint num_color_attachments,
-                                        GLuint width, GLuint height);
+                                      GLuint num_color_attachments,
+                                      GLuint width, GLuint height);
 
 void lgl_framebuffer_free(lgl_framebuffer frame);
 

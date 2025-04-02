@@ -98,21 +98,21 @@ void l_verlet_body_confine(l_object object, l_verlet_body verlet,
 void l_verlet_resolve_collisions(l_object object) {
   for (unsigned int i = 0; i < object.count; i++) {
     for (unsigned int j = 0; j < object.count; j++) {
-        vector3 direction = vector3_subtract(object.transform.position[i],
-            object.transform.position[j]);
+      vector3 direction = vector3_subtract(object.transform.position[i],
+                                           object.transform.position[j]);
 
-        float distance = vector3_magnitude(direction);
+      float distance = vector3_magnitude(direction);
 
-        if (distance < 1) { // <- 1 is arbitrary for now
+      if (distance < 1) { // <- 1 is arbitrary for now
 
-          vector3 correction = vector3_scale(direction, distance-1);
+        vector3 correction = vector3_scale(direction, distance - 1);
 
-          object.transform.position[i] = vector3_subtract(
-              object.transform.position[i], correction);
+        object.transform.position[i] =
+            vector3_subtract(object.transform.position[i], correction);
 
-          object.transform.position[j] = vector3_add(
-              object.transform.position[j], correction);
-        }
+        object.transform.position[j] =
+            vector3_add(object.transform.position[j], correction);
+      }
     }
   }
 }
@@ -123,7 +123,7 @@ void l_verlet_body_constrain_distance(l_object object, l_verlet_body verlet,
                                       float distance_constraint) {
 
   vector3 diff = vector3_subtract(object.transform.position[point_b],
-                                    object.transform.position[point_a]);
+                                  object.transform.position[point_a]);
   float distance = vector3_magnitude(diff);
   float adjustment = (distance_constraint - distance) / distance * 0.5;
   vector3 offset = vector3_scale(diff, adjustment);
