@@ -1,8 +1,8 @@
 #include "lal.h"
 
-lal_audio_source_t lal_audio_source_alloc(unsigned int count) {
+audio_source_t audio_source_alloc(unsigned int count) {
 
-  lal_audio_source_t source;
+  audio_source_t source;
   source.buffer = calloc(sizeof(ALuint), count);
   source.id = calloc(sizeof(ALuint), count);
   source.count = count;
@@ -21,7 +21,7 @@ lal_audio_source_t lal_audio_source_alloc(unsigned int count) {
   return source;
 }
 
-void lal_audio_source_free(lal_audio_source_t source) {
+void audio_source_free(audio_source_t source) {
 
   for (unsigned int i = 0; i < source.count; i++) {
     alDeleteBuffers(source.count, source.buffer + i);
@@ -32,7 +32,7 @@ void lal_audio_source_free(lal_audio_source_t source) {
   free(source.id);
 }
 
-void lal_audio_source_update(lal_audio_source_t source, l_object_t object,
+void audio_source_update(audio_source_t source, l_object_t object,
                              lgl_context_t *lgl_context) {
 
   alListener3f(AL_POSITION, lgl_context->camera.position.x,

@@ -207,7 +207,7 @@ int main() {
   cube.transform.position[0] = (vector3_t){0, 0, 0};
   cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
 
-  lal_audio_source_t cube_audio_source = lal_audio_source_alloc(1);
+  audio_source_t cube_audio_source = audio_source_alloc(1);
 
   // --------------------------------------------------------------------------
   // Create particles_batch
@@ -254,7 +254,7 @@ int main() {
     }
 
     camera_update(lgl_context);
-    lal_audio_source_update(cube_audio_source, cube, lgl_context);
+    audio_source_update(cube_audio_source, cube, lgl_context);
 
     for (unsigned int i = 0; i < particles.count; i++) {
       vector3_t gravity = vector3_down(0.004);
@@ -349,7 +349,7 @@ int main() {
   l_object_free(cube);
   lgl_camera_free(lgl_context->camera);
   verlet_body_free(particles_verlet);
-  lal_audio_source_free(cube_audio_source);
+  audio_source_free(cube_audio_source);
   lgl_batch_free(cube_batch);
   lgl_batch_free(particles_batch);
 
