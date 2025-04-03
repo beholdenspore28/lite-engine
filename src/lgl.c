@@ -753,11 +753,12 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
 
   const unsigned int subdivisions = 4;
   for(unsigned int subd = 0; subd < subdivisions; subd++) {
-    for(unsigned int index = 0; index < batch->indices.length-3; index+=3) {
+    list_GLuint new_indices = list_GLuint_alloc();
+    for(unsigned int i = 0; i < batch->indices.length-3; i+=3) {
 
-      lgl_vertex v1 = batch->vertices.array[batch->indices.array[index  ]];
-      lgl_vertex v2 = batch->vertices.array[batch->indices.array[index+1]];
-      lgl_vertex v3 = batch->vertices.array[batch->indices.array[index+2]];
+      lgl_vertex v1 = batch->vertices.array[batch->indices.array[i  ]];
+      lgl_vertex v2 = batch->vertices.array[batch->indices.array[i+1]];
+      lgl_vertex v3 = batch->vertices.array[batch->indices.array[i+2]];
 
       lgl_vertex m1, m2, m3;
       m1.position = vector3_lerp(v1.position, v2.position, 0.5); 
@@ -768,26 +769,44 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       list_lgl_vertex_add(&batch->vertices, m2);
       list_lgl_vertex_add(&batch->vertices, m3);
 
+      const unsigned int i1 = batch->vertices.length-2;
+      const unsigned int i2 = batch->vertices.length-1;
+      const unsigned int i3 = batch->vertices.length;
+
       // *=====================================================*
       // * vertex layout                                       *
       // *=====================================================*
-      // |                         v1                          |
+      // |                         v1 [i]                      |
       // |                        /  \                         |
       // |                       /    \                        |
       // |                      /      \                       |
       // |                     /        \                      |
       // |                    /          \                     |
-      // |                  m1------------m3                   |
+      // |            [i1] m1------------m3 [i3]              |
       // |                  /\            /\                   |
       // |                 /  \          /  \                  | 
       // |                /    \        /    \                 |  
       // |               /      \      /      \                |     
       // |              /        \    /        \               |    
       // |             /          \  /          \              |
-      // |          v2 ------------m2------------ v3           |
+      // |    [i+1] v2 ------------m2-[i2]------- v3 [i+2]     |
       // *=====================================================*
-      
 
+      list_GLuint_add(&new_indices, i1);
+      list_GLuint_add(&new_indices, i2);
+      list_GLuint_add(&new_indices, i3);
+
+      list_GLuint_add(&new_indices, i);
+      list_GLuint_add(&new_indices, i1);
+      list_GLuint_add(&new_indices, i3);
+
+      list_GLuint_add(&new_indices, i1);
+      list_GLuint_add(&new_indices, i+1);
+      list_GLuint_add(&new_indices, i2);
+
+      list_GLuint_add(&new_indices, i3);
+      list_GLuint_add(&new_indices, i2);
+      list_GLuint_add(&new_indices, i+2);
     }
   }
 
