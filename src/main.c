@@ -362,7 +362,7 @@ void physics_demo(void) {
           force = vector3_negate(force);
           force = vector3_scale(force, 0.1);
           l_verlet_body_accelerate(particles_verlet, i, force);
-          l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
+          //l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
         }
       }
 
