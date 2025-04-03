@@ -327,7 +327,7 @@ void physics_demo(void) {
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.25);
+    particles.transform.scale[i] = vector3_one(0.5);
   }
 
 #if 1 // random points in a box

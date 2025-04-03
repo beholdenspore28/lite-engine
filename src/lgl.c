@@ -745,6 +745,11 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions)
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 0}});
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 0}});
   // clang-format on
+
+  for(unsigned int g = 0; g < batch->vertices.length; g++) {
+    batch->vertices.array[g].position =
+      vector3_normalize(batch->vertices.array[g].position);
+  }
   
   batch->indices = list_GLuint_alloc();
   batch->render_flags |= LGL_FLAG_INDEXED_DRAW;
@@ -765,7 +770,6 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions)
   for(unsigned int subd = 0; subd < subdivisions; subd++) {
     debug_log("subd = %d ==========================================", subd);
     list_GLuint new_indices = list_GLuint_alloc();
-
     // foreach triangle in the mesh
     for(unsigned int i = 0; i < batch->indices.length; i+=3) {
       lgl_vertex v1 = batch->vertices.array[batch->indices.array[i  ]];
@@ -836,6 +840,10 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions)
     list_GLuint_free(&batch->indices);
     batch->indices = new_indices;
 
+    for(unsigned int g = 0; g < batch->vertices.length; g++) {
+      batch->vertices.array[g].position =
+        vector3_normalize(batch->vertices.array[g].position);
+    }
   }
 
   debug_log("final lists ------------------------------------");
