@@ -751,9 +751,8 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
     }
   }
 
-#if 1 // subdivide
-  for(unsigned int subd = 0; subd < 2; subd++) {
-    list_lgl_vertex new_verts = list_lgl_vertex_alloc();
+  const unsigned int subdivisions = 4;
+  for(unsigned int subd = 0; subd < subdivisions; subd++) {
     list_GLuint new_indices = list_GLuint_alloc();
 
     for(unsigned int index = 0; index < batch->indices.length-3; index+=3) {
@@ -761,15 +760,15 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       lgl_vertex v1 = batch->vertices.array[batch->indices.array[index  ]];
       lgl_vertex v2 = batch->vertices.array[batch->indices.array[index+1]];
       lgl_vertex v3 = batch->vertices.array[batch->indices.array[index+2]];
-      lgl_vertex m1, m2, m3;
 
+      lgl_vertex m1, m2, m3;
       m1.position = vector3_lerp(v1.position, v2.position, 0.5); 
       m2.position = vector3_lerp(v2.position, v3.position, 0.5); 
       m3.position = vector3_lerp(v3.position, v1.position, 0.5); 
 
-      list_lgl_vertex_add(&new_verts, m1);
-      list_lgl_vertex_add(&new_verts, m2);
-      list_lgl_vertex_add(&new_verts, m3);
+      list_lgl_vertex_add(&batch->vertices, m1);
+      list_lgl_vertex_add(&batch->vertices, m2);
+      list_lgl_vertex_add(&batch->vertices, m3);
 
       // *=====================================================*
       // * Indices layout                                      *
@@ -802,25 +801,19 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       list_GLuint_add(&new_indices, index);
       list_GLuint_add(&new_indices, index);
 
-      debug_log("subd %d index %d new verts %d", subd, index, new_verts.length);
+      debug_log("subd %d index %d new verts %d", subd, index, batch->vertices.length);
     }
 
-    for(unsigned int i = 0; i < new_verts.length; i++) {
-      list_lgl_vertex_add(&batch->vertices, new_verts.array[i]);
-    }
-
-    for(unsigned int i = 0; i < new_verts.length; i++) {
+    for(unsigned int i = 0; i < new_indices.length; i++) {
       list_GLuint_add(&batch->indices, new_indices.array[i]);
     }
 
-    list_lgl_vertex_free(&new_verts);
     list_GLuint_free(&new_indices);
 
     for(unsigned int i = 0; i < batch->vertices.length; i++) {
       batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
     }
   }
-#endif
 
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
                             batch->vertices.length, batch->vertices.array,
