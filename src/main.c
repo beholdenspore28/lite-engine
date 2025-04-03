@@ -54,7 +54,7 @@ void camera_update(lgl_context *context) {
     context->camera.position = vector3_add(context->camera.position, movement);
   }
 
-#if 1
+#if 0
   { // mouse look
     static int firstFrame = 1;
     static float last_x = 0;
@@ -199,32 +199,16 @@ void spinning_cube_demo(void) {
 
 void icosphere_demo(void) {
 
-  glClearColor(0.5, 0.5, 0.5, 1.0);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
 
   graphics_context->camera.position.z = -20;
 
-  // --------------------------------------------------------------------------
-  // Create lights
+  GLuint vertex_shader =
+    lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
+  GLuint fragment_shader = lgl_shader_compile(
+      "res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
 
-  lgl_light light = (lgl_light){
-      .type = 0,
-      .position = {0.0, 0.0, 0.0},
-      .direction = {0.0, 0.0, 1.0},
-      .cut_off = cos(12.5),
-      .outer_cut_off = cos(15.0),
-      .constant = 1.0f,
-      .linear = 0.09f,
-      .quadratic = 0.032f,
-      .diffuse = (vector3){1.0, 1.0, 1.0},
-      .specular = vector3_one(0.6),
-  };
-
-      GLuint vertex_shader =
-        lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
-      GLuint fragment_shader = lgl_shader_compile(
-          "res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
-
-      GLuint shader = lgl_shader_link(vertex_shader, fragment_shader);
+  GLuint shader = lgl_shader_link(vertex_shader, fragment_shader);
 
   // --------------------------------------------------------------------------
   // Create sphere
@@ -236,16 +220,14 @@ void icosphere_demo(void) {
     sphere_batch[i] = lgl_batch_alloc(1, L_ARCHETYPE_EMPTY);
     sphere_batch[i].shader = shader;
     sphere_batch[i].color = (vector4){1.0, 1.0, 1.0, 1.0};
-    sphere_batch[i].lights = &light;
-    sphere_batch[i].lights_count = 1;
     sphere[i].transform.scale[0] = vector3_one(1);
     sphere_batch[i].render_flags |= LGL_FLAG_USE_WIREFRAME;
+    sphere_batch[i].render_flags |= LGL_FLAG_DRAW_POINTS;
   }
   sphere[0].transform.position[0] = (vector3){2, 0, -15};
   sphere[1].transform.position[0] = (vector3){-2, 0, -15};
   lgl_icosphere_mesh_alloc(&sphere_batch[0], 0);
-  lgl_icosphere_mesh_alloc(&sphere_batch[1], 1);
-  sphere_batch[1].render_flags |= LGL_FLAG_DRAW_POINTS;
+  lgl_icosphere_mesh_alloc(&sphere_batch[1], 2);
 
   while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
@@ -254,10 +236,10 @@ void icosphere_demo(void) {
     // lgl_camera_update();
     camera_update(graphics_context);
 
-#if 0
+#if 1
     // sphere.transform.position[0].y = sinf(graphics_context->time_current);
-    sphere.transform.rotation[0] = quaternion_rotate_euler(
-        sphere.transform.rotation[0],
+    sphere[1].transform.rotation[0] = quaternion_rotate_euler(
+        sphere[1].transform.rotation[0],
         vector3_one(0.5 * graphics_context->time_delta));
 #endif
 
@@ -462,11 +444,11 @@ int main() {
   spinning_cube_demo();
 #endif
 
-#if 1
+#if 0
   physics_demo();
 #endif
 
-#if 0
+#if 1
   icosphere_demo();
 #endif
 
