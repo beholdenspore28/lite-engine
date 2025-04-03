@@ -826,6 +826,21 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions)
 
   }
 
+  debug_log("final lists ------------------------------------");
+  for(unsigned int g = 0; g < batch->vertices.length; g++) {
+    printf("vertex[%3d]", g);
+    vector3_print(batch->vertices.array[g].position, "");
+  }
+
+  for(unsigned int g = 0; g < batch->indices.length; g++) {
+    printf("index[%3d] = %3d  ", g, batch->indices.array[g]);
+    if (g % 5 == 0) {
+      putchar('\n');
+    }
+  }
+  putchar('\n');
+
+
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
                             batch->vertices.length, batch->vertices.array,
                             batch->indices.length, batch->indices.array);
