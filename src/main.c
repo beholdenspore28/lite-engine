@@ -249,7 +249,7 @@ void icosphere_demo(void) {
 
     update_window_title();
 
-    //lgl_camera_update();
+    // lgl_camera_update();
     camera_update(graphics_context);
 
 #if 1
@@ -265,7 +265,7 @@ void icosphere_demo(void) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
 
-  glDisable(GL_CULL_FACE);
+      glDisable(GL_CULL_FACE);
       lgl_draw(sphere, sphere_batch);
     }
 

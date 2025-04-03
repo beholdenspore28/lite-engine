@@ -28,11 +28,11 @@ SOFTWARE.
 #define BLIB_MATH_H
 
 #include <assert.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #define FLOAT_EPSILON (1e-4)
 #define PI 3.14159265358
@@ -77,10 +77,13 @@ static inline float lerpclamped(float a, float b, float t) {
   return a + (b - a) * clamp01(t);
 }
 
-static inline float norm(float n, float min, float max) { return (n - min) / (max - min); }
+static inline float norm(float n, float min, float max) {
+  return (n - min) / (max - min);
+}
 
-static inline float map(float n, float fromMin, float fromMax, float toMin, float toMax) {
-  //return lerp(norm(n, fromMin, fromMax), toMin, toMax);
+static inline float map(float n, float fromMin, float fromMax, float toMin,
+                        float toMax) {
+  // return lerp(norm(n, fromMin, fromMax), toMin, toMax);
   return (n - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin;
 }
 
@@ -93,7 +96,9 @@ static inline float cosInterpolate(float a, float b, float t) {
   return a * (1.0 - f) + b * f;
 }
 
-static inline float sigmoid(float n) { return (1 / (1 + pow(2.71828182846, -n))); }
+static inline float sigmoid(float n) {
+  return (1 / (1 + pow(2.71828182846, -n)));
+}
 
 static inline float loop(float n, const float length) {
   return clamp(n - floor(n / length) * length, 0.0f, length);
@@ -112,67 +117,60 @@ static inline float angleDelta(const float a, const float b) {
   return delta;
 }
 
-static inline float fraction(float x) {
-  return x - floorf(x);
-}
+static inline float fraction(float x) { return x - floorf(x); }
 
 // Single dimensional pseudo-random noise
 static inline float noise1(int x) {
-  float wave = sinf(x*53)*6151;
+  float wave = sinf(x * 53) * 6151;
   return fraction(wave);
 }
 
 // Two dimensional pseudo-random noise
 static inline float noise2(int x, int y) {
-  float wave = sinf(x*53+y*97)*6151;
+  float wave = sinf(x * 53 + y * 97) * 6151;
   return fraction(wave);
 }
 
 // Three dimensional pseudo-random noise
 static inline float noise3(int x, int y, int z) {
-  float wave = sinf(x*53+y*97+z*193)*6151;
+  float wave = sinf(x * 53 + y * 97 + z * 193) * 6151;
   return fraction(wave);
 }
 
 // Three dimensional pseudo-random noise
 static inline float noise3_interpolated(float x, float y, float z) {
-  float fractX = fraction(x),
-        fractY = fraction(y),
-        fractZ = fraction(z),
+  float fractX = fraction(x), fractY = fraction(y), fractZ = fraction(z),
 
-        floorX = floor(x),
-        floorY = floor(y),
-        floorZ = floor(z);
+        floorX = floor(x), floorY = floor(y), floorZ = floor(z);
 
   // interpolate between adjacent noise values
   // ==================================================
-  // two vertices 'v' make an edge 'e' 
+  // two vertices 'v' make an edge 'e'
   // two edges make a face 'f'
   // two faces make a cube.
   // ==================================================
-  
+
   //===================================================
-  float v1 = noise3( floorX,     floorY,     floorZ),
-        v2 = noise3( floorX + 1, floorY,     floorZ),
+  float v1 = noise3(floorX, floorY, floorZ),
+        v2 = noise3(floorX + 1, floorY, floorZ),
         e1 = cosInterpolate(v1, v2, fractX), // rear bottom
 
-        v3 = noise3( floorX,     floorY + 1, floorZ),
-        v4 = noise3( floorX + 1, floorY + 1, floorZ),
+      v3 = noise3(floorX, floorY + 1, floorZ),
+        v4 = noise3(floorX + 1, floorY + 1, floorZ),
         e2 = cosInterpolate(v3, v4, fractX), // rear top
 
-        v5 = noise3( floorX,     floorY,     floorZ + 1),
-        v6 = noise3( floorX + 1, floorY,     floorZ + 1),
+      v5 = noise3(floorX, floorY, floorZ + 1),
+        v6 = noise3(floorX + 1, floorY, floorZ + 1),
         e3 = cosInterpolate(v5, v6, fractX), // front bottom
 
-        v7 = noise3( floorX,     floorY + 1, floorZ + 1),
-        v8 = noise3( floorX + 1, floorY + 1, floorZ + 1),
+      v7 = noise3(floorX, floorY + 1, floorZ + 1),
+        v8 = noise3(floorX + 1, floorY + 1, floorZ + 1),
         e4 = cosInterpolate(v7, v8, fractX), // front top
 
-        f1 = cosInterpolate(e1, e2, fractY),
-        f2 = cosInterpolate(e3, e4, fractY),
-        cube  = cosInterpolate(f1, f2, fractZ);
+      f1 = cosInterpolate(e1, e2, fractY), f2 = cosInterpolate(e3, e4, fractY),
+        cube = cosInterpolate(f1, f2, fractZ);
 
-  return cube; 
+  return cube;
 }
 
 static inline float noise3_fbm(float x, float y, float z) {
@@ -184,15 +182,16 @@ static inline float noise3_fbm(float x, float y, float z) {
   for (int i = 0; i < octaves; i++) {
     freq = pow(2, i);
     amplitude = pow(persistance, i);
-    total += noise3_interpolated(x*freq, y*freq, z*freq) * amplitude; 
+    total += noise3_interpolated(x * freq, y * freq, z * freq) * amplitude;
   }
   return total;
 }
 
-static inline float noise3_fbm_warped(float x, float y, float z, float warpFactor) {
+static inline float noise3_fbm_warped(float x, float y, float z,
+                                      float warpFactor) {
   float fbm1 = noise3_fbm(x, y, z);
-  float fbm2 = noise3_fbm(x + 5.2, y + 1.3*warpFactor, z + 6.4*warpFactor);
-  float fbm3 = noise3_fbm(x + 7.5, y + 0.3*warpFactor, z + 3.6*warpFactor);
+  float fbm2 = noise3_fbm(x + 5.2, y + 1.3 * warpFactor, z + 6.4 * warpFactor);
+  float fbm3 = noise3_fbm(x + 7.5, y + 0.3 * warpFactor, z + 3.6 * warpFactor);
   return noise3_fbm(fbm1, fbm2, fbm3);
 }
 

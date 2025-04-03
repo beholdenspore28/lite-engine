@@ -37,48 +37,48 @@
 extern "C" {
 #endif // __cplusplus
 
-  typedef struct {
-    size_t length;
-    char *text;
-    int error;
-  } file_buffer;
+typedef struct {
+  size_t length;
+  char *text;
+  int error;
+} file_buffer;
 
-  static inline file_buffer file_buffer_alloc(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-      file_buffer ret;
-      ret.error = 1;
-      ret.text = NULL;
-      return ret;
-    }
-    size_t alloc = BLIB_FILE_BUFFER_CHUNK_SIZE * BLIB_FILE_BUFFER_GROWTH;
-    char *buf = (char *)malloc(alloc);
-    size_t length = 0;
-    while (!feof(file)) {
-      if (alloc - length <= BLIB_FILE_BUFFER_CHUNK_SIZE + 1) {
-        alloc += BLIB_FILE_BUFFER_CHUNK_SIZE;
-        alloc *= BLIB_FILE_BUFFER_GROWTH;
-        buf = (char *)realloc((void *)buf, alloc);
-      }
-      int got = fread((void *)&buf[length], 1, BLIB_FILE_BUFFER_CHUNK_SIZE, file);
-      length += got;
-      if (got != BLIB_FILE_BUFFER_CHUNK_SIZE) {
-        break;
-      }
-    }
-    buf[length] = '\0';
-    fclose(file);
+static inline file_buffer file_buffer_alloc(const char *filename) {
+  FILE *file = fopen(filename, "r");
+  if (file == NULL) {
     file_buffer ret;
-    ret.text = buf;
-    ret.length = length;
-    ret.error = 0;
+    ret.error = 1;
+    ret.text = NULL;
     return ret;
   }
+  size_t alloc = BLIB_FILE_BUFFER_CHUNK_SIZE * BLIB_FILE_BUFFER_GROWTH;
+  char *buf = (char *)malloc(alloc);
+  size_t length = 0;
+  while (!feof(file)) {
+    if (alloc - length <= BLIB_FILE_BUFFER_CHUNK_SIZE + 1) {
+      alloc += BLIB_FILE_BUFFER_CHUNK_SIZE;
+      alloc *= BLIB_FILE_BUFFER_GROWTH;
+      buf = (char *)realloc((void *)buf, alloc);
+    }
+    int got = fread((void *)&buf[length], 1, BLIB_FILE_BUFFER_CHUNK_SIZE, file);
+    length += got;
+    if (got != BLIB_FILE_BUFFER_CHUNK_SIZE) {
+      break;
+    }
+  }
+  buf[length] = '\0';
+  fclose(file);
+  file_buffer ret;
+  ret.text = buf;
+  ret.length = length;
+  ret.error = 0;
+  return ret;
+}
 
-  static inline void file_buffer_free(const file_buffer file) { free(file.text); }
+static inline void file_buffer_free(const file_buffer file) { free(file.text); }
 
 #ifdef __cplusplus
-} //extern "C" {
+} // extern "C" {
 #endif // __cplusplus
 
 #endif // BLIB_IMPLEMENTATION
