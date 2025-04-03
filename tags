@@ -9,54 +9,577 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	//
-BLIB_IMPLEMENTATION	src/main.c	/^#define BLIB_IMPLEMENTATION$/;"	d	file:
-GLFW_INCLUDE_NONE	src/lgl.c	/^#define GLFW_INCLUDE_NONE$/;"	d	file:
-LIGHTS_COUNT	src/main.c	/^    LIGHTS_COUNT, \/\/ this should ALWAYS be at the end of the enum$/;"	e	enum:main::__anon6a96e1720203	file:
-LIGHTS_POINT_0	src/main.c	/^    LIGHTS_POINT_0,$/;"	e	enum:main::__anon6a96e1720203	file:
-NUM_COLOR_BUFFERS	src/main.c	/^    NUM_COLOR_BUFFERS = 2,$/;"	e	enum:main::__anon6a96e1720103	file:
-SAMPLES	src/main.c	/^    SAMPLES = 4,$/;"	e	enum:main::__anon6a96e1720103	file:
-STB_IMAGE_IMPLEMENTATION	src/lgl.c	/^#define STB_IMAGE_IMPLEMENTATION$/;"	d	file:
-__anon6a96e1720103	src/main.c	/^  enum {$/;"	g	function:main	file:
-__anon6a96e1720203	src/main.c	/^  enum {$/;"	g	function:main	file:
-__anonb598b1ac0103	src/lgl.c	/^    enum { quad_vertices_count = 6 };$/;"	g	function:lgl_object_alloc	file:
-__anonb598b1ac0203	src/lgl.c	/^    enum { cube_vertices_count = 36 };$/;"	g	function:lgl_object_alloc	file:
-camera_update	src/main.c	/^void camera_update(lgl_context_t *context) {$/;"	f	typeref:typename:void
-cube_vertices_count	src/lgl.c	/^    enum { cube_vertices_count = 36 };$/;"	e	enum:lgl_object_alloc::__anonb598b1ac0203	file:
-galaxy_generate	src/main.c	/^void galaxy_generate(lgl_object_t stars, float radius, unsigned int seed,$/;"	f	typeref:typename:void
-l_verlet_alloc	src/verlet.c	/^l_verlet_t l_verlet_alloc(lgl_object_t object) {$/;"	f	typeref:typename:l_verlet_t
-l_verlet_confine	src/verlet.c	/^void l_verlet_confine(l_verlet_t verlet, lgl_object_t object,$/;"	f	typeref:typename:void
-l_verlet_constrain_distance	src/verlet.c	/^void l_verlet_constrain_distance(lgl_object_t object, l_verlet_t verlet,$/;"	f	typeref:typename:void
-l_verlet_free	src/verlet.c	/^void l_verlet_free(l_verlet_t verlet) {$/;"	f	typeref:typename:void
-l_verlet_update	src/verlet.c	/^void l_verlet_update(lgl_object_t object, l_verlet_t points) {$/;"	f	typeref:typename:void
-lal_audio_source_alloc	src/lal.c	/^lal_audio_source_t lal_audio_source_alloc(unsigned int count) {$/;"	f	typeref:typename:lal_audio_source_t
-lal_audio_source_free	src/lal.c	/^void lal_audio_source_free(lal_audio_source_t source) {$/;"	f	typeref:typename:void
-lal_audio_source_update	src/lal.c	/^void lal_audio_source_update(lal_audio_source_t source, lgl_object_t object,$/;"	f	typeref:typename:void
-lgl__active_context	src/lgl.c	/^static lgl_context_t *lgl__active_context = NULL;$/;"	v	typeref:typename:lgl_context_t *	file:
-lgl__active_framebuffer	src/lgl.c	/^static lgl_framebuffer_t *lgl__active_framebuffer = NULL;$/;"	v	typeref:typename:lgl_framebuffer_t *	file:
-lgl__active_framebuffer_2	src/lgl.c	/^static lgl_framebuffer_t *lgl__active_framebuffer_2 = NULL;$/;"	v	typeref:typename:lgl_framebuffer_t *	file:
-lgl__buffer_vertex_array	src/lgl.c	/^void lgl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,$/;"	f	typeref:typename:void
-lgl__framebuffer_resize	src/lgl.c	/^static void lgl__framebuffer_resize(lgl_framebuffer_t *frame,$/;"	f	typeref:typename:void	file:
-lgl__framebuffer_size_callback	src/lgl.c	/^void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {$/;"	f	typeref:typename:void
-lgl__glfw_error_callback	src/lgl.c	/^void lgl__glfw_error_callback(int error, const char *description) {$/;"	f	typeref:typename:void
-lgl__time_update	src/lgl.c	/^void lgl__time_update(void) {$/;"	f	typeref:typename:void
-lgl_active_framebuffer_set	src/lgl.c	/^void lgl_active_framebuffer_set(lgl_framebuffer_t *frame) {$/;"	f	typeref:typename:void
-lgl_active_framebuffer_set_2	src/lgl.c	/^void lgl_active_framebuffer_set_2(lgl_framebuffer_t *frame) {$/;"	f	typeref:typename:void
-lgl_camera_alloc	src/lgl.c	/^lgl_camera_t lgl_camera_alloc(void) {$/;"	f	typeref:typename:lgl_camera_t
-lgl_camera_free	src/lgl.c	/^void lgl_camera_free(lgl_camera_t camera) {$/;"	f	typeref:typename:void
-lgl_camera_update	src/lgl.c	/^void lgl_camera_update(void) {$/;"	f	typeref:typename:void
-lgl_draw	src/lgl.c	/^void lgl_draw(const lgl_object_t data) {$/;"	f	typeref:typename:void
-lgl_draw_instanced	src/lgl.c	/^void lgl_draw_instanced(const lgl_object_t object) {$/;"	f	typeref:typename:void
-lgl_end_frame	src/lgl.c	/^void lgl_end_frame(void) {$/;"	f	typeref:typename:void
-lgl_framebuffer_alloc	src/lgl.c	/^lgl_framebuffer_t lgl_framebuffer_alloc(GLuint shader, GLuint samples,$/;"	f	typeref:typename:lgl_framebuffer_t
-lgl_framebuffer_free	src/lgl.c	/^void lgl_framebuffer_free(lgl_framebuffer_t frame) {$/;"	f	typeref:typename:void
-lgl_free	src/lgl.c	/^void lgl_free(lgl_context_t *context) {$/;"	f	typeref:typename:void
-lgl_mat4_buffer	src/lgl.c	/^void lgl_mat4_buffer(lgl_object_t *object) {$/;"	f	typeref:typename:void
-lgl_object_alloc	src/lgl.c	/^lgl_object_t lgl_object_alloc(unsigned int count, unsigned int archetype) {$/;"	f	typeref:typename:lgl_object_t
-lgl_object_free	src/lgl.c	/^void lgl_object_free(lgl_object_t object) {$/;"	f	typeref:typename:void
-lgl_perspective	src/lgl.c	/^void lgl_perspective(float *mat, const float fov, const float aspect,$/;"	f	typeref:typename:void
-lgl_shader_compile	src/lgl.c	/^GLuint lgl_shader_compile(const char *file_path, GLenum type) {$/;"	f	typeref:typename:GLuint
-lgl_shader_link	src/lgl.c	/^GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader) {$/;"	f	typeref:typename:GLuint
-lgl_start	src/lgl.c	/^lgl_context_t *lgl_start(const int width, const int height) {$/;"	f	typeref:typename:lgl_context_t *
-lgl_texture_alloc	src/lgl.c	/^GLuint lgl_texture_alloc(const char *imageFile) {$/;"	f	typeref:typename:GLuint
-main	src/main.c	/^int main() {$/;"	f	typeref:typename:int
-quad_vertices_count	src/lgl.c	/^    enum { quad_vertices_count = 6 };$/;"	e	enum:lgl_object_alloc::__anonb598b1ac0103	file:
+APIENTRY	dep/GLFW/glfw3.h	/^  #define APIENTRY /;"	d
+BLIB_ANSI_COLOR_BLUE	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_BLUE /;"	d
+BLIB_ANSI_COLOR_CYAN	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_CYAN /;"	d
+BLIB_ANSI_COLOR_GREEN	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_GREEN /;"	d
+BLIB_ANSI_COLOR_MAGENTA	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_MAGENTA /;"	d
+BLIB_ANSI_COLOR_RED	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_RED /;"	d
+BLIB_ANSI_COLOR_RESET	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_RESET /;"	d
+BLIB_ANSI_COLOR_YELLOW	dep/blib/blib_log.h	/^#define BLIB_ANSI_COLOR_YELLOW /;"	d
+BLIB_ERROR_STREAM	dep/blib/blib_log.h	/^#define BLIB_ERROR_STREAM /;"	d
+BLIB_FILE_BUFFER_CHUNK_SIZE	dep/blib/blib_file.h	/^#define BLIB_FILE_BUFFER_CHUNK_SIZE /;"	d
+BLIB_FILE_BUFFER_GROWTH	dep/blib/blib_file.h	/^#define BLIB_FILE_BUFFER_GROWTH /;"	d
+BLIB_FILE_H	dep/blib/blib_file.h	/^#define BLIB_FILE_H$/;"	d
+BLIB_H	dep/blib/blib.h	/^#define BLIB_H$/;"	d
+BLIB_LOG_H	dep/blib/blib_log.h	/^#define BLIB_LOG_H$/;"	d
+BLIB_LOG_STREAM	dep/blib/blib_log.h	/^#define BLIB_LOG_STREAM /;"	d
+BLIB_MATH3D_H	dep/blib/blib_math3d.h	/^#define BLIB_MATH3D_H$/;"	d
+BLIB_MATH_H	dep/blib/blib_math.h	/^#define BLIB_MATH_H$/;"	d
+BLIB_WARNING_STREAM	dep/blib/blib_log.h	/^#define BLIB_WARNING_STREAM /;"	d
+CALLBACK	dep/GLFW/glfw3.h	/^ #define CALLBACK /;"	d
+DECLARE_LIST	dep/blib/blib.h	/^#define DECLARE_LIST(/;"	d
+DECLARE_LIST	dep/blib/blib_math3d.h	/^DECLARE_LIST(quaternion)$/;"	f
+DECLARE_LIST_ALIAS	dep/blib/blib.h	/^#define DECLARE_LIST_ALIAS(/;"	d
+DEFINE_LIST	dep/blib/blib.h	/^#define DEFINE_LIST(/;"	d
+DEFINE_LIST_ALIAS	dep/blib/blib.h	/^#define DEFINE_LIST_ALIAS(/;"	d
+FLOAT_EPSILON	dep/blib/blib_math.h	/^#define FLOAT_EPSILON /;"	d
+GLAPIENTRY	dep/GLFW/glfw3.h	/^ #define GLAPIENTRY /;"	d
+GLFWAPI	dep/GLFW/glfw3.h	/^ #define GLFWAPI /;"	d
+GLFW_ACCUM_ALPHA_BITS	dep/GLFW/glfw3.h	/^#define GLFW_ACCUM_ALPHA_BITS /;"	d
+GLFW_ACCUM_BLUE_BITS	dep/GLFW/glfw3.h	/^#define GLFW_ACCUM_BLUE_BITS /;"	d
+GLFW_ACCUM_GREEN_BITS	dep/GLFW/glfw3.h	/^#define GLFW_ACCUM_GREEN_BITS /;"	d
+GLFW_ACCUM_RED_BITS	dep/GLFW/glfw3.h	/^#define GLFW_ACCUM_RED_BITS /;"	d
+GLFW_ALPHA_BITS	dep/GLFW/glfw3.h	/^#define GLFW_ALPHA_BITS /;"	d
+GLFW_ANGLE_PLATFORM_TYPE	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_D3D11	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_D3D11 /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_D3D9	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_D3D9 /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_METAL	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_METAL /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_NONE	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_NONE /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_OPENGL	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_OPENGL /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_OPENGLES	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_OPENGLES /;"	d
+GLFW_ANGLE_PLATFORM_TYPE_VULKAN	dep/GLFW/glfw3.h	/^#define GLFW_ANGLE_PLATFORM_TYPE_VULKAN /;"	d
+GLFW_ANY_PLATFORM	dep/GLFW/glfw3.h	/^#define GLFW_ANY_PLATFORM /;"	d
+GLFW_ANY_POSITION	dep/GLFW/glfw3.h	/^#define GLFW_ANY_POSITION /;"	d
+GLFW_ANY_RELEASE_BEHAVIOR	dep/GLFW/glfw3.h	/^#define GLFW_ANY_RELEASE_BEHAVIOR /;"	d
+GLFW_APIENTRY_DEFINED	dep/GLFW/glfw3.h	/^ #define GLFW_APIENTRY_DEFINED$/;"	d
+GLFW_API_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_API_UNAVAILABLE /;"	d
+GLFW_ARROW_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_ARROW_CURSOR /;"	d
+GLFW_AUTO_ICONIFY	dep/GLFW/glfw3.h	/^#define GLFW_AUTO_ICONIFY /;"	d
+GLFW_AUX_BUFFERS	dep/GLFW/glfw3.h	/^#define GLFW_AUX_BUFFERS /;"	d
+GLFW_BLUE_BITS	dep/GLFW/glfw3.h	/^#define GLFW_BLUE_BITS /;"	d
+GLFW_CALLBACK_DEFINED	dep/GLFW/glfw3.h	/^ #define GLFW_CALLBACK_DEFINED$/;"	d
+GLFW_CENTER_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_CENTER_CURSOR /;"	d
+GLFW_CLIENT_API	dep/GLFW/glfw3.h	/^#define GLFW_CLIENT_API /;"	d
+GLFW_COCOA_CHDIR_RESOURCES	dep/GLFW/glfw3.h	/^#define GLFW_COCOA_CHDIR_RESOURCES /;"	d
+GLFW_COCOA_FRAME_NAME	dep/GLFW/glfw3.h	/^#define GLFW_COCOA_FRAME_NAME /;"	d
+GLFW_COCOA_GRAPHICS_SWITCHING	dep/GLFW/glfw3.h	/^#define GLFW_COCOA_GRAPHICS_SWITCHING /;"	d
+GLFW_COCOA_MENUBAR	dep/GLFW/glfw3.h	/^#define GLFW_COCOA_MENUBAR /;"	d
+GLFW_COCOA_RETINA_FRAMEBUFFER	dep/GLFW/glfw3.h	/^#define GLFW_COCOA_RETINA_FRAMEBUFFER /;"	d
+GLFW_CONNECTED	dep/GLFW/glfw3.h	/^#define GLFW_CONNECTED /;"	d
+GLFW_CONTEXT_CREATION_API	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_CREATION_API /;"	d
+GLFW_CONTEXT_DEBUG	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_DEBUG /;"	d
+GLFW_CONTEXT_NO_ERROR	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_NO_ERROR /;"	d
+GLFW_CONTEXT_RELEASE_BEHAVIOR	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_RELEASE_BEHAVIOR /;"	d
+GLFW_CONTEXT_REVISION	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_REVISION /;"	d
+GLFW_CONTEXT_ROBUSTNESS	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_ROBUSTNESS /;"	d
+GLFW_CONTEXT_VERSION_MAJOR	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_VERSION_MAJOR /;"	d
+GLFW_CONTEXT_VERSION_MINOR	dep/GLFW/glfw3.h	/^#define GLFW_CONTEXT_VERSION_MINOR /;"	d
+GLFW_CROSSHAIR_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_CROSSHAIR_CURSOR /;"	d
+GLFW_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR /;"	d
+GLFW_CURSOR_CAPTURED	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR_CAPTURED /;"	d
+GLFW_CURSOR_DISABLED	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR_DISABLED /;"	d
+GLFW_CURSOR_HIDDEN	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR_HIDDEN /;"	d
+GLFW_CURSOR_NORMAL	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR_NORMAL /;"	d
+GLFW_CURSOR_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_CURSOR_UNAVAILABLE /;"	d
+GLFW_DECORATED	dep/GLFW/glfw3.h	/^#define GLFW_DECORATED /;"	d
+GLFW_DEPTH_BITS	dep/GLFW/glfw3.h	/^#define GLFW_DEPTH_BITS /;"	d
+GLFW_DISCONNECTED	dep/GLFW/glfw3.h	/^#define GLFW_DISCONNECTED /;"	d
+GLFW_DONT_CARE	dep/GLFW/glfw3.h	/^#define GLFW_DONT_CARE /;"	d
+GLFW_DOUBLEBUFFER	dep/GLFW/glfw3.h	/^#define GLFW_DOUBLEBUFFER /;"	d
+GLFW_EGL_CONTEXT_API	dep/GLFW/glfw3.h	/^#define GLFW_EGL_CONTEXT_API /;"	d
+GLFW_FALSE	dep/GLFW/glfw3.h	/^#define GLFW_FALSE /;"	d
+GLFW_FEATURE_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_FEATURE_UNAVAILABLE /;"	d
+GLFW_FEATURE_UNIMPLEMENTED	dep/GLFW/glfw3.h	/^#define GLFW_FEATURE_UNIMPLEMENTED /;"	d
+GLFW_FLOATING	dep/GLFW/glfw3.h	/^#define GLFW_FLOATING /;"	d
+GLFW_FOCUSED	dep/GLFW/glfw3.h	/^#define GLFW_FOCUSED /;"	d
+GLFW_FOCUS_ON_SHOW	dep/GLFW/glfw3.h	/^#define GLFW_FOCUS_ON_SHOW /;"	d
+GLFW_FORMAT_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_FORMAT_UNAVAILABLE /;"	d
+GLFW_GAMEPAD_AXIS_LAST	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_LAST /;"	d
+GLFW_GAMEPAD_AXIS_LEFT_TRIGGER	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_LEFT_TRIGGER /;"	d
+GLFW_GAMEPAD_AXIS_LEFT_X	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_LEFT_X /;"	d
+GLFW_GAMEPAD_AXIS_LEFT_Y	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_LEFT_Y /;"	d
+GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER /;"	d
+GLFW_GAMEPAD_AXIS_RIGHT_X	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_RIGHT_X /;"	d
+GLFW_GAMEPAD_AXIS_RIGHT_Y	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_AXIS_RIGHT_Y /;"	d
+GLFW_GAMEPAD_BUTTON_A	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_A /;"	d
+GLFW_GAMEPAD_BUTTON_B	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_B /;"	d
+GLFW_GAMEPAD_BUTTON_BACK	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_BACK /;"	d
+GLFW_GAMEPAD_BUTTON_CIRCLE	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_CIRCLE /;"	d
+GLFW_GAMEPAD_BUTTON_CROSS	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_CROSS /;"	d
+GLFW_GAMEPAD_BUTTON_DPAD_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN /;"	d
+GLFW_GAMEPAD_BUTTON_DPAD_LEFT	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT /;"	d
+GLFW_GAMEPAD_BUTTON_DPAD_RIGHT	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT /;"	d
+GLFW_GAMEPAD_BUTTON_DPAD_UP	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_DPAD_UP /;"	d
+GLFW_GAMEPAD_BUTTON_GUIDE	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_GUIDE /;"	d
+GLFW_GAMEPAD_BUTTON_LAST	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_LAST /;"	d
+GLFW_GAMEPAD_BUTTON_LEFT_BUMPER	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_LEFT_BUMPER /;"	d
+GLFW_GAMEPAD_BUTTON_LEFT_THUMB	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB /;"	d
+GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER /;"	d
+GLFW_GAMEPAD_BUTTON_RIGHT_THUMB	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB /;"	d
+GLFW_GAMEPAD_BUTTON_SQUARE	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_SQUARE /;"	d
+GLFW_GAMEPAD_BUTTON_START	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_START /;"	d
+GLFW_GAMEPAD_BUTTON_TRIANGLE	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_TRIANGLE /;"	d
+GLFW_GAMEPAD_BUTTON_X	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_X /;"	d
+GLFW_GAMEPAD_BUTTON_Y	dep/GLFW/glfw3.h	/^#define GLFW_GAMEPAD_BUTTON_Y /;"	d
+GLFW_GLAPIENTRY_DEFINED	dep/GLFW/glfw3.h	/^ #define GLFW_GLAPIENTRY_DEFINED$/;"	d
+GLFW_GREEN_BITS	dep/GLFW/glfw3.h	/^#define GLFW_GREEN_BITS /;"	d
+GLFW_HAND_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_HAND_CURSOR /;"	d
+GLFW_HAT_CENTERED	dep/GLFW/glfw3.h	/^#define GLFW_HAT_CENTERED /;"	d
+GLFW_HAT_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_HAT_DOWN /;"	d
+GLFW_HAT_LEFT	dep/GLFW/glfw3.h	/^#define GLFW_HAT_LEFT /;"	d
+GLFW_HAT_LEFT_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_HAT_LEFT_DOWN /;"	d
+GLFW_HAT_LEFT_UP	dep/GLFW/glfw3.h	/^#define GLFW_HAT_LEFT_UP /;"	d
+GLFW_HAT_RIGHT	dep/GLFW/glfw3.h	/^#define GLFW_HAT_RIGHT /;"	d
+GLFW_HAT_RIGHT_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_HAT_RIGHT_DOWN /;"	d
+GLFW_HAT_RIGHT_UP	dep/GLFW/glfw3.h	/^#define GLFW_HAT_RIGHT_UP /;"	d
+GLFW_HAT_UP	dep/GLFW/glfw3.h	/^#define GLFW_HAT_UP /;"	d
+GLFW_HOVERED	dep/GLFW/glfw3.h	/^#define GLFW_HOVERED /;"	d
+GLFW_HRESIZE_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_HRESIZE_CURSOR /;"	d
+GLFW_IBEAM_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_IBEAM_CURSOR /;"	d
+GLFW_ICONIFIED	dep/GLFW/glfw3.h	/^#define GLFW_ICONIFIED /;"	d
+GLFW_INVALID_ENUM	dep/GLFW/glfw3.h	/^#define GLFW_INVALID_ENUM /;"	d
+GLFW_INVALID_VALUE	dep/GLFW/glfw3.h	/^#define GLFW_INVALID_VALUE /;"	d
+GLFW_JOYSTICK_1	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_1 /;"	d
+GLFW_JOYSTICK_10	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_10 /;"	d
+GLFW_JOYSTICK_11	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_11 /;"	d
+GLFW_JOYSTICK_12	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_12 /;"	d
+GLFW_JOYSTICK_13	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_13 /;"	d
+GLFW_JOYSTICK_14	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_14 /;"	d
+GLFW_JOYSTICK_15	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_15 /;"	d
+GLFW_JOYSTICK_16	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_16 /;"	d
+GLFW_JOYSTICK_2	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_2 /;"	d
+GLFW_JOYSTICK_3	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_3 /;"	d
+GLFW_JOYSTICK_4	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_4 /;"	d
+GLFW_JOYSTICK_5	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_5 /;"	d
+GLFW_JOYSTICK_6	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_6 /;"	d
+GLFW_JOYSTICK_7	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_7 /;"	d
+GLFW_JOYSTICK_8	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_8 /;"	d
+GLFW_JOYSTICK_9	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_9 /;"	d
+GLFW_JOYSTICK_HAT_BUTTONS	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_HAT_BUTTONS /;"	d
+GLFW_JOYSTICK_LAST	dep/GLFW/glfw3.h	/^#define GLFW_JOYSTICK_LAST /;"	d
+GLFW_KEY_0	dep/GLFW/glfw3.h	/^#define GLFW_KEY_0 /;"	d
+GLFW_KEY_1	dep/GLFW/glfw3.h	/^#define GLFW_KEY_1 /;"	d
+GLFW_KEY_2	dep/GLFW/glfw3.h	/^#define GLFW_KEY_2 /;"	d
+GLFW_KEY_3	dep/GLFW/glfw3.h	/^#define GLFW_KEY_3 /;"	d
+GLFW_KEY_4	dep/GLFW/glfw3.h	/^#define GLFW_KEY_4 /;"	d
+GLFW_KEY_5	dep/GLFW/glfw3.h	/^#define GLFW_KEY_5 /;"	d
+GLFW_KEY_6	dep/GLFW/glfw3.h	/^#define GLFW_KEY_6 /;"	d
+GLFW_KEY_7	dep/GLFW/glfw3.h	/^#define GLFW_KEY_7 /;"	d
+GLFW_KEY_8	dep/GLFW/glfw3.h	/^#define GLFW_KEY_8 /;"	d
+GLFW_KEY_9	dep/GLFW/glfw3.h	/^#define GLFW_KEY_9 /;"	d
+GLFW_KEY_A	dep/GLFW/glfw3.h	/^#define GLFW_KEY_A /;"	d
+GLFW_KEY_APOSTROPHE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_APOSTROPHE /;"	d
+GLFW_KEY_B	dep/GLFW/glfw3.h	/^#define GLFW_KEY_B /;"	d
+GLFW_KEY_BACKSLASH	dep/GLFW/glfw3.h	/^#define GLFW_KEY_BACKSLASH /;"	d
+GLFW_KEY_BACKSPACE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_BACKSPACE /;"	d
+GLFW_KEY_C	dep/GLFW/glfw3.h	/^#define GLFW_KEY_C /;"	d
+GLFW_KEY_CAPS_LOCK	dep/GLFW/glfw3.h	/^#define GLFW_KEY_CAPS_LOCK /;"	d
+GLFW_KEY_COMMA	dep/GLFW/glfw3.h	/^#define GLFW_KEY_COMMA /;"	d
+GLFW_KEY_D	dep/GLFW/glfw3.h	/^#define GLFW_KEY_D /;"	d
+GLFW_KEY_DELETE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_DELETE /;"	d
+GLFW_KEY_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_KEY_DOWN /;"	d
+GLFW_KEY_E	dep/GLFW/glfw3.h	/^#define GLFW_KEY_E /;"	d
+GLFW_KEY_END	dep/GLFW/glfw3.h	/^#define GLFW_KEY_END /;"	d
+GLFW_KEY_ENTER	dep/GLFW/glfw3.h	/^#define GLFW_KEY_ENTER /;"	d
+GLFW_KEY_EQUAL	dep/GLFW/glfw3.h	/^#define GLFW_KEY_EQUAL /;"	d
+GLFW_KEY_ESCAPE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_ESCAPE /;"	d
+GLFW_KEY_F	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F /;"	d
+GLFW_KEY_F1	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F1 /;"	d
+GLFW_KEY_F10	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F10 /;"	d
+GLFW_KEY_F11	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F11 /;"	d
+GLFW_KEY_F12	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F12 /;"	d
+GLFW_KEY_F13	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F13 /;"	d
+GLFW_KEY_F14	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F14 /;"	d
+GLFW_KEY_F15	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F15 /;"	d
+GLFW_KEY_F16	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F16 /;"	d
+GLFW_KEY_F17	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F17 /;"	d
+GLFW_KEY_F18	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F18 /;"	d
+GLFW_KEY_F19	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F19 /;"	d
+GLFW_KEY_F2	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F2 /;"	d
+GLFW_KEY_F20	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F20 /;"	d
+GLFW_KEY_F21	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F21 /;"	d
+GLFW_KEY_F22	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F22 /;"	d
+GLFW_KEY_F23	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F23 /;"	d
+GLFW_KEY_F24	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F24 /;"	d
+GLFW_KEY_F25	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F25 /;"	d
+GLFW_KEY_F3	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F3 /;"	d
+GLFW_KEY_F4	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F4 /;"	d
+GLFW_KEY_F5	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F5 /;"	d
+GLFW_KEY_F6	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F6 /;"	d
+GLFW_KEY_F7	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F7 /;"	d
+GLFW_KEY_F8	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F8 /;"	d
+GLFW_KEY_F9	dep/GLFW/glfw3.h	/^#define GLFW_KEY_F9 /;"	d
+GLFW_KEY_G	dep/GLFW/glfw3.h	/^#define GLFW_KEY_G /;"	d
+GLFW_KEY_GRAVE_ACCENT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_GRAVE_ACCENT /;"	d
+GLFW_KEY_H	dep/GLFW/glfw3.h	/^#define GLFW_KEY_H /;"	d
+GLFW_KEY_HOME	dep/GLFW/glfw3.h	/^#define GLFW_KEY_HOME /;"	d
+GLFW_KEY_I	dep/GLFW/glfw3.h	/^#define GLFW_KEY_I /;"	d
+GLFW_KEY_INSERT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_INSERT /;"	d
+GLFW_KEY_J	dep/GLFW/glfw3.h	/^#define GLFW_KEY_J /;"	d
+GLFW_KEY_K	dep/GLFW/glfw3.h	/^#define GLFW_KEY_K /;"	d
+GLFW_KEY_KP_0	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_0 /;"	d
+GLFW_KEY_KP_1	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_1 /;"	d
+GLFW_KEY_KP_2	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_2 /;"	d
+GLFW_KEY_KP_3	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_3 /;"	d
+GLFW_KEY_KP_4	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_4 /;"	d
+GLFW_KEY_KP_5	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_5 /;"	d
+GLFW_KEY_KP_6	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_6 /;"	d
+GLFW_KEY_KP_7	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_7 /;"	d
+GLFW_KEY_KP_8	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_8 /;"	d
+GLFW_KEY_KP_9	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_9 /;"	d
+GLFW_KEY_KP_ADD	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_ADD /;"	d
+GLFW_KEY_KP_DECIMAL	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_DECIMAL /;"	d
+GLFW_KEY_KP_DIVIDE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_DIVIDE /;"	d
+GLFW_KEY_KP_ENTER	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_ENTER /;"	d
+GLFW_KEY_KP_EQUAL	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_EQUAL /;"	d
+GLFW_KEY_KP_MULTIPLY	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_MULTIPLY /;"	d
+GLFW_KEY_KP_SUBTRACT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_KP_SUBTRACT /;"	d
+GLFW_KEY_L	dep/GLFW/glfw3.h	/^#define GLFW_KEY_L /;"	d
+GLFW_KEY_LAST	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LAST /;"	d
+GLFW_KEY_LEFT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT /;"	d
+GLFW_KEY_LEFT_ALT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT_ALT /;"	d
+GLFW_KEY_LEFT_BRACKET	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT_BRACKET /;"	d
+GLFW_KEY_LEFT_CONTROL	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT_CONTROL /;"	d
+GLFW_KEY_LEFT_SHIFT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT_SHIFT /;"	d
+GLFW_KEY_LEFT_SUPER	dep/GLFW/glfw3.h	/^#define GLFW_KEY_LEFT_SUPER /;"	d
+GLFW_KEY_M	dep/GLFW/glfw3.h	/^#define GLFW_KEY_M /;"	d
+GLFW_KEY_MENU	dep/GLFW/glfw3.h	/^#define GLFW_KEY_MENU /;"	d
+GLFW_KEY_MINUS	dep/GLFW/glfw3.h	/^#define GLFW_KEY_MINUS /;"	d
+GLFW_KEY_N	dep/GLFW/glfw3.h	/^#define GLFW_KEY_N /;"	d
+GLFW_KEY_NUM_LOCK	dep/GLFW/glfw3.h	/^#define GLFW_KEY_NUM_LOCK /;"	d
+GLFW_KEY_O	dep/GLFW/glfw3.h	/^#define GLFW_KEY_O /;"	d
+GLFW_KEY_P	dep/GLFW/glfw3.h	/^#define GLFW_KEY_P /;"	d
+GLFW_KEY_PAGE_DOWN	dep/GLFW/glfw3.h	/^#define GLFW_KEY_PAGE_DOWN /;"	d
+GLFW_KEY_PAGE_UP	dep/GLFW/glfw3.h	/^#define GLFW_KEY_PAGE_UP /;"	d
+GLFW_KEY_PAUSE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_PAUSE /;"	d
+GLFW_KEY_PERIOD	dep/GLFW/glfw3.h	/^#define GLFW_KEY_PERIOD /;"	d
+GLFW_KEY_PRINT_SCREEN	dep/GLFW/glfw3.h	/^#define GLFW_KEY_PRINT_SCREEN /;"	d
+GLFW_KEY_Q	dep/GLFW/glfw3.h	/^#define GLFW_KEY_Q /;"	d
+GLFW_KEY_R	dep/GLFW/glfw3.h	/^#define GLFW_KEY_R /;"	d
+GLFW_KEY_RIGHT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT /;"	d
+GLFW_KEY_RIGHT_ALT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT_ALT /;"	d
+GLFW_KEY_RIGHT_BRACKET	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT_BRACKET /;"	d
+GLFW_KEY_RIGHT_CONTROL	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT_CONTROL /;"	d
+GLFW_KEY_RIGHT_SHIFT	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT_SHIFT /;"	d
+GLFW_KEY_RIGHT_SUPER	dep/GLFW/glfw3.h	/^#define GLFW_KEY_RIGHT_SUPER /;"	d
+GLFW_KEY_S	dep/GLFW/glfw3.h	/^#define GLFW_KEY_S /;"	d
+GLFW_KEY_SCROLL_LOCK	dep/GLFW/glfw3.h	/^#define GLFW_KEY_SCROLL_LOCK /;"	d
+GLFW_KEY_SEMICOLON	dep/GLFW/glfw3.h	/^#define GLFW_KEY_SEMICOLON /;"	d
+GLFW_KEY_SLASH	dep/GLFW/glfw3.h	/^#define GLFW_KEY_SLASH /;"	d
+GLFW_KEY_SPACE	dep/GLFW/glfw3.h	/^#define GLFW_KEY_SPACE /;"	d
+GLFW_KEY_T	dep/GLFW/glfw3.h	/^#define GLFW_KEY_T /;"	d
+GLFW_KEY_TAB	dep/GLFW/glfw3.h	/^#define GLFW_KEY_TAB /;"	d
+GLFW_KEY_U	dep/GLFW/glfw3.h	/^#define GLFW_KEY_U /;"	d
+GLFW_KEY_UNKNOWN	dep/GLFW/glfw3.h	/^#define GLFW_KEY_UNKNOWN /;"	d
+GLFW_KEY_UP	dep/GLFW/glfw3.h	/^#define GLFW_KEY_UP /;"	d
+GLFW_KEY_V	dep/GLFW/glfw3.h	/^#define GLFW_KEY_V /;"	d
+GLFW_KEY_W	dep/GLFW/glfw3.h	/^#define GLFW_KEY_W /;"	d
+GLFW_KEY_WORLD_1	dep/GLFW/glfw3.h	/^#define GLFW_KEY_WORLD_1 /;"	d
+GLFW_KEY_WORLD_2	dep/GLFW/glfw3.h	/^#define GLFW_KEY_WORLD_2 /;"	d
+GLFW_KEY_X	dep/GLFW/glfw3.h	/^#define GLFW_KEY_X /;"	d
+GLFW_KEY_Y	dep/GLFW/glfw3.h	/^#define GLFW_KEY_Y /;"	d
+GLFW_KEY_Z	dep/GLFW/glfw3.h	/^#define GLFW_KEY_Z /;"	d
+GLFW_LOCK_KEY_MODS	dep/GLFW/glfw3.h	/^#define GLFW_LOCK_KEY_MODS /;"	d
+GLFW_LOSE_CONTEXT_ON_RESET	dep/GLFW/glfw3.h	/^#define GLFW_LOSE_CONTEXT_ON_RESET /;"	d
+GLFW_MAXIMIZED	dep/GLFW/glfw3.h	/^#define GLFW_MAXIMIZED /;"	d
+GLFW_MOD_ALT	dep/GLFW/glfw3.h	/^#define GLFW_MOD_ALT /;"	d
+GLFW_MOD_CAPS_LOCK	dep/GLFW/glfw3.h	/^#define GLFW_MOD_CAPS_LOCK /;"	d
+GLFW_MOD_CONTROL	dep/GLFW/glfw3.h	/^#define GLFW_MOD_CONTROL /;"	d
+GLFW_MOD_NUM_LOCK	dep/GLFW/glfw3.h	/^#define GLFW_MOD_NUM_LOCK /;"	d
+GLFW_MOD_SHIFT	dep/GLFW/glfw3.h	/^#define GLFW_MOD_SHIFT /;"	d
+GLFW_MOD_SUPER	dep/GLFW/glfw3.h	/^#define GLFW_MOD_SUPER /;"	d
+GLFW_MOUSE_BUTTON_1	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_1 /;"	d
+GLFW_MOUSE_BUTTON_2	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_2 /;"	d
+GLFW_MOUSE_BUTTON_3	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_3 /;"	d
+GLFW_MOUSE_BUTTON_4	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_4 /;"	d
+GLFW_MOUSE_BUTTON_5	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_5 /;"	d
+GLFW_MOUSE_BUTTON_6	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_6 /;"	d
+GLFW_MOUSE_BUTTON_7	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_7 /;"	d
+GLFW_MOUSE_BUTTON_8	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_8 /;"	d
+GLFW_MOUSE_BUTTON_LAST	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_LAST /;"	d
+GLFW_MOUSE_BUTTON_LEFT	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_LEFT /;"	d
+GLFW_MOUSE_BUTTON_MIDDLE	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_MIDDLE /;"	d
+GLFW_MOUSE_BUTTON_RIGHT	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_BUTTON_RIGHT /;"	d
+GLFW_MOUSE_PASSTHROUGH	dep/GLFW/glfw3.h	/^#define GLFW_MOUSE_PASSTHROUGH /;"	d
+GLFW_NATIVE_CONTEXT_API	dep/GLFW/glfw3.h	/^#define GLFW_NATIVE_CONTEXT_API /;"	d
+GLFW_NOT_ALLOWED_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_NOT_ALLOWED_CURSOR /;"	d
+GLFW_NOT_INITIALIZED	dep/GLFW/glfw3.h	/^#define GLFW_NOT_INITIALIZED /;"	d
+GLFW_NO_API	dep/GLFW/glfw3.h	/^#define GLFW_NO_API /;"	d
+GLFW_NO_CURRENT_CONTEXT	dep/GLFW/glfw3.h	/^#define GLFW_NO_CURRENT_CONTEXT /;"	d
+GLFW_NO_ERROR	dep/GLFW/glfw3.h	/^#define GLFW_NO_ERROR /;"	d
+GLFW_NO_RESET_NOTIFICATION	dep/GLFW/glfw3.h	/^#define GLFW_NO_RESET_NOTIFICATION /;"	d
+GLFW_NO_ROBUSTNESS	dep/GLFW/glfw3.h	/^#define GLFW_NO_ROBUSTNESS /;"	d
+GLFW_NO_WINDOW_CONTEXT	dep/GLFW/glfw3.h	/^#define GLFW_NO_WINDOW_CONTEXT /;"	d
+GLFW_OPENGL_ANY_PROFILE	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_ANY_PROFILE /;"	d
+GLFW_OPENGL_API	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_API /;"	d
+GLFW_OPENGL_COMPAT_PROFILE	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_COMPAT_PROFILE /;"	d
+GLFW_OPENGL_CORE_PROFILE	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_CORE_PROFILE /;"	d
+GLFW_OPENGL_DEBUG_CONTEXT	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_DEBUG_CONTEXT /;"	d
+GLFW_OPENGL_ES_API	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_ES_API /;"	d
+GLFW_OPENGL_FORWARD_COMPAT	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_FORWARD_COMPAT /;"	d
+GLFW_OPENGL_PROFILE	dep/GLFW/glfw3.h	/^#define GLFW_OPENGL_PROFILE /;"	d
+GLFW_OSMESA_CONTEXT_API	dep/GLFW/glfw3.h	/^#define GLFW_OSMESA_CONTEXT_API /;"	d
+GLFW_OUT_OF_MEMORY	dep/GLFW/glfw3.h	/^#define GLFW_OUT_OF_MEMORY /;"	d
+GLFW_PLATFORM	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM /;"	d
+GLFW_PLATFORM_COCOA	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_COCOA /;"	d
+GLFW_PLATFORM_ERROR	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_ERROR /;"	d
+GLFW_PLATFORM_NULL	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_NULL /;"	d
+GLFW_PLATFORM_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_UNAVAILABLE /;"	d
+GLFW_PLATFORM_WAYLAND	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_WAYLAND /;"	d
+GLFW_PLATFORM_WIN32	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_WIN32 /;"	d
+GLFW_PLATFORM_X11	dep/GLFW/glfw3.h	/^#define GLFW_PLATFORM_X11 /;"	d
+GLFW_POINTING_HAND_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_POINTING_HAND_CURSOR /;"	d
+GLFW_POSITION_X	dep/GLFW/glfw3.h	/^#define GLFW_POSITION_X /;"	d
+GLFW_POSITION_Y	dep/GLFW/glfw3.h	/^#define GLFW_POSITION_Y /;"	d
+GLFW_PRESS	dep/GLFW/glfw3.h	/^#define GLFW_PRESS /;"	d
+GLFW_RAW_MOUSE_MOTION	dep/GLFW/glfw3.h	/^#define GLFW_RAW_MOUSE_MOTION /;"	d
+GLFW_RED_BITS	dep/GLFW/glfw3.h	/^#define GLFW_RED_BITS /;"	d
+GLFW_REFRESH_RATE	dep/GLFW/glfw3.h	/^#define GLFW_REFRESH_RATE /;"	d
+GLFW_RELEASE	dep/GLFW/glfw3.h	/^#define GLFW_RELEASE /;"	d
+GLFW_RELEASE_BEHAVIOR_FLUSH	dep/GLFW/glfw3.h	/^#define GLFW_RELEASE_BEHAVIOR_FLUSH /;"	d
+GLFW_RELEASE_BEHAVIOR_NONE	dep/GLFW/glfw3.h	/^#define GLFW_RELEASE_BEHAVIOR_NONE /;"	d
+GLFW_REPEAT	dep/GLFW/glfw3.h	/^#define GLFW_REPEAT /;"	d
+GLFW_RESIZABLE	dep/GLFW/glfw3.h	/^#define GLFW_RESIZABLE /;"	d
+GLFW_RESIZE_ALL_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_RESIZE_ALL_CURSOR /;"	d
+GLFW_RESIZE_EW_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_RESIZE_EW_CURSOR /;"	d
+GLFW_RESIZE_NESW_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_RESIZE_NESW_CURSOR /;"	d
+GLFW_RESIZE_NS_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_RESIZE_NS_CURSOR /;"	d
+GLFW_RESIZE_NWSE_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_RESIZE_NWSE_CURSOR /;"	d
+GLFW_SAMPLES	dep/GLFW/glfw3.h	/^#define GLFW_SAMPLES /;"	d
+GLFW_SCALE_FRAMEBUFFER	dep/GLFW/glfw3.h	/^#define GLFW_SCALE_FRAMEBUFFER /;"	d
+GLFW_SCALE_TO_MONITOR	dep/GLFW/glfw3.h	/^#define GLFW_SCALE_TO_MONITOR /;"	d
+GLFW_SRGB_CAPABLE	dep/GLFW/glfw3.h	/^#define GLFW_SRGB_CAPABLE /;"	d
+GLFW_STENCIL_BITS	dep/GLFW/glfw3.h	/^#define GLFW_STENCIL_BITS /;"	d
+GLFW_STEREO	dep/GLFW/glfw3.h	/^#define GLFW_STEREO /;"	d
+GLFW_STICKY_KEYS	dep/GLFW/glfw3.h	/^#define GLFW_STICKY_KEYS /;"	d
+GLFW_STICKY_MOUSE_BUTTONS	dep/GLFW/glfw3.h	/^#define GLFW_STICKY_MOUSE_BUTTONS /;"	d
+GLFW_TRANSPARENT_FRAMEBUFFER	dep/GLFW/glfw3.h	/^#define GLFW_TRANSPARENT_FRAMEBUFFER /;"	d
+GLFW_TRUE	dep/GLFW/glfw3.h	/^#define GLFW_TRUE /;"	d
+GLFW_VERSION_MAJOR	dep/GLFW/glfw3.h	/^#define GLFW_VERSION_MAJOR /;"	d
+GLFW_VERSION_MINOR	dep/GLFW/glfw3.h	/^#define GLFW_VERSION_MINOR /;"	d
+GLFW_VERSION_REVISION	dep/GLFW/glfw3.h	/^#define GLFW_VERSION_REVISION /;"	d
+GLFW_VERSION_UNAVAILABLE	dep/GLFW/glfw3.h	/^#define GLFW_VERSION_UNAVAILABLE /;"	d
+GLFW_VISIBLE	dep/GLFW/glfw3.h	/^#define GLFW_VISIBLE /;"	d
+GLFW_VRESIZE_CURSOR	dep/GLFW/glfw3.h	/^#define GLFW_VRESIZE_CURSOR /;"	d
+GLFW_WAYLAND_APP_ID	dep/GLFW/glfw3.h	/^#define GLFW_WAYLAND_APP_ID /;"	d
+GLFW_WAYLAND_DISABLE_LIBDECOR	dep/GLFW/glfw3.h	/^#define GLFW_WAYLAND_DISABLE_LIBDECOR /;"	d
+GLFW_WAYLAND_LIBDECOR	dep/GLFW/glfw3.h	/^#define GLFW_WAYLAND_LIBDECOR /;"	d
+GLFW_WAYLAND_PREFER_LIBDECOR	dep/GLFW/glfw3.h	/^#define GLFW_WAYLAND_PREFER_LIBDECOR /;"	d
+GLFW_WIN32_KEYBOARD_MENU	dep/GLFW/glfw3.h	/^#define GLFW_WIN32_KEYBOARD_MENU /;"	d
+GLFW_WIN32_SHOWDEFAULT	dep/GLFW/glfw3.h	/^#define GLFW_WIN32_SHOWDEFAULT /;"	d
+GLFW_WINGDIAPI_DEFINED	dep/GLFW/glfw3.h	/^ #define GLFW_WINGDIAPI_DEFINED$/;"	d
+GLFW_X11_CLASS_NAME	dep/GLFW/glfw3.h	/^#define GLFW_X11_CLASS_NAME /;"	d
+GLFW_X11_INSTANCE_NAME	dep/GLFW/glfw3.h	/^#define GLFW_X11_INSTANCE_NAME /;"	d
+GLFW_X11_XCB_VULKAN_SURFACE	dep/GLFW/glfw3.h	/^#define GLFW_X11_XCB_VULKAN_SURFACE /;"	d
+GLFWallocatefun	dep/GLFW/glfw3.h	/^typedef void* (* GLFWallocatefun)(size_t size, void* user);$/;"	t	typeref:typename:void * (*)(size_t size,void * user)
+GLFWallocator	dep/GLFW/glfw3.h	/^typedef struct GLFWallocator$/;"	s
+GLFWallocator	dep/GLFW/glfw3.h	/^} GLFWallocator;$/;"	t	typeref:struct:GLFWallocator
+GLFWcharfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWcharfun)(GLFWwindow* window, unsigned int codepoint);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,unsigned int codepoint)
+GLFWcharmodsfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWcharmodsfun)(GLFWwindow* window, unsigned int codepoint, int mods);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,unsigned int codepoint,int mods)
+GLFWcursor	dep/GLFW/glfw3.h	/^typedef struct GLFWcursor GLFWcursor;$/;"	t	typeref:struct:GLFWcursor
+GLFWcursorenterfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWcursorenterfun)(GLFWwindow* window, int entered);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int entered)
+GLFWcursorposfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWcursorposfun)(GLFWwindow* window, double xpos, double ypos);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,double xpos,double ypos)
+GLFWdeallocatefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWdeallocatefun)(void* block, void* user);$/;"	t	typeref:typename:void (*)(void * block,void * user)
+GLFWdropfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWdropfun)(GLFWwindow* window, int path_count, const char* paths[]);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int path_count,const char * paths[])
+GLFWerrorfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWerrorfun)(int error_code, const char* description);$/;"	t	typeref:typename:void (*)(int error_code,const char * description)
+GLFWframebuffersizefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWframebuffersizefun)(GLFWwindow* window, int width, int height);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int width,int height)
+GLFWgamepadstate	dep/GLFW/glfw3.h	/^typedef struct GLFWgamepadstate$/;"	s
+GLFWgamepadstate	dep/GLFW/glfw3.h	/^} GLFWgamepadstate;$/;"	t	typeref:struct:GLFWgamepadstate
+GLFWgammaramp	dep/GLFW/glfw3.h	/^typedef struct GLFWgammaramp$/;"	s
+GLFWgammaramp	dep/GLFW/glfw3.h	/^} GLFWgammaramp;$/;"	t	typeref:struct:GLFWgammaramp
+GLFWglproc	dep/GLFW/glfw3.h	/^typedef void (*GLFWglproc)(void);$/;"	t	typeref:typename:void (*)(void)
+GLFWimage	dep/GLFW/glfw3.h	/^typedef struct GLFWimage$/;"	s
+GLFWimage	dep/GLFW/glfw3.h	/^} GLFWimage;$/;"	t	typeref:struct:GLFWimage
+GLFWjoystickfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWjoystickfun)(int jid, int event);$/;"	t	typeref:typename:void (*)(int jid,int event)
+GLFWkeyfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWkeyfun)(GLFWwindow* window, int key, int scancode, int action, int mods);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int key,int scancode,int action,int mods)
+GLFWmonitor	dep/GLFW/glfw3.h	/^typedef struct GLFWmonitor GLFWmonitor;$/;"	t	typeref:struct:GLFWmonitor
+GLFWmonitorfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWmonitorfun)(GLFWmonitor* monitor, int event);$/;"	t	typeref:typename:void (*)(GLFWmonitor * monitor,int event)
+GLFWmousebuttonfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWmousebuttonfun)(GLFWwindow* window, int button, int action, int mods);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int button,int action,int mods)
+GLFWreallocatefun	dep/GLFW/glfw3.h	/^typedef void* (* GLFWreallocatefun)(void* block, size_t size, void* user);$/;"	t	typeref:typename:void * (*)(void * block,size_t size,void * user)
+GLFWscrollfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWscrollfun)(GLFWwindow* window, double xoffset, double yoffset);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,double xoffset,double yoffset)
+GLFWvidmode	dep/GLFW/glfw3.h	/^typedef struct GLFWvidmode$/;"	s
+GLFWvidmode	dep/GLFW/glfw3.h	/^} GLFWvidmode;$/;"	t	typeref:struct:GLFWvidmode
+GLFWvkproc	dep/GLFW/glfw3.h	/^typedef void (*GLFWvkproc)(void);$/;"	t	typeref:typename:void (*)(void)
+GLFWwindow	dep/GLFW/glfw3.h	/^typedef struct GLFWwindow GLFWwindow;$/;"	t	typeref:struct:GLFWwindow
+GLFWwindowclosefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowclosefun)(GLFWwindow* window);$/;"	t	typeref:typename:void (*)(GLFWwindow * window)
+GLFWwindowcontentscalefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowcontentscalefun)(GLFWwindow* window, float xscale, float yscale);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,float xscale,float yscale)
+GLFWwindowfocusfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowfocusfun)(GLFWwindow* window, int focused);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int focused)
+GLFWwindowiconifyfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowiconifyfun)(GLFWwindow* window, int iconified);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int iconified)
+GLFWwindowmaximizefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowmaximizefun)(GLFWwindow* window, int maximized);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int maximized)
+GLFWwindowposfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowposfun)(GLFWwindow* window, int xpos, int ypos);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int xpos,int ypos)
+GLFWwindowrefreshfun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowrefreshfun)(GLFWwindow* window);$/;"	t	typeref:typename:void (*)(GLFWwindow * window)
+GLFWwindowsizefun	dep/GLFW/glfw3.h	/^typedef void (* GLFWwindowsizefun)(GLFWwindow* window, int width, int height);$/;"	t	typeref:typename:void (*)(GLFWwindow * window,int width,int height)
+PI	dep/blib/blib_math.h	/^#define PI /;"	d
+WINGDIAPI	dep/GLFW/glfw3.h	/^ #define WINGDIAPI /;"	d
+_WIN32	dep/GLFW/glfw3.h	/^ #define _WIN32$/;"	d
+__anon067bbe630108	dep/blib/blib_file.h	/^typedef struct {$/;"	s
+__anon803dd6640103	dep/blib/blib.h	/^enum { false, true };$/;"	g
+__anonb54211040108	dep/blib/blib_math3d.h	/^typedef struct {$/;"	s
+__anonb54211040208	dep/blib/blib_math3d.h	/^typedef struct {$/;"	s
+__anonb54211040308	dep/blib/blib_math3d.h	/^typedef struct {$/;"	s
+__anonb54211040408	dep/blib/blib_math3d.h	/^typedef struct {$/;"	s
+_glfw3_h_	dep/GLFW/glfw3.h	/^#define _glfw3_h_$/;"	d
+_glfw3_native_h_	dep/GLFW/glfw3native.h	/^#define _glfw3_native_h_$/;"	d
+allocate	dep/GLFW/glfw3.h	/^    GLFWallocatefun allocate;$/;"	m	struct:GLFWallocator	typeref:typename:GLFWallocatefun
+angleDelta	dep/blib/blib_math.h	/^static inline float angleDelta(const float a, const float b) {$/;"	f	typeref:typename:float
+aproxequal	dep/blib/blib_math.h	/^static inline int aproxequal(float a, float b, float tolerance) {$/;"	f	typeref:typename:int
+axes	dep/GLFW/glfw3.h	/^    float axes[6];$/;"	m	struct:GLFWgamepadstate	typeref:typename:float[6]
+blue	dep/GLFW/glfw3.h	/^    unsigned short* blue;$/;"	m	struct:GLFWgammaramp	typeref:typename:unsigned short *
+blueBits	dep/GLFW/glfw3.h	/^    int blueBits;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+buttons	dep/GLFW/glfw3.h	/^    unsigned char buttons[15];$/;"	m	struct:GLFWgamepadstate	typeref:typename:unsigned char[15]
+clamp	dep/blib/blib_math.h	/^static inline float clamp(float n, const float min, const float max) {$/;"	f	typeref:typename:float
+clamp01	dep/blib/blib_math.h	/^static inline float clamp01(float n) {$/;"	f	typeref:typename:float
+const_void_ptr	dep/blib/blib.h	/^typedef const void *const_void_ptr;$/;"	t	typeref:typename:const void *
+cosInterpolate	dep/blib/blib_math.h	/^static inline float cosInterpolate(float a, float b, float t) {$/;"	f	typeref:typename:float
+deallocate	dep/GLFW/glfw3.h	/^    GLFWdeallocatefun deallocate;$/;"	m	struct:GLFWallocator	typeref:typename:GLFWdeallocatefun
+debug_error	dep/blib/blib_log.h	/^#define debug_error(/;"	d
+debug_log	dep/blib/blib_log.h	/^#define debug_log(/;"	d
+debug_test	dep/blib/blib_log.h	/^#define debug_test(/;"	d
+debug_warn	dep/blib/blib_log.h	/^#define debug_warn(/;"	d
+deg2rad	dep/blib/blib_math.h	/^static inline float deg2rad(const float n) { return n * (PI \/ 180.0f); }$/;"	f	typeref:typename:float
+error	dep/blib/blib_file.h	/^  int error;$/;"	m	struct:__anon067bbe630108	typeref:typename:int
+file_buffer	dep/blib/blib_file.h	/^} file_buffer;$/;"	t	typeref:struct:__anon067bbe630108
+file_buffer_alloc	dep/blib/blib_file.h	/^static inline file_buffer file_buffer_alloc(const char *filename) {$/;"	f	typeref:typename:file_buffer
+file_buffer_free	dep/blib/blib_file.h	/^static inline void file_buffer_free(const file_buffer file) { free(file.text); }$/;"	f	typeref:typename:void
+fraction	dep/blib/blib_math.h	/^static inline float fraction(float x) { return x - floorf(x); }$/;"	f	typeref:typename:float
+green	dep/GLFW/glfw3.h	/^    unsigned short* green;$/;"	m	struct:GLFWgammaramp	typeref:typename:unsigned short *
+greenBits	dep/GLFW/glfw3.h	/^    int greenBits;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+height	dep/GLFW/glfw3.h	/^    int height;$/;"	m	struct:GLFWimage	typeref:typename:int
+height	dep/GLFW/glfw3.h	/^    int height;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+length	dep/blib/blib_file.h	/^  size_t length;$/;"	m	struct:__anon067bbe630108	typeref:typename:size_t
+lerp	dep/blib/blib_math.h	/^static inline float lerp(float a, float b, float t) { return a + (b - a) * t; }$/;"	f	typeref:typename:float
+lerpclamped	dep/blib/blib_math.h	/^static inline float lerpclamped(float a, float b, float t) {$/;"	f	typeref:typename:float
+loop	dep/blib/blib_math.h	/^static inline float loop(float n, const float length) {$/;"	f	typeref:typename:float
+map	dep/blib/blib_math.h	/^static inline float map(float n, float fromMin, float fromMax, float toMin,$/;"	f	typeref:typename:float
+noise1	dep/blib/blib_math.h	/^static inline float noise1(int x) {$/;"	f	typeref:typename:float
+noise2	dep/blib/blib_math.h	/^static inline float noise2(int x, int y) {$/;"	f	typeref:typename:float
+noise3	dep/blib/blib_math.h	/^static inline float noise3(int x, int y, int z) {$/;"	f	typeref:typename:float
+noise3_fbm	dep/blib/blib_math.h	/^static inline float noise3_fbm(float x, float y, float z) {$/;"	f	typeref:typename:float
+noise3_fbm_warped	dep/blib/blib_math.h	/^static inline float noise3_fbm_warped(float x, float y, float z,$/;"	f	typeref:typename:float
+noise3_interpolated	dep/blib/blib_math.h	/^static inline float noise3_interpolated(float x, float y, float z) {$/;"	f	typeref:typename:float
+norm	dep/blib/blib_math.h	/^static inline float norm(float n, float min, float max) {$/;"	f	typeref:typename:float
+pingpong	dep/blib/blib_math.h	/^static inline float pingpong(float n, const float length) {$/;"	f	typeref:typename:float
+pixels	dep/GLFW/glfw3.h	/^    unsigned char* pixels;$/;"	m	struct:GLFWimage	typeref:typename:unsigned char *
+quaternion	dep/blib/blib_math3d.h	/^} quaternion;$/;"	t	typeref:struct:__anonb54211040408
+quaternion_add	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_add(quaternion q1, quaternion q2) {$/;"	f	typeref:typename:quaternion
+quaternion_conjugate	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_conjugate(quaternion q) {$/;"	f	typeref:typename:quaternion
+quaternion_equal	dep/blib/blib_math3d.h	/^static inline int quaternion_equal(quaternion a, quaternion b) {$/;"	f	typeref:typename:int
+quaternion_from_angle_axis	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_from_angle_axis(float angle, vector3 axis) {$/;"	f	typeref:typename:quaternion
+quaternion_from_euler	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_from_euler(vector3 eulerAngles) {$/;"	f	typeref:typename:quaternion
+quaternion_identity	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_identity(void) {$/;"	f	typeref:typename:quaternion
+quaternion_inverse	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_inverse(quaternion q) {$/;"	f	typeref:typename:quaternion
+quaternion_magnitude	dep/blib/blib_math3d.h	/^static inline float quaternion_magnitude(quaternion q) {$/;"	f	typeref:typename:float
+quaternion_multiply	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_multiply(quaternion q1, quaternion q2) {$/;"	f	typeref:typename:quaternion
+quaternion_normalize	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_normalize(quaternion q) {$/;"	f	typeref:typename:quaternion
+quaternion_print	dep/blib/blib_math3d.h	/^static inline void quaternion_print(quaternion q, const char *label) {$/;"	f	typeref:typename:void
+quaternion_rotate_euler	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_rotate_euler(quaternion q,$/;"	f	typeref:typename:quaternion
+quaternion_scale	dep/blib/blib_math3d.h	/^static inline quaternion quaternion_scale(quaternion q, float scalar) {$/;"	f	typeref:typename:quaternion
+quaternion_to_mat4	dep/blib/blib_math3d.h	/^static inline float *quaternion_to_mat4(quaternion q, float *mat) {$/;"	f	typeref:typename:float *
+rad2deg	dep/blib/blib_math.h	/^static inline float rad2deg(const float n) { return n * (180.0f \/ PI); }$/;"	f	typeref:typename:float
+reallocate	dep/GLFW/glfw3.h	/^    GLFWreallocatefun reallocate;$/;"	m	struct:GLFWallocator	typeref:typename:GLFWreallocatefun
+red	dep/GLFW/glfw3.h	/^    unsigned short* red;$/;"	m	struct:GLFWgammaramp	typeref:typename:unsigned short *
+redBits	dep/GLFW/glfw3.h	/^    int redBits;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+refreshRate	dep/GLFW/glfw3.h	/^    int refreshRate;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+sigmoid	dep/blib/blib_math.h	/^static inline float sigmoid(float n) {$/;"	f	typeref:typename:float
+size	dep/GLFW/glfw3.h	/^    unsigned int size;$/;"	m	struct:GLFWgammaramp	typeref:typename:unsigned int
+text	dep/blib/blib_file.h	/^  char *text;$/;"	m	struct:__anon067bbe630108	typeref:typename:char *
+uint8_t	dep/blib/blib.h	/^typedef uint8_t bool;$/;"	t	typeref:typename:bool
+user	dep/GLFW/glfw3.h	/^    void* user;$/;"	m	struct:GLFWallocator	typeref:typename:void *
+vector2	dep/blib/blib_math3d.h	/^} vector2;$/;"	t	typeref:struct:__anonb54211040108
+vector2_add	dep/blib/blib_math3d.h	/^static inline vector2 vector2_add(vector2 a, vector2 b) {$/;"	f	typeref:typename:vector2
+vector2_distance	dep/blib/blib_math3d.h	/^static inline float vector2_distance(vector2 a, vector2 b) {$/;"	f	typeref:typename:float
+vector2_dot	dep/blib/blib_math3d.h	/^static inline float vector2_dot(vector2 a, vector2 b) {$/;"	f	typeref:typename:float
+vector2_down	dep/blib/blib_math3d.h	/^static inline vector2 vector2_down(float s) { return (vector2){0.0f, -s}; }$/;"	f	typeref:typename:vector2
+vector2_left	dep/blib/blib_math3d.h	/^static inline vector2 vector2_left(float s) { return (vector2){-s, 0.0f}; }$/;"	f	typeref:typename:vector2
+vector2_lerp	dep/blib/blib_math3d.h	/^static inline vector2 vector2_lerp(vector2 a, vector2 b, float t) {$/;"	f	typeref:typename:vector2
+vector2_lerp_clamped	dep/blib/blib_math3d.h	/^static inline vector2 vector2_lerp_clamped(vector2 a, vector2 b, float t) {$/;"	f	typeref:typename:vector2
+vector2_magnitude	dep/blib/blib_math3d.h	/^static inline float vector2_magnitude(vector2 v) {$/;"	f	typeref:typename:float
+vector2_negate	dep/blib/blib_math3d.h	/^static inline vector2 vector2_negate(vector2 v) {$/;"	f	typeref:typename:vector2
+vector2_normalize	dep/blib/blib_math3d.h	/^static inline vector2 vector2_normalize(vector2 v) {$/;"	f	typeref:typename:vector2
+vector2_one	dep/blib/blib_math3d.h	/^static inline vector2 vector2_one(float s) { return (vector2){s, s}; }$/;"	f	typeref:typename:vector2
+vector2_print	dep/blib/blib_math3d.h	/^static inline void vector2_print(const vector2 v, const char *label) {$/;"	f	typeref:typename:void
+vector2_right	dep/blib/blib_math3d.h	/^static inline vector2 vector2_right(float s) { return (vector2){s, 0.0f}; }$/;"	f	typeref:typename:vector2
+vector2_scale	dep/blib/blib_math3d.h	/^static inline vector2 vector2_scale(vector2 v, float scalar) {$/;"	f	typeref:typename:vector2
+vector2_square_distance	dep/blib/blib_math3d.h	/^static inline float vector2_square_distance(vector2 a, vector2 b) {$/;"	f	typeref:typename:float
+vector2_square_magnitude	dep/blib/blib_math3d.h	/^static inline float vector2_square_magnitude(vector2 v) {$/;"	f	typeref:typename:float
+vector2_subtract	dep/blib/blib_math3d.h	/^static inline vector2 vector2_subtract(vector2 minuend, vector2 subtrahend) {$/;"	f	typeref:typename:vector2
+vector2_up	dep/blib/blib_math3d.h	/^static inline vector2 vector2_up(float s) { return (vector2){0.0f, s}; }$/;"	f	typeref:typename:vector2
+vector2o_vector3	dep/blib/blib_math3d.h	/^static inline vector3 vector2o_vector3(vector2 v) {$/;"	f	typeref:typename:vector3
+vector2o_vector4	dep/blib/blib_math3d.h	/^static inline vector4 vector2o_vector4(vector2 v) {$/;"	f	typeref:typename:vector4
+vector3	dep/blib/blib_math3d.h	/^} vector3;$/;"	t	typeref:struct:__anonb54211040208
+vector3_add	dep/blib/blib_math3d.h	/^static inline vector3 vector3_add(vector3 a, vector3 b) {$/;"	f	typeref:typename:vector3
+vector3_back	dep/blib/blib_math3d.h	/^static inline vector3 vector3_back(float s) {$/;"	f	typeref:typename:vector3
+vector3_cross	dep/blib/blib_math3d.h	/^static inline vector3 vector3_cross(vector3 a, vector3 b) {$/;"	f	typeref:typename:vector3
+vector3_distance	dep/blib/blib_math3d.h	/^static inline float vector3_distance(vector3 a, vector3 b) {$/;"	f	typeref:typename:float
+vector3_dot	dep/blib/blib_math3d.h	/^static inline float vector3_dot(vector3 a, vector3 b) {$/;"	f	typeref:typename:float
+vector3_down	dep/blib/blib_math3d.h	/^static inline vector3 vector3_down(float s) {$/;"	f	typeref:typename:vector3
+vector3_forward	dep/blib/blib_math3d.h	/^static inline vector3 vector3_forward(float s) {$/;"	f	typeref:typename:vector3
+vector3_kinematic_equation	dep/blib/blib_math3d.h	/^static inline vector3 vector3_kinematic_equation(vector3 acceleration,$/;"	f	typeref:typename:vector3
+vector3_left	dep/blib/blib_math3d.h	/^static inline vector3 vector3_left(float s) {$/;"	f	typeref:typename:vector3
+vector3_lerp	dep/blib/blib_math3d.h	/^static inline vector3 vector3_lerp(vector3 a, vector3 b, float t) {$/;"	f	typeref:typename:vector3
+vector3_lerp_clamped	dep/blib/blib_math3d.h	/^static inline vector3 vector3_lerp_clamped(vector3 a, vector3 b, float n) {$/;"	f	typeref:typename:vector3
+vector3_magnitude	dep/blib/blib_math3d.h	/^static inline float vector3_magnitude(vector3 v) {$/;"	f	typeref:typename:float
+vector3_max	dep/blib/blib_math3d.h	/^static inline vector3 vector3_max(vector3 a, vector3 b) {$/;"	f	typeref:typename:vector3
+vector3_min	dep/blib/blib_math3d.h	/^static inline vector3 vector3_min(vector3 a, vector3 b) {$/;"	f	typeref:typename:vector3
+vector3_negate	dep/blib/blib_math3d.h	/^static inline vector3 vector3_negate(vector3 v) {$/;"	f	typeref:typename:vector3
+vector3_normalize	dep/blib/blib_math3d.h	/^static inline vector3 vector3_normalize(vector3 v) {$/;"	f	typeref:typename:vector3
+vector3_one	dep/blib/blib_math3d.h	/^static inline vector3 vector3_one(float s) { return (vector3){s, s, s}; }$/;"	f	typeref:typename:vector3
+vector3_print	dep/blib/blib_math3d.h	/^static inline void vector3_print(const vector3 v, const char *label) {$/;"	f	typeref:typename:void
+vector3_random	dep/blib/blib_math3d.h	/^static inline vector3 vector3_random(unsigned int seed, float range) {$/;"	f	typeref:typename:vector3
+vector3_random_box	dep/blib/blib_math3d.h	/^static inline vector3 vector3_random_box(unsigned int seed, vector3 bounds) {$/;"	f	typeref:typename:vector3
+vector3_right	dep/blib/blib_math3d.h	/^static inline vector3 vector3_right(float s) {$/;"	f	typeref:typename:vector3
+vector3_rotate	dep/blib/blib_math3d.h	/^static inline vector3 vector3_rotate(vector3 v, quaternion rotation) {$/;"	f	typeref:typename:vector3
+vector3_scale	dep/blib/blib_math3d.h	/^static inline vector3 vector3_scale(vector3 v, float scalar) {$/;"	f	typeref:typename:vector3
+vector3_square_distance	dep/blib/blib_math3d.h	/^static inline float vector3_square_distance(vector3 a, vector3 b) {$/;"	f	typeref:typename:float
+vector3_square_magnitude	dep/blib/blib_math3d.h	/^static inline float vector3_square_magnitude(vector3 v) {$/;"	f	typeref:typename:float
+vector3_subtract	dep/blib/blib_math3d.h	/^static inline vector3 vector3_subtract(vector3 minuend, vector3 subtrahend) {$/;"	f	typeref:typename:vector3
+vector3_up	dep/blib/blib_math3d.h	/^static inline vector3 vector3_up(float s) { return (vector3){0.0f, s, 0.0f}; }$/;"	f	typeref:typename:vector3
+vector3_zero	dep/blib/blib_math3d.h	/^static inline vector3 vector3_zero(void) { return (vector3){0.0f, 0.0f, 0.0f}; }$/;"	f	typeref:typename:vector3
+vector3o_vector2	dep/blib/blib_math3d.h	/^static inline vector2 vector3o_vector2(vector3 v) {$/;"	f	typeref:typename:vector2
+vector3o_vector4	dep/blib/blib_math3d.h	/^static inline vector4 vector3o_vector4(vector3 v) {$/;"	f	typeref:typename:vector4
+vector4	dep/blib/blib_math3d.h	/^} vector4;$/;"	t	typeref:struct:__anonb54211040308
+vector4_Lerpclamped	dep/blib/blib_math3d.h	/^static inline vector4 vector4_Lerpclamped(vector4 a, vector4 b, float n) {$/;"	f	typeref:typename:vector4
+vector4_Max	dep/blib/blib_math3d.h	/^static inline vector4 vector4_Max(vector4 a, vector4 b) {$/;"	f	typeref:typename:vector4
+vector4_Min	dep/blib/blib_math3d.h	/^static inline vector4 vector4_Min(vector4 a, vector4 b) {$/;"	f	typeref:typename:vector4
+vector4_add	dep/blib/blib_math3d.h	/^static inline vector4 vector4_add(vector4 a, vector4 b) {$/;"	f	typeref:typename:vector4
+vector4_back	dep/blib/blib_math3d.h	/^static inline vector4 vector4_back(float s) {$/;"	f	typeref:typename:vector4
+vector4_distance	dep/blib/blib_math3d.h	/^static inline float vector4_distance(vector4 a, vector4 b) {$/;"	f	typeref:typename:float
+vector4_dot	dep/blib/blib_math3d.h	/^static inline float vector4_dot(vector4 a, vector4 b) {$/;"	f	typeref:typename:float
+vector4_down	dep/blib/blib_math3d.h	/^static inline vector4 vector4_down(float s) {$/;"	f	typeref:typename:vector4
+vector4_forward	dep/blib/blib_math3d.h	/^static inline vector4 vector4_forward(float s) {$/;"	f	typeref:typename:vector4
+vector4_left	dep/blib/blib_math3d.h	/^static inline vector4 vector4_left(float s) {$/;"	f	typeref:typename:vector4
+vector4_lerp	dep/blib/blib_math3d.h	/^static inline vector4 vector4_lerp(vector4 a, vector4 b, float t) {$/;"	f	typeref:typename:vector4
+vector4_magnitude	dep/blib/blib_math3d.h	/^static inline float vector4_magnitude(vector4 v) {$/;"	f	typeref:typename:float
+vector4_negate	dep/blib/blib_math3d.h	/^static inline vector4 vector4_negate(vector4 v) {$/;"	f	typeref:typename:vector4
+vector4_normalize	dep/blib/blib_math3d.h	/^static inline vector4 vector4_normalize(vector4 v) {$/;"	f	typeref:typename:vector4
+vector4_one	dep/blib/blib_math3d.h	/^static inline vector4 vector4_one(float s) { return (vector4){s, s, s, 1.0f}; }$/;"	f	typeref:typename:vector4
+vector4_print	dep/blib/blib_math3d.h	/^static inline void vector4_print(const vector4 v, const char *label) {$/;"	f	typeref:typename:void
+vector4_right	dep/blib/blib_math3d.h	/^static inline vector4 vector4_right(float s) {$/;"	f	typeref:typename:vector4
+vector4_scale	dep/blib/blib_math3d.h	/^static inline vector4 vector4_scale(vector4 v, float scalar) {$/;"	f	typeref:typename:vector4
+vector4_square_distance	dep/blib/blib_math3d.h	/^static inline float vector4_square_distance(vector4 a, vector4 b) {$/;"	f	typeref:typename:float
+vector4_square_magnitude	dep/blib/blib_math3d.h	/^static inline float vector4_square_magnitude(vector4 v) {$/;"	f	typeref:typename:float
+vector4_subtract	dep/blib/blib_math3d.h	/^static inline vector4 vector4_subtract(vector4 minuend, vector4 subtrahend) {$/;"	f	typeref:typename:vector4
+vector4_up	dep/blib/blib_math3d.h	/^static inline vector4 vector4_up(float s) {$/;"	f	typeref:typename:vector4
+vector4_zero	dep/blib/blib_math3d.h	/^static inline vector4 vector4_zero(void) {$/;"	f	typeref:typename:vector4
+vector4ovector2	dep/blib/blib_math3d.h	/^static inline vector2 vector4ovector2(vector4 v) {$/;"	f	typeref:typename:vector2
+vector4ovector3	dep/blib/blib_math3d.h	/^static inline vector3 vector4ovector3(vector4 v) {$/;"	f	typeref:typename:vector3
+void_ptr	dep/blib/blib.h	/^typedef void *void_ptr;$/;"	t	typeref:typename:void *
+w	dep/blib/blib_math3d.h	/^  float w;$/;"	m	struct:__anonb54211040308	typeref:typename:float
+w	dep/blib/blib_math3d.h	/^  float w;$/;"	m	struct:__anonb54211040408	typeref:typename:float
+width	dep/GLFW/glfw3.h	/^    int width;$/;"	m	struct:GLFWimage	typeref:typename:int
+width	dep/GLFW/glfw3.h	/^    int width;$/;"	m	struct:GLFWvidmode	typeref:typename:int
+wrap	dep/blib/blib_math.h	/^static inline float wrap(float n, float min, float max) {$/;"	f	typeref:typename:float
+wrapAngle	dep/blib/blib_math.h	/^static inline float wrapAngle(float a) {$/;"	f	typeref:typename:float
+wrap_max	dep/blib/blib_math.h	/^static inline float wrap_max(float n, float max) {$/;"	f	typeref:typename:float
+x	dep/blib/blib_math3d.h	/^  float x;$/;"	m	struct:__anonb54211040108	typeref:typename:float
+x	dep/blib/blib_math3d.h	/^  float x;$/;"	m	struct:__anonb54211040208	typeref:typename:float
+x	dep/blib/blib_math3d.h	/^  float x;$/;"	m	struct:__anonb54211040308	typeref:typename:float
+x	dep/blib/blib_math3d.h	/^  float x;$/;"	m	struct:__anonb54211040408	typeref:typename:float
+y	dep/blib/blib_math3d.h	/^  float y;$/;"	m	struct:__anonb54211040108	typeref:typename:float
+y	dep/blib/blib_math3d.h	/^  float y;$/;"	m	struct:__anonb54211040208	typeref:typename:float
+y	dep/blib/blib_math3d.h	/^  float y;$/;"	m	struct:__anonb54211040308	typeref:typename:float
+y	dep/blib/blib_math3d.h	/^  float y;$/;"	m	struct:__anonb54211040408	typeref:typename:float
+z	dep/blib/blib_math3d.h	/^  float z;$/;"	m	struct:__anonb54211040208	typeref:typename:float
+z	dep/blib/blib_math3d.h	/^  float z;$/;"	m	struct:__anonb54211040308	typeref:typename:float
+z	dep/blib/blib_math3d.h	/^  float z;$/;"	m	struct:__anonb54211040408	typeref:typename:float

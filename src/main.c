@@ -240,12 +240,12 @@ void icosphere_demo(void) {
     sphere_batch[i].lights_count = 1;
     sphere[i].transform.scale[0] = vector3_one(1);
     sphere_batch[i].render_flags |= LGL_FLAG_USE_WIREFRAME;
-    sphere_batch[i].render_flags |= LGL_FLAG_DRAW_POINTS;
   }
-  sphere[0].transform.position[0] = (vector3){1, 0, -15};
-  sphere[1].transform.position[0] = (vector3){-1, 0, -15};
+  sphere[0].transform.position[0] = (vector3){2, 0, -15};
+  sphere[1].transform.position[0] = (vector3){-2, 0, -15};
   lgl_icosphere_mesh_alloc(&sphere_batch[0], 0);
   lgl_icosphere_mesh_alloc(&sphere_batch[1], 1);
+  sphere_batch[1].render_flags |= LGL_FLAG_DRAW_POINTS;
 
   while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
 
