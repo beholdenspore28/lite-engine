@@ -356,12 +356,14 @@ void physics_demo(void) {
     if (timer_physics > 0.03) { // update state
       timer_physics = 0;
 
-      for (unsigned int i = 0; i < particles.count; i++) {
-        vector3 force = vector3_normalize(particles.transform.position[i]);
-        force = vector3_negate(force);
-        force = vector3_scale(force, 0.1);
-        //l_verlet_body_accelerate(particles_verlet, i, force);
-        //l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
+      if (glfwGetMouseButton(graphics_context->GLFWwindow, GLFW_MOUSE_BUTTON_1)){
+        for (unsigned int i = 0; i < particles.count; i++) {
+          vector3 force = vector3_normalize(particles.transform.position[i]);
+          force = vector3_negate(force);
+          force = vector3_scale(force, 0.1);
+          l_verlet_body_accelerate(particles_verlet, i, force);
+          l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
+        }
       }
 
       l_verlet_body_update(particles, particles_verlet);
