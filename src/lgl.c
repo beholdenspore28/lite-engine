@@ -753,8 +753,6 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
 
   const unsigned int subdivisions = 4;
   for(unsigned int subd = 0; subd < subdivisions; subd++) {
-    list_GLuint new_indices = list_GLuint_alloc();
-
     for(unsigned int index = 0; index < batch->indices.length-3; index+=3) {
 
       lgl_vertex v1 = batch->vertices.array[batch->indices.array[index  ]];
@@ -771,48 +769,30 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       list_lgl_vertex_add(&batch->vertices, m3);
 
       // *=====================================================*
-      // * Indices layout                                      *
+      // * vertex layout                                       *
       // *=====================================================*
-      // |                         /\ v1 [index]               |
+      // |                         v1                          |
       // |                        /  \                         |
       // |                       /    \                        |
       // |                      /      \                       |
       // |                     /        \                      |
       // |                    /          \                     |
-      // |                 m1 ------------ m3                  |
+      // |                  m1------------m3                   |
       // |                  /\            /\                   |
       // |                 /  \          /  \                  | 
       // |                /    \        /    \                 |  
       // |               /      \      /      \                |     
       // |              /        \    /        \               |    
-      // | v2 [index+1]/          \m2/          \ v3 [index+2] |
-      // |             ------------  ------------              |
+      // |             /          \  /          \              |
+      // |          v2 ------------m2------------ v3           |
       // *=====================================================*
+      
 
-      list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index+1);
-      list_GLuint_add(&new_indices, index+2);
-
-      list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index);
-
-      list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index);
-
-      debug_log("subd %d index %d new verts %d", subd, index, batch->vertices.length);
     }
+  }
 
-    for(unsigned int i = 0; i < new_indices.length; i++) {
-      list_GLuint_add(&batch->indices, new_indices.array[i]);
-    }
-
-    list_GLuint_free(&new_indices);
-
-    for(unsigned int i = 0; i < batch->vertices.length; i++) {
-      batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
-    }
+  for(unsigned int i = 0; i < batch->vertices.length; i++) {
+    batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
   }
 
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
