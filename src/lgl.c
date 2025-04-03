@@ -751,6 +751,36 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
     }
   }
 
+  list_lgl_vertex new_verts = list_lgl_vertex_alloc();
+  for(unsigned int index = 0; index < batch->indices.length-3; index+=3) {
+    lgl_vertex *v1 = &batch->vertices.array[batch->indices.array[index  ]];
+    lgl_vertex *v2 = &batch->vertices.array[batch->indices.array[index+1]];
+    lgl_vertex *v3 = &batch->vertices.array[batch->indices.array[index+2]];
+    vector3_print(v1->position, "v1");
+    vector3_print(v2->position, "v2");
+    vector3_print(v3->position, "v3");
+    lgl_vertex m1 = {0};
+    lgl_vertex m2 = {0};
+    lgl_vertex m3 = {0};
+    m1.position = vector3_lerp(v1->position, v2->position, 0.5); 
+    m2.position = vector3_lerp(v2->position, v3->position, 0.5); 
+    m3.position = vector3_lerp(v3->position, v1->position, 0.5); 
+    vector3_print(m1.position, "m1 = v1->v2");
+    vector3_print(m2.position, "m2 = v2->v3");
+    vector3_print(m3.position, "m3 = v3->v1");
+    list_lgl_vertex_add(&new_verts, m1);
+    list_lgl_vertex_add(&new_verts, m2);
+    list_lgl_vertex_add(&new_verts, m3);
+  }
+
+  for(unsigned int i = 0; i < new_verts.length; i++) {
+    list_lgl_vertex_add(&batch->vertices, new_verts.array[i]);
+  }
+
+  for(unsigned int i = 0; i < batch->vertices.length; i++) {
+    batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
+  }
+
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
                             batch->vertices.length, batch->vertices.array,
                             batch->indices.length, batch->indices.array);
