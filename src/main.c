@@ -309,7 +309,7 @@ void physics_demo(void) {
     cube_batch.shader = shader_solid;
 
     cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-    cube.transform.scale[0] = vector3_one(10);
+    cube.transform.scale[0] = vector3_one(20);
     cube_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   }
 
@@ -318,15 +318,16 @@ void physics_demo(void) {
 
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
-      lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
+      lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_solid;
-  particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  particles_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
+  //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  lgl_icosphere_mesh_alloc(&particles_batch, 0);
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.2);
+    particles.transform.scale[i] = vector3_one(0.25);
   }
 
 #if 1 // random points in a box
@@ -336,7 +337,7 @@ void physics_demo(void) {
   }
 #endif
 
-#if 0 // explode in random directions from the origin
+#if 1 // explode in random directions from the origin
   for (unsigned int i = 0; i < particles.count; i++) {
     l_verlet_body_accelerate(particles_verlet, i, vector3_random(i, 1.0));
   }
@@ -359,8 +360,8 @@ void physics_demo(void) {
         vector3 force = vector3_normalize(particles.transform.position[i]);
         force = vector3_negate(force);
         force = vector3_scale(force, 0.1);
-        l_verlet_body_accelerate(particles_verlet, i, force);
-        l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
+        //l_verlet_body_accelerate(particles_verlet, i, force);
+        //l_verlet_body_accelerate(particles_verlet, i, vector3_down(0.1));
       }
 
       l_verlet_body_update(particles, particles_verlet);
@@ -368,7 +369,7 @@ void physics_demo(void) {
       for (unsigned int j = 0; j < 2; j++) {
         l_verlet_resolve_collisions(particles);
         l_verlet_body_confine(particles, particles_verlet,
-                              cube.transform.scale[0]);
+                              vector3_scale(cube.transform.scale[0], 0.5));
       }
 
       lgl_mat4_buffer(particles, &particles_batch);
@@ -459,11 +460,11 @@ int main() {
   spinning_cube_demo();
 #endif
 
-#if 0
+#if 1
   physics_demo();
 #endif
 
-#if 1
+#if 0
   icosphere_demo();
 #endif
 

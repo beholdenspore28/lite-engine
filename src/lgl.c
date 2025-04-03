@@ -485,11 +485,23 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
   lgl__uniform_materials(batch);
   lgl__uniform_lights(batch);
 
+
+
   glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
               batch.color.y, batch.color.z, batch.color.w);
 
-  glBindVertexArray(batch.VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices.length, object.count);
+
+    glBindVertexArray(batch.VAO);
+
+    if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
+      glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
+    }
+
+    if (batch.render_flags & LGL_FLAG_INDEXED_DRAW) {
+      glDrawElementsInstanced(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT, 0, object.count);
+    } else {
+      glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices.length, object.count);
+    }
   glUseProgram(0);
 }
 
