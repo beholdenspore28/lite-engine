@@ -113,7 +113,7 @@ static inline vector4 vector4_back(float s) {
 
 /*Prints a vec "v" using printf*/
 static inline void vector2_print(const vector2 v, const char *label) {
-  printf("%s [%f, %f]\n", label, v.x, v.y);
+  printf("%s [%.8f, %.8f]\n", label, v.x, v.y);
 }
 
 /*Returns a vec that points in the opposite direction of the given vec
@@ -240,7 +240,7 @@ static inline vector4 vector2o_vector4(vector2 v) {
 
 /*Prints a vec "v" using printf*/
 static inline void vector3_print(const vector3 v, const char *label) {
-  printf("%s [%f, %f, %f]\n", label, v.x, v.y, v.z);
+  printf("%s [%.8f, %.8f, %.8f]\n", label, v.x, v.y, v.z);
 }
 
 /*Returns a vec that points in the opposite direction of the given vec
@@ -406,7 +406,7 @@ static inline vector3 vector3_random(unsigned int seed, float range) {
 
 /*Prints a vec "v" using printf*/
 static inline void vector4_print(const vector4 v, const char *label) {
-  printf("%s [%f, %f, %f, %f]\n", label, v.x, v.y, v.z, v.w);
+  printf("%s [%.8f, %.8f, %.8f, %.8f]\n", label, v.x, v.y, v.z, v.w);
 }
 
 /*Returns a vec that points in the opposite direction of the given vec
