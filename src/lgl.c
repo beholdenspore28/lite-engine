@@ -808,11 +808,14 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       list_GLuint_add(&new_indices, i2);
       list_GLuint_add(&new_indices, i+2);
     }
+    list_GLuint_free(&batch->indices);
+    batch->indices = new_indices;
   }
 
   for(unsigned int i = 0; i < batch->vertices.length; i++) {
     batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
   }
+
 
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
                             batch->vertices.length, batch->vertices.array,
