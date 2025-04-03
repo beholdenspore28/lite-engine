@@ -752,29 +752,56 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
   }
 
 #if 1 // subdivide
-  for(unsigned int subd = 0; subd < 5; subd++) {
+  for(unsigned int subd = 0; subd < 2; subd++) {
     list_lgl_vertex new_verts = list_lgl_vertex_alloc();
     list_GLuint new_indices = list_GLuint_alloc();
-    for(unsigned int index = 0; index < batch->indices.length; index+=3) {
+
+    for(unsigned int index = 0; index < batch->indices.length-3; index+=3) {
+
       lgl_vertex v1 = batch->vertices.array[batch->indices.array[index  ]];
       lgl_vertex v2 = batch->vertices.array[batch->indices.array[index+1]];
       lgl_vertex v3 = batch->vertices.array[batch->indices.array[index+2]];
       lgl_vertex m1, m2, m3;
+
       m1.position = vector3_lerp(v1.position, v2.position, 0.5); 
       m2.position = vector3_lerp(v2.position, v3.position, 0.5); 
       m3.position = vector3_lerp(v3.position, v1.position, 0.5); 
+
       list_lgl_vertex_add(&new_verts, m1);
       list_lgl_vertex_add(&new_verts, m2);
       list_lgl_vertex_add(&new_verts, m3);
+
+      // *===============================*
+      // * Indices layout                *
+      // *===============================*
+      // |              /\ v1            |
+      // |             /  \              |
+      // |            /    \             |
+      // |           /      \            |
+      // |          /        \           |
+      // |         /          \          |
+      // |      m1 ------------ m3       |
+      // |       /\            /\        |
+      // |      /  \          /  \       | 
+      // |     /    \        /    \      |  
+      // |    /      \      /      \     |     
+      // |   /        \    /        \    |    
+      // |  /v2        \m2/          \ v3|
+      // |  ------------  ------------   |
+      // *===============================*
+
       list_GLuint_add(&new_indices, index);
       list_GLuint_add(&new_indices, index+1);
       list_GLuint_add(&new_indices, index+2);
-      list_GLuint_add(&new_indices, index+1);
+
       list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index+2);
-      list_GLuint_add(&new_indices, index+2);
       list_GLuint_add(&new_indices, index);
-      list_GLuint_add(&new_indices, index+1);
+      list_GLuint_add(&new_indices, index);
+
+      list_GLuint_add(&new_indices, index);
+      list_GLuint_add(&new_indices, index);
+      list_GLuint_add(&new_indices, index);
+
       debug_log("subd %d index %d new verts %d", subd, index, new_verts.length);
     }
 
