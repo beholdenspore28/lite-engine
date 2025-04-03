@@ -712,7 +712,7 @@ lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
   return batch;
 }
 
-void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
+void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions) {
 
   const float t = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -751,10 +751,9 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
     }
   }
 
-  const unsigned int subdivisions = 4;
   for(unsigned int subd = 0; subd < subdivisions; subd++) {
     list_GLuint new_indices = list_GLuint_alloc();
-    for(unsigned int i = 0; i < batch->indices.length-3; i+=3) {
+    for(unsigned int i = 0; i < 1; i+=3) {
 
       lgl_vertex v1 = batch->vertices.array[batch->indices.array[i  ]];
       lgl_vertex v2 = batch->vertices.array[batch->indices.array[i+1]];
@@ -764,6 +763,10 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       m1.position = vector3_lerp(v1.position, v2.position, 0.5); 
       m2.position = vector3_lerp(v2.position, v3.position, 0.5); 
       m3.position = vector3_lerp(v3.position, v1.position, 0.5); 
+
+      m1.position = vector3_scale(m1.position, 3);
+      m2.position = vector3_scale(m2.position, 3);
+      m3.position = vector3_scale(m3.position, 3);
 
       list_lgl_vertex_add(&batch->vertices, m1);
       list_lgl_vertex_add(&batch->vertices, m2);
@@ -782,7 +785,7 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       // |                      /      \                       |
       // |                     /        \                      |
       // |                    /          \                     |
-      // |            [i1] m1------------m3 [i3]              |
+      // |            [i1] m1------------m3 [i3]               |
       // |                  /\            /\                   |
       // |                 /  \          /  \                  | 
       // |                /    \        /    \                 |  
@@ -792,21 +795,22 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch) {
       // |    [i+1] v2 ------------m2-[i2]------- v3 [i+2]     |
       // *=====================================================*
 
+      list_GLuint_add(&new_indices, i);
       list_GLuint_add(&new_indices, i1);
-      list_GLuint_add(&new_indices, i2);
       list_GLuint_add(&new_indices, i3);
 
       list_GLuint_add(&new_indices, i);
       list_GLuint_add(&new_indices, i1);
       list_GLuint_add(&new_indices, i3);
 
+      list_GLuint_add(&new_indices, i);
       list_GLuint_add(&new_indices, i1);
-      list_GLuint_add(&new_indices, i+1);
-      list_GLuint_add(&new_indices, i2);
-
       list_GLuint_add(&new_indices, i3);
-      list_GLuint_add(&new_indices, i2);
-      list_GLuint_add(&new_indices, i+2);
+
+      list_GLuint_add(&new_indices, i);
+      list_GLuint_add(&new_indices, i1);
+      list_GLuint_add(&new_indices, i3);
+
     }
     list_GLuint_free(&batch->indices);
     batch->indices = new_indices;
