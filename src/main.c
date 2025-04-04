@@ -205,15 +205,15 @@ void icosphere_demo(void) {
     sphere_batch[i] = lgl_batch_alloc(1, L_ARCHETYPE_EMPTY);
     sphere_batch[i].shader = shader;
     sphere_batch[i].diffuse_map =
-      lgl_texture_alloc("res/textures/lite-engine-cube.png");
+        lgl_texture_alloc("res/textures/lite-engine-cube.png");
     sphere_batch[i].lights = &light;
     sphere_batch[i].lights_count = 1;
     sphere_batch[i].color = (vector4){1.0, 1.0, 1.0, 1.0};
     sphere[i].transform.scale[0] = vector3_one(1);
     sphere_batch[i].render_flags |= LGL_FLAG_DRAW_POINTS;
   }
-  //sphere_batch[0].render_flags |= LGL_FLAG_USE_WIREFRAME;
-  //sphere_batch[1].render_flags |= LGL_FLAG_USE_WIREFRAME;
+  // sphere_batch[0].render_flags |= LGL_FLAG_USE_WIREFRAME;
+  // sphere_batch[1].render_flags |= LGL_FLAG_USE_WIREFRAME;
   sphere[0].transform.position[0] = (vector3){1, 0, -15};
   sphere[1].transform.position[0] = (vector3){-1, 0, -15};
   lgl_icosphere_mesh_alloc(&sphere_batch[0], 0);
@@ -257,7 +257,7 @@ void icosphere_demo(void) {
 
 void physics_demo(void) {
 
-  glClearColor(0,0,0,1);
+  glClearColor(0, 0, 0, 1);
 
   // --------------------------------------------------------------------------
   // Create shaders
@@ -306,7 +306,7 @@ void physics_demo(void) {
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_solid;
   particles_batch.diffuse_map =
-    lgl_texture_alloc("res/textures/lite-engine-cube.png");
+      lgl_texture_alloc("res/textures/lite-engine-cube.png");
   particles_batch.lights = &light;
   particles_batch.lights_count = 1;
   particles_batch.color = (vector4){0.7, 0.2, 0.2, 1.0};
@@ -447,16 +447,16 @@ int main() {
   graphics_context->camera.position.z -= 25;
 
   light = (lgl_light){
-    .type = 0,
-    .position = {0.0, 0.0, -5},
-    .direction = {0.0, 0.0, 1.0},
-    .cut_off = cos(12.5),
-    .outer_cut_off = cos(15.0),
-    .constant = 1.0f,
-    .linear = 0.09f,
-    .quadratic = 0.032f,
-    .diffuse = (vector3){1.0, 1.0, 1.0},
-    .specular = vector3_one(0.6),
+      .type = 0,
+      .position = {0.0, 0.0, -5},
+      .direction = {0.0, 0.0, 1.0},
+      .cut_off = cos(12.5),
+      .outer_cut_off = cos(15.0),
+      .constant = 1.0f,
+      .linear = 0.09f,
+      .quadratic = 0.032f,
+      .diffuse = (vector3){1.0, 1.0, 1.0},
+      .specular = vector3_one(0.6),
   };
 
 #if 0
