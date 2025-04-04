@@ -236,7 +236,7 @@ void icosphere_demo(void) {
     // lgl_camera_update();
     camera_update(graphics_context);
 
-#if 1
+#if 0
     // sphere.transform.position[0].y = sinf(graphics_context->time_current);
     sphere[1].transform.rotation[0] = quaternion_rotate_euler(
         sphere[1].transform.rotation[0],

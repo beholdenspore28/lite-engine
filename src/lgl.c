@@ -808,17 +808,17 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions)
         list_GLuint_add(&new_indices, i2);
         list_GLuint_add(&new_indices, i3);
 
-        list_GLuint_add(&new_indices, i1);
-        list_GLuint_add(&new_indices, i2);
-        list_GLuint_add(&new_indices, i3);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
 
-        list_GLuint_add(&new_indices, i1);
-        list_GLuint_add(&new_indices, i2);
-        list_GLuint_add(&new_indices, i3);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
 
-        list_GLuint_add(&new_indices, i1);
-        list_GLuint_add(&new_indices, i2);
-        list_GLuint_add(&new_indices, i3);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
+        list_GLuint_add(&new_indices, 0);
       }
     }
     list_GLuint_free(&batch->indices);
