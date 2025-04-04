@@ -729,7 +729,6 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
 
   // clang-format off
   batch->vertices = list_lgl_vertex_alloc();
-  // position       //normal         //tex coord
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 0}});
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 0}});
   list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 0}});
@@ -762,10 +761,15 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
     }
   }
 
+  for (unsigned int i = 0; i < batch->vertices.length; i++) {
+    batch->vertices.array[i].position =
+        vector3_normalize(batch->vertices.array[i].position);
+  }
+
   // *===============================================*
   // * vertex layout                                 *
   // *===============================================*
-  // |                      v1 [i1]                 |
+  // |                      v1 [i1]                  |
   // |                     /  \                      |
   // |                    /    \                     |
   // |                   /      \                    |
@@ -778,55 +782,26 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   // |            /      \      /      \             |
   // |           /        \    /        \            |
   // |          /          \  /          \           |
-  // | [i2] v2 ------------m2-[i5]---- v3 [i3] |
+  // | [i2] v2 ------------m2-[i5]---- v3 [i3]       |
   // *===============================================*
 
-#if 0
-  // for each subdivision subd
-  for (unsigned int subd = 1; subd <= subdivisions; subd++) {
+  for (unsigned int subd = 0; subd < subdivisions; subd++) {
     list_GLuint new_indices = list_GLuint_alloc();
-    // for each triangle tri
     for (unsigned int tri = 0; tri < batch->indices.length; tri += 3) {
-      { // get vertices in this triangle
-        const lgl_vertex v1 = batch->vertices.array[batch->indices.array[tri]];
-        const lgl_vertex v2 = batch->vertices.array[batch->indices.array[tri + 1]];
-        const lgl_vertex v3 = batch->vertices.array[batch->indices.array[tri + 2]];
-        // create middle vertices
-        const lgl_vertex m1 = (lgl_vertex){ .position = vector3_lerp(v1.position, v2.position, 0.5)};
-        const lgl_vertex m2 = (lgl_vertex){ .position = vector3_lerp(v2.position, v3.position, 0.5)};
-        const lgl_vertex m3 = (lgl_vertex){ .position = vector3_lerp(v3.position, v1.position, 0.5)};
-        list_lgl_vertex_add(&batch->vertices, m1);
-        list_lgl_vertex_add(&batch->vertices, m2);
-        list_lgl_vertex_add(&batch->vertices, m3);
-      }
-      { // get new indices
-        const float i1 = batch->vertices.length - 3;
-        const float i2 = batch->vertices.length - 2;
-        const float i3 = batch->vertices.length - 1;
-
-        list_GLuint_add(&new_indices, i1);
-        list_GLuint_add(&new_indices, i2);
-        list_GLuint_add(&new_indices, i3);
-      }
-    }
-    list_GLuint_free(&batch->indices);
-    batch->indices = new_indices;
-  }
-#else
-  for(unsigned int subd = 0; subd < 2; subd++) {
-    list_GLuint new_indices = list_GLuint_alloc();
-    for(unsigned int tri = 0; tri < batch->indices.length; tri+=3) {
       const unsigned int i1 = batch->indices.array[tri];
-      const unsigned int i2 = batch->indices.array[tri+1];
-      const unsigned int i3 = batch->indices.array[tri+2];
+      const unsigned int i2 = batch->indices.array[tri + 1];
+      const unsigned int i3 = batch->indices.array[tri + 2];
       { // get vertices in this triangle
         const lgl_vertex v1 = batch->vertices.array[i1];
         const lgl_vertex v2 = batch->vertices.array[i2];
         const lgl_vertex v3 = batch->vertices.array[i3];
         // create middle vertices
-        const lgl_vertex m1 = (lgl_vertex){ .position = vector3_lerp(v1.position, v2.position, 0.5)};
-        const lgl_vertex m2 = (lgl_vertex){ .position = vector3_lerp(v2.position, v3.position, 0.5)};
-        const lgl_vertex m3 = (lgl_vertex){ .position = vector3_lerp(v3.position, v1.position, 0.5)};
+        const lgl_vertex m1 = (lgl_vertex){
+            .position = vector3_lerp(v1.position, v2.position, 0.5)};
+        const lgl_vertex m2 = (lgl_vertex){
+            .position = vector3_lerp(v2.position, v3.position, 0.5)};
+        const lgl_vertex m3 = (lgl_vertex){
+            .position = vector3_lerp(v3.position, v1.position, 0.5)};
         list_lgl_vertex_add(&batch->vertices, m1);
         list_lgl_vertex_add(&batch->vertices, m2);
         list_lgl_vertex_add(&batch->vertices, m3);
@@ -856,15 +831,13 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
     list_GLuint_free(&batch->indices);
     batch->indices = new_indices;
 
-#if 0
-    for(unsigned int i = 0; i < batch->vertices.length; i++) {
-      batch->vertices.array[i].position = vector3_normalize(batch->vertices.array[i].position);
+    for (unsigned int i = 0; i < batch->vertices.length; i++) {
+      batch->vertices.array[i].position =
+          vector3_normalize(batch->vertices.array[i].position);
     }
-#endif
   }
-#endif
 
-#if 1
+#if 0
   debug_log("final lists ------------------------------------");
   for (unsigned int g = 0; g < batch->vertices.length; g++) {
     printf("vertex[%3d]", g);

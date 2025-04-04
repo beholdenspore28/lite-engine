@@ -224,6 +224,7 @@ void icosphere_demo(void) {
     sphere_batch[i].render_flags |= LGL_FLAG_DRAW_POINTS;
   }
   sphere_batch[0].render_flags |= LGL_FLAG_USE_WIREFRAME;
+  sphere_batch[1].render_flags |= LGL_FLAG_USE_WIREFRAME;
   sphere[0].transform.position[0] = (vector3){2, 0, -15};
   sphere[1].transform.position[0] = (vector3){-2, 0, -15};
   lgl_icosphere_mesh_alloc(&sphere_batch[0], 0);
@@ -237,11 +238,11 @@ void icosphere_demo(void) {
     camera_update(graphics_context);
 
 #if 1
-    for(unsigned int i = 0; i < 2; i++) {
+    for (unsigned int i = 0; i < 2; i++) {
       // sphere.transform.position[i].y = sinf(graphics_context->time_current);
       sphere[i].transform.rotation[0] = quaternion_rotate_euler(
           sphere[i].transform.rotation[0],
-          vector3_one(0.5 * graphics_context->time_delta));
+          vector3_one(0.1 * graphics_context->time_delta));
     }
 #endif
 
