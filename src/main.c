@@ -13,7 +13,6 @@ lgl_context *graphics_context;
 lgl_framebuffer framebuffer;
 lgl_framebuffer framebuffer_MSAA;
 l_object frame_obj;
-
 lgl_light light;
 
 void update_window_title(void) {
@@ -369,7 +368,6 @@ void physics_demo(void) {
     }
 
     camera_update(graphics_context);
-    light.position = graphics_context->camera.position;
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_MSAA.FBO);
@@ -450,15 +448,15 @@ int main() {
 
   light = (lgl_light){
     .type = 0,
-      .position = {0.0, 0.0, 0.0},
-      .direction = {0.0, 0.0, 1.0},
-      .cut_off = cos(12.5),
-      .outer_cut_off = cos(15.0),
-      .constant = 1.0f,
-      .linear = 0.09f,
-      .quadratic = 0.032f,
-      .diffuse = (vector3){1.0, 1.0, 1.0},
-      .specular = vector3_one(0.6),
+    .position = {0.0, 0.0, -5},
+    .direction = {0.0, 0.0, 1.0},
+    .cut_off = cos(12.5),
+    .outer_cut_off = cos(15.0),
+    .constant = 1.0f,
+    .linear = 0.09f,
+    .quadratic = 0.032f,
+    .diffuse = (vector3){1.0, 1.0, 1.0},
+    .specular = vector3_one(0.6),
   };
 
 #if 0
