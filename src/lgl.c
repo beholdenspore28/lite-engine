@@ -7,7 +7,7 @@
 #include "stb_image.h"
 
 static lgl_framebuffer *lgl__active_framebuffer = NULL;
-static lgl_framebuffer *lgl__active_framebuffer_2 = NULL;
+static lgl_framebuffer *lgl__active_framebuffer_MSAA = NULL;
 static lgl_context *lgl__active_context = NULL;
 
 DEFINE_LIST(lgl_vertex)
@@ -17,8 +17,8 @@ void lgl_active_framebuffer_set(lgl_framebuffer *frame) {
   lgl__active_framebuffer = frame;
 }
 
-void lgl_active_framebuffer_set_2(lgl_framebuffer *frame) {
-  lgl__active_framebuffer_2 = frame;
+void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame) {
+  lgl__active_framebuffer_MSAA = frame;
 }
 
 void lgl_perspective(float *mat, const float fov, const float aspect,
@@ -993,7 +993,7 @@ void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 
   glViewport(0, 0, width, height);
   lgl__framebuffer_resize(lgl__active_framebuffer, width, height);
-  lgl__framebuffer_resize(lgl__active_framebuffer_2, width, height);
+  lgl__framebuffer_resize(lgl__active_framebuffer_MSAA, width, height);
 
 #if 0
   debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",
@@ -1087,6 +1087,21 @@ lgl_context *lgl_start(const int width, const int height) {
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
 
   return lgl__active_context;
+}
+
+void lgl_update_window_title(void) {
+  static float timer = 0;
+  timer += lgl__active_context->time_delta;
+  if (timer > 1) { // window titlebar
+    timer = 0;
+    char window_title[64] = {0};
+
+    snprintf(window_title, sizeof(window_title),
+             "Lite-Engine Demo. | %.0lf FPS | %.4f DT",
+             lgl__active_context->time_FPS, lgl__active_context->time_delta);
+
+    glfwSetWindowTitle(lgl__active_context->GLFWwindow, window_title);
+  }
 }
 
 void lgl__time_update(void) {

@@ -111,6 +111,7 @@ lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 void lgl_framebuffer_free(lgl_framebuffer frame);
 
 void lgl_active_framebuffer_set(lgl_framebuffer *frame);
+void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame);
 
 void lgl_draw(l_object object, const lgl_batch batch);
 void lgl_draw_instanced(l_object object, const lgl_batch batch);
@@ -126,7 +127,7 @@ enum {
 };
 
 lgl_context *lgl_start(const int width, const int height);
-
+void lgl_update_window_title(void);
 void lgl_end_frame(void);
 void lgl_free(lgl_context *context);
 void lgl_viewport_set(const float width, const float height);
@@ -136,6 +137,7 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
+void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions);
 
 void lgl_mat4_buffer(l_object object, lgl_batch *batch);
 
