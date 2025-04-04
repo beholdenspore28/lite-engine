@@ -1,7 +1,16 @@
+GLuint shader_unlit = 0;
 GLuint shader_solid = 0;
 GLuint shader_phong = 0;
 
 void demo_shaders_load(void) {
+  {
+    GLuint vertex_shader =
+        lgl_shader_compile("res/shaders/unlit_vertex.glsl", GL_VERTEX_SHADER);
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/unlit_fragment.glsl", GL_FRAGMENT_SHADER);
+    shader_unlit = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
   {
     GLuint vertex_shader =
         lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);

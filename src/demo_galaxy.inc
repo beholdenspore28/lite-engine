@@ -48,9 +48,9 @@ void demo_galaxy(void) {
   l_object particles = l_object_alloc(20000);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
-  particles_batch.shader = shader_solid;
-  particles_batch.color = (vector4){0.3, 0.3, 0.8, 1.0};
-  lgl_icosphere_mesh_alloc(&particles_batch, 2);
+  particles_batch.shader = shader_unlit;
+  particles_batch.color = (vector4){0.5, 0.5, 1.0, 1.0};
+  lgl_icosphere_mesh_alloc(&particles_batch, 1);
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0.02);
