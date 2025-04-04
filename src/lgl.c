@@ -1023,7 +1023,6 @@ lgl_context *lgl_start(const int width, const int height) {
   }
 
   lgl__active_context = malloc(sizeof(*lgl__active_context));
-  lgl__active_context->allocations = list_void_ptr_alloc();
 
   lgl__active_context->is_running = 1;
   lgl__active_context->time_current = 0;
@@ -1135,12 +1134,6 @@ void lgl_free(lgl_context *context) {
   debug_log("Shutting down...");
 
   context->is_running = 0;
-
-  for(unsigned int i = 0; i < context->allocations.length; i++) {
-    free(context->allocations.array[i]);
-  }
-
-  list_void_ptr_free(&context->allocations);
 
   free(context);
   debug_log("Shutdown complete");

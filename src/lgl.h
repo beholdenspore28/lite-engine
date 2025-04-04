@@ -68,23 +68,7 @@ typedef struct {
   double time_delta;
   double time_last;
   double time_FPS;
-  list_void_ptr allocations;
 } lgl_context;
-
-//void *realloc(void *ptr, size_t size);
-//void *reallocarray(void *ptr, size_t nmemb, size_t size);
-
-static inline void *l_calloc(lgl_context *context, const size_t nmemb, const size_t size) {
-  void *mem = calloc(nmemb, size);
-  list_void_ptr_add(&context->allocations, mem);
-  return mem;
-}
-
-static inline void *l_malloc(lgl_context *context, const size_t size) {
-  void* mem = malloc(size);
-  list_void_ptr_add(&context->allocations, mem);
-  return mem;
-}
 
 typedef struct {
   GLuint VAO;
