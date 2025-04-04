@@ -729,20 +729,20 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
 
   // clang-format off
   batch->vertices = list_lgl_vertex_alloc();
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1, -t,  0}, {0, 0, 0}, {0, 0}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1, -t,  0}, {0, 0, 0}, {0, 1}});
 
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1,  t}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1,  t}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1, -t}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1, -t}, {0, 0, 0}, {0, 0}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1,  t}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1,  t}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1, -t}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1, -t}, {0, 0, 0}, {0, 1}});
 
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0, -1}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0,  1}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 0}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 0}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0, -1}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0,  1}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 1}});
+  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 1}});
   // clang-format on
 
   batch->indices = list_GLuint_alloc();
@@ -764,6 +764,7 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   for (unsigned int i = 0; i < batch->vertices.length; i++) {
     batch->vertices.array[i].position =
         vector3_normalize(batch->vertices.array[i].position);
+    batch->vertices.array[i].normal = batch->vertices.array[i].position;
   }
 
   // *===============================================*
@@ -834,6 +835,7 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
     for (unsigned int i = 0; i < batch->vertices.length; i++) {
       batch->vertices.array[i].position =
           vector3_normalize(batch->vertices.array[i].position);
+      batch->vertices.array[i].normal = batch->vertices.array[i].position;
     }
   }
 
