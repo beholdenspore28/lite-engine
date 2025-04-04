@@ -301,15 +301,15 @@ void physics_demo(void) {
   // --------------------------------------------------------------------------
   // Create particles
 
-  l_object particles = l_object_alloc(100);
+  l_object particles = l_object_alloc(250);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
-  particles_batch.shader = shader_phong;
+  particles_batch.shader = shader_solid;
   particles_batch.diffuse_map =
     lgl_texture_alloc("res/textures/lite-engine-cube.png");
   particles_batch.lights = &light;
   particles_batch.lights_count = 1;
-  particles_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
+  particles_batch.color = (vector4){0.7, 0.2, 0.2, 1.0};
   // particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   lgl_icosphere_mesh_alloc(&particles_batch, 2);
 
@@ -463,11 +463,11 @@ int main() {
   spinning_cube_demo();
 #endif
 
-#if 0
+#if 1
   physics_demo();
 #endif
 
-#if 1
+#if 0
   icosphere_demo();
 #endif
 
