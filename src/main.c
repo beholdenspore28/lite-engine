@@ -8,17 +8,18 @@
 lgl_context *graphics_context;
 lgl_light light;
 
-#include "demo_cube.inc"
-#include "demo_flycam.inc"
 #include "demo_framebuffer.inc"
+#include "demo_shaders.inc"
+#include "demo_flycam.inc"
+#include "demo_cube.inc"
 #include "demo_galaxy.inc"
 #include "demo_icosphere.inc"
 #include "demo_physics.inc"
-#include "demo_shaders.inc"
 
 #define DEMO demo_cube()
 #define DEMO demo_icosphere()
 #define DEMO demo_physics()
+#define DEMO demo_galaxy()
 
 int main() {
   alutInit(0, 0);
@@ -57,9 +58,7 @@ int main() {
   l_object_free(frame_obj);
   lgl_framebuffer_free(framebuffer);
   lgl_framebuffer_free(framebuffer_MSAA);
-
   lgl_free(graphics_context);
-
   alutExit();
 
   return 0;
