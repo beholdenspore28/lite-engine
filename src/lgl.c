@@ -1135,6 +1135,7 @@ void lgl_free(lgl_context *context) {
 
   context->is_running = 0;
 
+  lgl_camera_free(context->camera);
   free(context);
   debug_log("Shutdown complete");
 }
