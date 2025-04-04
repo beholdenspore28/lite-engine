@@ -25,8 +25,8 @@ void galaxy_generate(l_object stars, galaxy_data data) {
     stars.transform.position[i].z *= data.arm_length;
 
     // swirl
-    float swirl_amount =
-        vector3_square_magnitude(stars.transform.position[i]) * data.swirl_strength;
+    float swirl_amount = vector3_square_magnitude(stars.transform.position[i]) *
+                         data.swirl_strength;
 
     stars.transform.position[i] =
         vector3_rotate(stars.transform.position[i],
@@ -40,7 +40,7 @@ void galaxy_generate(l_object stars, galaxy_data data) {
 
 void demo_galaxy(void) {
 
-  glClearColor(0,0,0,1);
+  glClearColor(0, 0, 0, 1);
 
   // --------------------------------------------------------------------------
   // Create particles
@@ -56,13 +56,13 @@ void demo_galaxy(void) {
     particles.transform.scale[i] = vector3_one(0.02);
   }
 
-  const galaxy_data data = (galaxy_data) {
-    .radius = 5,
-    .seed = 0,
-    .swirl_strength = 0.7,
-    .arm_thickness_x = 2,
-    .arm_thickness_y = 2,
-    .arm_length = 4,
+  const galaxy_data data = (galaxy_data){
+      .radius = 5,
+      .seed = 0,
+      .swirl_strength = 0.7,
+      .arm_thickness_x = 2,
+      .arm_thickness_y = 2,
+      .arm_length = 4,
   };
   galaxy_generate(particles, data);
   lgl_mat4_buffer(particles, &particles_batch);
