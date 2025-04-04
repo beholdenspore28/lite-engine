@@ -1071,7 +1071,7 @@ lgl_context *lgl_start(const int width, const int height) {
 
   gladLoadGL(glfwGetProcAddress);
 
-  glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
+  glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
   glPointSize(5);
 
   glEnable(GL_DEPTH_TEST);
