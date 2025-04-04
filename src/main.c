@@ -409,15 +409,16 @@ int main() {
       .specular = vector3_one(0.6),
   };
 
+
 #if 0
   spinning_cube_demo();
 #endif
 
-#if 0
+#if 1
   physics_demo();
 #endif
 
-#if 1
+#if 0
   procedural_icosphere_demo();
 #endif
 
