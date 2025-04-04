@@ -199,8 +199,6 @@ void spinning_cube_demo(void) {
 
 void icosphere_demo(void) {
 
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-
   graphics_context->camera.position.z = -20;
 
   GLuint vertex_shader =
@@ -225,8 +223,8 @@ void icosphere_demo(void) {
   }
   sphere_batch[0].render_flags |= LGL_FLAG_USE_WIREFRAME;
   sphere_batch[1].render_flags |= LGL_FLAG_USE_WIREFRAME;
-  sphere[0].transform.position[0] = (vector3){2, 0, -15};
-  sphere[1].transform.position[0] = (vector3){-2, 0, -15};
+  sphere[0].transform.position[0] = (vector3){1, 0, -15};
+  sphere[1].transform.position[0] = (vector3){-1, 0, -15};
   lgl_icosphere_mesh_alloc(&sphere_batch[0], 0);
   lgl_icosphere_mesh_alloc(&sphere_batch[1], 2);
 
@@ -268,8 +266,6 @@ void icosphere_demo(void) {
 
 void physics_demo(void) {
 
-  glClearColor(0, 0, 0, 1);
-
   // --------------------------------------------------------------------------
   // Create shaders
 
@@ -283,6 +279,33 @@ void physics_demo(void) {
 
     shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
   }
+
+  GLuint shader_phong = 0;
+  {
+    GLuint vertex_shader =
+        lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
+
+    GLuint fragment_shader = lgl_shader_compile(
+        "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
+
+    shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
+  }
+
+  // --------------------------------------------------------------------------
+  // Create lights
+
+  lgl_light light = (lgl_light){
+      .type = 0,
+      .position = {0.0, 0.0, 0.0},
+      .direction = {0.0, 0.0, 1.0},
+      .cut_off = cos(12.5),
+      .outer_cut_off = cos(15.0),
+      .constant = 1.0f,
+      .linear = 0.09f,
+      .quadratic = 0.032f,
+      .diffuse = (vector3){1.0, 1.0, 1.0},
+      .specular = vector3_one(0.6),
+  };
 
   // --------------------------------------------------------------------------
   // Create boundary cube
@@ -304,10 +327,14 @@ void physics_demo(void) {
   l_object particles = l_object_alloc(200);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
-  particles_batch.shader = shader_solid;
+  particles_batch.diffuse_map =
+    lgl_texture_alloc("res/textures/lite-engine-cube.png");
+  particles_batch.lights = &light;
+  particles_batch.lights_count = 1;
+  particles_batch.shader = shader_phong;
   particles_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
   // particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
-  lgl_icosphere_mesh_alloc(&particles_batch, 0);
+  lgl_icosphere_mesh_alloc(&particles_batch, 2);
 
   l_verlet_body particles_verlet = l_verlet_body_alloc(particles);
 
@@ -364,6 +391,7 @@ void physics_demo(void) {
     }
 
     camera_update(graphics_context);
+    light.position = graphics_context->camera.position;
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_MSAA.FBO);
@@ -448,11 +476,11 @@ int main() {
   spinning_cube_demo();
 #endif
 
-#if 0
+#if 1
   physics_demo();
 #endif
 
-#if 1
+#if 0
   icosphere_demo();
 #endif
 
