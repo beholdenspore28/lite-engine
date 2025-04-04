@@ -6,65 +6,19 @@
 #undef BLIB_IMPLEMENTATION
 
 lgl_context *graphics_context;
-GLuint shader_framebuffer = 0;
-GLuint shader_solid = 0;
-GLuint shader_phong = 0;
-lgl_framebuffer framebuffer;
-lgl_framebuffer framebuffer_MSAA;
-l_object frame_obj;
 lgl_light light;
 
-#include "demos/flycam.c"
-#include "demos/demo_galaxy.c"
-#include "demos/demo_cube.c"
-#include "demos/demo_icosphere.c"
-#include "demos/demo_physics.c"
+#include "demo_cube.inc"
+#include "demo_flycam.inc"
+#include "demo_framebuffer.inc"
+#include "demo_galaxy.inc"
+#include "demo_icosphere.inc"
+#include "demo_physics.inc"
+#include "demo_shaders.inc"
 
-void demo_shaders_load(void) {
-  {
-    GLuint vertex_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_texture_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/frame_buffer_default_fragment.glsl", GL_FRAGMENT_SHADER);
-    shader_framebuffer = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-
-  {
-    GLuint vertex_shader =
-      lgl_shader_compile("res/shaders/solid_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/solid_fragment.glsl", GL_FRAGMENT_SHADER);
-    shader_solid = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-
-  {
-    GLuint vertex_shader =
-      lgl_shader_compile("res/shaders/phong_vertex.glsl", GL_VERTEX_SHADER);
-    GLuint fragment_shader = lgl_shader_compile(
-        "res/shaders/phong_fragment.glsl", GL_FRAGMENT_SHADER);
-    shader_phong = lgl_shader_link(vertex_shader, fragment_shader);
-  }
-}
-
-void demo_framebuffer_alloc(void) {
-  enum {
-    SAMPLES = 4,
-    NUM_COLOR_BUFFERS = 2,
-  };
-
-  int width, height;
-  glfwGetFramebufferSize(graphics_context->GLFWwindow, &width, &height);
-
-  frame_obj = l_object_alloc(1);
-
-  framebuffer = lgl_framebuffer_alloc(shader_framebuffer, 1, NUM_COLOR_BUFFERS,
-      width, height);
-  framebuffer_MSAA = lgl_framebuffer_alloc(shader_framebuffer, SAMPLES,
-      NUM_COLOR_BUFFERS, width, height);
-
-  lgl_active_framebuffer_set(&framebuffer);
-  lgl_active_framebuffer_set_MSAA(&framebuffer_MSAA);
-}
+#define DEMO demo_cube()
+#define DEMO demo_icosphere()
+#define DEMO demo_physics()
 
 int main() {
   alutInit(0, 0);
@@ -75,7 +29,7 @@ int main() {
 
   // --------------------------------------------------------------------------
   // lights
-  
+
   light = (lgl_light){
       .type = 0,
       .position = {0.0, 0.0, -5},
@@ -98,19 +52,7 @@ int main() {
   // --------------------------------------------------------------------------
   // action
 
-  // choose which demo to run
-  const unsigned int demo = 0;
-  switch(demo) {
-    case 0: {
-      demo_physics();
-    } break;
-    case 1: {
-      demo_cube();
-    } break;
-    case 2: {
-      demo_icosphere();
-    } break;
-  }
+  DEMO;
 
   l_object_free(frame_obj);
   lgl_framebuffer_free(framebuffer);

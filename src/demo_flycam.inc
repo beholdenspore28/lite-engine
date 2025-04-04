@@ -1,4 +1,5 @@
-// this is not a complete demo. this is just the code for the fly cam used in other demos.
+// this is not a complete demo. this is just the code for the fly cam used in
+// other demos.
 
 #include "lgl.h"
 #include <GLFW/glfw3.h>

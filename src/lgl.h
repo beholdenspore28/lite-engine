@@ -138,7 +138,8 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
-void lgl_icosphere_mesh_alloc(lgl_batch *batch, const unsigned int subdivisions);
+void lgl_icosphere_mesh_alloc(lgl_batch *batch,
+                              const unsigned int subdivisions);
 
 void lgl_mat4_buffer(l_object object, lgl_batch *batch);
 

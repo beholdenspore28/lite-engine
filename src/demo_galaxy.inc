@@ -30,4 +30,3 @@ void galaxy_generate(l_object stars, float radius, unsigned int seed,
         vector3_scale(stars.transform.position[i], radius);
   }
 }
-
