@@ -14,6 +14,8 @@ The engine is licensed under the MIT license. I chose it because it is extremely
 permissive. You can do pretty much whatever you want with it. Please read the
 provided copy of the MIT license carefuly. It is located in the LICENSE file
 
+# I am not accepting pull requests so please don't make them.
+
 # Features
 Lite engine is under development and should not be used for production projects yet.
 That being said, here is a (mostly) comprehensive list of its current features.
