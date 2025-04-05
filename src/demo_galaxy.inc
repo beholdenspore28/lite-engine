@@ -49,7 +49,7 @@ void demo_galaxy(void) {
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
   particles_batch.shader = shader_unlit;
-  particles_batch.color = (vector4){0.5, 0.5, 1.0, 1.0};
+  particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0.02);
@@ -64,6 +64,10 @@ void demo_galaxy(void) {
       .arm_length = 4,
   };
   galaxy_generate(particles, data);
+  for(unsigned int i = 0; i < particles.count; i++) {
+    particles.transform.position[i] = vector3_rotate(
+      particles.transform.position[i], quaternion_from_euler(vector3_right(-PI/8)));
+  }
   lgl_mat4_buffer(particles, &particles_batch);
 
   // --------------------------------------------------------------------------
