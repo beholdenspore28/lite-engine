@@ -21,7 +21,7 @@ That being said, here is a (mostly) comprehensive list of its current features.
 - Basic 3D renderer using OpenGL 4.6. (It's easy to change the OpenGL version)
 - Minimal dependencies. The project only depends on a few libraries, GLFW3, GLAD, 
   blib (my personal general-purpose C lib), and stb_image.h
-- Simple build system using make and gcc. (uses Mingw on Windows)
+- Simple build system using make. (uses Mingw on Windows)
 - Verbose naming conventions. I have tried to keep the API as clear and explicitly self explanitory
   as possible
 - An extreme emphasis on modularity. Lite-Engine is intentionally light-weight to 
