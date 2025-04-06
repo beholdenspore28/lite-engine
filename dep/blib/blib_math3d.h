@@ -395,13 +395,13 @@ static inline vector3 vector3_random(unsigned int seed, float range) {
   float d, x, y, z;
   int i = 0;
   do {
-    x = noise3(i + seed + 1, i + seed, i + seed) * (2.0 * range) - range;
-    y = noise3(i + seed, i + seed + 1, i + seed) * (2.0 * range) - range;
-    z = noise3(i + seed, i + seed, i + seed + 1) * (2.0 * range) - range;
+    x = noise3(i + seed + 1, i + seed, i + seed) * (2.0) - 1.0;
+    y = noise3(i + seed, i + seed + 1, i + seed) * (2.0) - 1.0;
+    z = noise3(i + seed, i + seed, i + seed + 1) * (2.0) - 1.0;
     d = x * x + y * y + z * z;
     i++;
-  } while (d > range);
-  return (vector3){x, y, z};
+  } while (d > 1.0);
+  return vector3_scale((vector3){x, y, z}, range);
 }
 
 /*Prints a vec "v" using printf*/

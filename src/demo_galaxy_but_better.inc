@@ -10,7 +10,7 @@ typedef struct {
   list_celestial_body satelites;
 } orbital_system;
 
-orbital_system orbital_system_alloc(unsigned int seed,
+orbital_system orbital_system_alloc(unsigned long seed,
                                        unsigned int satelites_count,
                                      float radius) {
   orbital_system sys;
@@ -20,8 +20,8 @@ orbital_system orbital_system_alloc(unsigned int seed,
 
   for (unsigned int i = 0; i < satelites_count; i++) {
     celestial_body satelite = (celestial_body) {
-      .position = vector3_random(seed * i, radius),
-      .radius = noise1(seed*i)*(sys.primary_body.radius*0.1),
+      .position = vector3_random(seed+i, radius),
+      .radius = noise1(seed+i)*(sys.primary_body.radius*0.1),
     };
 
     list_celestial_body_add(&sys.satelites, satelite);
@@ -31,7 +31,7 @@ orbital_system orbital_system_alloc(unsigned int seed,
 
 typedef struct {
   float radius;
-  unsigned int seed;
+  unsigned long seed;
   float swirl_strength;
   float arm_thickness_x;
   float arm_thickness_y;
@@ -76,7 +76,7 @@ void demo_galaxy(void) {
   // --------------------------------------------------------------------------
   // Create particles
 
-  l_object particles = l_object_alloc(100);
+  l_object particles = l_object_alloc(50000);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_unlit;
@@ -98,7 +98,7 @@ void demo_galaxy(void) {
     }
 #endif
 
-  orbital_system system = orbital_system_alloc(723, particles.count, 10);
+  orbital_system system = orbital_system_alloc(95835, particles.count, 10);
   for(unsigned int i = 0; i < particles.count; i++) {
     particles.transform.position[i] = system.satelites.array[i].position;
     particles.transform.scale[i] = vector3_one(system.satelites.array[i].radius);

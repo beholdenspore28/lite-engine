@@ -120,19 +120,19 @@ static inline float angleDelta(const float a, const float b) {
 static inline float fraction(float x) { return x - floorf(x); }
 
 // Single dimensional pseudo-random noise
-static inline float noise1(int x) {
+static inline float noise1(unsigned int x) {
   float wave = sinf(x * 53) * 6151;
   return fraction(wave);
 }
 
 // Two dimensional pseudo-random noise
-static inline float noise2(int x, int y) {
+static inline float noise2(unsigned int x, unsigned int y) {
   float wave = sinf(x * 53 + y * 97) * 6151;
   return fraction(wave);
 }
 
 // Three dimensional pseudo-random noise
-static inline float noise3(int x, int y, int z) {
+static inline float noise3(unsigned int x, unsigned int y, unsigned int z) {
   float wave = sinf(x * 53 + y * 97 + z * 193) * 6151;
   return fraction(wave);
 }
