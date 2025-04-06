@@ -68,8 +68,8 @@ void demo_galaxy(void) {
   // the particles as stars. Use the rest as planets.
 
   galaxy_data galaxy = (galaxy_data) {
-    .radius = 100,
-    .star_scale_factor = 0.5,
+    .radius = 4,
+    .star_scale_factor = 0.01,
     .seed = 9385,
     .swirl_strength = 0.3,
     .arm_thickness_x = 3.5,
