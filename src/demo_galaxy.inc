@@ -1,6 +1,7 @@
 typedef struct {
   float radius;
   unsigned int seed;
+  float star_scale_factor;
   float swirl_strength;
   float arm_thickness_x;
   float arm_thickness_y;
@@ -12,8 +13,9 @@ void galaxy_generate(l_object stars, galaxy_data data) {
   for (unsigned int i = 0; i < stars.count; i++) {
 
     // sphere
-    stars.transform.position[i] = vector3_random(data.seed + i, 1.0);
+    stars.transform.position[i] = vector3_random(data.seed+i*10, 1.0);
 
+#if 1
     // gravity
     vector3 gravity = vector3_normalize(stars.transform.position[i]);
     stars.transform.position[i] =
@@ -31,10 +33,15 @@ void galaxy_generate(l_object stars, galaxy_data data) {
     stars.transform.position[i] =
         vector3_rotate(stars.transform.position[i],
                        quaternion_from_euler(vector3_up(swirl_amount)));
+#endif
 
     // scale
     stars.transform.position[i] =
         vector3_scale(stars.transform.position[i], data.radius);
+
+    // star size variation
+    const float scale = noise1(i) * data.star_scale_factor;
+    stars.transform.scale[i] = vector3_one(scale);
   }
 }
 
@@ -50,11 +57,27 @@ void demo_galaxy(void) {
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_unlit;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   lgl_icosphere_mesh_alloc(&particles_batch, 1);
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0);
   }
+
+  // TODO The solution is simple here. just only use a fraction of
+  // the particles as stars. Use the rest as planets.
+
+  galaxy_data galaxy = (galaxy_data) {
+    .radius = 100,
+    .star_scale_factor = 0.5,
+    .seed = 9385,
+    .swirl_strength = 0.3,
+    .arm_thickness_x = 3.5,
+    .arm_thickness_y = 1,
+    .arm_length = 6,
+  };
+
+  galaxy_generate(particles, galaxy);
 
   lgl_mat4_buffer(particles, &particles_batch);
 
