@@ -57,9 +57,10 @@ void demo_galaxy(void) {
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_unlit;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
-  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   //particles_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lgl_icosphere_mesh_alloc(&particles_batch, 1);
+      particles_batch.primitive = LGL_PRIMITIVE_LINES;
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0);

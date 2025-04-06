@@ -124,9 +124,10 @@ enum {
   LGL_FLAG_DRAW_POINTS = 1 << 2,
   LGL_FLAG_USE_WIREFRAME = 1 << 3,
 
-  LGL_PRIMITIVE_POINTS,
   LGL_PRIMITIVE_TRIANGLES,
   LGL_PRIMITIVE_TRIANGLES_INDEXED,
+  LGL_PRIMITIVE_POINTS,
+  LGL_PRIMITIVE_LINES,
 };
 
 lgl_context *lgl_start(const int width, const int height);

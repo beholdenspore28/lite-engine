@@ -498,6 +498,10 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
   }
 
   switch (batch.primitive) {
+  case LGL_PRIMITIVE_LINES: {
+    glDrawArraysInstanced(GL_LINES, 0, batch.vertices.length, object.count);
+  } break;
+
   case LGL_PRIMITIVE_POINTS: {
     glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
   } break;
@@ -593,6 +597,10 @@ void lgl_draw(l_object object, const lgl_batch batch) {
     }
 
     switch (batch.primitive) {
+    case LGL_PRIMITIVE_LINES: {
+      glDrawArrays(GL_LINES, 0, batch.vertices.length);
+    } break;
+
     case LGL_PRIMITIVE_POINTS: {
       glDrawArrays(GL_POINTS, 0, batch.vertices.length);
     } break;
