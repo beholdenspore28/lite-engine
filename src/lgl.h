@@ -89,6 +89,7 @@ typedef struct {
 
   lgl_light *lights;
   GLuint lights_count;
+  GLenum primitive;
   GLint render_flags;
 } lgl_batch;
 
@@ -120,11 +121,12 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch);
 enum {
   LGL_FLAG_ENABLED = 1,
   LGL_FLAG_USE_STENCIL = 1 << 1,
-  LGL_FLAG_USE_WIREFRAME = 1 << 2,
-  LGL_FLAG_DRAW_POINTS = 1 << 3, // tells the renderer to draw a black dot at
-                                 // the location of the vertex
-  LGL_FLAG_INDEXED_DRAW =
-      1 << 4, // tells the renderer to use the mesh's index array
+  LGL_FLAG_DRAW_POINTS = 1 << 2,
+  LGL_FLAG_USE_WIREFRAME = 1 << 3,
+
+  LGL_PRIMITIVE_POINTS,
+  LGL_PRIMITIVE_TRIANGLES,
+  LGL_PRIMITIVE_TRIANGLES_INDEXED,
 };
 
 lgl_context *lgl_start(const int width, const int height);

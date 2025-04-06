@@ -13,7 +13,7 @@ void galaxy_generate(l_object stars, galaxy_data data) {
   for (unsigned int i = 0; i < stars.count; i++) {
 
     // sphere
-    stars.transform.position[i] = vector3_random(data.seed+i*10, 1.0);
+    stars.transform.position[i] = vector3_random(data.seed + i * 10, 1.0);
 
 #if 1
     // gravity
@@ -58,6 +58,7 @@ void demo_galaxy(void) {
   particles_batch.shader = shader_unlit;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //particles_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lgl_icosphere_mesh_alloc(&particles_batch, 1);
 
   for (unsigned int i = 0; i < particles.count; i++) {
@@ -67,14 +68,14 @@ void demo_galaxy(void) {
   // TODO The solution is simple here. just only use a fraction of
   // the particles as stars. Use the rest as planets.
 
-  galaxy_data galaxy = (galaxy_data) {
-    .radius = 4,
-    .star_scale_factor = 0.01,
-    .seed = 9385,
-    .swirl_strength = 0.3,
-    .arm_thickness_x = 3.5,
-    .arm_thickness_y = 1,
-    .arm_length = 6,
+  galaxy_data galaxy = (galaxy_data){
+      .radius = 40,
+      .star_scale_factor = 0.1,
+      .seed = 9385,
+      .swirl_strength = 0.3,
+      .arm_thickness_x = 3.5,
+      .arm_thickness_y = 1,
+      .arm_length = 6,
   };
 
   galaxy_generate(particles, galaxy);
@@ -93,9 +94,6 @@ void demo_galaxy(void) {
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
-
-      glDisable(GL_CULL_FACE);
-      glEnable(GL_CULL_FACE);
 
       lgl_draw_instanced(particles, particles_batch);
     }

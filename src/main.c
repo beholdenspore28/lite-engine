@@ -20,13 +20,13 @@
 lgl_context *graphics_context;
 lgl_light light;
 
-#include "demo_framebuffer.inc"
 #include "demo_shaders.inc"
+#include "demo_framebuffer.inc"
+//#include "demo_cube.inc"
 #include "demo_flycam.inc"
-#include "demo_cube.inc"
 #include "demo_galaxy.inc"
-#include "demo_icosphere.inc"
-#include "demo_physics.inc"
+//#include "demo_icosphere.inc"
+//#include "demo_physics.inc"
 
 int main() {
   alutInit(0, 0);

@@ -497,12 +497,21 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
     glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
   }
 
-  if (batch.render_flags & LGL_FLAG_INDEXED_DRAW) {
+  switch (batch.primitive) {
+  case LGL_PRIMITIVE_POINTS: {
+    glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
+  } break;
+
+  case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
     glDrawElementsInstanced(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT,
                             0, object.count);
-  } else {
+  } break;
+
+  case LGL_PRIMITIVE_TRIANGLES: {
     glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices.length, object.count);
+  } break;
   }
+
   glUseProgram(0);
 }
 
@@ -583,10 +592,18 @@ void lgl_draw(l_object object, const lgl_batch batch) {
                    batch.vertices.length); // for debugging geometry
     }
 
-    if (batch.render_flags & LGL_FLAG_INDEXED_DRAW) {
+    switch (batch.primitive) {
+    case LGL_PRIMITIVE_POINTS: {
+      glDrawArrays(GL_POINTS, 0, batch.vertices.length);
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
       glDrawElements(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT, 0);
-    } else {
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES: {
       glDrawArrays(GL_TRIANGLES, 0, batch.vertices.length);
+    } break;
     }
 
     glUseProgram(0);
@@ -749,14 +766,14 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   // clang-format on
 
   batch->indices = list_GLuint_alloc();
-  batch->render_flags |= LGL_FLAG_INDEXED_DRAW;
+  batch->primitive = LGL_PRIMITIVE_TRIANGLES_INDEXED;
 
   {
     enum { indices_count = 60 };
     const GLuint indices[indices_count] = {
-        5, 11, 0,  1, 5,  0, 7, 1, 0, 10, 7,  0, 11, 10, 0, 9, 5, 1, 4, 11,
-        5, 2, 10, 11, 6, 7, 10, 8, 1, 7, 4,  9,  3, 2,  4,  3, 6, 2, 3, 8,
-        6, 3,  9,  8, 3,  5, 9, 4, 11, 4, 2, 10,  2, 6, 7,  6, 8, 1, 8, 9,
+        5, 11, 0,  1,  5, 0, 7,  1, 0,  10, 7, 0,  11, 10, 0, 9, 5, 1, 4, 11,
+        5, 2,  10, 11, 6, 7, 10, 8, 1,  7,  4, 9,  3,  2,  4, 3, 6, 2, 3, 8,
+        6, 3,  9,  8,  3, 5, 9,  4, 11, 4,  2, 10, 2,  6,  7, 6, 8, 1, 8, 9,
     };
 
     for (unsigned int i = 0; i < indices_count; i++) {
@@ -961,6 +978,7 @@ lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   frame.quad = lgl_batch_alloc(1, L_ARCHETYPE_QUAD);
   {
+    frame.quad.primitive = LGL_PRIMITIVE_TRIANGLES;
     frame.quad.shader = shader;
     frame.quad.diffuse_map = frame.color_buffers[0];
     frame.width = width;
