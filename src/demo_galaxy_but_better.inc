@@ -1,4 +1,35 @@
 typedef struct {
+  vector3 position;
+  float radius;
+} celestial_body;
+DECLARE_LIST(celestial_body)
+DEFINE_LIST(celestial_body)
+
+typedef struct {
+  celestial_body primary_body;
+  list_celestial_body satelites;
+} orbital_system;
+
+orbital_system orbital_system_alloc(unsigned int seed,
+                                       unsigned int satelites_count,
+                                     float radius) {
+  orbital_system sys;
+  sys.primary_body.position = vector3_zero();
+  sys.primary_body.radius = radius*0.01;
+  sys.satelites = list_celestial_body_alloc();
+
+  for (unsigned int i = 0; i < satelites_count; i++) {
+    celestial_body satelite = (celestial_body) {
+      .position = vector3_random(seed * i, radius),
+      .radius = noise1(seed*i)*(sys.primary_body.radius*0.1),
+    };
+
+    list_celestial_body_add(&sys.satelites, satelite);
+  }
+  return sys;
+}
+
+typedef struct {
   float radius;
   unsigned int seed;
   float swirl_strength;
@@ -45,30 +76,36 @@ void demo_galaxy(void) {
   // --------------------------------------------------------------------------
   // Create particles
 
-  l_object particles = l_object_alloc(20000);
+  l_object particles = l_object_alloc(100);
   lgl_batch particles_batch =
-      lgl_batch_alloc(particles.count, L_ARCHETYPE_CUBE);
+      lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_unlit;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
+  particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  lgl_icosphere_mesh_alloc(&particles_batch, 0);
 
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.02);
-  }
+  #if 0
+    {
+      const galaxy_data data = (galaxy_data){
+        .radius = 5,
+        .seed = 0,
+        .swirl_strength = 0.7,
+        .arm_thickness_x = 2,
+        .arm_thickness_y = 2,
+        .arm_length = 4,
+      };
+      galaxy_generate(particles, data);
+    }
+#endif
 
-  const galaxy_data data = (galaxy_data){
-      .radius = 5,
-      .seed = 0,
-      .swirl_strength = 0.7,
-      .arm_thickness_x = 2,
-      .arm_thickness_y = 2,
-      .arm_length = 4,
-  };
-  galaxy_generate(particles, data);
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.position[i] =
-        vector3_rotate(particles.transform.position[i],
-                       quaternion_from_euler(vector3_right(-PI / 8)));
+  orbital_system system = orbital_system_alloc(723, particles.count, 10);
+  for(unsigned int i = 0; i < particles.count; i++) {
+    particles.transform.position[i] = system.satelites.array[i].position;
+    particles.transform.scale[i] = vector3_one(system.satelites.array[i].radius);
   }
+  particles.transform.scale[0] = vector3_one(system.primary_body.radius);
+  particles.transform.position[0] = system.primary_body.position;
+
   lgl_mat4_buffer(particles, &particles_batch);
 
   // --------------------------------------------------------------------------
