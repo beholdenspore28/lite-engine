@@ -53,23 +53,9 @@ void demo_galaxy(void) {
   lgl_icosphere_mesh_alloc(&particles_batch, 1);
 
   for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.scale[i] = vector3_one(0.02);
+    particles.transform.scale[i] = vector3_one(0);
   }
 
-  const galaxy_data data = (galaxy_data){
-      .radius = 5,
-      .seed = 0,
-      .swirl_strength = 0.7,
-      .arm_thickness_x = 2,
-      .arm_thickness_y = 2,
-      .arm_length = 4,
-  };
-  galaxy_generate(particles, data);
-  for (unsigned int i = 0; i < particles.count; i++) {
-    particles.transform.position[i] =
-        vector3_rotate(particles.transform.position[i],
-                       quaternion_from_euler(vector3_right(-PI / 8)));
-  }
   lgl_mat4_buffer(particles, &particles_batch);
 
   // --------------------------------------------------------------------------
