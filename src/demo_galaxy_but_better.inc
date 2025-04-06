@@ -15,13 +15,13 @@ orbital_system orbital_system_alloc(unsigned long seed,
                                      float radius) {
   orbital_system sys;
   sys.primary_body.position = vector3_zero();
-  sys.primary_body.radius = radius*0.01;
+  sys.primary_body.radius = radius*0.005;
   sys.satelites = list_celestial_body_alloc();
 
   for (unsigned int i = 0; i < satelites_count; i++) {
     celestial_body satelite = (celestial_body) {
-      .position = vector3_random(seed+i, radius),
-      .radius = noise1(seed+i)*(sys.primary_body.radius*0.1),
+      .position = vector3_random(seed+i*1000, radius),
+      .radius = noise1(seed+i*1000)*(sys.primary_body.radius*0.05),
     };
 
     list_celestial_body_add(&sys.satelites, satelite);
@@ -76,10 +76,10 @@ void demo_galaxy(void) {
   // --------------------------------------------------------------------------
   // Create particles
 
-  l_object particles = l_object_alloc(50000);
+  l_object particles = l_object_alloc(100);
   lgl_batch particles_batch =
       lgl_batch_alloc(particles.count, L_ARCHETYPE_EMPTY);
-  particles_batch.shader = shader_unlit;
+  particles_batch.shader = shader_solid;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   lgl_icosphere_mesh_alloc(&particles_batch, 0);
@@ -98,7 +98,7 @@ void demo_galaxy(void) {
     }
 #endif
 
-  orbital_system system = orbital_system_alloc(95835, particles.count, 10);
+  orbital_system system = orbital_system_alloc(1, particles.count, 200);
   for(unsigned int i = 0; i < particles.count; i++) {
     particles.transform.position[i] = system.satelites.array[i].position;
     particles.transform.scale[i] = vector3_one(system.satelites.array[i].radius);
@@ -120,9 +120,6 @@ void demo_galaxy(void) {
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
-
-      glDisable(GL_CULL_FACE);
-      glEnable(GL_CULL_FACE);
 
       lgl_draw_instanced(particles, particles_batch);
     }
