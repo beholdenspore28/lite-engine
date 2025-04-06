@@ -24,8 +24,7 @@ lgl_light light;
 #include "demo_shaders.inc"
 #include "demo_flycam.inc"
 #include "demo_cube.inc"
-//#include "demo_galaxy.inc"
-#include "demo_galaxy_but_better.inc"
+#include "demo_galaxy.inc"
 #include "demo_icosphere.inc"
 #include "demo_physics.inc"
 
