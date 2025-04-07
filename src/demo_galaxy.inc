@@ -60,7 +60,6 @@ void demo_galaxy(void) {
   //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   //particles_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lgl_icosphere_mesh_alloc(&particles_batch, 1);
-      particles_batch.primitive = LGL_PRIMITIVE_LINES;
 
   for (unsigned int i = 0; i < particles.count; i++) {
     particles.transform.scale[i] = vector3_one(0);
@@ -71,7 +70,7 @@ void demo_galaxy(void) {
 
   galaxy_data galaxy = (galaxy_data){
       .radius = 40,
-      .star_scale_factor = 0.1,
+      .star_scale_factor = 0.02,
       .seed = 9385,
       .swirl_strength = 0.3,
       .arm_thickness_x = 3.5,
