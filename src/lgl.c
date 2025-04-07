@@ -270,7 +270,7 @@ void lgl_camera_update(void) {
   const float aspect = (float)width / height;
 
   lgl_perspective(lgl__active_context->camera.projection,
-                  70 * (3.14159 / 180.0), aspect, 0.001, 1000);
+                  70 * (3.14159 / 180.0), aspect, 0.0001, 1000);
 
   //-----------------------------------------------------------------------
   // View
@@ -618,17 +618,16 @@ void lgl_draw(l_object object, const lgl_batch batch) {
   }
 }
 
-lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype) {
+lgl_batch lgl_batch_alloc(unsigned int archetype) {
 
   lgl_batch batch = {0};
 
   glGenBuffers(1, &batch.model_matrix_buffer);
 
-  for (unsigned int j = 0; j < count; j++) {
-    batch.texture_offset = vector2_zero();
-    batch.texture_scale = vector2_one(1.0);
-    batch.render_flags = LGL_FLAG_ENABLED;
-  }
+  batch.texture_offset = vector2_zero();
+  batch.texture_scale = vector2_one(1.0);
+  batch.render_flags = LGL_FLAG_ENABLED;
+  batch.primitive = LGL_PRIMITIVE_TRIANGLES;
 
   switch (archetype) {
   case L_ARCHETYPE_QUAD: {
@@ -984,7 +983,7 @@ lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  frame.quad = lgl_batch_alloc(1, L_ARCHETYPE_QUAD);
+  frame.quad = lgl_batch_alloc(L_ARCHETYPE_QUAD);
   {
     frame.quad.primitive = LGL_PRIMITIVE_TRIANGLES;
     frame.quad.shader = shader;

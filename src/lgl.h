@@ -139,7 +139,7 @@ void lgl_viewport_set(const float width, const float height);
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(unsigned int count, unsigned int archetype);
+lgl_batch lgl_batch_alloc(unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);

@@ -6,7 +6,7 @@ void demo_cube(void) {
   // Create cube
 
   l_object cube = l_object_alloc(1);
-  lgl_batch cube_batch = lgl_batch_alloc(1, L_ARCHETYPE_CUBE);
+  lgl_batch cube_batch = lgl_batch_alloc(L_ARCHETYPE_CUBE);
   cube_batch.shader = shader_phong;
   cube_batch.diffuse_map =
       lgl_texture_alloc("res/textures/lite-engine-cube.png");

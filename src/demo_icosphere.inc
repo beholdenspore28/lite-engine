@@ -10,7 +10,7 @@ void demo_icosphere(void) {
   lgl_batch sphere_batch[2];
   for (unsigned int i = 0; i < 2; i++) {
     sphere[i] = l_object_alloc(1);
-    sphere_batch[i] = lgl_batch_alloc(1, L_ARCHETYPE_EMPTY);
+    sphere_batch[i] = lgl_batch_alloc(L_ARCHETYPE_EMPTY);
     sphere_batch[i].shader = shader_solid;
     sphere_batch[i].diffuse_map =
         lgl_texture_alloc("res/textures/lite-engine-cube.png");
