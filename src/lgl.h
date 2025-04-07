@@ -151,7 +151,7 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch lgl_batch_alloc(unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
-
+void lgl_lines_alloc(lgl_batch *batch, list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
