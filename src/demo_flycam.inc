@@ -4,9 +4,8 @@
 #include "lgl.h"
 #include <GLFW/glfw3.h>
 void camera_fly(lgl_context *context) {
-  lgl_camera_update();
-
   { // movement
+
     vector3 movement = vector3_zero();
     {
       movement.y += glfwGetKey(context->GLFWwindow, GLFW_KEY_SPACE) -

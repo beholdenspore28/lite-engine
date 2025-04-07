@@ -87,7 +87,9 @@ void demo_galaxy(void) {
 
   while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
     lgl_update_window_title();
+
     camera_fly(graphics_context);
+    lgl_camera_update();
 
     { // draw scene to the frame
       glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_MSAA.FBO);

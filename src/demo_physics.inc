@@ -44,7 +44,9 @@ void demo_physics(void) {
 
   while (!glfwWindowShouldClose(graphics_context->GLFWwindow)) {
     lgl_update_window_title();
+
     camera_fly(graphics_context);
+    lgl_camera_update();
 
     timer_physics += graphics_context->time_delta;
     if (timer_physics > 0.03) { // update state
