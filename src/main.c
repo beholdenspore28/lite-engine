@@ -7,6 +7,7 @@
 #define DEMO demo_icosphere() // procedural icosphere
 #define DEMO demo_physics()   // GPU instancing with dynamic particle system
 #define DEMO demo_galaxy()    // GPU instancing many static objects
+#define DEMO demo_lines()    // Render a line from an array of points
 #pragma clang diagnostic pop
 
 #include "lal.h"
@@ -26,6 +27,7 @@ lgl_light light;
 #include "demo_galaxy.inc"
 #include "demo_icosphere.inc"
 #include "demo_physics.inc"
+#include "demo_lines.inc"
 
 int main() {
   alutInit(0, 0);

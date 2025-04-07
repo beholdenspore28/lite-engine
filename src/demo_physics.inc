@@ -6,7 +6,7 @@ void demo_physics(void) {
   // Create boundary cube
 
   l_object cube = l_object_alloc(1);
-  lgl_batch cube_batch = lgl_batch_alloc(L_ARCHETYPE_CUBE);
+  lgl_batch cube_batch = lgl_batch_alloc(LGL_ARCHETYPE_CUBE);
   cube_batch.shader = shader_solid;
   cube_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   cube.transform.scale[0] = vector3_one(20);
@@ -17,7 +17,7 @@ void demo_physics(void) {
 
   l_object particles = l_object_alloc(250);
   lgl_batch particles_batch =
-      lgl_batch_alloc(L_ARCHETYPE_EMPTY);
+      lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_solid;
   particles_batch.diffuse_map =
       lgl_texture_alloc("res/textures/lite-engine-cube.png");

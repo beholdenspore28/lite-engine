@@ -3,12 +3,6 @@
 
 #include "blib/blib_math3d.h"
 
-enum {
-  L_ARCHETYPE_EMPTY,
-  L_ARCHETYPE_CUBE,
-  L_ARCHETYPE_QUAD,
-};
-
 typedef struct {
   vector3 *position;
   vector3 *scale;

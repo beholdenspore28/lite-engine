@@ -119,15 +119,25 @@ void lgl_draw(l_object object, const lgl_batch batch);
 void lgl_draw_instanced(l_object object, const lgl_batch batch);
 
 enum {
-  LGL_FLAG_ENABLED = 1,
-  LGL_FLAG_USE_STENCIL = 1 << 1,
-  LGL_FLAG_DRAW_POINTS = 1 << 2,
-  LGL_FLAG_USE_WIREFRAME = 1 << 3,
+  LGL__FLAGS_BEGIN = 1,
+  LGL_FLAG_ENABLED = 1 << 1,
+  LGL_FLAG_USE_STENCIL = 1 << 2,
+  LGL_FLAG_DRAW_POINTS = 1 << 3,
+  LGL_FLAG_USE_WIREFRAME = 1 << 4,
+  LGL__FLAGS_END,
 
+  LGL__PRIMITIVES_BEGIN,
   LGL_PRIMITIVE_TRIANGLES,
   LGL_PRIMITIVE_TRIANGLES_INDEXED,
   LGL_PRIMITIVE_POINTS,
   LGL_PRIMITIVE_LINES,
+  LGL__PRIMITIVES_END,
+
+  LGL__ARCHETYPES_BEGIN,
+  LGL_ARCHETYPE_EMPTY,
+  LGL_ARCHETYPE_CUBE,
+  LGL_ARCHETYPE_QUAD,
+  LGL__ARCHETYPES_END,
 };
 
 lgl_context *lgl_start(const int width, const int height);

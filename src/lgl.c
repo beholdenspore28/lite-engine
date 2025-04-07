@@ -630,7 +630,7 @@ lgl_batch lgl_batch_alloc(unsigned int archetype) {
   batch.primitive = LGL_PRIMITIVE_TRIANGLES;
 
   switch (archetype) {
-  case L_ARCHETYPE_QUAD: {
+  case LGL_ARCHETYPE_QUAD: {
     batch.vertices = list_lgl_vertex_alloc();
     // clang-format off
     // position                    //normal                    //tex coord
@@ -653,7 +653,7 @@ lgl_batch lgl_batch_alloc(unsigned int archetype) {
     // clang-format on
   } break;
 
-  case L_ARCHETYPE_CUBE: {
+  case LGL_ARCHETYPE_CUBE: {
     // clang-format off
     batch.vertices = list_lgl_vertex_alloc();
     list_lgl_vertex_add(
@@ -747,6 +747,19 @@ lgl_batch lgl_batch_alloc(unsigned int archetype) {
   }
 
   return batch;
+}
+
+void lgl_lines_alloc(lgl_batch *batch, list_vector3 points) {
+  batch->primitive = LGL_PRIMITIVE_LINES;
+  batch->vertices = list_lgl_vertex_alloc();
+
+  for(unsigned int i = 0; i < points.length; i++) {
+    lgl_vertex vertex = (lgl_vertex){points.array[i], vector3_zero(), vector2_zero()};
+    list_lgl_vertex_add(&batch->vertices, vertex);
+  }
+
+  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices.length,
+      batch->vertices.array);
 }
 
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
@@ -983,7 +996,7 @@ lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  frame.quad = lgl_batch_alloc(L_ARCHETYPE_QUAD);
+  frame.quad = lgl_batch_alloc(LGL_ARCHETYPE_QUAD);
   {
     frame.quad.primitive = LGL_PRIMITIVE_TRIANGLES;
     frame.quad.shader = shader;

@@ -54,7 +54,7 @@ void demo_galaxy(void) {
 
   l_object particles = l_object_alloc(20000);
   lgl_batch particles_batch =
-      lgl_batch_alloc(L_ARCHETYPE_EMPTY);
+      lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
   particles_batch.shader = shader_unlit;
   particles_batch.color = (vector4){1.0, 1.0, 1.0, 1.0};
   //particles_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
