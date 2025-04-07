@@ -9,9 +9,14 @@ void demo_lines(void) {
   lgl_batch lines_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
 
   list_vector3 line_points = list_vector3_alloc();
+  // REMEMBER! line rendering is not indexed. therefor each line
+  // needs a start and end point.
   list_vector3_add(&line_points, (vector3){  0,  0,  0 });
   list_vector3_add(&line_points, (vector3){  1,  1,  0 });
+  list_vector3_add(&line_points, (vector3){  1,  1,  0 });
   list_vector3_add(&line_points, (vector3){  2,  1,  1 });
+  list_vector3_add(&line_points, (vector3){  2,  1,  1 });
+  list_vector3_add(&line_points, (vector3){  2,  5,  1 });
 
   lgl_lines_alloc(&lines_batch, line_points);
   list_vector3_free(&line_points);
