@@ -51,7 +51,7 @@ void obj_load(lgl_batch *batch, const char *filepath) {
       // clang-format on
       
       for(unsigned int i = 0; i < 3; i++) {
-        list_GLuint_add(&batch->indices, position_indices[i]);
+        list_GLuint_add(&batch->indices, position_indices[i]-1);
         debug_log("position[%d]{ %f %f %f }", position_indices[i],
           batch->vertices.array[position_indices[i]].position.x,
           batch->vertices.array[position_indices[i]].position.y,
