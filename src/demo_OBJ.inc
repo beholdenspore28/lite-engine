@@ -1,3 +1,35 @@
+#include "blib/blib_file.h"
+#include <ctype.h>
+
+void obj_load(lgl_batch *batch, const char* filepath) {
+  file_buffer file = file_buffer_alloc(filepath);
+
+  batch->primitive = LGL_PRIMITIVE_TRIANGLES;
+  
+  for(const char *c = file.text; c < file.text+file.length; c++) {
+
+#if 0
+    while (isspace(*c)) { ++c; }
+    if ((*c) == '#') {
+      while((*c)!='\n') { ++c; }
+    }
+#endif
+
+    printf("%c", *c);
+
+    switch(*c) {
+      case 'v': {
+        lgl_vertex v = {0};
+        sscanf(c, "v%f%f%f", &v.position.x, &v.position.y, &v.position.z);
+        list_lgl_vertex_add(&batch->vertices, v);
+        debug_log("%f, %f, %f", v.position.x, v.position.y, v.position.z);
+      } break;
+    }
+  }
+  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices.length,
+                             batch->vertices.array);
+}
+
 void demo_OBJ(void) {
 
   graphics_context->camera.position.z = -2;
@@ -6,16 +38,13 @@ void demo_OBJ(void) {
   // Create cube
 
   l_object obj = l_object_alloc(1);
-  lgl_batch obj_batch = lgl_batch_alloc(LGL_ARCHETYPE_CUBE);
-  obj_batch.shader = shader_phong;
-  obj_batch.diffuse_map =
-      lgl_texture_alloc("res/textures/lite-engine-cube.png");
-  obj_batch.color = (vector4){0.5, 0.5, 0.5, 1.0};
-  obj_batch.lights = &light;
-  obj_batch.lights_count = 1;
-  obj.transform.scale[0] = vector3_one(1);
-  obj.transform.position[0] = (vector3){0, 0, 0};
+  lgl_batch obj_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
+  obj_batch.shader = shader_solid;
+  obj_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
   // obj_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  obj_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
+
+  obj_load(&obj_batch, "res/models/test.obj");
 
   // --------------------------------------------------------------------------
   // update
