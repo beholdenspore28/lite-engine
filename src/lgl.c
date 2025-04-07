@@ -900,35 +900,16 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                             batch->indices.length, batch->indices.array);
 }
 
-void obj_load(lgl_batch *batch, const char *filepath) {
+void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
   file_buffer file = file_buffer_alloc(filepath);
 
   batch->primitive = LGL_PRIMITIVE_TRIANGLES_INDEXED;
 
   for (const char *c = file.text; c < file.text + file.length; c++) {
-
-#if 0
-    while (isspace(*c)) {
-      ++c;
-    }
-    if ((*c) == '#') {
-      while ((*c) != '\n') {
-        ++c;
-      }
-    }
-#endif
-
-#if 1
-    printf("%c", *c);
-#endif
-
     if ((*c) == 'v') {
       lgl_vertex v = {0};
       sscanf(c, "v%f%f%f", &v.position.x, &v.position.y, &v.position.z);
       list_lgl_vertex_add(&batch->vertices, v);
-#if 0
-      debug_log("%f, %f, %f", v.position.x, v.position.y, v.position.z);
-#endif
     }
 
     if ((*c) == 'f') {
@@ -951,20 +932,7 @@ void obj_load(lgl_batch *batch, const char *filepath) {
       
       for(unsigned int i = 0; i < 3; i++) {
         list_GLuint_add(&batch->indices, position_indices[i]-1);
-        debug_log("position[%d]{ %f %f %f }", position_indices[i],
-          batch->vertices.array[position_indices[i]].position.x,
-          batch->vertices.array[position_indices[i]].position.y,
-          batch->vertices.array[position_indices[i]].position.z);
       }
-
-#if 1
-      debug_log("pos:  %d/%d/%d", position_indices[0], position_indices[1],
-                position_indices[2]);
-      debug_log("norm: %d/%d/%d", normal_indices[0], normal_indices[1],
-                normal_indices[2]);
-      debug_log("tex:  %d/%d/%d", texture_indices[0], texture_indices[1],
-                texture_indices[2]);
-#endif
     }
   }
 

@@ -16,7 +16,7 @@ void demo_OBJ(void) {
   obj_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   obj.transform.scale[0] = vector3_one(10);
 
-  obj_load(&obj_batch, "res/models/test.obj");
+  lgl_mesh_obj_alloc(&obj_batch, "res/models/test.obj");
 
   // --------------------------------------------------------------------------
   // update
