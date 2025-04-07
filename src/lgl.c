@@ -938,15 +938,15 @@ void obj_load(lgl_batch *batch, const char *filepath) {
 
       // clang-format off
       sscanf(c, "f %d/%d/%d %d/%d/%d %d/%d/%d",
-        &position_indices[0],
-        &normal_indices[0],
-        &texture_indices[0],
+        &position_indices[2],
+        &normal_indices[2],
+        &texture_indices[2],
         &position_indices[1],
         &normal_indices[1],
         &texture_indices[1],
-        &position_indices[2],
-        &normal_indices[2],
-        &texture_indices[2]);
+        &position_indices[0],
+        &normal_indices[0],
+        &texture_indices[0]);
       // clang-format on
       
       for(unsigned int i = 0; i < 3; i++) {

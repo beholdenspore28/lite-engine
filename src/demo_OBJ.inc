@@ -12,8 +12,9 @@ void demo_OBJ(void) {
   lgl_batch obj_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
   obj_batch.shader = shader_solid;
   obj_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
-  obj_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  //obj_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   obj_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
+  obj.transform.scale[0] = vector3_one(10);
 
   obj_load(&obj_batch, "res/models/test.obj");
 
