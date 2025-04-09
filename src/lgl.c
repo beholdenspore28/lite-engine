@@ -951,6 +951,8 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
     }
   }
 
+  file_buffer_free(file);
+
   for(unsigned int i = 0; i < sc_list_vector3_count(positions); i++) {
     lgl_vertex v = {0};
     v.position = positions[i];
@@ -966,8 +968,14 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
 }
 
 void lgl_batch_free(lgl_batch batch) {
-  sc_list_lgl_vertex_free(batch.vertices);
-  sc_list_GLuint_free(batch.indices);
+  if (batch.vertices) {
+    sc_list_lgl_vertex_free(batch.vertices);
+  }
+
+  if (batch.indices) {
+    sc_list_GLuint_free(batch.indices);
+  }
+
   glDeleteBuffers(1, &batch.model_matrix_buffer);
   glDeleteBuffers(1, &batch.VBO);
   glDeleteBuffers(1, &batch.EBO);
