@@ -13,7 +13,7 @@ void demo_OBJ(void) {
   obj_batch.diffuse_map = lgl_texture_alloc("res/textures/lite-engine-icon.png");
   obj_batch.shader = shader_phong;
   obj_batch.color = (vector4){1.0, 0.5, 0.5, 1.0};
-  //obj_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
+  obj_batch.render_flags |= LGL_FLAG_USE_WIREFRAME;
   obj_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   obj.transform.scale[0] = vector3_one(0.5);
 
