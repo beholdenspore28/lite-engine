@@ -26,7 +26,6 @@ SOFTWARE.
 #ifndef BLIB_MATH3D_H
 #define BLIB_MATH3D_H
 
-#include "blib/blib.h"
 #include "blib_math.h"
 
 #ifdef __cplusplus
@@ -37,14 +36,12 @@ typedef struct {
   float x;
   float y;
 } vector2;
-DECLARE_LIST(vector2)
 
 typedef struct {
   float x;
   float y;
   float z;
 } vector3;
-DECLARE_LIST(vector3)
 
 typedef struct {
   float x;
@@ -52,7 +49,6 @@ typedef struct {
   float z;
   float w;
 } vector4;
-DECLARE_LIST(vector4)
 
 typedef struct {
   float w;
@@ -60,7 +56,6 @@ typedef struct {
   float y;
   float z;
 } quaternion;
-DECLARE_LIST(quaternion)
 
 static inline vector2 vector2_zero(void) { return (vector2){0.0f, 0.0f}; }
 static inline vector2 vector2_one(float s) { return (vector2){s, s}; }
@@ -720,12 +715,6 @@ static inline float *quaternion_to_mat4(quaternion q, float *mat) {
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-
-DEFINE_LIST(vector4)
-DEFINE_LIST(vector3)
-DEFINE_LIST(vector2)
-DEFINE_LIST(quaternion)
-// DEFINE_LIST(matrix4_t)
 
 #ifdef __cplusplus
 } // extern "C" {

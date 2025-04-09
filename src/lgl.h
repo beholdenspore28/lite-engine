@@ -14,26 +14,30 @@ extern "C" {
 
 #include "engine.h"
 
+#include "simple_collections/sc_list.h"
+SC_LIST(vector3)
+SC_LIST(vector2)
+
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
 
-#include "blib/blib.h"
 #include "blib/blib_log.h"
 #include "blib/blib_math3d.h"
 #include "stb_image.h"
 
+#include "simple_collections/sc_list.h"
+
 #include <math.h>
 #include <stdio.h>
 
-DECLARE_LIST(GLuint)
+SC_LIST(GLuint)
 
 typedef struct {
   vector3 position;
   vector3 normal;
   vector2 texture_coordinates;
 } lgl_vertex;
-
-DECLARE_LIST(lgl_vertex)
+SC_LIST(lgl_vertex)
 
 typedef struct {
   int type;
@@ -75,8 +79,8 @@ typedef struct {
   GLuint VBO;
   GLuint EBO;
 
-  list_lgl_vertex vertices;
-  list_GLuint indices;
+  sc_list_lgl_vertex vertices;
+  sc_list_GLuint indices;
 
   GLuint model_matrix_buffer;
 
@@ -92,8 +96,6 @@ typedef struct {
   GLenum primitive;
   GLint render_flags;
 } lgl_batch;
-
-DECLARE_LIST(lgl_batch)
 
 typedef struct {
   GLuint FBO;
@@ -151,7 +153,7 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch lgl_batch_alloc(unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
-void lgl_lines_alloc(lgl_batch *batch, list_vector3 points);
+void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);

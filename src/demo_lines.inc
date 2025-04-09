@@ -10,12 +10,12 @@ void demo_lines(void) {
   l_object lines_x = l_object_alloc(1);
   lgl_batch lines_x_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
 
-  list_vector3 lines_x_points = list_vector3_alloc();
-  list_vector3_add(&lines_x_points, (vector3){  0,  0,  0 });
-  list_vector3_add(&lines_x_points, (vector3){  1,  0,  0 });
+  sc_list_vector3 lines_x_points = sc_list_vector3_alloc();
+  sc_list_vector3_add(&lines_x_points, (vector3){  0,  0,  0 });
+  sc_list_vector3_add(&lines_x_points, (vector3){  1,  0,  0 });
 
   lgl_lines_alloc(&lines_x_batch, lines_x_points);
-  list_vector3_free(&lines_x_points);
+  sc_list_vector3_free(lines_x_points);
 
   lines_x_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lines_x_batch.shader = shader_solid;
@@ -30,12 +30,12 @@ void demo_lines(void) {
   l_object lines_y = l_object_alloc(1);
   lgl_batch lines_y_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
 
-  list_vector3 lines_y_points = list_vector3_alloc();
-  list_vector3_add(&lines_y_points, (vector3){  0,  0,  0 });
-  list_vector3_add(&lines_y_points, (vector3){  0,  1,  0 });
+  sc_list_vector3 lines_y_points = sc_list_vector3_alloc();
+  sc_list_vector3_add(&lines_y_points, (vector3){  0,  0,  0 });
+  sc_list_vector3_add(&lines_y_points, (vector3){  0,  1,  0 });
 
   lgl_lines_alloc(&lines_y_batch, lines_y_points);
-  list_vector3_free(&lines_y_points);
+  sc_list_vector3_free(lines_y_points);
 
   lines_y_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lines_y_batch.shader = shader_solid;
@@ -50,12 +50,12 @@ void demo_lines(void) {
   l_object lines_z = l_object_alloc(1);
   lgl_batch lines_z_batch = lgl_batch_alloc(LGL_ARCHETYPE_EMPTY);
 
-  list_vector3 lines_z_points = list_vector3_alloc();
-  list_vector3_add(&lines_z_points, (vector3){  0,  0,  0 });
-  list_vector3_add(&lines_z_points, (vector3){  0,  0,  1 });
+  sc_list_vector3 lines_z_points = sc_list_vector3_alloc();
+  sc_list_vector3_add(&lines_z_points, (vector3){  0,  0,  0 });
+  sc_list_vector3_add(&lines_z_points, (vector3){  0,  0,  1 });
 
   lgl_lines_alloc(&lines_z_batch, lines_z_points);
-  list_vector3_free(&lines_z_points);
+  sc_list_vector3_free(lines_z_points);
 
   lines_z_batch.render_flags |= LGL_FLAG_DRAW_POINTS;
   lines_z_batch.shader = shader_solid;

@@ -6,15 +6,11 @@
 #include "stb_image.h"
 
 #define BLIB_IMPLEMENTATION
-#include "blib/blib.h"
 #include "blib/blib_file.h"
 
 static lgl_framebuffer *lgl__active_framebuffer = NULL;
 static lgl_framebuffer *lgl__active_framebuffer_MSAA = NULL;
 static lgl_context *lgl__active_context = NULL;
-
-DEFINE_LIST(lgl_vertex)
-DEFINE_LIST(GLuint)
 
 void lgl_active_framebuffer_set(lgl_framebuffer *frame) {
   lgl__active_framebuffer = frame;
@@ -494,25 +490,25 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
   glBindVertexArray(batch.VAO);
 
   if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
-    glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
+    glDrawArraysInstanced(GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
   }
 
   switch (batch.primitive) {
   case LGL_PRIMITIVE_LINES: {
-    glDrawArraysInstanced(GL_LINES, 0, batch.vertices.length, object.count);
+    glDrawArraysInstanced(GL_LINES, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
   } break;
 
   case LGL_PRIMITIVE_POINTS: {
-    glDrawArraysInstanced(GL_POINTS, 0, batch.vertices.length, object.count);
+    glDrawArraysInstanced(GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
   } break;
 
   case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-    glDrawElementsInstanced(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT,
+    glDrawElementsInstanced(GL_TRIANGLES, sc_list_GLuint_count(batch.indices), GL_UNSIGNED_INT,
                             0, object.count);
   } break;
 
   case LGL_PRIMITIVE_TRIANGLES: {
-    glDrawArraysInstanced(GL_TRIANGLES, 0, batch.vertices.length, object.count);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
   } break;
   }
 
@@ -593,24 +589,24 @@ void lgl_draw(l_object object, const lgl_batch batch) {
 
     if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
       glDrawArrays(GL_POINTS, 0,
-                   batch.vertices.length); // for debugging geometry
+                   sc_list_lgl_vertex_count(batch.vertices)); // for debugging geometry
     }
 
     switch (batch.primitive) {
     case LGL_PRIMITIVE_LINES: {
-      glDrawArrays(GL_LINES, 0, batch.vertices.length);
+      glDrawArrays(GL_LINES, 0, sc_list_lgl_vertex_count(batch.vertices));
     } break;
 
     case LGL_PRIMITIVE_POINTS: {
-      glDrawArrays(GL_POINTS, 0, batch.vertices.length);
+      glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices));
     } break;
 
     case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-      glDrawElements(GL_TRIANGLES, batch.indices.length, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_TRIANGLES, sc_list_GLuint_count(batch.indices), GL_UNSIGNED_INT, 0);
     } break;
 
     case LGL_PRIMITIVE_TRIANGLES: {
-      glDrawArrays(GL_TRIANGLES, 0, batch.vertices.length);
+      glDrawArrays(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch.vertices));
     } break;
     }
 
@@ -631,135 +627,135 @@ lgl_batch lgl_batch_alloc(unsigned int archetype) {
 
   switch (archetype) {
   case LGL_ARCHETYPE_QUAD: {
-    batch.vertices = list_lgl_vertex_alloc();
+    batch.vertices = sc_list_lgl_vertex_alloc();
     // clang-format off
     // position                    //normal                    //tex coord
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{ 1, -1, 0.0}, vector3_forward(1.0), {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{-1,  1, 0.0}, vector3_forward(1.0), {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{-1, -1, 0.0}, vector3_forward(1.0), {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices, (lgl_vertex){{ 1,  1, 0.0}, vector3_forward(1.0), {1.0, 1.0}});
 
-    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices.length,
-                             batch.vertices.array);
+    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, sc_list_lgl_vertex_count(batch.vertices),
+                             batch.vertices);
     // clang-format on
   } break;
 
   case LGL_ARCHETYPE_CUBE: {
     // clang-format off
-    batch.vertices = list_lgl_vertex_alloc();
-    list_lgl_vertex_add(
+    batch.vertices = sc_list_lgl_vertex_alloc();
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_back(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_back(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_back(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_back(1.0),   {0.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_forward(1.0),{1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_forward(1.0),{0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_forward(1.0),{0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_forward(1.0),{1.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_left(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_left(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_left(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_left(1.0),   {0.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_right(1.0),  {1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_right(1.0),  {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_right(1.0),  {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_right(1.0),  {1.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5, -0.5},vector3_down(1.0),   {1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5, -0.5},vector3_down(1.0),   {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5, -0.5,  0.5},vector3_down(1.0),   {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5, -0.5,  0.5},vector3_down(1.0),   {1.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5, -0.5},vector3_up(1.0),     {1.0, 1.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
 
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{ 0.5,  0.5,  0.5},vector3_up(1.0),     {1.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5,  0.5},vector3_up(1.0),     {0.0, 0.0}});
-    list_lgl_vertex_add(
+    sc_list_lgl_vertex_add(
         &batch.vertices,(lgl_vertex){{-0.5,  0.5, -0.5},vector3_up(1.0),     {0.0, 1.0}});
     // clang-format on
 
-    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, batch.vertices.length,
-                             batch.vertices.array);
+    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO, sc_list_lgl_vertex_count(batch.vertices),
+                             batch.vertices);
   } break;
   }
 
   return batch;
 }
 
-void lgl_lines_alloc(lgl_batch *batch, list_vector3 points) {
+void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points) {
   batch->primitive = LGL_PRIMITIVE_LINES;
-  batch->vertices = list_lgl_vertex_alloc();
+  batch->vertices = sc_list_lgl_vertex_alloc();
 
-  for(unsigned int i = 0; i < points.length; i++) {
-    lgl_vertex vertex = (lgl_vertex){points.array[i], vector3_zero(), vector2_zero()};
-    list_lgl_vertex_add(&batch->vertices, vertex);
+  for(unsigned int i = 0; i < sc_list_vector3_count(points); i++) {
+    lgl_vertex vertex = (lgl_vertex){points[i], vector3_zero(), vector2_zero()};
+    sc_list_lgl_vertex_add(&batch->vertices, vertex);
   }
 
-  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, batch->vertices.length,
-      batch->vertices.array);
+  lgl__buffer_vertex_array(&batch->VAO, &batch->VBO, sc_list_lgl_vertex_count(batch->vertices),
+      batch->vertices);
 }
 
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
@@ -768,24 +764,24 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   const float t = (1.0 + sqrt(5.0)) / 2.0;
 
   // clang-format off
-  batch->vertices = list_lgl_vertex_alloc();
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1, -t,  0}, {0, 0, 0}, {0, 1}});
+  batch->vertices = sc_list_lgl_vertex_alloc();
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 1, -t,  0}, {0, 0, 0}, {0, 1}});
 
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1,  t}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1,  t}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1, -t}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1, -t}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1,  t}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1,  t}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0, -1, -t}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ 0,  1, -t}, {0, 0, 0}, {0, 1}});
 
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0, -1}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0,  1}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 1}});
-  list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0, -1}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{ t,  0,  1}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 1}});
+  sc_list_lgl_vertex_add(&batch->vertices,(lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 1}});
   // clang-format on
 
-  batch->indices = list_GLuint_alloc();
+  batch->indices = sc_list_GLuint_alloc();
   batch->primitive = LGL_PRIMITIVE_TRIANGLES_INDEXED;
 
   {
@@ -797,14 +793,14 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
     };
 
     for (unsigned int i = 0; i < indices_count; i++) {
-      list_GLuint_add(&batch->indices, indices[i]);
+      sc_list_GLuint_add(&batch->indices, indices[i]);
     }
   }
 
-  for (unsigned int i = 0; i < batch->vertices.length; i++) {
-    batch->vertices.array[i].position =
-        vector3_normalize(batch->vertices.array[i].position);
-    batch->vertices.array[i].normal = batch->vertices.array[i].position;
+  for (unsigned int i = 0; i < sc_list_lgl_vertex_count(batch->vertices); i++) {
+    batch->vertices[i].position =
+        vector3_normalize(batch->vertices[i].position);
+    batch->vertices[i].normal = batch->vertices[i].position;
   }
 
   // *===============================================*
@@ -827,15 +823,15 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   // *===============================================*
 
   for (unsigned int subd = 0; subd < subdivisions; subd++) {
-    list_GLuint new_indices = list_GLuint_alloc();
-    for (unsigned int tri = 0; tri < batch->indices.length; tri += 3) {
-      const unsigned int i1 = batch->indices.array[tri];
-      const unsigned int i2 = batch->indices.array[tri + 1];
-      const unsigned int i3 = batch->indices.array[tri + 2];
+    sc_list_GLuint new_indices = sc_list_GLuint_alloc();
+    for (unsigned int tri = 0; tri < sc_list_GLuint_count(batch->indices); tri += 3) {
+      const unsigned int i1 = batch->indices[tri];
+      const unsigned int i2 = batch->indices[tri + 1];
+      const unsigned int i3 = batch->indices[tri + 2];
       { // get vertices in this triangle
-        const lgl_vertex v1 = batch->vertices.array[i1];
-        const lgl_vertex v2 = batch->vertices.array[i2];
-        const lgl_vertex v3 = batch->vertices.array[i3];
+        const lgl_vertex v1 = batch->vertices[i1];
+        const lgl_vertex v2 = batch->vertices[i2];
+        const lgl_vertex v3 = batch->vertices[i3];
         // create middle vertices
         const lgl_vertex m1 = (lgl_vertex){
             .position = vector3_lerp(v1.position, v2.position, 0.5)};
@@ -843,51 +839,51 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
             .position = vector3_lerp(v2.position, v3.position, 0.5)};
         const lgl_vertex m3 = (lgl_vertex){
             .position = vector3_lerp(v3.position, v1.position, 0.5)};
-        list_lgl_vertex_add(&batch->vertices, m1);
-        list_lgl_vertex_add(&batch->vertices, m2);
-        list_lgl_vertex_add(&batch->vertices, m3);
+        sc_list_lgl_vertex_add(&batch->vertices, m1);
+        sc_list_lgl_vertex_add(&batch->vertices, m2);
+        sc_list_lgl_vertex_add(&batch->vertices, m3);
       }
       { // get new indices
-        const unsigned int i4 = batch->vertices.length - 3;
-        const unsigned int i5 = batch->vertices.length - 2;
-        const unsigned int i6 = batch->vertices.length - 1;
+        const unsigned int i4 = sc_list_lgl_vertex_count(batch->vertices) - 3;
+        const unsigned int i5 = sc_list_lgl_vertex_count(batch->vertices) - 2;
+        const unsigned int i6 = sc_list_lgl_vertex_count(batch->vertices) - 1;
 
-        list_GLuint_add(&new_indices, i4);
-        list_GLuint_add(&new_indices, i5);
-        list_GLuint_add(&new_indices, i6);
+        sc_list_GLuint_add(&new_indices, i4);
+        sc_list_GLuint_add(&new_indices, i5);
+        sc_list_GLuint_add(&new_indices, i6);
 
-        list_GLuint_add(&new_indices, i1);
-        list_GLuint_add(&new_indices, i4);
-        list_GLuint_add(&new_indices, i6);
+        sc_list_GLuint_add(&new_indices, i1);
+        sc_list_GLuint_add(&new_indices, i4);
+        sc_list_GLuint_add(&new_indices, i6);
 
-        list_GLuint_add(&new_indices, i4);
-        list_GLuint_add(&new_indices, i2);
-        list_GLuint_add(&new_indices, i5);
+        sc_list_GLuint_add(&new_indices, i4);
+        sc_list_GLuint_add(&new_indices, i2);
+        sc_list_GLuint_add(&new_indices, i5);
 
-        list_GLuint_add(&new_indices, i6);
-        list_GLuint_add(&new_indices, i5);
-        list_GLuint_add(&new_indices, i3);
+        sc_list_GLuint_add(&new_indices, i6);
+        sc_list_GLuint_add(&new_indices, i5);
+        sc_list_GLuint_add(&new_indices, i3);
       }
     }
-    list_GLuint_free(&batch->indices);
+    sc_list_GLuint_free(batch->indices);
     batch->indices = new_indices;
 
-    for (unsigned int i = 0; i < batch->vertices.length; i++) {
-      batch->vertices.array[i].position =
-          vector3_normalize(batch->vertices.array[i].position);
-      batch->vertices.array[i].normal = batch->vertices.array[i].position;
+    for (unsigned int i = 0; i < sc_list_lgl_vertex_count(batch->vertices); i++) {
+      batch->vertices[i].position =
+          vector3_normalize(batch->vertices[i].position);
+      batch->vertices[i].normal = batch->vertices[i].position;
     }
   }
 
 #if 0
   debug_log("final lists ------------------------------------");
-  for (unsigned int g = 0; g < batch->vertices.length; g++) {
+  for (unsigned int g = 0; g < sc_list_lgl_vertex_count(batch->vertices); g++) {
     printf("vertex[%3d]", g);
-    vector3_print(batch->vertices.array[g].position, "");
+    vector3_print(batch->vertices[g].position, "");
   }
 
-  for (unsigned int g = 0; g < batch->indices.length; g++) {
-    printf("index[%3d] = %3d  ", g, batch->indices.array[g]);
+  for (unsigned int g = 0; g < sc_list_GLuint_count(batch->indices); g++) {
+    printf("index[%3d] = %3d  ", g, batch->indices[g]);
     if (g % 5 == 0) {
       putchar('\n');
     }
@@ -896,20 +892,35 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
 #endif
 
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
-                            batch->vertices.length, batch->vertices.array,
-                            batch->indices.length, batch->indices.array);
+                            sc_list_lgl_vertex_count(batch->vertices), batch->vertices,
+                            sc_list_GLuint_count(batch->indices), batch->indices);
 }
 
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
   file_buffer file = file_buffer_alloc(filepath);
 
   batch->primitive = LGL_PRIMITIVE_TRIANGLES_INDEXED;
+  batch->vertices = sc_list_lgl_vertex_alloc();
+  batch->indices = sc_list_GLuint_alloc();
+
+  sc_list_vector3 positions = sc_list_vector3_alloc();
+  sc_list_vector2 texcoords = sc_list_vector2_alloc();
 
   for (const char *c = file.text; c < file.text + file.length; c++) {
+    //printf("%c", *c);
     if ((*c) == 'v') {
-      lgl_vertex v = {0};
-      sscanf(c, "v%f%f%f", &v.position.x, &v.position.y, &v.position.z);
-      list_lgl_vertex_add(&batch->vertices, v);
+      if (c[1] == 't') {
+        vector2 t = {0};
+        sscanf(c, "vt%f%f", &t.x, &t.y);
+        debug_log("vt[%lu] { %f %f }", sc_list_vector2_count(texcoords), t.x, t.y);
+        sc_list_vector2_add(&texcoords, t);
+      } else if (c[1] == 'n') {
+      } else {
+        vector3 v = {0};
+        sscanf(c, "v%f%f%f", &v.x, &v.y, &v.z);
+        debug_log("v[%lu] { %f %f %f }", sc_list_vector3_count(positions), v.x, v.y, v.z);
+        sc_list_vector3_add(&positions, v);
+      }
     }
 
     if ((*c) == 'f') {
@@ -918,7 +929,7 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
       unsigned int texture_indices[3] = {0, 0, 0};
 
       // clang-format off
-      sscanf(c, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+      const int got = sscanf(c, "f %d/%d/%d %d/%d/%d %d/%d/%d",
         &position_indices[2],
         &normal_indices[2],
         &texture_indices[2],
@@ -930,20 +941,33 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
         &texture_indices[0]);
       // clang-format on
       
+      if (got != 9) {
+        debug_error("OOPS!");
+      }
+
       for(unsigned int i = 0; i < 3; i++) {
-        list_GLuint_add(&batch->indices, position_indices[i]-1);
+        sc_list_GLuint_add(&batch->indices, position_indices[i]-1);
       }
     }
   }
 
+  for(unsigned int i = 0; i < sc_list_vector3_count(positions); i++) {
+    lgl_vertex v = {0};
+    v.position = positions[i];
+    sc_list_lgl_vertex_add(&batch->vertices, v);
+  }
+
+  sc_list_vector3_free(positions);
+  sc_list_vector2_free(texcoords);
+
   lgl__buffer_element_array(&batch->VAO, &batch->VBO, &batch->EBO,
-                            batch->vertices.length, batch->vertices.array,
-                            batch->indices.length, batch->indices.array);
+                            sc_list_lgl_vertex_count(batch->vertices), batch->vertices,
+                            sc_list_GLuint_count(batch->indices), batch->indices);
 }
 
 void lgl_batch_free(lgl_batch batch) {
-  list_lgl_vertex_free(&batch.vertices);
-  list_GLuint_free(&batch.indices);
+  sc_list_lgl_vertex_free(batch.vertices);
+  sc_list_GLuint_free(batch.indices);
   glDeleteBuffers(1, &batch.model_matrix_buffer);
   glDeleteBuffers(1, &batch.VBO);
   glDeleteBuffers(1, &batch.EBO);
