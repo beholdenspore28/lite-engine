@@ -1,16 +1,3 @@
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmacro-redefined"
-// DEMOS HERE. move the demo you want to see to the bottom of
-// this stack of define directives then compile the project. it should load your
-// chosen demo scene.
-#define DEMO demo_lines()    // Render a line from an array of points
-#define DEMO demo_cube()      // just a spinning cube with a 3D sound
-#define DEMO demo_physics()   // GPU instancing with dynamic particle system
-#define DEMO demo_galaxy()    // GPU instancing many static objects
-#define DEMO demo_icosphere() // procedural icosphere
-#define DEMO demo_OBJ()      // load and render an obj file
-#pragma clang diagnostic pop
-
 #include "lal.h"
 #include "lgl.h"
 
@@ -30,6 +17,19 @@ lgl_light light;
 #include "demo_icosphere.inc"
 #include "demo_physics.inc"
 #include "demo_lines.inc"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+// DEMOS HERE. move the demo you want to see to the bottom of
+// this stack of define directives then compile the project. it should load your
+// chosen demo scene.
+#define DEMO demo_lines()    // Render a line from an array of points
+#define DEMO demo_cube()      // just a spinning cube with a 3D sound
+#define DEMO demo_physics()   // GPU instancing with dynamic particle system
+#define DEMO demo_galaxy()    // GPU instancing many static objects
+#define DEMO demo_icosphere() // procedural icosphere
+#define DEMO demo_OBJ()      // load and render an obj file
+#pragma clang diagnostic pop
 
 int main() {
   alutInit(0, 0);
