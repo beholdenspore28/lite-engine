@@ -20,10 +20,11 @@ LIBS := -lglfw -lm -lopenal -lalut
 LIBS_WINDOWS := -Ldep -lglfw3 -lgdi32 -lopengl32
 
 LIBRARY = $(BUILD_DIR)/lite-engine.a
+GLAD = $(BUILD_DIR)/glad.o
 
 all: $(BUILD_DIR) $(OBJ) $(LIBRARY)
 
-$(LIBRARY): $(OBJ)
+$(LIBRARY): $(OBJ) $(GLAD)
 	ar rcs $@ $^
 
 $(BUILD_DIR):
@@ -31,3 +32,6 @@ $(BUILD_DIR):
 
 build/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC)
+
+$(GLAD):
+	$(CC) $(CFLAGS) -c dep/glad/src/gl.c -o $(BUILD_DIR)/glad.o -Idep/glad/include
