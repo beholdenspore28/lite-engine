@@ -1,12 +1,7 @@
-#define GLFW_INCLUDE_NONE
 #include "lgl.h"
-#include <GLFW/glfw3.h>
-
+#include "blib/blib_file.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-#define BLIB_IMPLEMENTATION
-#include "blib/blib_file.h"
 
 static lgl_framebuffer *lgl__active_framebuffer = NULL;
 static lgl_framebuffer *lgl__active_framebuffer_MSAA = NULL;
