@@ -35,14 +35,14 @@ void lal_audio_source_free(lal_audio_source source) {
 void lal_audio_source_update(lal_audio_source source, l_object object,
                              lgl_context *lgl_context) {
 
-  alListener3f(AL_POSITION, lgl_context->camera.position.x,
-               lgl_context->camera.position.y, lgl_context->camera.position.z);
+  alListener3f(AL_POSITION, lgl_context->camera.object.transform.position[0].x,
+               lgl_context->camera.object.transform.position[0].y, lgl_context->camera.object.transform.position[0].z);
 
   vector3 listener_up = (vector3){0.0, 0.0, 1.0};
   vector3 listener_at = (vector3){0.0, 1.0, 0.0};
 
-  listener_at = vector3_rotate(listener_at, lgl_context->camera.rotation);
-  listener_up = vector3_rotate(listener_up, lgl_context->camera.rotation);
+  listener_at = vector3_rotate(listener_at, lgl_context->camera.object.transform.rotation[0]);
+  listener_up = vector3_rotate(listener_up, lgl_context->camera.object.transform.rotation[0]);
 
   float orientation[6] = {
       listener_at.x, listener_at.y, listener_at.z,

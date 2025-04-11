@@ -232,22 +232,17 @@ void lgl_mat4_buffer(l_object object, lgl_batch *batch) {
 
 lgl_camera lgl_camera_alloc(void) {
   lgl_camera camera;
-  camera.rotation = quaternion_identity();
-  camera.position = vector3_zero();
-
-  camera.view = calloc(sizeof(*camera.view), 16);
+  camera.object = l_object_alloc(1);
   camera.projection = calloc(sizeof(*camera.projection), 16);
-  lgl_mat4_identity(camera.view);
+  lgl_mat4_identity(camera.object.transform.matrix);
   lgl_mat4_identity(camera.projection);
 
-  debug_log("Startup completed successfuly");
-  debug_log("Success!");
   return camera;
 }
 
 void lgl_camera_free(lgl_camera camera) {
-  free(camera.view);
   free(camera.projection);
+  l_object_free(camera.object);
 }
 
 void lgl_camera_update(void) {
@@ -267,19 +262,19 @@ void lgl_camera_update(void) {
   // View
   {
     vector3 offset =
-        vector3_rotate(vector3_back(1.0), lgl__active_context->camera.rotation);
+        vector3_rotate(vector3_back(1.0), lgl__active_context->camera.object.transform.rotation[0]);
 
     GLfloat translation[16];
     lgl_mat4_identity(translation);
-    translation[12] = -lgl__active_context->camera.position.x + offset.x;
-    translation[13] = -lgl__active_context->camera.position.y + offset.y;
-    translation[14] = -lgl__active_context->camera.position.z + offset.z;
+    translation[12] = -lgl__active_context->camera.object.transform.position[0].x + offset.x;
+    translation[13] = -lgl__active_context->camera.object.transform.position[0].y + offset.y;
+    translation[14] = -lgl__active_context->camera.object.transform.position[0].z + offset.z;
 
     GLfloat rotation[16];
     lgl_mat4_identity(rotation);
     quaternion_to_mat4(
-        quaternion_conjugate(lgl__active_context->camera.rotation), rotation);
-    lgl_mat4_multiply(lgl__active_context->camera.view, translation, rotation);
+        quaternion_conjugate(lgl__active_context->camera.object.transform.rotation[0]), rotation);
+    lgl_mat4_multiply(lgl__active_context->camera.object.transform.matrix, translation, rotation);
   }
 }
 
@@ -468,7 +463,7 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
     GLfloat camera_matrix[16];
     lgl_mat4_identity(camera_matrix);
 
-    lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.view,
+    lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.object.transform.matrix,
                       lgl__active_context->camera.projection);
 
     GLint camera_matrix_location =
@@ -574,7 +569,7 @@ void lgl_draw(l_object object, const lgl_batch batch) {
       GLfloat camera_matrix[16];
       lgl_mat4_identity(camera_matrix);
 
-      lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.view,
+      lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.object.transform.matrix,
                         lgl__active_context->camera.projection);
 
       GLint camera_matrix_location =
@@ -1171,6 +1166,9 @@ lgl_context *lgl_start(const int width, const int height) {
 
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+  debug_log("Startup completed successfuly");
+  debug_log("Success!");
 
   return lgl__active_context;
 }

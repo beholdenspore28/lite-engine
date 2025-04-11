@@ -53,9 +53,7 @@ typedef struct {
 } lgl_light;
 
 typedef struct {
-  vector3 position;
-  quaternion rotation;
-  GLfloat *view;
+  l_object object;
   GLfloat *projection;
 } lgl_camera;
 
