@@ -62,7 +62,7 @@ void lgl_camera_update(lgl_transform transform);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
-  GLfloat *projection;
+  GLfloat *camera_matrix;
   int is_running;
   double time_current;
   long long frame_current;
@@ -117,7 +117,7 @@ void lgl_framebuffer_free(lgl_framebuffer frame);
 void lgl_active_framebuffer_set(lgl_framebuffer *frame);
 void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame);
 
-void lgl_draw(const lgl_batch batch);
+void lgl_draw(const lgl_batch *batch);
 void lgl_draw_instanced(const lgl_batch batch);
 
 enum {
@@ -151,7 +151,7 @@ void lgl_viewport_set(const float width, const float height);
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(unsigned int archetype);
+lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
 void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
