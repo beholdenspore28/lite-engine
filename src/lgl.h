@@ -86,15 +86,12 @@ typedef struct {
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;
-  vector2 texture_offset;
-  vector2 texture_scale;
   vector4 color;
 
   lgl_light *lights;
   GLuint lights_count;
   GLenum primitive;
   GLint render_flags;
-  unsigned int count;
 } lgl_batch;
 
 typedef struct {
@@ -151,14 +148,12 @@ void lgl_viewport_set(const float width, const float height);
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype);
+lgl_batch lgl_batch_alloc(const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
 void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
-
-void lgl_mat4_buffer(lgl_batch *batch);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
   debug_log("");

@@ -51,7 +51,6 @@ void lal_audio_source_update(lal_audio_source source, vector3 position,
   alListenerfv(AL_ORIENTATION, orientation);
 
   for (unsigned int i = 0; i < source.count; i++) {
-    alSource3f(source.id[i], AL_POSITION, position.x, position.y,
-               position.z);
+    alSource3f(source.id[i], AL_POSITION, position.x, position.y, position.z);
   }
 }

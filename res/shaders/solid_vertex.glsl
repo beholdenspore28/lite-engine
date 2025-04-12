@@ -20,5 +20,5 @@ void main() {
 	//TODO this is EXPENSIVE! do it on the cpu instead
 	v_normal = mat3(transpose(inverse(mvp))) * a_normal;
 
-  gl_Position = mvp * vec4(a_position, 1.0);
+  gl_Position = vec4(a_position, 1.0);
 } 
