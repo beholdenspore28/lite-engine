@@ -20,8 +20,8 @@ typedef struct {
 lal_audio_source lal_audio_source_alloc(unsigned int count);
 void lal_audio_source_free(lal_audio_source source);
 
-void lal_audio_source_update(lal_audio_source source, l_object object,
-                             lgl_context *lgl_context);
+void lal_audio_source_update(lal_audio_source source, vector3 position,
+                             quaternion rotation);
 
 #ifdef __cplusplus
 }

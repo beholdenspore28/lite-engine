@@ -2,6 +2,7 @@
 #include "blib/blib_file.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <assert.h>
 
 static lgl_framebuffer *lgl__active_framebuffer = NULL;
 static lgl_framebuffer *lgl__active_framebuffer_MSAA = NULL;
@@ -166,86 +167,35 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
   glEnableVertexAttribArray(2);
 }
 
-void lgl_mat4_buffer(l_object object, lgl_batch *batch) {
+void lgl_transform_matrix(lgl_transform transform) {
+    { // Model
 
-  for (unsigned int i = 0; i < object.count; i++) {
+      GLfloat model_matrix[16];
+      lgl_mat4_identity(model_matrix);
 
-    lgl_mat4_identity(object.transform.matrix + i * 16);
+      {
+        GLfloat scale[16];
+        lgl_mat4_identity(scale);
+        scale[0] = transform.scale.x;
+        scale[5] = transform.scale.y;
+        scale[10] = transform.scale.z;
 
-    {
-      GLfloat scale[16];
-      lgl_mat4_identity(scale);
-      scale[0] = object.transform.scale[i].x;
-      scale[5] = object.transform.scale[i].y;
-      scale[10] = object.transform.scale[i].z;
+        GLfloat translation[16];
+        lgl_mat4_identity(translation);
+        translation[12] = transform.position.x;
+        translation[13] = transform.position.y;
+        translation[14] = transform.position.z;
 
-      GLfloat translation[16];
-      lgl_mat4_identity(translation);
-      translation[12] = object.transform.position[i].x;
-      translation[13] = object.transform.position[i].y;
-      translation[14] = object.transform.position[i].z;
+        GLfloat rotation[16] = {0};
+        quaternion_to_mat4(transform.rotation, rotation);
 
-      GLfloat rotation[16] = {0};
-      quaternion_to_mat4(object.transform.rotation[i], rotation);
-
-      lgl_mat4_multiply(object.transform.matrix + i * 16, scale, rotation);
-      lgl_mat4_multiply(object.transform.matrix + i * 16,
-                        object.transform.matrix + i * 16, translation);
+        lgl_mat4_multiply(model_matrix, scale, rotation);
+        lgl_mat4_multiply(model_matrix, model_matrix, translation);
+      }
     }
-  }
-
-  // --------------------------------------------------------------------------
-  // configure instanced array
-
-  glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
-
-  glBufferData(GL_ARRAY_BUFFER, object.count * sizeof(GLfloat) * 16,
-               &object.transform.matrix[0], GL_STATIC_DRAW);
-
-  glBindVertexArray(batch->VAO);
-
-  // set attribute pointers for matrix (4 times vec4)
-  glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)0);
-
-  glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(1 * sizeof(vector4)));
-
-  glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(2 * sizeof(vector4)));
-
-  glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
-                        (void *)(3 * sizeof(vector4)));
-
-  glEnableVertexAttribArray(3);
-  glEnableVertexAttribArray(4);
-  glEnableVertexAttribArray(5);
-  glEnableVertexAttribArray(6);
-
-  glVertexAttribDivisor(3, 1);
-  glVertexAttribDivisor(4, 1);
-  glVertexAttribDivisor(5, 1);
-  glVertexAttribDivisor(6, 1);
-
-  glBindVertexArray(0);
 }
 
-lgl_camera lgl_camera_alloc(void) {
-  lgl_camera camera;
-  camera.object = l_object_alloc(1);
-  camera.projection = calloc(sizeof(*camera.projection), 16);
-  lgl_mat4_identity(camera.object.transform.matrix);
-  lgl_mat4_identity(camera.projection);
-
-  return camera;
-}
-
-void lgl_camera_free(lgl_camera camera) {
-  free(camera.projection);
-  l_object_free(camera.object);
-}
-
-void lgl_camera_update(void) {
+void lgl_camera_update(lgl_transform transform) {
 
   //-----------------------------------------------------------------------
   // PROJECTION
@@ -255,26 +205,24 @@ void lgl_camera_update(void) {
 
   const float aspect = (float)width / height;
 
-  lgl_perspective(lgl__active_context->camera.projection,
-                  70 * (3.14159 / 180.0), aspect, 0.0001, 1000);
+  lgl_mat4_identity(lgl__active_context->projection);
+  lgl_perspective(lgl__active_context->projection, 70 * (3.14159 / 180.0), aspect, 0.0001, 1000);
 
   //-----------------------------------------------------------------------
   // View
   {
-    vector3 offset =
-        vector3_rotate(vector3_back(1.0), lgl__active_context->camera.object.transform.rotation[0]);
+    vector3 offset = vector3_rotate(vector3_back(1.0), transform.rotation);
 
-    GLfloat translation[16];
-    lgl_mat4_identity(translation);
-    translation[12] = -lgl__active_context->camera.object.transform.position[0].x + offset.x;
-    translation[13] = -lgl__active_context->camera.object.transform.position[0].y + offset.y;
-    translation[14] = -lgl__active_context->camera.object.transform.position[0].z + offset.z;
+    GLfloat translation_matrix[16];
+    lgl_mat4_identity(translation_matrix);
+    translation_matrix[12] = -transform.position.x + offset.x;
+    translation_matrix[13] = -transform.position.y + offset.y;
+    translation_matrix[14] = -transform.position.z + offset.z;
 
-    GLfloat rotation[16];
-    lgl_mat4_identity(rotation);
-    quaternion_to_mat4(
-        quaternion_conjugate(lgl__active_context->camera.object.transform.rotation[0]), rotation);
-    lgl_mat4_multiply(lgl__active_context->camera.object.transform.matrix, translation, rotation);
+    GLfloat rotation_matrix[16];
+    lgl_mat4_identity(rotation_matrix);
+    quaternion_to_mat4(quaternion_conjugate(transform.rotation), rotation_matrix);
+    lgl_mat4_multiply(transform.matrix, translation_matrix, rotation_matrix);
   }
 }
 
@@ -412,7 +360,7 @@ void lgl__uniform_lights(lgl_batch batch) {
   }
 }
 
-void lgl_draw_instanced(l_object object, const lgl_batch batch) {
+void lgl_draw_instanced(const lgl_batch batch) {
 
   { // render flags
     if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -435,42 +383,16 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
   glUseProgram(batch.shader);
   glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 1);
 
-  { // Model
+  assert(0); // call lgl_transform_matrix(); here
 
-    GLfloat model_matrix[16];
-    lgl_mat4_identity(model_matrix);
-
-    {
-      GLfloat translation[16];
-      lgl_mat4_identity(translation);
-      translation[12] = object.transform.position[0].x;
-      translation[13] = object.transform.position[0].y;
-      translation[14] = object.transform.position[0].z;
-
-      GLfloat rotation[16];
-      lgl_mat4_identity(rotation);
-      quaternion_to_mat4(object.transform.rotation[0], rotation);
-
-      lgl_mat4_multiply(model_matrix, rotation, translation);
-    }
-
+  {
     GLint model_matrix_location =
-        glGetUniformLocation(batch.shader, "u_model_matrix");
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+      glGetUniformLocation(batch.shader, "u_model_matrix");
+    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, batch.transform.matrix);
   }
 
-  { // camera matrix
-    GLfloat camera_matrix[16];
-    lgl_mat4_identity(camera_matrix);
-
-    lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.object.transform.matrix,
-                      lgl__active_context->camera.projection);
-
-    GLint camera_matrix_location =
-        glGetUniformLocation(batch.shader, "u_camera_matrix");
-    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
-  }
-
+  assert(0); // calculate camera matrix
+  
   lgl__uniform_materials(batch);
   lgl__uniform_lights(batch);
 
@@ -481,38 +403,38 @@ void lgl_draw_instanced(l_object object, const lgl_batch batch) {
 
   if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
     glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
+        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), batch.count);
   }
 
   switch (batch.primitive) {
   case LGL_PRIMITIVE_LINES: {
     glDrawArraysInstanced(GL_LINES, 0, sc_list_lgl_vertex_count(batch.vertices),
-                          object.count);
+                          batch.count);
   } break;
 
   case LGL_PRIMITIVE_POINTS: {
     glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), object.count);
+        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), batch.count);
   } break;
 
   case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
     glDrawElementsInstanced(GL_TRIANGLES, sc_list_GLuint_count(batch.indices),
-                            GL_UNSIGNED_INT, 0, object.count);
+                            GL_UNSIGNED_INT, 0, batch.count);
   } break;
 
   case LGL_PRIMITIVE_TRIANGLES: {
     glDrawArraysInstanced(GL_TRIANGLES, 0,
                           sc_list_lgl_vertex_count(batch.vertices),
-                          object.count);
+                          batch.count);
   } break;
   }
 
   glUseProgram(0);
 }
 
-void lgl_draw(l_object object, const lgl_batch batch) {
+void lgl_draw(const lgl_batch batch) {
 
-  for (size_t i = 0; i < object.count; i++) {
+  for (size_t i = 0; i < batch.count; i++) {
 
     { // render flags
       if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
@@ -535,48 +457,16 @@ void lgl_draw(l_object object, const lgl_batch batch) {
     glUseProgram(batch.shader);
     glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 0);
 
-    { // Model
-
-      GLfloat model_matrix[16];
-      lgl_mat4_identity(model_matrix);
-
-      {
-        GLfloat scale[16];
-        lgl_mat4_identity(scale);
-        scale[0] = object.transform.scale[i].x;
-        scale[5] = object.transform.scale[i].y;
-        scale[10] = object.transform.scale[i].z;
-
-        GLfloat translation[16];
-        lgl_mat4_identity(translation);
-        translation[12] = object.transform.position[i].x;
-        translation[13] = object.transform.position[i].y;
-        translation[14] = object.transform.position[i].z;
-
-        GLfloat rotation[16] = {0};
-        quaternion_to_mat4(object.transform.rotation[i], rotation);
-
-        lgl_mat4_multiply(model_matrix, scale, rotation);
-        lgl_mat4_multiply(model_matrix, model_matrix, translation);
-      }
-
+    assert (0); // call lgl_transform_matrix() here.
+                
+    {
       GLint model_matrix_location =
           glGetUniformLocation(batch.shader, "u_model_matrix");
-      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, model_matrix);
+      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, batch.transform.matrix);
     }
 
-    { // camera matrix
-      GLfloat camera_matrix[16];
-      lgl_mat4_identity(camera_matrix);
-
-      lgl_mat4_multiply(camera_matrix, lgl__active_context->camera.object.transform.matrix,
-                        lgl__active_context->camera.projection);
-
-      GLint camera_matrix_location =
-          glGetUniformLocation(batch.shader, "u_camera_matrix");
-      glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE, camera_matrix);
-    }
-
+    assert(0); // calculate camera matrix
+  
     lgl__uniform_materials(batch);
     lgl__uniform_lights(batch);
 
@@ -614,6 +504,12 @@ void lgl_draw(l_object object, const lgl_batch batch) {
 lgl_batch lgl_batch_alloc(unsigned int archetype) {
 
   lgl_batch batch = {0};
+
+  batch.transform = (lgl_transform){
+    .position={0},
+    .rotation={0},
+    .scale={0},
+  };
 
   glGenBuffers(1, &batch.model_matrix_buffer);
 
@@ -725,20 +621,20 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
   const float t = (1.0 + sqrt(5.0)) / 2.0;
 
   lgl_vertex vertices[12] = {
-    (lgl_vertex){{-1,  t,  0}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ 1,  t,  0}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{-1, -t,  0}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ 1, -t,  0}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{-1, t, 0}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{1, t, 0}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{-1, -t, 0}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{1, -t, 0}, {0, 0, 0}, {0, 1}},
 
-    (lgl_vertex){{ 0, -1,  t}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ 0,  1,  t}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ 0, -1, -t}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ 0,  1, -t}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{0, -1, t}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{0, 1, t}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{0, -1, -t}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{0, 1, -t}, {0, 0, 0}, {0, 1}},
 
-    (lgl_vertex){{ t,  0, -1}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{ t,  0,  1}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{-t,  0, -1}, {0, 0, 0}, {0, 1}},
-    (lgl_vertex){{-t,  0,  1}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{t, 0, -1}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{t, 0, 1}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{-t, 0, -1}, {0, 0, 0}, {0, 1}},
+      (lgl_vertex){{-t, 0, 1}, {0, 0, 0}, {0, 1}},
   };
 
   batch->vertices = sc_list_lgl_vertex_alloc_from_array(vertices, 12);
@@ -1215,9 +1111,8 @@ void lgl_free(lgl_context *context) {
   debug_log("Shutting down...");
 
   context->is_running = 0;
-
-  lgl_camera_free(context->camera);
   free(context);
+
   debug_log("Shutdown complete");
 }
 

@@ -12,8 +12,7 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "engine.h"
-
+#include "blib/blib_math3d.h"
 #include "simple_collections/sc_list.h"
 SC_LIST(vector3)
 SC_LIST(vector2)
@@ -53,17 +52,17 @@ typedef struct {
 } lgl_light;
 
 typedef struct {
-  l_object object;
-  GLfloat *projection;
-} lgl_camera;
+  vector3 position;
+  vector3 scale;
+  quaternion rotation;
+  GLfloat *matrix;
+} lgl_transform;
 
-lgl_camera lgl_camera_alloc(void);
-void lgl_camera_free(lgl_camera camera);
-void lgl_camera_update(void);
+void lgl_camera_update(lgl_transform transform);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
-  lgl_camera camera;
+  GLfloat *projection;
   int is_running;
   double time_current;
   long long frame_current;
@@ -73,6 +72,8 @@ typedef struct {
 } lgl_context;
 
 typedef struct {
+  lgl_transform transform;
+
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
@@ -93,6 +94,7 @@ typedef struct {
   GLuint lights_count;
   GLenum primitive;
   GLint render_flags;
+  unsigned int count;
 } lgl_batch;
 
 typedef struct {
@@ -115,8 +117,8 @@ void lgl_framebuffer_free(lgl_framebuffer frame);
 void lgl_active_framebuffer_set(lgl_framebuffer *frame);
 void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame);
 
-void lgl_draw(l_object object, const lgl_batch batch);
-void lgl_draw_instanced(l_object object, const lgl_batch batch);
+void lgl_draw(const lgl_batch batch);
+void lgl_draw_instanced(const lgl_batch batch);
 
 enum {
   LGL__FLAGS_BEGIN = 1,
@@ -156,7 +158,7 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
 
-void lgl_mat4_buffer(l_object object, lgl_batch *batch);
+void lgl_mat4_buffer(lgl_batch *batch);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
   debug_log("");
