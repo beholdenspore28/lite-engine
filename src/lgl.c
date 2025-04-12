@@ -167,6 +167,70 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
   glEnableVertexAttribArray(2);
 }
 
+void lgl__buffer_matrices(const lgl_batch *batch) {
+
+  for (unsigned int i = 0; i < batch->count * 16; i+=16) {
+
+    lgl_mat4_identity(batch->transform.matrix + i);
+
+    {
+      GLfloat scale[16];
+      lgl_mat4_identity(scale);
+      scale[0] = batch->transform.scale.x;
+      scale[5] = batch->transform.scale.y;
+      scale[10] = batch->transform.scale.z;
+
+      GLfloat translation[16];
+      lgl_mat4_identity(translation);
+      translation[12] = batch->transform.position.x;
+      translation[13] = batch->transform.position.y;
+      translation[14] = batch->transform.position.z;
+
+      GLfloat rotation[16] = {0};
+      quaternion_to_mat4(batch->transform.rotation, rotation);
+
+      lgl_mat4_multiply(batch->transform.matrix + i, scale, rotation);
+      lgl_mat4_multiply(batch->transform.matrix + i,
+                        batch->transform.matrix + i, translation);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // configure instanced array
+
+  glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
+
+  glBufferData(GL_ARRAY_BUFFER, batch->count * sizeof(GLfloat) * 16,
+               &batch->transform.matrix[0], GL_STATIC_DRAW);
+
+  glBindVertexArray(batch->VAO);
+
+  // set attribute pointers for matrix (4 times vec4)
+  glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
+                        (void *)0);
+
+  glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
+                        (void *)(1 * sizeof(vector4)));
+
+  glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
+                        (void *)(2 * sizeof(vector4)));
+
+  glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 16,
+                        (void *)(3 * sizeof(vector4)));
+
+  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(4);
+  glEnableVertexAttribArray(5);
+  glEnableVertexAttribArray(6);
+
+  glVertexAttribDivisor(3, 1);
+  glVertexAttribDivisor(4, 1);
+  glVertexAttribDivisor(5, 1);
+  glVertexAttribDivisor(6, 1);
+
+  glBindVertexArray(0);
+}
+
 void lgl_transform_matrix(const lgl_transform *transform) {
   { // Model
 
@@ -349,80 +413,6 @@ void lgl__uniform_lights(lgl_batch batch) {
   }
 }
 
-#if 0
-void lgl_draw_instanced(const lgl_batch batch) {
-
-  { // render flags
-    if ((batch.render_flags & LGL_FLAG_ENABLED) == 0) {
-      return;
-    }
-
-    if (batch.render_flags & LGL_FLAG_USE_WIREFRAME) {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    } else {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    if (batch.render_flags & LGL_FLAG_USE_STENCIL) {
-      glStencilMask(0xFF);
-    } else {
-      glStencilMask(0x00);
-    }
-  }
-
-  glUseProgram(batch.shader);
-  glUniform1i(glGetUniformLocation(batch.shader, "u_use_instancing"), 1);
-
-  assert(0); // call lgl_transform_matrix(); here
-
-  {
-    GLint model_matrix_location =
-        glGetUniformLocation(batch.shader, "u_model_matrix");
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-                       batch.transform.matrix);
-  }
-
-  assert(0); // calculate camera matrix
-
-  lgl__uniform_materials(batch);
-  lgl__uniform_lights(batch);
-
-  glUniform4f(glGetUniformLocation(batch.shader, "u_color"), batch.color.x,
-              batch.color.y, batch.color.z, batch.color.w);
-
-  glBindVertexArray(batch.VAO);
-
-  if (batch.render_flags & LGL_FLAG_DRAW_POINTS) {
-    glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), batch.count);
-  }
-
-  switch (batch.primitive) {
-  case LGL_PRIMITIVE_LINES: {
-    glDrawArraysInstanced(GL_LINES, 0, sc_list_lgl_vertex_count(batch.vertices),
-                          batch.count);
-  } break;
-
-  case LGL_PRIMITIVE_POINTS: {
-    glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_lgl_vertex_count(batch.vertices), batch.count);
-  } break;
-
-  case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-    glDrawElementsInstanced(GL_TRIANGLES, sc_list_GLuint_count(batch.indices),
-                            GL_UNSIGNED_INT, 0, batch.count);
-  } break;
-
-  case LGL_PRIMITIVE_TRIANGLES: {
-    glDrawArraysInstanced(
-        GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch.vertices), batch.count);
-  } break;
-  }
-
-  glUseProgram(0);
-}
-#endif
-
 void lgl_draw(const lgl_batch *batch) {
 
   { // render flags
@@ -444,64 +434,102 @@ void lgl_draw(const lgl_batch *batch) {
   }
 
   glUseProgram(batch->shader);
-  glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
-
-  lgl_transform_matrix(&batch->transform);
-
-  {
-    GLint model_matrix_location =
-        glGetUniformLocation(batch->shader, "u_model_matrix");
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-                       batch->transform.matrix);
-  }
-
-  {
-    GLint camera_matrix_location =
-        glGetUniformLocation(batch->shader, "u_camera_matrix");
-    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE,
-                       lgl__active_context->camera_matrix);
-  }
 
   lgl__uniform_materials(*batch);
   lgl__uniform_lights(*batch);
 
-  glBindVertexArray(batch->VAO);
-
-  if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
-    glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
+  {
+    GLint camera_matrix_location =
+      glGetUniformLocation(batch->shader, "u_camera_matrix");
+    glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE,
+        lgl__active_context->camera_matrix);
   }
 
-  switch (batch->primitive) {
-  case LGL_PRIMITIVE_LINES: {
-    glDrawArrays(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices));
-  } break;
+  if (batch->count < 2) { // do not use instancing
+    lgl_transform_matrix(&batch->transform);
 
-  case LGL_PRIMITIVE_POINTS: {
-    glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
-  } break;
+    {
+      GLint model_matrix_location =
+        glGetUniformLocation(batch->shader, "u_model_matrix");
+      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
+          batch->transform.matrix);
+    }
 
-  case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-    glDrawElements(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
-                   GL_UNSIGNED_INT, 0);
-  } break;
+    glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
+    glBindVertexArray(batch->VAO);
 
-  case LGL_PRIMITIVE_TRIANGLES: {
-    glDrawArrays(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices));
-  } break;
+    if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
+      glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
+    }
+
+    switch (batch->primitive) {
+    case LGL_PRIMITIVE_LINES: {
+      glDrawArrays(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices));
+    } break;
+
+    case LGL_PRIMITIVE_POINTS: {
+      glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
+      glDrawElements(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
+                     GL_UNSIGNED_INT, 0);
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES: {
+      glDrawArrays(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices));
+    } break;
+    }
+
+  } else { // use instancing
+
+    glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 1);
+
+    lgl__buffer_matrices(batch);
+
+    if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
+      glDrawArraysInstanced(
+          GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+    }
+
+    switch (batch->primitive) {
+    case LGL_PRIMITIVE_LINES: {
+      glDrawArraysInstanced(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices),
+                            batch->count);
+    } break;
+
+    case LGL_PRIMITIVE_POINTS: {
+      glDrawArraysInstanced(
+          GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
+      glDrawElementsInstanced(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
+                              GL_UNSIGNED_INT, 0, batch->count);
+    } break;
+
+    case LGL_PRIMITIVE_TRIANGLES: {
+      glDrawArraysInstanced(
+          GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+    } break;
+    }
   }
 
   glUseProgram(0);
 }
 
-lgl_batch lgl_batch_alloc(const unsigned int archetype) {
+lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype) {
 
   lgl_batch batch = {0};
+  batch.count = count;
+
+  glGenBuffers(1, &batch.model_matrix_buffer);
 
   batch.transform = (lgl_transform){
       .position = vector3_zero(),
       .rotation = quaternion_identity(),
       .scale = vector3_one(1),
-      .matrix = calloc(sizeof(GLfloat), 16),
+      .matrix = calloc(sizeof(*batch.transform.matrix) * 16, count),
   };
 
   batch.render_flags = LGL_FLAG_ENABLED;
@@ -922,7 +950,7 @@ lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  frame.quad = lgl_batch_alloc(LGL_ARCHETYPE_QUAD);
+  frame.quad = lgl_batch_alloc(1, LGL_ARCHETYPE_QUAD);
   {
     frame.quad.primitive = LGL_PRIMITIVE_TRIANGLES;
     frame.quad.shader = shader;
@@ -945,7 +973,7 @@ void lgl_framebuffer_free(lgl_framebuffer frame) {
 
 static void lgl__framebuffer_resize(lgl_framebuffer *frame, unsigned int width,
                                     unsigned int height) {
-
+  
   GLuint shader = frame->quad.shader;
   GLuint samples = frame->samples;
   GLuint color_buffers_count = frame->color_buffers_count;
@@ -959,8 +987,10 @@ void lgl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   (void)window;
 
   glViewport(0, 0, width, height);
-  lgl__framebuffer_resize(lgl__active_framebuffer, width, height);
-  lgl__framebuffer_resize(lgl__active_framebuffer_MSAA, width, height);
+  if (lgl__active_framebuffer)
+    lgl__framebuffer_resize(lgl__active_framebuffer, width, height);
+  if (lgl__active_framebuffer_MSAA)
+    lgl__framebuffer_resize(lgl__active_framebuffer_MSAA, width, height);
 
 #if 0
   debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",

@@ -77,11 +77,10 @@ typedef struct {
   GLuint VAO;
   GLuint VBO;
   GLuint EBO;
+  GLuint model_matrix_buffer;
 
   sc_list_lgl_vertex vertices;
   sc_list_GLuint indices;
-
-  GLuint model_matrix_buffer;
 
   GLuint shader;
   GLuint diffuse_map;
@@ -92,6 +91,7 @@ typedef struct {
   GLuint lights_count;
   GLenum primitive;
   GLint render_flags;
+  unsigned int count;
 } lgl_batch;
 
 typedef struct {
@@ -115,7 +115,6 @@ void lgl_active_framebuffer_set(lgl_framebuffer *frame);
 void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame);
 
 void lgl_draw(const lgl_batch *batch);
-void lgl_draw_instanced(const lgl_batch batch);
 
 enum {
   LGL__FLAGS_BEGIN = 1,
@@ -148,7 +147,7 @@ void lgl_viewport_set(const float width, const float height);
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(const unsigned int archetype);
+lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
 void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
