@@ -462,9 +462,6 @@ void lgl_draw(const lgl_batch *batch) {
                        lgl__active_context->camera_matrix);
   }
 
-  //lgl_mat4_print(lgl__active_context->camera_matrix);
-  //lgl_mat4_print(batch->transform.matrix);
-
   lgl__uniform_materials(*batch);
   lgl__uniform_lights(*batch);
 
