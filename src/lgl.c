@@ -1148,4 +1148,5 @@ void lgl_end_frame(void) {
   lgl__time_update();
   glfwPollEvents();
   glfwSwapBuffers(lgl__active_context->GLFWwindow);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
