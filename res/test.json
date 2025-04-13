@@ -1,9 +1,0 @@
-{
-	"numbers" : {
-		"this is a float/double" : 69.0,
-		"this is an integer" : 420
-	},
-	"this is true" : true,
-	"this is false" : false,
-	"this is null" : null
-}

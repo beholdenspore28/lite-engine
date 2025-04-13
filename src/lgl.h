@@ -147,7 +147,8 @@ void lgl_viewport_set(const float width, const float height);
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype);
+lgl_batch lgl_batch_alloc(const unsigned int count,
+                          const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
 void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
@@ -155,7 +156,7 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
 
 static inline void lgl_mat4_print(GLfloat *mat) {
-  debug_log("");
+  printf("\n-----------------------------\n");
   for (int j = 0; j < 4; j++) {
     printf("%.2f\t", mat[j]);
   }

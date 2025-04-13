@@ -169,7 +169,7 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
 
 void lgl__buffer_matrices(const lgl_batch *batch) {
 
-  for (unsigned int i = 0; i < batch->count * 16; i+=16) {
+  for (unsigned int i = 0; i < batch->count * 16; i += 16) {
 
     lgl_mat4_identity(batch->transform.matrix + i);
 
@@ -440,9 +440,9 @@ void lgl_draw(const lgl_batch *batch) {
 
   {
     GLint camera_matrix_location =
-      glGetUniformLocation(batch->shader, "u_camera_matrix");
+        glGetUniformLocation(batch->shader, "u_camera_matrix");
     glUniformMatrix4fv(camera_matrix_location, 1, GL_FALSE,
-        lgl__active_context->camera_matrix);
+                       lgl__active_context->camera_matrix);
   }
 
   if (batch->count < 2) { // do not use instancing
@@ -450,9 +450,9 @@ void lgl_draw(const lgl_batch *batch) {
 
     {
       GLint model_matrix_location =
-        glGetUniformLocation(batch->shader, "u_model_matrix");
+          glGetUniformLocation(batch->shader, "u_model_matrix");
       glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-          batch->transform.matrix);
+                         batch->transform.matrix);
     }
 
     glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
@@ -482,35 +482,40 @@ void lgl_draw(const lgl_batch *batch) {
     }
 
   } else { // use instancing
-
     glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 1);
 
     lgl__buffer_matrices(batch);
-
+    
+    glBindVertexArray(batch->VAO);
+    
     if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
-      glDrawArraysInstanced(
-          GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+      glDrawArraysInstanced(GL_POINTS, 0,
+                            sc_list_lgl_vertex_count(batch->vertices),
+                            batch->count);
     }
 
     switch (batch->primitive) {
     case LGL_PRIMITIVE_LINES: {
-      glDrawArraysInstanced(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices),
-                            batch->count);
+      glDrawArraysInstanced(
+          GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
     } break;
 
     case LGL_PRIMITIVE_POINTS: {
-      glDrawArraysInstanced(
-          GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+      glDrawArraysInstanced(GL_POINTS, 0,
+                            sc_list_lgl_vertex_count(batch->vertices),
+                            batch->count);
     } break;
 
     case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-      glDrawElementsInstanced(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
+      glDrawElementsInstanced(GL_TRIANGLES,
+                              sc_list_GLuint_count(batch->indices),
                               GL_UNSIGNED_INT, 0, batch->count);
     } break;
 
     case LGL_PRIMITIVE_TRIANGLES: {
-      glDrawArraysInstanced(
-          GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+      glDrawArraysInstanced(GL_TRIANGLES, 0,
+                            sc_list_lgl_vertex_count(batch->vertices),
+                            batch->count);
     } break;
     }
   }
@@ -518,12 +523,15 @@ void lgl_draw(const lgl_batch *batch) {
   glUseProgram(0);
 }
 
-lgl_batch lgl_batch_alloc(const unsigned int count, const unsigned int archetype) {
-
+lgl_batch lgl_batch_alloc(const unsigned int count,
+                          const unsigned int archetype) {
+  assert(count > 0);
   lgl_batch batch = {0};
   batch.count = count;
 
-  glGenBuffers(1, &batch.model_matrix_buffer);
+  if (count > 1) {
+    glGenBuffers(1, &batch.model_matrix_buffer);
+  }
 
   batch.transform = (lgl_transform){
       .position = vector3_zero(),
@@ -973,7 +981,7 @@ void lgl_framebuffer_free(lgl_framebuffer frame) {
 
 static void lgl__framebuffer_resize(lgl_framebuffer *frame, unsigned int width,
                                     unsigned int height) {
-  
+
   GLuint shader = frame->quad.shader;
   GLuint samples = frame->samples;
   GLuint color_buffers_count = frame->color_buffers_count;
@@ -1063,8 +1071,8 @@ lgl_context *lgl_start(const int width, const int height) {
   }
   glfwShowWindow(lgl__active_context->GLFWwindow);
 
-  glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR,
-                   GLFW_CURSOR_DISABLED);
+  //~ glfwSetInputMode(lgl__active_context->GLFWwindow, GLFW_CURSOR,
+  //~ GLFW_CURSOR_DISABLED);
 
   gladLoadGL(glfwGetProcAddress);
 
