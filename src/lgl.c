@@ -564,6 +564,42 @@ lgl_batch lgl_batch_alloc(const unsigned int count,
                              batch.vertices);
   } break;
 
+  case LGL_ARCHETYPE_PYRAMID: {
+
+    lgl_vertex vertices[18] = {
+        // position                //normal              //tex coord
+        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  1.0,   0.0 } },
+
+        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+
+        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+
+        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
+
+        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.5 } },
+        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
+                                                                        
+        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  0.5,   0.0 } },
+        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.5 } },
+        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  0.5,   0.5 } },
+    };
+
+    batch.vertices = sc_list_lgl_vertex_alloc_from_array(vertices, 18);
+
+    lgl__buffer_vertex_array(&batch.VAO, &batch.VBO,
+                             sc_list_lgl_vertex_count(batch.vertices),
+                             batch.vertices);
+  } break;
+
   case LGL_ARCHETYPE_CUBE: {
     lgl_vertex vertices[36] = {
         (lgl_vertex){{-0.5, -0.5, -0.5}, vector3_back(1.0), {0.0, 0.0}},
