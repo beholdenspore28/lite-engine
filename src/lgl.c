@@ -568,29 +568,29 @@ lgl_batch lgl_batch_alloc(const unsigned int count,
 
     lgl_vertex vertices[18] = {
         // position                //normal              //tex coord
-        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.0 } },
-        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
-        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,   0.5}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ {  0.0,   0.5,   0.0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ {  0.5,  -0.5,   0.5}, vector3_forward(1.0), {  1.0,   0.0 } },
 
-        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
-        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
-        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ {  0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0.0,   0.5,   0.0}, vector3_forward(1.0), {  0.5,   1.0 } },
 
-        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.0 } },
-        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
-        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,   0.5}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0.0,   0.5,   0.0}, vector3_forward(1.0), {  0.5,   1.0 } },
 
-        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  1.0,   0.0 } },
-        (lgl_vertex){ {  0,   1,   0}, vector3_forward(1.0), {  0.5,   1.0 } },
-        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ {  0.5,  -0.5,   0.5}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ {  0.0,   0.5,   0.0}, vector3_forward(1.0), {  0.5,   1.0 } },
+        (lgl_vertex){ {  0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  0.0,   0.0 } },
 
-        (lgl_vertex){ { -1,  -1,  -1}, vector3_forward(1.0), {  0.0,   0.0 } },
-        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.5 } },
-        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  1.0,   0.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  0.0,   0.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,   0.5}, vector3_forward(1.0), {  0.0,   0.5 } },
+        (lgl_vertex){ {  0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  1.0,   0.0 } },
                                                                         
-        (lgl_vertex){ {  1,  -1,  -1}, vector3_forward(1.0), {  0.5,   0.0 } },
-        (lgl_vertex){ { -1,  -1,   1}, vector3_forward(1.0), {  0.0,   0.5 } },
-        (lgl_vertex){ {  1,  -1,   1}, vector3_forward(1.0), {  0.5,   0.5 } },
+        (lgl_vertex){ {  0.5,  -0.5,  -0.5}, vector3_forward(1.0), {  0.5,   0.0 } },
+        (lgl_vertex){ { -0.5,  -0.5,   0.5}, vector3_forward(1.0), {  0.0,   0.5 } },
+        (lgl_vertex){ {  0.5,  -0.5,   0.5}, vector3_forward(1.0), {  0.5,   0.5 } },
     };
 
     batch.vertices = sc_list_lgl_vertex_alloc_from_array(vertices, 18);
