@@ -13,9 +13,10 @@ extern "C" {
 #endif // ifdef __cplusplus
 
 #include "blib/blib_math3d.h"
+#include "simple_3D/simple_3D.h"
 #include "simple_collections/sc_list.h"
-SC_LIST(vector3)
-SC_LIST(vector2)
+SC_LIST(sv3)
+SC_LIST(sv2)
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
@@ -32,29 +33,29 @@ SC_LIST(vector2)
 SC_LIST(GLuint)
 
 typedef struct {
-  vector3 position;
-  vector3 normal;
-  vector2 texture_coordinates;
+  sv3 position;
+  sv3 normal;
+  sv2 texture_coordinates;
 } lgl_vertex;
 SC_LIST(lgl_vertex)
 
 typedef struct {
   int type;
-  vector3 position;
-  vector3 direction;
+  sv3 position;
+  sv3 direction;
   float cut_off;
   float outer_cut_off;
   float constant;
   float linear;
   float quadratic;
-  vector3 diffuse;
-  vector3 specular;
+  sv3 diffuse;
+  sv3 specular;
 } lgl_light;
 
 typedef struct {
-  vector3 position;
-  vector3 scale;
-  quaternion rotation;
+  sv3 position;
+  sv3 scale;
+  sv4 rotation;
   GLfloat *matrix;
 } lgl_transform;
 
@@ -85,7 +86,7 @@ typedef struct {
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;
-  vector4 color;
+  sv4 color;
 
   lgl_light *lights;
   GLuint lights_count;
@@ -151,7 +152,7 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 lgl_batch lgl_batch_alloc(const unsigned int count,
                           const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
-void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
+void lgl_lines_alloc(lgl_batch *batch, sc_list_sv3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
