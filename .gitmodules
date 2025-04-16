@@ -1,3 +1,6 @@
 [submodule "dep/simple_collections"]
 	path = dep/simple_collections
 	url = https://github.com/beholdenspore28/simple_collections.git
+[submodule "dep/simple_3D"]
+	path = dep/simple_3D
+	url = https://github.com/beholdenspore28/simple_3D.git
