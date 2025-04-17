@@ -45,6 +45,20 @@ static inline float rad2deg(const float n) { return n * (180.0f / PI); }
 
 static inline float deg2rad(const float n) { return n * (PI / 180.0f); }
 
+static inline float max(float a, float b) {
+  if (a > b) { return a; } else { return b; }
+}
+
+static inline float min(float a, float b) {
+  if (a < b) { return a; } else { return b; }
+}
+
+static inline void swap(float *a, float *b) {
+  float tmp = *a;
+  *a = *b;
+  *b = tmp;
+}
+
 static inline float wrap_max(float n, float max) {
   return fmod(max + fmod(n, max), max);
 }

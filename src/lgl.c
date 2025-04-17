@@ -788,7 +788,7 @@ void lgl_icosphere_mesh_alloc(lgl_batch *batch,
     }
   }
 
-#if 1
+#if 0
   debug_log("final lists ------------------------------------");
   for (unsigned int g = 0; g < sc_list_lgl_vertex_count(batch->vertices); g++) {
     printf("vertex[%3d]", g);
