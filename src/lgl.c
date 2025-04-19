@@ -413,6 +413,83 @@ void lgl__uniform_lights(lgl_batch batch) {
   }
 }
 
+void lgl__draw(const lgl_batch *batch) {
+  lgl_transform_matrix(&batch->transform);
+
+  {
+    GLint model_matrix_location =
+      glGetUniformLocation(batch->shader, "u_model_matrix");
+    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
+        batch->transform.matrix);
+  }
+
+  glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
+  glBindVertexArray(batch->VAO);
+
+  if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
+    glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
+  }
+
+  switch (batch->primitive) {
+    case LGL_PRIMITIVE_LINES: {
+                                glDrawArrays(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices));
+                              } break;
+
+    case LGL_PRIMITIVE_POINTS: {
+                                 glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
+                               } break;
+
+    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
+                                            glDrawElements(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
+                                                GL_UNSIGNED_INT, 0);
+                                          } break;
+
+    case LGL_PRIMITIVE_TRIANGLES: {
+                                    glDrawArrays(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices));
+                                  } break;
+  }
+
+} 
+
+void lgl__draw_instanced(const lgl_batch *batch) {
+  glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 1);
+
+  lgl__buffer_matrices(batch);
+
+  glBindVertexArray(batch->VAO);
+
+  if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
+    glDrawArraysInstanced(GL_POINTS, 0,
+        sc_list_lgl_vertex_count(batch->vertices),
+        batch->count);
+  }
+
+  switch (batch->primitive) {
+    case LGL_PRIMITIVE_LINES: {
+                                glDrawArraysInstanced(
+                                    GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
+                              } break;
+
+    case LGL_PRIMITIVE_POINTS: {
+                                 glDrawArraysInstanced(GL_POINTS, 0,
+                                     sc_list_lgl_vertex_count(batch->vertices),
+                                     batch->count);
+                               } break;
+
+    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
+                                            glDrawElementsInstanced(GL_TRIANGLES,
+                                                sc_list_GLuint_count(batch->indices),
+                                                GL_UNSIGNED_INT, 0, batch->count);
+                                          } break;
+
+    case LGL_PRIMITIVE_TRIANGLES: {
+                                    glDrawArraysInstanced(GL_TRIANGLES, 0,
+                                        sc_list_lgl_vertex_count(batch->vertices),
+                                        batch->count);
+                                  } break;
+  }
+}
+
 void lgl_draw(const lgl_batch *batch) {
 
   { // render flags
@@ -445,79 +522,10 @@ void lgl_draw(const lgl_batch *batch) {
                        lgl__active_context->camera_matrix);
   }
 
-  if (batch->count < 2) { // do not use instancing
-    lgl_transform_matrix(&batch->transform);
-
-    {
-      GLint model_matrix_location =
-          glGetUniformLocation(batch->shader, "u_model_matrix");
-      glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-                         batch->transform.matrix);
-    }
-
-    glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
-    glBindVertexArray(batch->VAO);
-
-    if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
-      glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
-    }
-
-    switch (batch->primitive) {
-    case LGL_PRIMITIVE_LINES: {
-      glDrawArrays(GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices));
-    } break;
-
-    case LGL_PRIMITIVE_POINTS: {
-      glDrawArrays(GL_POINTS, 0, sc_list_lgl_vertex_count(batch->vertices));
-    } break;
-
-    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-      glDrawElements(GL_TRIANGLES, sc_list_GLuint_count(batch->indices),
-                     GL_UNSIGNED_INT, 0);
-    } break;
-
-    case LGL_PRIMITIVE_TRIANGLES: {
-      glDrawArrays(GL_TRIANGLES, 0, sc_list_lgl_vertex_count(batch->vertices));
-    } break;
-    }
-
-  } else { // use instancing
-    glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 1);
-
-    lgl__buffer_matrices(batch);
-    
-    glBindVertexArray(batch->VAO);
-    
-    if (batch->render_flags & LGL_FLAG_DRAW_POINTS) {
-      glDrawArraysInstanced(GL_POINTS, 0,
-                            sc_list_lgl_vertex_count(batch->vertices),
-                            batch->count);
-    }
-
-    switch (batch->primitive) {
-    case LGL_PRIMITIVE_LINES: {
-      glDrawArraysInstanced(
-          GL_LINES, 0, sc_list_lgl_vertex_count(batch->vertices), batch->count);
-    } break;
-
-    case LGL_PRIMITIVE_POINTS: {
-      glDrawArraysInstanced(GL_POINTS, 0,
-                            sc_list_lgl_vertex_count(batch->vertices),
-                            batch->count);
-    } break;
-
-    case LGL_PRIMITIVE_TRIANGLES_INDEXED: {
-      glDrawElementsInstanced(GL_TRIANGLES,
-                              sc_list_GLuint_count(batch->indices),
-                              GL_UNSIGNED_INT, 0, batch->count);
-    } break;
-
-    case LGL_PRIMITIVE_TRIANGLES: {
-      glDrawArraysInstanced(GL_TRIANGLES, 0,
-                            sc_list_lgl_vertex_count(batch->vertices),
-                            batch->count);
-    } break;
-    }
+  if (batch->render_flags & LGL_FLAG_USE_INSTANCING) {
+    lgl__draw_instanced(batch);
+  } else {
+    lgl__draw(batch);
   }
 
   glUseProgram(0);
