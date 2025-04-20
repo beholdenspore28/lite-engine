@@ -168,30 +168,19 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
 }
 
 void lgl__buffer_matrices(const lgl_batch *batch) {
-
   for (unsigned int i = 0; i < batch->count * 16; i += 16) {
-
     lgl_mat4_identity(batch->matrices + i);
 
-    {
-      GLfloat scale[16];
-      lgl_mat4_identity(scale);
-      scale[0] = batch->transform[i/16].scale.x;
-      scale[5] = batch->transform[i/16].scale.y;
-      scale[10] = batch->transform[i/16].scale.z;
+    batch->matrices[0  + i] = batch->transform[i/16].scale.x;
+    batch->matrices[5  + i] = batch->transform[i/16].scale.y;
+    batch->matrices[10 + i] = batch->transform[i/16].scale.z;
+    batch->matrices[12 + i] = batch->transform[i/16].position.x;
+    batch->matrices[13 + i] = batch->transform[i/16].position.y;
+    batch->matrices[14 + i] = batch->transform[i/16].position.z;
 
-      GLfloat translation[16];
-      lgl_mat4_identity(translation);
-      translation[12] = batch->transform[i/16].position.x;
-      translation[13] = batch->transform[i/16].position.y;
-      translation[14] = batch->transform[i/16].position.z;
-
-      GLfloat rotation[16] = {0};
-      svq_to_mat4(batch->transform[i/16].rotation, rotation);
-
-      lgl_mat4_multiply(batch->matrices + i, scale, rotation);
-      lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, translation);
-    }
+    //GLfloat rotation[16] = {0};
+    //svq_to_mat4(batch->transform[i/16].rotation, rotation);
+    //lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
   }
 
   // --------------------------------------------------------------------------
