@@ -12,7 +12,6 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "blib/blib_math3d.h"
 #include "simple_3D/simple_3D.h"
 #include "simple_collections/sc_list.h"
 SC_LIST(sv3)
@@ -22,7 +21,6 @@ SC_LIST(sv2)
 #include <GLFW/glfw3.h>
 
 #include "blib/blib_log.h"
-#include "blib/blib_math3d.h"
 #include "stb_image.h"
 
 #include "simple_collections/sc_list.h"
