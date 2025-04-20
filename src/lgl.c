@@ -171,7 +171,7 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
 
   for (unsigned int i = 0; i < batch->count * 16; i += 16) {
 
-    lgl_mat4_identity(batch->transform.matrix + i);
+    lgl_mat4_identity(batch->matrices + i);
 
     {
       GLfloat scale[16];
@@ -189,9 +189,9 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
       GLfloat rotation[16] = {0};
       svq_to_mat4(batch->transform.rotation, rotation);
 
-      lgl_mat4_multiply(batch->transform.matrix + i, scale, rotation);
-      lgl_mat4_multiply(batch->transform.matrix + i,
-                        batch->transform.matrix + i, translation);
+      lgl_mat4_multiply(batch->matrices + i, scale, rotation);
+      lgl_mat4_multiply(batch->matrices + i,
+                        batch->matrices + i, translation);
     }
   }
 
@@ -201,7 +201,7 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
   glBindBuffer(GL_ARRAY_BUFFER, batch->model_matrix_buffer);
 
   glBufferData(GL_ARRAY_BUFFER, batch->count * sizeof(GLfloat) * 16,
-               &batch->transform.matrix[0], GL_STATIC_DRAW);
+               &batch->matrices[0], GL_STATIC_DRAW);
 
   glBindVertexArray(batch->VAO);
 
@@ -231,10 +231,10 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
   glBindVertexArray(0);
 }
 
-void lgl_transform_matrix(const lgl_transform *transform) {
+void lgl_transform_matrix(GLfloat *matrix, const lgl_transform *transform) {
   { // Model
 
-    lgl_mat4_identity(transform->matrix);
+    lgl_mat4_identity(matrix);
 
     {
       GLfloat scale[16];
@@ -252,13 +252,13 @@ void lgl_transform_matrix(const lgl_transform *transform) {
       GLfloat rotation[16] = {0};
       svq_to_mat4(transform->rotation, rotation);
 
-      lgl_mat4_multiply(transform->matrix, scale, rotation);
-      lgl_mat4_multiply(transform->matrix, transform->matrix, translation);
+      lgl_mat4_multiply(matrix, scale, rotation);
+      lgl_mat4_multiply(matrix, matrix, translation);
     }
   }
 }
 
-void lgl_camera_update(lgl_transform transform) {
+void lgl_camera_update(GLfloat *matrix, lgl_transform transform) {
   int width, height;
   glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
 
@@ -280,8 +280,8 @@ void lgl_camera_update(lgl_transform transform) {
   lgl_mat4_identity(rotation_matrix);
   svq_to_mat4(svq_conjugate(transform.rotation), rotation_matrix);
 
-  lgl_mat4_multiply(transform.matrix, translation_matrix, rotation_matrix);
-  lgl_mat4_multiply(lgl__active_context->camera_matrix, transform.matrix,
+  lgl_mat4_multiply(matrix, translation_matrix, rotation_matrix);
+  lgl_mat4_multiply(lgl__active_context->camera_matrix, matrix,
                     projection);
 }
 
@@ -414,13 +414,13 @@ void lgl__uniform_lights(lgl_batch batch) {
 }
 
 void lgl__draw(const lgl_batch *batch) {
-  lgl_transform_matrix(&batch->transform);
+  lgl_transform_matrix(batch->matrices, &batch->transform);
 
   {
     GLint model_matrix_location =
       glGetUniformLocation(batch->shader, "u_model_matrix");
     glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-        batch->transform.matrix);
+        batch->matrices);
   }
 
   glUniform1i(glGetUniformLocation(batch->shader, "u_use_instancing"), 0);
@@ -545,8 +545,9 @@ lgl_batch lgl_batch_alloc(const unsigned int count,
       .position = (sv3){0,0,0},
       .rotation = (sv4){0,0,0,1},
       .scale = (sv3){1,1,1},
-      .matrix = calloc(sizeof(*batch.transform.matrix) * 16, count),
   };
+
+  batch.matrices = calloc(sizeof(*batch.matrices) * 16, count),
 
   batch.render_flags = LGL_FLAG_ENABLED;
   batch.primitive = LGL_PRIMITIVE_TRIANGLES;
@@ -841,8 +842,8 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
       } else {
         sv3 v = {0};
         sscanf(c, "v%f%f%f", &v.x, &v.y, &v.z);
-        // debug_log("v[%lu] { %f %f %f }", sc_list_sv3_count(positions),
-        // v.x, v.y, v.z);
+        //debug_log("v[%lu] { %f %f %f }", sc_list_sv3_count(positions),
+            //v.x, v.y, v.z);
         sc_list_sv3_add(&positions, v);
       }
     }
@@ -901,7 +902,7 @@ void lgl_batch_free(lgl_batch batch) {
     sc_list_GLuint_free(batch.indices);
   }
 
-  free(batch.transform.matrix);
+  free(batch.matrices);
   glDeleteBuffers(1, &batch.model_matrix_buffer);
   glDeleteBuffers(1, &batch.VBO);
   glDeleteBuffers(1, &batch.EBO);

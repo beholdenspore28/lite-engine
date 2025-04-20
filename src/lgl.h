@@ -56,10 +56,9 @@ typedef struct {
   sv3 position;
   sv3 scale;
   sv4 rotation;
-  GLfloat *matrix;
 } lgl_transform;
 
-void lgl_camera_update(lgl_transform transform);
+void lgl_camera_update(GLfloat *matrix, lgl_transform transform);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
@@ -74,6 +73,7 @@ typedef struct {
 
 typedef struct {
   lgl_transform transform;
+  GLfloat *matrices;
 
   GLuint VAO;
   GLuint VBO;
