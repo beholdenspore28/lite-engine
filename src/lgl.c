@@ -191,8 +191,6 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
 
       lgl_mat4_multiply(batch->matrices + i, scale, rotation);
       lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, translation);
-
-      lgl_mat4_print(batch->matrices + i);
     }
   }
 
