@@ -67,10 +67,11 @@ typedef struct {
   double time_delta;
   double time_last;
   double time_FPS;
+  unsigned int draw_calls;
 } lgl_context;
 
 typedef struct {
-  lgl_transform transform;
+  lgl_transform *transform;
   GLfloat *matrices;
 
   GLuint VAO;
