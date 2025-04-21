@@ -15,8 +15,8 @@ extern "C" {
 #include "math3d.h"
 #include "collections.h"
 
-SC_LIST(sv3)
-SC_LIST(sv2)
+SC_LIST(vector3)
+SC_LIST(vector2)
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
@@ -32,29 +32,29 @@ SC_LIST(sv2)
 SC_LIST(GLuint)
 
 typedef struct {
-  sv3 position;
-  sv3 normal;
-  sv2 texture_coordinates;
+  vector3 position;
+  vector3 normal;
+  vector2 texture_coordinates;
 } lgl_vertex;
 SC_LIST(lgl_vertex)
 
 typedef struct {
   int type;
-  sv3 position;
-  sv3 direction;
+  vector3 position;
+  vector3 direction;
   float cut_off;
   float outer_cut_off;
   float constant;
   float linear;
   float quadratic;
-  sv3 diffuse;
-  sv3 specular;
+  vector3 diffuse;
+  vector3 specular;
 } lgl_light;
 
 typedef struct {
-  sv3 position;
-  sv3 scale;
-  sv4 rotation;
+  vector3 position;
+  vector3 scale;
+  vector4 rotation;
 } lgl_transform;
 
 void lgl_camera_update(GLfloat *matrix, lgl_transform transform);
@@ -86,7 +86,7 @@ typedef struct {
   GLuint shader;
   GLuint diffuse_map;
   GLuint specular_map;
-  sv4 color;
+  vector4 color;
 
   lgl_light *lights;
   GLuint lights_count;
@@ -153,7 +153,7 @@ GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 lgl_batch lgl_batch_alloc(const unsigned int count,
                           const unsigned int archetype);
 void lgl_batch_free(lgl_batch batch);
-void lgl_lines_alloc(lgl_batch *batch, sc_list_sv3 points);
+void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);

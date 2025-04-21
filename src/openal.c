@@ -33,16 +33,16 @@ void lal_audio_source_free(lal_audio_source source) {
   free(source.id);
 }
 
-void lal_audio_source_update(lal_audio_source source, sv3 position,
-                             sv4 rotation) {
+void lal_audio_source_update(lal_audio_source source, vector3 position,
+                             vector4 rotation) {
 
   alListener3f(AL_POSITION, position.x, position.y, position.z);
 
-  sv3 listener_up = (sv3){0.0, 0.0, 1.0};
-  sv3 listener_at = (sv3){0.0, 1.0, 0.0};
+  vector3 listener_up = (vector3){0.0, 0.0, 1.0};
+  vector3 listener_at = (vector3){0.0, 1.0, 0.0};
 
-  listener_at = sv3_rotate(listener_at, rotation);
-  listener_up = sv3_rotate(listener_up, rotation);
+  listener_at = vector3_rotate(listener_at, rotation);
+  listener_up = vector3_rotate(listener_up, rotation);
 
   float orientation[6] = {
       listener_at.x, listener_at.y, listener_at.z,

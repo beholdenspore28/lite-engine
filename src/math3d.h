@@ -1,31 +1,27 @@
-#ifndef SIMPLE_3D_H
-#define SIMPLE_3D_H
+#ifndef MATH_3D_H
+#define MATH_3D_H
 
-#include <math.h>
+#include "mathf.h"
 
-// For added convenience, you can use printf(SV3_TO_STRING(vec)) .
-#define SV2_TO_STRING(v) "{%f, %f}", v.x, v.y
-#define SV3_TO_STRING(v) "{%f, %f, %f}", v.x, v.y, v.z
-#define SV4_TO_STRING(v) "{%f, %f, %f, %f}", q.x, q.y, q.z, q.w
+// For added convenience, you can use printf(vector3_TO_STRING(vec)) .
+#define VECTOR2_TO_STRING(v) "{%f, %f}", v.x, v.y
+#define VECTOR3_TO_STRING(v) "{%f, %f, %f}", v.x, v.y, v.z
+#define VECTOR4_TO_STRING(v) "{%f, %f, %f, %f}", q.x, q.y, q.z, q.w
 
-// You can set this to your floating point epsilon of choice.
-// Though as it gets smaller, it also loses accuracy.
-#define SV__FLOAT_EPSILON (0.001)
-
-#define SV_API static inline
+#define MATH_API static inline
 
 // simple vector type
 typedef struct {
   float x;
   float y;
-} sv2;
+} vector2;
 
 // simple vector type
 typedef struct {
   float x;
   float y;
   float z;
-} sv3;
+} vector3;
 
 // simple vector/quaternion type
 typedef struct {
@@ -33,23 +29,23 @@ typedef struct {
   float y;
   float z;
   float w;
-} sv4;
+} vector4;
 
 // subtracts the vector b from a and stores the result in a
-SV_API void sv2_take(sv2 *a, sv2 b) {
+MATH_API void vector2_take(vector2 *a, vector2 b) {
   a->x -= b.x;
   a->y -= b.y;
 }
 
 // subtracts the vector b from a and stores the result in a
-SV_API void sv3_take(sv3 *a, sv3 b) {
+MATH_API void vector3_take(vector3 *a, vector3 b) {
   a->x -= b.x;
   a->y -= b.y;
   a->z -= b.z;
 }
 
 // subtracts the vector b from a and stores the result in a
-SV_API void sv4_take(sv4 *a, sv4 b) {
+MATH_API void vector4_take(vector4 *a, vector4 b) {
   a->x -= b.x;
   a->y -= b.y;
   a->z -= b.z;
@@ -57,20 +53,20 @@ SV_API void sv4_take(sv4 *a, sv4 b) {
 }
 
 // adds the vector b to a and stores the result in a
-SV_API void sv2_give(sv2 *a, sv2 b) {
+MATH_API void vector2_give(vector2 *a, vector2 b) {
   a->x += b.x;
   a->y += b.y;
 }
 
 // adds the vector b to a and stores the result in a
-SV_API void sv3_give(sv3 *a, sv3 b) {
+MATH_API void vector3_give(vector3 *a, vector3 b) {
   a->x += b.x;
   a->y += b.y;
   a->z += b.z;
 }
 
 // adds the vector b to a and stores the result in a
-SV_API void sv4_give(sv4 *a, sv4 b) {
+MATH_API void vector4_give(vector4 *a, vector4 b) {
   a->x += b.x;
   a->y += b.y;
   a->z += b.z;
@@ -78,16 +74,16 @@ SV_API void sv4_give(sv4 *a, sv4 b) {
 }
 
 // returns the sum of a and b
-SV_API sv2 sv2_add(sv2 a, sv2 b) {
-  return (sv2){
+MATH_API vector2 vector2_add(vector2 a, vector2 b) {
+  return (vector2){
       .x = a.x + b.x,
       .y = a.y + b.y,
   };
 }
 
 // returns the sum of a and b
-SV_API sv3 sv3_add(sv3 a, sv3 b) {
-  return (sv3){
+MATH_API vector3 vector3_add(vector3 a, vector3 b) {
+  return (vector3){
       .x = a.x + b.x,
       .y = a.y + b.y,
       .z = a.z + b.z,
@@ -95,8 +91,8 @@ SV_API sv3 sv3_add(sv3 a, sv3 b) {
 }
 
 // returns the sum of a and b
-SV_API sv4 sv4_add(sv4 a, sv4 b) {
-  return (sv4){
+MATH_API vector4 vector4_add(vector4 a, vector4 b) {
+  return (vector4){
       .x = a.x + b.x,
       .y = a.y + b.y,
       .z = a.z + b.z,
@@ -104,16 +100,16 @@ SV_API sv4 sv4_add(sv4 a, sv4 b) {
 }
 
 // returns the difference between a and b
-SV_API sv2 sv2_sub(sv2 a, sv2 b) {
-  return (sv2){
+MATH_API vector2 vector2_sub(vector2 a, vector2 b) {
+  return (vector2){
       .x = a.x - b.x,
       .y = a.y - b.y,
   };
 }
 
 // returns the difference between a and b
-SV_API sv3 sv3_sub(sv3 a, sv3 b) {
-  return (sv3){
+MATH_API vector3 vector3_sub(vector3 a, vector3 b) {
+  return (vector3){
       .x = a.x - b.x,
       .y = a.y - b.y,
       .z = a.z - b.z,
@@ -121,31 +117,31 @@ SV_API sv3 sv3_sub(sv3 a, sv3 b) {
 }
 
 // returns the difference between a and b
-SV_API sv4 sv4_sub(sv4 a, sv4 b) {
-  return (sv4){
+MATH_API vector4 vector4_sub(vector4 a, vector4 b) {
+  return (vector4){
       .x = a.x - b.x,
       .y = a.y - b.y,
       .z = a.z - b.z,
   };
 }
 
-SV_API sv2 sv2_scaled(const sv2 v, const float s) {
-  return (sv2) {
+MATH_API vector2 vector2_scaled(const vector2 v, const float s) {
+  return (vector2) {
       v.x * s,
       v.y * s,
   };
 }
 
-SV_API sv3 sv3_scaled(const sv3 v, const float s) {
-  return (sv3) {
+MATH_API vector3 vector3_scaled(const vector3 v, const float s) {
+  return (vector3) {
       v.x * s,
       v.y * s,
       v.z * s,
   };
 }
 
-SV_API sv4 sv4_scaled(const sv4 v, float scalar) {
-  return (sv4) {
+MATH_API vector4 vector4_scaled(const vector4 v, float scalar) {
+  return (vector4) {
     v.x * scalar,
     v.y * scalar,
     v.z * scalar,
@@ -154,148 +150,148 @@ SV_API sv4 sv4_scaled(const sv4 v, float scalar) {
 }
 
 // scale vector v by scalar s and store the result in v
-SV_API void sv2_scale(sv2 *v, const float s) {
+MATH_API void vector2_scale(vector2 *v, const float s) {
   v->x *= s;
   v->y *= s;
 }
 
 // scale vector v by scalar s and store the result in v
-SV_API void sv3_scale(sv3 *v, const float s) {
+MATH_API void vector3_scale(vector3 *v, const float s) {
   v->x *= s;
   v->y *= s;
   v->z *= s;
 }
 
-SV_API void sv4_scale(sv4 *v, float scalar) {
+MATH_API void vector4_scale(vector4 *v, float scalar) {
   v->x *= scalar;
   v->y *= scalar;
   v->z *= scalar;
   v->w *= scalar;
 }
 
-// use this instead of sv2_magnitude when exact magnitude calculations are not
+// use this instead of vector2_magnitude when exact magnitude calculations are not
 // needed
-SV_API float sv2_square_magnitude(const sv2 v) { return v.x * v.x + v.y * v.y; }
+MATH_API float vector2_square_magnitude(const vector2 v) { return v.x * v.x + v.y * v.y; }
 
-// use this instead of sv3_magnitude when exact magnitude calculations are not
+// use this instead of vector3_magnitude when exact magnitude calculations are not
 // needed
-SV_API float sv3_square_magnitude(const sv3 v) {
+MATH_API float vector3_square_magnitude(const vector3 v) {
   return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
-// use this instead of sv4_magnitude when exact magnitude calculations are not
+// use this instead of vector4_magnitude when exact magnitude calculations are not
 // needed
-SV_API float sv4_square_magnitude(const sv4 v) {
+MATH_API float vector4_square_magnitude(const vector4 v) {
   return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
 
 // Returns the magnitude (length) of v. Note this uses sqrt so it may slow
-// things down, use sv2_square_magnitude for faster (less accurate) results.
-SV_API float sv2_magnitude(const sv2 v) {
-  return sqrtf(sv2_square_magnitude(v));
+// things down, use vector2_square_magnitude for faster (less accurate) results.
+MATH_API float vector2_magnitude(const vector2 v) {
+  return sqrtf(vector2_square_magnitude(v));
 }
 
 // Returns the magnitude (length) of v. Note this uses sqrt so it may slow
-// things down, use sv3_square_magnitude for faster (less accurate) results.
-SV_API float sv3_magnitude(const sv3 v) {
-  return sqrtf(sv3_square_magnitude(v));
+// things down, use vector3_square_magnitude for faster (less accurate) results.
+MATH_API float vector3_magnitude(const vector3 v) {
+  return sqrtf(vector3_square_magnitude(v));
 }
 
 // Returns the magnitude (length) of v. Note this uses sqrt so it may slow
-// things down, use sv4_square_magnitude for faster (less accurate) results.
-SV_API float sv4_magnitude(const sv4 v) {
-  return sqrtf(sv4_square_magnitude(v));
+// things down, use vector4_square_magnitude for faster (less accurate) results.
+MATH_API float vector4_magnitude(const vector4 v) {
+  return sqrtf(vector4_square_magnitude(v));
 }
 
 // Returns a vector which points in the same direction as v, but has a magnitude
 // of 1
-SV_API void sv2_normalize(sv2 *v) {
-  float m = sv2_magnitude(*v);
-  sv2_scale(v, 1 / m);
+MATH_API void vector2_normalize(vector2 *v) {
+  float m = vector2_magnitude(*v);
+  vector2_scale(v, 1 / m);
 }
 
 // Returns a vector which points in the same direction as v, but has a magnitude
 // of 1
-SV_API void sv3_normalize(sv3 *v) {
-  float m = sv3_magnitude(*v);
+MATH_API void vector3_normalize(vector3 *v) {
+  float m = vector3_magnitude(*v);
   if (m == 0) { // prevent NAN values
-    *v = (sv3){0,0,0};
+    *v = (vector3){0,0,0};
     return;    
   }
-  sv3_scale(v, 1/m);
+  vector3_scale(v, 1/m);
 }
 
 // Returns a vector which points in the same direction as v, but has a magnitude
 // of 1
-SV_API void sv4_normalize(sv4 *v) {
-  float m = sv4_magnitude(*v);
-  sv4_scale(v, 1 / m);
+MATH_API void vector4_normalize(vector4 *v) {
+  float m = vector4_magnitude(*v);
+  vector4_scale(v, 1 / m);
 }
 
-// faster (less accurate) version of sv2_distance
-SV_API float sv2_square_distance(const sv2 a, const sv2 b) {
-  return sv2_square_magnitude(sv2_sub(b, a));
+// faster (less accurate) version of vector2_distance
+MATH_API float vector2_square_distance(const vector2 a, const vector2 b) {
+  return vector2_square_magnitude(vector2_sub(b, a));
 }
 
-// faster (less accurate) version of sv3_distance
-SV_API float sv3_square_distance(const sv3 a, const sv3 b) {
-  return sv3_square_magnitude(sv3_sub(b, a));
+// faster (less accurate) version of vector3_distance
+MATH_API float vector3_square_distance(const vector3 a, const vector3 b) {
+  return vector3_square_magnitude(vector3_sub(b, a));
 }
 
-// faster (less accurate) version of sv4_distance
-SV_API float sv4_square_distance(const sv4 a, const sv4 b) {
-  return sv4_square_magnitude(sv4_sub(b, a));
-}
-
-// Returns the distance between a and b.
-SV_API float sv2_distance(const sv2 a, const sv2 b) {
-  return sv2_magnitude(sv2_sub(b, a));
+// faster (less accurate) version of vector4_distance
+MATH_API float vector4_square_distance(const vector4 a, const vector4 b) {
+  return vector4_square_magnitude(vector4_sub(b, a));
 }
 
 // Returns the distance between a and b.
-SV_API float sv3_distance(const sv3 a, const sv3 b) {
-  return sv3_magnitude(sv3_sub(b, a));
+MATH_API float vector2_distance(const vector2 a, const vector2 b) {
+  return vector2_magnitude(vector2_sub(b, a));
 }
 
 // Returns the distance between a and b.
-SV_API float sv4_distance(const sv4 a, const sv4 b) {
-  return sv4_magnitude(sv4_sub(b, a));
+MATH_API float vector3_distance(const vector3 a, const vector3 b) {
+  return vector3_magnitude(vector3_sub(b, a));
+}
+
+// Returns the distance between a and b.
+MATH_API float vector4_distance(const vector4 a, const vector4 b) {
+  return vector4_magnitude(vector4_sub(b, a));
 }
 
 // Returns the dot product of a and b. 1 if a is close to b, -1 if a is far from
 // b
-SV_API float sv2_dot(const sv2 a, const sv2 b) { return a.x * b.x + a.y * b.y; }
+MATH_API float vector2_dot(const vector2 a, const vector2 b) { return a.x * b.x + a.y * b.y; }
 
 // Returns the dot product of a and b. 1 if a is close to b, -1 if a is far from
 // b
-SV_API float sv3_dot(const sv3 a, const sv3 b) {
+MATH_API float vector3_dot(const vector3 a, const vector3 b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 // Returns the dot product of a and b. 1 if a is close to b, -1 if a is far from
 // b
-SV_API float sv4_dot(const sv4 a, const sv4 b) {
+MATH_API float vector4_dot(const vector4 a, const vector4 b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 // returns the vector that is perpendicular to both a and b.
-SV_API sv3 sv3_cross(sv3 a, sv3 b) {
-  return (sv3){.x = (a.y * b.z) - (a.z * b.y),
+MATH_API vector3 vector3_cross(vector3 a, vector3 b) {
+  return (vector3){.x = (a.y * b.z) - (a.z * b.y),
                .y = -((a.x * b.z) - (a.z * b.x)),
                .z = (a.x * b.y) - (a.y * b.x)};
 }
 
 // Returns the point that is t% of the way between a and b.
-SV_API sv2 sv2_lerp(sv2 a, sv2 b, float t) {
-  return (sv2){
+MATH_API vector2 vector2_lerp(vector2 a, vector2 b, float t) {
+  return (vector2){
       .x = a.x + (b.x - a.x) * t,
       .y = a.y + (b.y - a.y) * t,
   };
 }
 
 // Returns the point that is t% of the way between a and b.
-SV_API sv3 sv3_lerp(sv3 a, sv3 b, float t) {
-  return (sv3){
+MATH_API vector3 vector3_lerp(vector3 a, vector3 b, float t) {
+  return (vector3){
       .x = a.x + (b.x - a.x) * t,
       .y = a.y + (b.y - a.y) * t,
       .z = a.z + (b.z - a.z) * t,
@@ -303,8 +299,8 @@ SV_API sv3 sv3_lerp(sv3 a, sv3 b, float t) {
 }
 
 // Returns the point that is t% of the way between a and b.
-SV_API sv4 sv4_lerp(sv4 a, sv4 b, float t) {
-  return (sv4){
+MATH_API vector4 vector4_lerp(vector4 a, vector4 b, float t) {
+  return (vector4){
       .x = a.x + (b.x - a.x) * t,
       .y = a.y + (b.y - a.y) * t,
       .z = a.z + (b.z - a.z) * t,
@@ -313,16 +309,16 @@ SV_API sv4 sv4_lerp(sv4 a, sv4 b, float t) {
 }
 
 // Returns a vector with the smallest components from both a and b.
-SV_API sv2 sv2_min(sv2 a, sv2 b) {
-  return (sv2){
+MATH_API vector2 vector2_min(vector2 a, vector2 b) {
+  return (vector2){
       .x = a.x <= b.x ? a.x : b.x,
       .y = a.y <= b.y ? a.y : b.y,
   };
 }
 
 // Returns a vector with the smallest components from both a and b.
-SV_API sv3 sv3_min(sv3 a, sv3 b) {
-  return (sv3){
+MATH_API vector3 vector3_min(vector3 a, vector3 b) {
+  return (vector3){
       .x = a.x <= b.x ? a.x : b.x,
       .y = a.y <= b.y ? a.y : b.y,
       .z = a.z <= b.z ? a.z : b.z,
@@ -330,8 +326,8 @@ SV_API sv3 sv3_min(sv3 a, sv3 b) {
 }
 
 // Returns a vector with the smallest components from both a and b.
-SV_API sv4 sv4_min(sv4 a, sv4 b) {
-  return (sv4){
+MATH_API vector4 vector4_min(vector4 a, vector4 b) {
+  return (vector4){
       .x = a.x <= b.x ? a.x : b.x,
       .y = a.y <= b.y ? a.y : b.y,
       .z = a.z <= b.z ? a.z : b.z,
@@ -340,16 +336,16 @@ SV_API sv4 sv4_min(sv4 a, sv4 b) {
 }
 
 // Returns a vector with the biggest components from both a and b.
-SV_API sv2 sv2_max(sv2 a, sv2 b) {
-  return (sv2){
+MATH_API vector2 vector2_max(vector2 a, vector2 b) {
+  return (vector2){
       .x = a.x >= b.x ? a.x : b.x,
       .y = a.y >= b.y ? a.y : b.y,
   };
 }
 
 // Returns a vector with the biggest components from both a and b.
-SV_API sv3 sv3_max(sv3 a, sv3 b) {
-  return (sv3){
+MATH_API vector3 vector3_max(vector3 a, vector3 b) {
+  return (vector3){
       .x = a.x >= b.x ? a.x : b.x,
       .y = a.y >= b.y ? a.y : b.y,
       .z = a.z >= b.z ? a.z : b.z,
@@ -357,8 +353,8 @@ SV_API sv3 sv3_max(sv3 a, sv3 b) {
 }
 
 // Returns a vector with the biggest components from both a and b.
-SV_API sv4 sv4_max(sv4 a, sv4 b) {
-  return (sv4){
+MATH_API vector4 vector4_max(vector4 a, vector4 b) {
+  return (vector4){
       .x = a.x >= b.x ? a.x : b.x,
       .y = a.y >= b.y ? a.y : b.y,
       .z = a.z >= b.z ? a.z : b.z,
@@ -367,8 +363,8 @@ SV_API sv4 sv4_max(sv4 a, sv4 b) {
 }
 
 // Returns a seeded pseudo-random unit length vector
-SV_API sv2 sv2_noise(sv2 seed) {
-  sv2 v = (sv2){
+MATH_API vector2 vector2_noise(vector2 seed) {
+  vector2 v = (vector2){
       .x = sinf(seed.x * 53 + seed.y * 97) * 6151,
       .y = sinf(seed.x * 97 + seed.y * 53) * 193,
   };
@@ -379,36 +375,36 @@ SV_API sv2 sv2_noise(sv2 seed) {
 }
 
 // Two dimensional pseudo-random noise
-static inline float sv_noise2(unsigned int x, unsigned int y) {
+static inline float math_noise2(unsigned int x, unsigned int y) {
   float wave = sinf(x * 53 + y * 97) * 6151;
   return wave - floorf(wave);
 }
 
 // Three dimensional pseudo-random noise
-static inline float sv_noise3(unsigned int x, unsigned int y, unsigned int z) {
+static inline float math_noise3(unsigned int x, unsigned int y, unsigned int z) {
   float wave = sinf(x * 53 + y * 97 + z * 193) * 6151;
   return wave - floorf(wave);
 }
 
 #if 1
-SV_API sv3 sv3_noise(unsigned int seed, float range) {
+MATH_API vector3 vector3_noise(unsigned int seed, float range) {
   float d, x, y, z;
   int i = 0;
   do {
-    x = sv_noise3(i + seed + 1, i + seed, i + seed) * (2.0) - 1.0;
-    y = sv_noise3(i + seed, i + seed + 1, i + seed) * (2.0) - 1.0;
-    z = sv_noise3(i + seed, i + seed, i + seed + 1) * (2.0) - 1.0;
+    x = math_noise3(i + seed + 1, i + seed, i + seed) * (2.0) - 1.0;
+    y = math_noise3(i + seed, i + seed + 1, i + seed) * (2.0) - 1.0;
+    z = math_noise3(i + seed, i + seed, i + seed + 1) * (2.0) - 1.0;
     d = x * x + y * y + z * z;
     i++;
   } while (d > 1.0);
-  return sv3_scaled((sv3){x, y, z}, range);
+  return vector3_scaled((vector3){x, y, z}, range);
 }
 #else
 // Returns a seeded pseudo-random unit length vector
-SV_API sv3 sv3_noise(sv3 seed) {
-  sv3 v = {0};
+MATH_API vector3 vector3_noise(vector3 seed) {
+  vector3 v = {0};
   do {
-    v = (sv3){
+    v = (vector3){
         .x = sinf(seed.x * 53 + seed.y * 97 + seed.z * 193) * 6151,
         .y = sinf(seed.x * 97 + seed.y * 53 + seed.z * 6151) * 193,
         .z = sinf(seed.x * 193 + seed.y * 6151 + seed.z * 97) * 53,
@@ -418,17 +414,17 @@ SV_API sv3 sv3_noise(sv3 seed) {
     v.y -= floorf(v.y);
     v.z -= floorf(v.z);
     
-    sv3_give(&seed, (sv3){1,1,1});
+    vector3_give(&seed, (vector3){1,1,1});
     
-  } while (sv3_magnitude(v) > 1.0);
-  sv3_give(&v, (sv3){-1,-1,-1});
+  } while (vector3_magnitude(v) > 1.0);
+  vector3_give(&v, (vector3){-1,-1,-1});
   return v;
 }
 #endif
 
 // Returns a seeded pseudo-random unit length vector
-SV_API sv4 sv4_noise(sv4 seed) {
-  sv4 v = (sv4){
+MATH_API vector4 vector4_noise(vector4 seed) {
+  vector4 v = (vector4){
       .x = sinf(seed.x * 53 + seed.y * 97 + seed.z * 193) * 6151,
       .y = sinf(seed.x * 97 + seed.y * 53 + seed.z * 6151) * 193,
       .z = sinf(seed.x * 193 + seed.y * 6151 + seed.z * 97) * 53,
@@ -442,29 +438,29 @@ SV_API sv4 sv4_noise(sv4 seed) {
 }
 
 // Returns true if a is equal to b.
-SV_API int sv2_equal(sv2 a, sv2 b) {
-  return fabs(a.x - b.x) <= SV__FLOAT_EPSILON &&
-         fabs(a.y - b.y) <= SV__FLOAT_EPSILON;
+MATH_API int vector2_equal(vector2 a, vector2 b) {
+  return fabs(a.x - b.x) <= MATHF_EPSILON &&
+         fabs(a.y - b.y) <= MATHF_EPSILON;
 }
 
 // Returns true if a is equal to b.
-SV_API int sv3_equal(sv3 a, sv3 b) {
-  return fabs(a.x - b.x) <= SV__FLOAT_EPSILON &&
-         fabs(a.y - b.y) <= SV__FLOAT_EPSILON &&
-         fabs(a.z - b.z) <= SV__FLOAT_EPSILON;
+MATH_API int vector3_equal(vector3 a, vector3 b) {
+  return fabs(a.x - b.x) <= MATHF_EPSILON &&
+         fabs(a.y - b.y) <= MATHF_EPSILON &&
+         fabs(a.z - b.z) <= MATHF_EPSILON;
 }
 
 // Returns true if a is equal to b.
-SV_API int sv4_equal(sv4 a, sv4 b) {
-  return fabs(a.x - b.x) <= SV__FLOAT_EPSILON &&
-         fabs(a.y - b.y) <= SV__FLOAT_EPSILON &&
-         fabs(a.z - b.z) <= SV__FLOAT_EPSILON &&
-         fabs(a.w - b.w) <= SV__FLOAT_EPSILON;
+MATH_API int vector4_equal(vector4 a, vector4 b) {
+  return fabs(a.x - b.x) <= MATHF_EPSILON &&
+         fabs(a.y - b.y) <= MATHF_EPSILON &&
+         fabs(a.z - b.z) <= MATHF_EPSILON &&
+         fabs(a.w - b.w) <= MATHF_EPSILON;
 }
 
 // Multiply q1 with q2 (perform rotation on q1 by q2)
-SV_API sv4 svq_multiply(sv4 q1, sv4 q2) {
-  sv4 ret = {0};
+MATH_API vector4 quaternion_multiply(vector4 q1, vector4 q2) {
+  vector4 ret = {0};
   ret.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
   ret.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
   ret.y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
@@ -472,17 +468,17 @@ SV_API sv4 svq_multiply(sv4 q1, sv4 q2) {
   return ret;
 }
 
-SV_API sv4 svq_conjugate(sv4 q) { return (sv4){-q.x, -q.y, -q.z, q.w}; }
+MATH_API vector4 quaternion_conjugate(vector4 q) { return (vector4){-q.x, -q.y, -q.z, q.w}; }
 
 // Rotates v by q
-SV_API sv3 sv3_rotate(sv3 v, sv4 q) {
-  sv4 ret = (sv4){v.x, v.y, v.z, 0.0};
-  ret = svq_multiply(svq_multiply(q, ret), svq_conjugate(q));
-  return (sv3){ret.x, ret.y, ret.z};
+MATH_API vector3 vector3_rotate(vector3 v, vector4 q) {
+  vector4 ret = (vector4){v.x, v.y, v.z, 0.0};
+  ret = quaternion_multiply(quaternion_multiply(q, ret), quaternion_conjugate(q));
+  return (vector3){ret.x, ret.y, ret.z};
 }
 
-SV_API sv4 svq_from_euler(sv3 euler_angles) {
-  sv4 q;
+MATH_API vector4 quaternion_from_euler(vector3 euler_angles) {
+  vector4 q;
 
   float cos_roll = cosf(euler_angles.x * 0.5f);
   float sin_roll = sinf(euler_angles.x * 0.5f);
@@ -498,11 +494,11 @@ SV_API sv4 svq_from_euler(sv3 euler_angles) {
   return q;
 }
 
-SV_API sv4 svq_rotate_euler(sv4 q, sv3 euler_angles) {
-  return svq_multiply(q, svq_from_euler(euler_angles));
+MATH_API vector4 quaternion_rotate_euler(vector4 q, vector3 euler_angles) {
+  return quaternion_multiply(q, quaternion_from_euler(euler_angles));
 }
 
-SV_API float *svq_to_mat4(sv4 q, float *mat) {
+MATH_API float *quaternion_to_mat4(vector4 q, float *mat) {
   float xx = q.x * q.x;
   float xy = q.x * q.y;
   float xz = q.x * q.z;
@@ -533,4 +529,4 @@ SV_API float *svq_to_mat4(sv4 q, float *mat) {
   return mat;
 }
 
-#endif // SIMPLE_3D_H
+#endif // MATH_3D_H
