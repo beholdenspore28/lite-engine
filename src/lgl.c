@@ -171,15 +171,15 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
   for (unsigned int i = 0; i < batch->count * 16; i += 16) {
     lgl_mat4_identity(batch->matrices + i);
 
-    batch->matrices[0  + i] = batch->transform[i/16].scale.x;
-    batch->matrices[5  + i] = batch->transform[i/16].scale.y;
-    batch->matrices[10 + i] = batch->transform[i/16].scale.z;
-    batch->matrices[12 + i] = batch->transform[i/16].position.x;
-    batch->matrices[13 + i] = batch->transform[i/16].position.y;
-    batch->matrices[14 + i] = batch->transform[i/16].position.z;
+    batch->matrices[0 + i] = batch->transform[i / 16].scale.x;
+    batch->matrices[5 + i] = batch->transform[i / 16].scale.y;
+    batch->matrices[10 + i] = batch->transform[i / 16].scale.z;
+    batch->matrices[12 + i] = batch->transform[i / 16].position.x;
+    batch->matrices[13 + i] = batch->transform[i / 16].position.y;
+    batch->matrices[14 + i] = batch->transform[i / 16].position.z;
 
     GLfloat rotation[16] = {0};
-    svq_to_mat4(batch->transform[i/16].rotation, rotation);
+    svq_to_mat4(batch->transform[i / 16].rotation, rotation);
     lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
   }
 
@@ -529,9 +529,9 @@ lgl_batch lgl_batch_alloc(const unsigned int count,
   }
 
   batch.transform = calloc(sizeof(*batch.transform), count);
-  for(unsigned int i = 0; i < count; i++) {
+  for (unsigned int i = 0; i < count; i++) {
     lgl_transform t = (lgl_transform){
-      .position = (sv3){0, 0, 0},
+        .position = (sv3){0, 0, 0},
         .rotation = (sv4){0, 0, 0, 1},
         .scale = (sv3){1, 1, 1},
     };
@@ -1133,8 +1133,7 @@ void lgl_update_window_title(void) {
 
     snprintf(window_title, sizeof(window_title),
              "Lite-Engine Demo. | %.0lf FPS | %.4f DT | BATCHES %d",
-             lgl__active_context->time_FPS,
-             lgl__active_context->time_delta,
+             lgl__active_context->time_FPS, lgl__active_context->time_delta,
              lgl__active_context->draw_calls);
 
     glfwSetWindowTitle(lgl__active_context->GLFWwindow, window_title);
