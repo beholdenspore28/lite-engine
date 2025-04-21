@@ -6,7 +6,6 @@ GCC_ANALYZER    =  gcc   -fanalyzer
 CLANG_ANALYZER  =  clang -fsanitize=address,undefined
 
 CC              = $(CLANG_ANALYZER)
-
 CFLAGS_DEBUG    = -g3 
 CFLAGS_RELEASE  = -O3 -flto
 
@@ -14,7 +13,7 @@ CFLAGS          = -Wall \
 									-Wextra \
 									-Wpedantic \
 									-std=c11 \
-									$(CFLAGS_DEBUG) \
+									$(CFLAGS_DEBUG)
 
 LIBS := -lglfw -lm -lopenal -lalut
 LIBS_WINDOWS := -Ldep -lglfw3 -lgdi32 -lopengl32

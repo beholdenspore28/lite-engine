@@ -5,7 +5,7 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "lgl.h"
+#include "math3d.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>

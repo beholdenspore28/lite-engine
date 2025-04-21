@@ -1,5 +1,5 @@
-#include "lgl.h"
-#include "blib/blib_file.h"
+#include "opengl.h"
+#include "file.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <assert.h>
@@ -845,7 +845,7 @@ void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath) {
       unsigned int texture_indices[3] = {0, 0, 0};
 
       // clang-format off
-      const int got = sscanf(c, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+      const int got = sscanf(c, "f %u/%u/%u %u/%u/%u %u/%u/%u",
         &position_indices[2],
         &normal_indices[2],
         &texture_indices[2],

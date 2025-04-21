@@ -1,4 +1,5 @@
-#include "lal.h"
+#include "openal.h"
+#include <stdlib.h>
 
 lal_audio_source lal_audio_source_alloc(unsigned int count) {
 

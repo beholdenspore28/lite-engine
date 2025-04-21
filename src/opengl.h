@@ -12,18 +12,19 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "simple_3D/simple_3D.h"
-#include "simple_collections/sc_list.h"
+#include "math3d.h"
+#include "collections.h"
+
 SC_LIST(sv3)
 SC_LIST(sv2)
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
 
-#include "blib/blib_log.h"
+#include "log.h"
 #include "stb_image.h"
 
-#include "simple_collections/sc_list.h"
+#include "collections.h"
 
 #include <math.h>
 #include <stdio.h>

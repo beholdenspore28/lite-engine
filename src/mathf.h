@@ -28,11 +28,11 @@ SOFTWARE.
 #define BLIB_MATH_H
 
 #include <assert.h>
-#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define FLOAT_EPSILON (1e-4)
 #define PI 3.14159265358
