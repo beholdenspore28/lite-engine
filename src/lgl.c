@@ -178,9 +178,9 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
     batch->matrices[13 + i] = batch->transform[i/16].position.y;
     batch->matrices[14 + i] = batch->transform[i/16].position.z;
 
-    //GLfloat rotation[16] = {0};
-    //svq_to_mat4(batch->transform[i/16].rotation, rotation);
-    //lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
+    GLfloat rotation[16] = {0};
+    svq_to_mat4(batch->transform[i/16].rotation, rotation);
+    lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
   }
 
   // --------------------------------------------------------------------------
