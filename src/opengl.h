@@ -42,11 +42,11 @@ typedef struct {
   int type;
   vector3 position;
   vector3 direction;
-  float cut_off;
-  float outer_cut_off;
-  float constant;
-  float linear;
-  float quadratic;
+  GLfloat cut_off;
+  GLfloat outer_cut_off;
+  GLfloat constant;
+  GLfloat linear;
+  GLfloat quadratic;
   vector3 diffuse;
   vector3 specular;
 } lgl_light;
@@ -145,21 +145,23 @@ lgl_context *lgl_start(const int width, const int height);
 void lgl_update_window_title(void);
 void lgl_end_frame(void);
 void lgl_free(lgl_context *context);
-void lgl_viewport_set(const float width, const float height);
+void lgl_viewport_set(const GLfloat width, const GLfloat height);
 
 GLuint lgl_shader_compile(const char *file_path, GLenum type);
 GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 lgl_batch lgl_batch_alloc(const unsigned int count,
                           const unsigned int archetype);
+
 void lgl_batch_free(lgl_batch batch);
 void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
 void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
+
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions);
 
-void lgl_perspective(float *mat, const float fov, const float aspect,
-                     const float near, const float far);
+void lgl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
+                     const GLfloat near, const GLfloat far);
 
 GLuint lgl_texture_alloc(const char *imageFile);
 

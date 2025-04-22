@@ -16,10 +16,10 @@ void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame) {
   lgl__active_framebuffer_MSAA = frame;
 }
 
-void lgl_perspective(float *mat, const float fov, const float aspect,
-                     const float near, const float far) {
+void lgl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
+                     const GLfloat near, const GLfloat far) {
 
-  const float cotan = (1.0 / tanf(fov * 0.5));
+  const GLfloat cotan = (1.0 / tanf(fov * 0.5));
 
   mat[0] = (cotan / aspect);
   mat[5] = cotan;
@@ -250,7 +250,7 @@ void lgl_camera_update(GLfloat *matrix, lgl_transform transform) {
   int width, height;
   glfwGetFramebufferSize(lgl__active_context->GLFWwindow, &width, &height);
 
-  const float aspect = (float)width / height;
+  const GLfloat aspect = (GLfloat)width / height;
 
   GLfloat projection[16];
   mat4_identity(projection);
@@ -674,7 +674,7 @@ void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points) {
 void lgl_icosphere_mesh_alloc(lgl_batch *batch,
                               const unsigned int subdivisions) {
 
-  const float t = (1.0 + sqrt(5.0)) / 2.0;
+  const GLfloat t = (1.0 + sqrt(5.0)) / 2.0;
 
   lgl_vertex vertices[12] = {
       (lgl_vertex){{-1, t, 0}, {0, 0, 0}, {0, 1}},
@@ -1126,7 +1126,7 @@ lgl_context *lgl_start(const int width, const int height) {
 }
 
 void lgl_update_window_title(void) {
-  static float timer = 0;
+  static GLfloat timer = 0;
   timer += lgl__active_context->time_delta;
   if (timer > 1) { // window titlebar
     timer = 0;
@@ -1151,11 +1151,11 @@ void lgl__time_update(void) {
 
 #if 0  // log time
   debug_log( "\n"
-      "time_current:   %lf\n"
+      "time_current:   %f\n"
       "frame_current:  %llu\n"
-      "time_delta:     %lf\n"
-      "time_last:      %lf\n"
-      "time_FPS:       %lf",
+      "time_delta:     %f\n"
+      "time_last:      %f\n"
+      "time_FPS:       %f",
       lgl__active_context->time_current,
       lgl__active_context->frame_current,
       lgl__active_context->time_delta,
