@@ -9,6 +9,7 @@
 #include <math.h>
 
 #define MATHF_PI 3.14159265358
+#define MATHF_API static inline
 
 #if MATHF_DOUBLE_PRECISION
 typedef double mathf_real;
@@ -34,89 +35,81 @@ typedef float mathf_real;
 extern "C" {
 #endif // __cplusplus
 
-static inline mathf_real mathf_rad2deg(const mathf_real n) { return n * (180.0 / MATHF_PI); }
+MATHF_API mathf_real mathf_rad2deg(const mathf_real n) { return n * (180.0 / MATHF_PI); }
 
-static inline mathf_real mathf_deg2rad(const mathf_real n) { return n * (MATHF_PI / 180.0); }
+MATHF_API mathf_real mathf_deg2rad(const mathf_real n) { return n * (MATHF_PI / 180.0); }
 
-static inline mathf_real mathf_max(mathf_real a, mathf_real b) {
+MATHF_API mathf_real mathf_max(mathf_real a, mathf_real b) {
   if (a > b) { return a; } else { return b; }
 }
 
-static inline mathf_real mathf_min(mathf_real a, mathf_real b) {
+MATHF_API mathf_real mathf_min(mathf_real a, mathf_real b) {
   if (a < b) { return a; } else { return b; }
 }
 
-static inline void mathf_swap(mathf_real *a, mathf_real *b) {
+MATHF_API void mathf_swap(mathf_real *a, mathf_real *b) {
   mathf_real tmp = *a;
   *a = *b;
   *b = tmp;
 }
 
-static inline mathf_real mathf_wrap_max(mathf_real n, mathf_real max) {
+MATHF_API mathf_real mathf_wrap_max(mathf_real n, mathf_real max) {
   return mathf_fmod(max + mathf_fmod(n, max), max);
 }
 
-static inline mathf_real mathf_wrap(mathf_real n, mathf_real min, mathf_real max) {
+MATHF_API mathf_real mathf_wrap(mathf_real n, mathf_real min, mathf_real max) {
   return min + mathf_wrap_max(n - min, max - min);
 }
 
-static inline mathf_real mathf_wrapAngle(mathf_real a) {
-  a = mathf_fmod(a, 2 * MATHF_PI);
-  if (a < 0) {
-    a += 2 * MATHF_PI;
-  }
-  return a;
-}
-
-static inline mathf_real mathf_clamp(mathf_real n, const mathf_real min, const mathf_real max) {
+MATHF_API mathf_real mathf_clamp(mathf_real n, const mathf_real min, const mathf_real max) {
   n = n < min ? min : n;
   return n > max ? max : n;
 }
 
-static inline mathf_real mathf_clamp01(mathf_real n) {
+MATHF_API mathf_real mathf_clamp01(mathf_real n) {
   n = n < 0 ? 0 : n;
   return n > 1 ? 1 : n;
 }
 
-static inline mathf_real mathf_lerp(mathf_real a, mathf_real b, mathf_real t) { return a + (b - a) * t; }
+MATHF_API mathf_real mathf_lerp(mathf_real a, mathf_real b, mathf_real t) { return a + (b - a) * t; }
 
-static inline mathf_real mathf_lerpclamped(mathf_real a, mathf_real b, mathf_real t) {
+MATHF_API mathf_real mathf_lerpclamped(mathf_real a, mathf_real b, mathf_real t) {
   return a + (b - a) * mathf_clamp01(t);
 }
 
-static inline mathf_real mathf_norm(mathf_real n, mathf_real min, mathf_real max) {
+MATHF_API mathf_real mathf_norm(mathf_real n, mathf_real min, mathf_real max) {
   return (n - min) / (max - min);
 }
 
-static inline mathf_real mathf_map(mathf_real n, mathf_real fromMin, mathf_real fromMax, mathf_real toMin,
+MATHF_API mathf_real mathf_map(mathf_real n, mathf_real fromMin, mathf_real fromMax, mathf_real toMin,
                         mathf_real toMax) {
   // return lerp(norm(n, fromMin, fromMax), toMin, toMax);
   return (n - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin;
 }
 
-static inline int mathf_aproxequal(mathf_real a, mathf_real b, mathf_real tolerance) {
+MATHF_API int mathf_aproxequal(mathf_real a, mathf_real b, mathf_real tolerance) {
   return (mathf_fabs(a - b) < tolerance);
 }
 
-static inline mathf_real mathf_cosInterpolate(mathf_real a, mathf_real b, mathf_real t) {
+MATHF_API mathf_real mathf_cosInterpolate(mathf_real a, mathf_real b, mathf_real t) {
   mathf_real f = (1.0f - mathf_cos(t * MATHF_PI)) * 0.5f;
   return a * (1.0 - f) + b * f;
 }
 
-static inline mathf_real mathf_sigmoid(mathf_real n) {
+MATHF_API mathf_real mathf_sigmoid(mathf_real n) {
   return (1 / (1 + mathf_pow(2.71828182846, -n)));
 }
 
-static inline mathf_real mathf_loop(mathf_real n, const mathf_real length) {
+MATHF_API mathf_real mathf_loop(mathf_real n, const mathf_real length) {
   return mathf_clamp(n - mathf_floor(n / length) * length, 0.0f, length);
 }
 
-static inline mathf_real mathf_ping_pong(mathf_real n, const mathf_real length) {
+MATHF_API mathf_real mathf_ping_pong(mathf_real n, const mathf_real length) {
   n = mathf_loop(n, length * 2.0f);
   return mathf_fabs(n - length);
 }
 
-static inline mathf_real mathf_angleDelta(const mathf_real a, const mathf_real b) {
+MATHF_API mathf_real mathf_angleDelta(const mathf_real a, const mathf_real b) {
   mathf_real delta = mathf_loop((b - a), 360.0f);
   if (delta > 180.0f) {
     delta -= 360.0f;
@@ -124,28 +117,28 @@ static inline mathf_real mathf_angleDelta(const mathf_real a, const mathf_real b
   return delta;
 }
 
-static inline mathf_real mathf_fraction(mathf_real x) { return x - mathf_floor(x); }
+MATHF_API mathf_real mathf_fraction(mathf_real x) { return x - mathf_floor(x); }
 
 // Single dimensional pseudo-random noise
-static inline mathf_real mathf_noise1(unsigned int x) {
+MATHF_API mathf_real mathf_noise1(unsigned int x) {
   mathf_real wave = mathf_sin(x * 53) * 6151;
   return mathf_fraction(wave);
 }
 
 // Two dimensional pseudo-random noise
-static inline mathf_real mathf_noise2(unsigned int x, unsigned int y) {
+MATHF_API mathf_real mathf_noise2(unsigned int x, unsigned int y) {
   mathf_real wave = mathf_sin(x * 53 + y * 97) * 6151;
   return mathf_fraction(wave);
 }
 
 // Three dimensional pseudo-random noise
-static inline mathf_real mathf_noise3(unsigned int x, unsigned int y, unsigned int z) {
+MATHF_API mathf_real mathf_noise3(unsigned int x, unsigned int y, unsigned int z) {
   mathf_real wave = mathf_sin(x * 53 + y * 97 + z * 193) * 6151;
   return mathf_fraction(wave);
 }
 
 // Three dimensional pseudo-random noise
-static inline mathf_real mathf_noise3_interpolated(mathf_real x, mathf_real y, mathf_real z) {
+MATHF_API mathf_real mathf_noise3_interpolated(mathf_real x, mathf_real y, mathf_real z) {
   mathf_real fractX = mathf_fraction(x), fractY = mathf_fraction(y), fractZ = mathf_fraction(z),
         floorX = mathf_floor(x), floorY = mathf_floor(y), floorZ = mathf_floor(z);
 
@@ -179,7 +172,7 @@ static inline mathf_real mathf_noise3_interpolated(mathf_real x, mathf_real y, m
   return cube;
 }
 
-static inline mathf_real mathf_noise3_fbm(mathf_real x, mathf_real y, mathf_real z) {
+MATHF_API mathf_real mathf_noise3_fbm(mathf_real x, mathf_real y, mathf_real z) {
   mathf_real total = 0.0;
   mathf_real freq = 1.0;
   mathf_real amplitude = 1.0;
@@ -193,7 +186,7 @@ static inline mathf_real mathf_noise3_fbm(mathf_real x, mathf_real y, mathf_real
   return total;
 }
 
-static inline mathf_real mathf_noise3_fbm_warped(mathf_real x, mathf_real y, mathf_real z,
+MATHF_API mathf_real mathf_noise3_fbm_warped(mathf_real x, mathf_real y, mathf_real z,
                                       mathf_real warpFactor) {
   mathf_real fbm1 = mathf_noise3_fbm(x, y, z);
   mathf_real fbm2 = mathf_noise3_fbm(x + 5.2, y + 1.3 * warpFactor, z + 6.4 * warpFactor);
