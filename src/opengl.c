@@ -894,6 +894,7 @@ void lgl_batch_free(lgl_batch batch) {
   }
 
   free(batch.matrices);
+  free(batch.transform);
   glDeleteBuffers(1, &batch.model_matrix_buffer);
   glDeleteBuffers(1, &batch.VBO);
   glDeleteBuffers(1, &batch.EBO);
