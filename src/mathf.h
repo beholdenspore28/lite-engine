@@ -31,10 +31,6 @@ typedef float mathf_real;
 #define mathf_floor floorf
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-
 MATHF_API mathf_real mathf_rad2deg(const mathf_real n) { return n * (180.0 / MATHF_PI); }
 
 MATHF_API mathf_real mathf_deg2rad(const mathf_real n) { return n * (MATHF_PI / 180.0); }
@@ -87,32 +83,29 @@ MATHF_API mathf_real mathf_map(mathf_real n, mathf_real fromMin, mathf_real from
   return (n - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin;
 }
 
-MATHF_API int mathf_aproxequal(mathf_real a, mathf_real b, mathf_real tolerance) {
+MATHF_API int mathf_equal(mathf_real a, mathf_real b, mathf_real tolerance) {
   return (mathf_fabs(a - b) < tolerance);
 }
 
-MATHF_API mathf_real mathf_cosInterpolate(mathf_real a, mathf_real b, mathf_real t) {
-  mathf_real f = (1.0f - mathf_cos(t * MATHF_PI)) * 0.5f;
+// cosine interpolation
+MATHF_API mathf_real mathf_cerp(mathf_real a, mathf_real b, mathf_real t) {
+  mathf_real f = (1.0 - mathf_cos(t * MATHF_PI)) * 0.5;
   return a * (1.0 - f) + b * f;
 }
 
-MATHF_API mathf_real mathf_sigmoid(mathf_real n) {
-  return (1 / (1 + mathf_pow(2.71828182846, -n)));
-}
-
 MATHF_API mathf_real mathf_loop(mathf_real n, const mathf_real length) {
-  return mathf_clamp(n - mathf_floor(n / length) * length, 0.0f, length);
+  return mathf_clamp(n - mathf_floor(n / length) * length, 0.0, length);
 }
 
 MATHF_API mathf_real mathf_ping_pong(mathf_real n, const mathf_real length) {
-  n = mathf_loop(n, length * 2.0f);
+  n = mathf_loop(n, length * 2.0);
   return mathf_fabs(n - length);
 }
 
-MATHF_API mathf_real mathf_angleDelta(const mathf_real a, const mathf_real b) {
-  mathf_real delta = mathf_loop((b - a), 360.0f);
-  if (delta > 180.0f) {
-    delta -= 360.0f;
+MATHF_API mathf_real mathf_angle_delta(const mathf_real a, const mathf_real b) {
+  mathf_real delta = mathf_loop((b - a), 360.0);
+  if (delta > 180.0) {
+    delta -= 360.0;
   }
   return delta;
 }
@@ -152,22 +145,22 @@ MATHF_API mathf_real mathf_noise3_interpolated(mathf_real x, mathf_real y, mathf
   //===================================================
   mathf_real v1 = mathf_noise3(floorX, floorY, floorZ),
         v2 = mathf_noise3(floorX + 1, floorY, floorZ),
-        e1 = mathf_cosInterpolate(v1, v2, fractX), // rear bottom
+        e1 = mathf_cerp(v1, v2, fractX), // rear bottom
 
       v3 = mathf_noise3(floorX, floorY + 1, floorZ),
         v4 = mathf_noise3(floorX + 1, floorY + 1, floorZ),
-        e2 = mathf_cosInterpolate(v3, v4, fractX), // rear top
+        e2 = mathf_cerp(v3, v4, fractX), // rear top
 
       v5 = mathf_noise3(floorX, floorY, floorZ + 1),
         v6 = mathf_noise3(floorX + 1, floorY, floorZ + 1),
-        e3 = mathf_cosInterpolate(v5, v6, fractX), // front bottom
+        e3 = mathf_cerp(v5, v6, fractX), // front bottom
 
       v7 = mathf_noise3(floorX, floorY + 1, floorZ + 1),
         v8 = mathf_noise3(floorX + 1, floorY + 1, floorZ + 1),
-        e4 = mathf_cosInterpolate(v7, v8, fractX), // front top
+        e4 = mathf_cerp(v7, v8, fractX), // front top
 
-      f1 = mathf_cosInterpolate(e1, e2, fractY), f2 = mathf_cosInterpolate(e3, e4, fractY),
-        cube = mathf_cosInterpolate(f1, f2, fractZ);
+      f1 = mathf_cerp(e1, e2, fractY), f2 = mathf_cerp(e3, e4, fractY),
+        cube = mathf_cerp(f1, f2, fractZ);
 
   return cube;
 }
@@ -193,9 +186,5 @@ MATHF_API mathf_real mathf_noise3_fbm_warped(mathf_real x, mathf_real y, mathf_r
   mathf_real fbm3 = mathf_noise3_fbm(x + 7.5, y + 0.3 * warpFactor, z + 3.6 * warpFactor);
   return mathf_noise3_fbm(fbm1, fbm2, fbm3);
 }
-
-#ifdef __cplusplus
-} // extern "C" {
-#endif // __cplusplus
 
 #endif // MATHF_H

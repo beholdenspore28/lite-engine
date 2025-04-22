@@ -169,7 +169,7 @@ void lgl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
 
 void lgl__buffer_matrices(const lgl_batch *batch) {
   for (unsigned int i = 0; i < batch->count * 16; i += 16) {
-    lgl_mat4_identity(batch->matrices + i);
+    mat4_identity(batch->matrices + i);
 
     batch->matrices[0 + i] = batch->transform[i / 16].scale.x;
     batch->matrices[5 + i] = batch->transform[i / 16].scale.y;
@@ -180,7 +180,7 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
 
     GLfloat rotation[16] = {0};
     quaternion_to_mat4(batch->transform[i / 16].rotation, rotation);
-    lgl_mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
+    mat4_multiply(batch->matrices + i, batch->matrices + i, rotation);
   }
 
   // --------------------------------------------------------------------------
@@ -222,17 +222,17 @@ void lgl__buffer_matrices(const lgl_batch *batch) {
 void lgl_transform_matrix(GLfloat *matrix, const lgl_transform *transform) {
   { // Model
 
-    lgl_mat4_identity(matrix);
+    mat4_identity(matrix);
 
     {
       GLfloat scale[16];
-      lgl_mat4_identity(scale);
+      mat4_identity(scale);
       scale[0] = transform[0].scale.x;
       scale[5] = transform[0].scale.y;
       scale[10] = transform[0].scale.z;
 
       GLfloat translation[16];
-      lgl_mat4_identity(translation);
+      mat4_identity(translation);
       translation[12] = transform[0].position.x;
       translation[13] = transform[0].position.y;
       translation[14] = transform[0].position.z;
@@ -240,8 +240,8 @@ void lgl_transform_matrix(GLfloat *matrix, const lgl_transform *transform) {
       GLfloat rotation[16] = {0};
       quaternion_to_mat4(transform[0].rotation, rotation);
 
-      lgl_mat4_multiply(matrix, scale, rotation);
-      lgl_mat4_multiply(matrix, matrix, translation);
+      mat4_multiply(matrix, scale, rotation);
+      mat4_multiply(matrix, matrix, translation);
     }
   }
 }
@@ -253,23 +253,23 @@ void lgl_camera_update(GLfloat *matrix, lgl_transform transform) {
   const float aspect = (float)width / height;
 
   GLfloat projection[16];
-  lgl_mat4_identity(projection);
+  mat4_identity(projection);
   lgl_perspective(projection, 70 * (3.14159 / 180.0), aspect, 0.0001, 1000);
 
   vector3 offset = vector3_rotate((vector3){0, 0, -1}, transform.rotation);
 
   GLfloat translation_matrix[16];
-  lgl_mat4_identity(translation_matrix);
+  mat4_identity(translation_matrix);
   translation_matrix[12] = -transform.position.x + offset.x;
   translation_matrix[13] = -transform.position.y + offset.y;
   translation_matrix[14] = -transform.position.z + offset.z;
 
   GLfloat rotation_matrix[16];
-  lgl_mat4_identity(rotation_matrix);
+  mat4_identity(rotation_matrix);
   quaternion_to_mat4(quaternion_conjugate(transform.rotation), rotation_matrix);
 
-  lgl_mat4_multiply(matrix, translation_matrix, rotation_matrix);
-  lgl_mat4_multiply(lgl__active_context->camera_matrix, matrix, projection);
+  mat4_multiply(matrix, translation_matrix, rotation_matrix);
+  mat4_multiply(lgl__active_context->camera_matrix, matrix, projection);
 }
 
 void lgl__uniform_materials(lgl_batch batch) {
