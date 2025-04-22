@@ -65,8 +65,7 @@ MATH_3D_API void mat4_identity(float *m) {
 }
 
 /*Multiplies a 4x4 matrix with another 4x4 matrix*/
-MATH_3D_API void mat4_multiply(float *result, const float *a,
-                                     const float *b) {
+MATH_3D_API void mat4_multiply(float *result, const float *a, const float *b) {
 
   // row 0
   result[0] = a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3];
@@ -188,14 +187,14 @@ MATH_3D_API vector4 vector4_sub(vector4 a, vector4 b) {
 }
 
 MATH_3D_API vector2 vector2_scaled(const vector2 v, const float s) {
-  return (vector2) {
+  return (vector2){
       v.x * s,
       v.y * s,
   };
 }
 
 MATH_3D_API vector3 vector3_scaled(const vector3 v, const float s) {
-  return (vector3) {
+  return (vector3){
       v.x * s,
       v.y * s,
       v.z * s,
@@ -203,11 +202,11 @@ MATH_3D_API vector3 vector3_scaled(const vector3 v, const float s) {
 }
 
 MATH_3D_API vector4 vector4_scaled(const vector4 v, float scalar) {
-  return (vector4) {
-    v.x * scalar,
-    v.y * scalar,
-    v.z * scalar,
-    v.w * scalar,
+  return (vector4){
+      v.x * scalar,
+      v.y * scalar,
+      v.z * scalar,
+      v.w * scalar,
   };
 }
 
@@ -231,18 +230,20 @@ MATH_3D_API void vector4_scale(vector4 *v, float scalar) {
   v->w *= scalar;
 }
 
-// use this instead of vector2_magnitude when exact magnitude calculations are not
-// needed
-MATH_3D_API float vector2_square_magnitude(const vector2 v) { return v.x * v.x + v.y * v.y; }
+// use this instead of vector2_magnitude when exact magnitude calculations are
+// not needed
+MATH_3D_API float vector2_square_magnitude(const vector2 v) {
+  return v.x * v.x + v.y * v.y;
+}
 
-// use this instead of vector3_magnitude when exact magnitude calculations are not
-// needed
+// use this instead of vector3_magnitude when exact magnitude calculations are
+// not needed
 MATH_3D_API float vector3_square_magnitude(const vector3 v) {
   return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
-// use this instead of vector4_magnitude when exact magnitude calculations are not
-// needed
+// use this instead of vector4_magnitude when exact magnitude calculations are
+// not needed
 MATH_3D_API float vector4_square_magnitude(const vector4 v) {
   return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
@@ -277,10 +278,10 @@ MATH_3D_API void vector2_normalize(vector2 *v) {
 MATH_3D_API void vector3_normalize(vector3 *v) {
   float m = vector3_magnitude(*v);
   if (m == 0) { // prevent NAN values
-    *v = (vector3){0,0,0};
-    return;    
+    *v = (vector3){0, 0, 0};
+    return;
   }
-  vector3_scale(v, 1/m);
+  vector3_scale(v, 1 / m);
 }
 
 // Returns a vector which points in the same direction as v, but has a magnitude
@@ -322,7 +323,9 @@ MATH_3D_API float vector4_distance(const vector4 a, const vector4 b) {
 
 // Returns the dot product of a and b. 1 if a is close to b, -1 if a is far from
 // b
-MATH_3D_API float vector2_dot(const vector2 a, const vector2 b) { return a.x * b.x + a.y * b.y; }
+MATH_3D_API float vector2_dot(const vector2 a, const vector2 b) {
+  return a.x * b.x + a.y * b.y;
+}
 
 // Returns the dot product of a and b. 1 if a is close to b, -1 if a is far from
 // b
@@ -339,8 +342,8 @@ MATH_3D_API float vector4_dot(const vector4 a, const vector4 b) {
 // returns the vector that is perpendicular to both a and b.
 MATH_3D_API vector3 vector3_cross(vector3 a, vector3 b) {
   return (vector3){.x = (a.y * b.z) - (a.z * b.y),
-               .y = -((a.x * b.z) - (a.z * b.x)),
-               .z = (a.x * b.y) - (a.y * b.x)};
+                   .y = -((a.x * b.z) - (a.z * b.x)),
+                   .z = (a.x * b.y) - (a.y * b.x)};
 }
 
 // Returns the point that is t% of the way between a and b.
@@ -451,23 +454,19 @@ MATH_3D_API vector3 vector3_noise(unsigned int seed, float range) {
 
 // Returns true if a is equal to b.
 MATH_3D_API int vector2_equal(vector2 a, vector2 b) {
-  return fabs(a.x - b.x) <= MATHF_EPSILON &&
-         fabs(a.y - b.y) <= MATHF_EPSILON;
+  return fabs(a.x - b.x) <= MATHF_EPSILON && fabs(a.y - b.y) <= MATHF_EPSILON;
 }
 
 // Returns true if a is equal to b.
 MATH_3D_API int vector3_equal(vector3 a, vector3 b) {
-  return fabs(a.x - b.x) <= MATHF_EPSILON &&
-         fabs(a.y - b.y) <= MATHF_EPSILON &&
+  return fabs(a.x - b.x) <= MATHF_EPSILON && fabs(a.y - b.y) <= MATHF_EPSILON &&
          fabs(a.z - b.z) <= MATHF_EPSILON;
 }
 
 // Returns true if a is equal to b.
 MATH_3D_API int vector4_equal(vector4 a, vector4 b) {
-  return fabs(a.x - b.x) <= MATHF_EPSILON &&
-         fabs(a.y - b.y) <= MATHF_EPSILON &&
-         fabs(a.z - b.z) <= MATHF_EPSILON &&
-         fabs(a.w - b.w) <= MATHF_EPSILON;
+  return fabs(a.x - b.x) <= MATHF_EPSILON && fabs(a.y - b.y) <= MATHF_EPSILON &&
+         fabs(a.z - b.z) <= MATHF_EPSILON && fabs(a.w - b.w) <= MATHF_EPSILON;
 }
 
 // Multiply q1 with q2 (perform rotation on q1 by q2)
@@ -480,12 +479,15 @@ MATH_3D_API vector4 quaternion_multiply(vector4 q1, vector4 q2) {
   return ret;
 }
 
-MATH_3D_API vector4 quaternion_conjugate(vector4 q) { return (vector4){-q.x, -q.y, -q.z, q.w}; }
+MATH_3D_API vector4 quaternion_conjugate(vector4 q) {
+  return (vector4){-q.x, -q.y, -q.z, q.w};
+}
 
 // Rotates v by q
 MATH_3D_API vector3 vector3_rotate(vector3 v, vector4 q) {
   vector4 ret = (vector4){v.x, v.y, v.z, 0.0};
-  ret = quaternion_multiply(quaternion_multiply(q, ret), quaternion_conjugate(q));
+  ret =
+      quaternion_multiply(quaternion_multiply(q, ret), quaternion_conjugate(q));
   return (vector3){ret.x, ret.y, ret.z};
 }
 
@@ -493,11 +495,11 @@ MATH_3D_API vector4 quaternion_from_euler(vector3 euler_angles) {
   vector4 q;
 
   float cos_roll = cosf(euler_angles.x * 0.5f),
-  sin_roll = sinf(euler_angles.x * 0.5f),
-  cos_pitch = cosf(euler_angles.y * 0.5f),
-  sin_pitch = sinf(euler_angles.y * 0.5f),
-  cos_yaw = cosf(euler_angles.z * 0.5f),
-  sin_yaw = sinf(euler_angles.z * 0.5f);
+        sin_roll = sinf(euler_angles.x * 0.5f),
+        cos_pitch = cosf(euler_angles.y * 0.5f),
+        sin_pitch = sinf(euler_angles.y * 0.5f),
+        cos_yaw = cosf(euler_angles.z * 0.5f),
+        sin_yaw = sinf(euler_angles.z * 0.5f);
 
   q.w = cos_roll * cos_pitch * cos_yaw + sin_roll * sin_pitch * sin_yaw;
   q.x = sin_roll * cos_pitch * cos_yaw - cos_roll * sin_pitch * sin_yaw;
@@ -512,17 +514,11 @@ MATH_3D_API vector4 quaternion_rotate_euler(vector4 q, vector3 euler_angles) {
 }
 
 MATH_3D_API float *quaternion_to_mat4(vector4 q, float *mat) {
-  float xx = q.x * q.x,
-  xy = q.x * q.y,
-  xz = q.x * q.z,
-  xw = q.x * q.w,
+  float xx = q.x * q.x, xy = q.x * q.y, xz = q.x * q.z, xw = q.x * q.w,
 
-  yy = q.y * q.y,
-  yz = q.y * q.z,
-  yw = q.y * q.w,
+        yy = q.y * q.y, yz = q.y * q.z, yw = q.y * q.w,
 
-  zz = q.z * q.z,
-  zw = q.z * q.w;
+        zz = q.z * q.z, zw = q.z * q.w;
 
   mat[0] = 1 - 2 * (yy + zz);
   mat[4] = 2 * (xy - zw);

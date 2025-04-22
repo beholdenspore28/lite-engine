@@ -16,8 +16,9 @@ void renderer_gl_active_framebuffer_set_MSAA(renderer_gl_framebuffer *frame) {
   renderer_gl__active_framebuffer_MSAA = frame;
 }
 
-void renderer_gl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
-                     const GLfloat near, const GLfloat far) {
+void renderer_gl_perspective(GLfloat *mat, const GLfloat fov,
+                             const GLfloat aspect, const GLfloat near,
+                             const GLfloat far) {
 
   const GLfloat cotan = (1.0 / tanf(fov * 0.5));
 
@@ -111,16 +112,17 @@ GLuint renderer_gl_shader_link(GLuint vertex_shader, GLuint fragment_shader) {
   return shader;
 }
 
-void renderer_gl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_count,
-                              renderer_gl_vertex *vertices) {
+void renderer_gl__buffer_vertex_array(GLuint *VAO, GLuint *VBO,
+                                      GLuint vertex_count,
+                                      renderer_gl_vertex *vertices) {
   glGenVertexArrays(1, VAO);
   glBindVertexArray(*VAO);
 
   glGenBuffers(1, VBO);
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(renderer_gl_vertex), vertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(renderer_gl_vertex),
+               vertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
                         (void *)offsetof(renderer_gl_vertex, position));
@@ -128,8 +130,9 @@ void renderer_gl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_co
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
                         (void *)offsetof(renderer_gl_vertex, normal));
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
-                        (void *)offsetof(renderer_gl_vertex, texture_coordinates));
+  glVertexAttribPointer(
+      2, 2, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
+      (void *)offsetof(renderer_gl_vertex, texture_coordinates));
 
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
@@ -137,16 +140,17 @@ void renderer_gl__buffer_vertex_array(GLuint *VAO, GLuint *VBO, GLuint vertex_co
 }
 
 void renderer_gl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
-                               GLuint vertex_count, renderer_gl_vertex *vertices,
-                               GLuint indices_count, GLuint *indices) {
+                                       GLuint vertex_count,
+                                       renderer_gl_vertex *vertices,
+                                       GLuint indices_count, GLuint *indices) {
   glGenVertexArrays(1, VAO);
   glBindVertexArray(*VAO);
 
   glGenBuffers(1, VBO);
   glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(renderer_gl_vertex), vertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(renderer_gl_vertex),
+               vertices, GL_STATIC_DRAW);
 
   glGenBuffers(1, EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
@@ -159,8 +163,9 @@ void renderer_gl__buffer_element_array(GLuint *VAO, GLuint *VBO, GLuint *EBO,
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
                         (void *)offsetof(renderer_gl_vertex, normal));
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
-                        (void *)offsetof(renderer_gl_vertex, texture_coordinates));
+  glVertexAttribPointer(
+      2, 2, GL_FLOAT, GL_FALSE, sizeof(renderer_gl_vertex),
+      (void *)offsetof(renderer_gl_vertex, texture_coordinates));
 
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
@@ -219,7 +224,8 @@ void renderer_gl__buffer_matrices(const renderer_gl_batch *batch) {
   glBindVertexArray(0);
 }
 
-void renderer_gl_transform_matrix(GLfloat *matrix, const renderer_gl_transform *transform) {
+void renderer_gl_transform_matrix(GLfloat *matrix,
+                                  const renderer_gl_transform *transform) {
   { // Model
 
     mat4_identity(matrix);
@@ -246,15 +252,18 @@ void renderer_gl_transform_matrix(GLfloat *matrix, const renderer_gl_transform *
   }
 }
 
-void renderer_gl_camera_update(GLfloat *matrix, renderer_gl_transform transform) {
+void renderer_gl_camera_update(GLfloat *matrix,
+                               renderer_gl_transform transform) {
   int width, height;
-  glfwGetFramebufferSize(renderer_gl__active_context->GLFWwindow, &width, &height);
+  glfwGetFramebufferSize(renderer_gl__active_context->GLFWwindow, &width,
+                         &height);
 
   const GLfloat aspect = (GLfloat)width / height;
 
   GLfloat projection[16];
   mat4_identity(projection);
-  renderer_gl_perspective(projection, 70 * (3.14159 / 180.0), aspect, 0.0001, 1000);
+  renderer_gl_perspective(projection, 70 * (3.14159 / 180.0), aspect, 0.0001,
+                          1000);
 
   vector3 offset = vector3_rotate((vector3){0, 0, -1}, transform.rotation);
 
@@ -414,18 +423,21 @@ void renderer_gl__draw(const renderer_gl_batch *batch) {
   glBindVertexArray(batch->VAO);
 
   if (batch->render_flags & RENDERER_GL_FLAG_DRAW_POINTS) {
-    glDrawArrays(GL_POINTS, 0, sc_list_renderer_gl_vertex_count(batch->vertices));
+    glDrawArrays(GL_POINTS, 0,
+                 sc_list_renderer_gl_vertex_count(batch->vertices));
   }
 
   renderer_gl__active_context->draw_calls++;
 
   switch (batch->primitive) {
   case RENDERER_GL_PRIMITIVE_LINES: {
-    glDrawArrays(GL_LINES, 0, sc_list_renderer_gl_vertex_count(batch->vertices));
+    glDrawArrays(GL_LINES, 0,
+                 sc_list_renderer_gl_vertex_count(batch->vertices));
   } break;
 
   case RENDERER_GL_PRIMITIVE_POINTS: {
-    glDrawArrays(GL_POINTS, 0, sc_list_renderer_gl_vertex_count(batch->vertices));
+    glDrawArrays(GL_POINTS, 0,
+                 sc_list_renderer_gl_vertex_count(batch->vertices));
   } break;
 
   case RENDERER_GL_PRIMITIVE_TRIANGLES_INDEXED: {
@@ -434,7 +446,8 @@ void renderer_gl__draw(const renderer_gl_batch *batch) {
   } break;
 
   case RENDERER_GL_PRIMITIVE_TRIANGLES: {
-    glDrawArrays(GL_TRIANGLES, 0, sc_list_renderer_gl_vertex_count(batch->vertices));
+    glDrawArrays(GL_TRIANGLES, 0,
+                 sc_list_renderer_gl_vertex_count(batch->vertices));
   } break;
   }
 }
@@ -447,21 +460,24 @@ void renderer_gl__draw_instanced(const renderer_gl_batch *batch) {
   glBindVertexArray(batch->VAO);
 
   if (batch->render_flags & RENDERER_GL_FLAG_DRAW_POINTS) {
-    glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_renderer_gl_vertex_count(batch->vertices), batch->count);
+    glDrawArraysInstanced(GL_POINTS, 0,
+                          sc_list_renderer_gl_vertex_count(batch->vertices),
+                          batch->count);
   }
 
   renderer_gl__active_context->draw_calls++;
 
   switch (batch->primitive) {
   case RENDERER_GL_PRIMITIVE_LINES: {
-    glDrawArraysInstanced(
-        GL_LINES, 0, sc_list_renderer_gl_vertex_count(batch->vertices), batch->count);
+    glDrawArraysInstanced(GL_LINES, 0,
+                          sc_list_renderer_gl_vertex_count(batch->vertices),
+                          batch->count);
   } break;
 
   case RENDERER_GL_PRIMITIVE_POINTS: {
-    glDrawArraysInstanced(
-        GL_POINTS, 0, sc_list_renderer_gl_vertex_count(batch->vertices), batch->count);
+    glDrawArraysInstanced(GL_POINTS, 0,
+                          sc_list_renderer_gl_vertex_count(batch->vertices),
+                          batch->count);
   } break;
 
   case RENDERER_GL_PRIMITIVE_TRIANGLES_INDEXED: {
@@ -519,7 +535,7 @@ void renderer_gl_draw(const renderer_gl_batch *batch) {
 }
 
 renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
-                          const unsigned int archetype) {
+                                          const unsigned int archetype) {
   assert(count > 0);
   renderer_gl_batch batch = {0};
   batch.count = count;
@@ -559,9 +575,9 @@ renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
 
     batch.vertices = sc_list_renderer_gl_vertex_alloc_from_array(vertices, 6);
 
-    renderer_gl__buffer_vertex_array(&batch.VAO, &batch.VBO,
-                             sc_list_renderer_gl_vertex_count(batch.vertices),
-                             batch.vertices);
+    renderer_gl__buffer_vertex_array(
+        &batch.VAO, &batch.VBO,
+        sc_list_renderer_gl_vertex_count(batch.vertices), batch.vertices);
   } break;
 
   case RENDERER_GL_ARCHETYPE_PYRAMID: {
@@ -571,16 +587,19 @@ renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
         (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
         (renderer_gl_vertex){{0.0, 0.5, 0.0}, (vector3){0, 0, 1}, {0.5, 1.0}},
         (renderer_gl_vertex){{0.5, -0.5, 0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
         (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.0, 0.5, 0.0}, (vector3){0, 0, 1}, {0.5, 1.0}},
         (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.0, 0.5, 0.0}, (vector3){0, 0, 1}, {0.5, 1.0}},
         (renderer_gl_vertex){{0.5, -0.5, 0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.0, 0.5, 0.0}, (vector3){0, 0, 1}, {0.5, 1.0}},
         (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.0, 0.0}},
         (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, 0, 1}, {0.0, 0.5}},
         (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, 0, 1}, {0.5, 0.0}},
@@ -590,36 +609,46 @@ renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
 
     batch.vertices = sc_list_renderer_gl_vertex_alloc_from_array(vertices, 18);
 
-    renderer_gl__buffer_vertex_array(&batch.VAO, &batch.VBO,
-                             sc_list_renderer_gl_vertex_count(batch.vertices),
-                             batch.vertices);
+    renderer_gl__buffer_vertex_array(
+        &batch.VAO, &batch.VBO,
+        sc_list_renderer_gl_vertex_count(batch.vertices), batch.vertices);
   } break;
 
   case RENDERER_GL_ARCHETYPE_CUBE: {
     renderer_gl_vertex vertices[36] = {
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
-        (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {1.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.5, 0.5, -0.5}, (vector3){0, 0, -1}, {1.0, 1.0}},
 
         (renderer_gl_vertex){{0.5, 0.5, -0.5}, (vector3){0, 0, -1}, {1.0, 1.0}},
-        (renderer_gl_vertex){{-0.5, 0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 1.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, 0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
 
         (renderer_gl_vertex){{0.5, 0.5, 0.5}, (vector3){0, 0, 1}, {1.0, 1.0}},
         (renderer_gl_vertex){{0.5, -0.5, 0.5}, (vector3){0, 0, -1}, {1.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, 0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
 
-        (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, 0.5}, (vector3){0, 0, -1}, {0.0, 0.0}},
         (renderer_gl_vertex){{-0.5, 0.5, 0.5}, (vector3){0, 0, -1}, {0.0, 1.0}},
         (renderer_gl_vertex){{0.5, 0.5, 0.5}, (vector3){0, 0, -1}, {1.0, 1.0}},
 
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){-1, 0, 0}, {0.0, 1.0}},
-        (renderer_gl_vertex){{-0.5, 0.5, -0.5}, (vector3){-1, 0, 0}, {1.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){-1, 0, 0}, {0.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, 0.5, -0.5}, (vector3){-1, 0, 0}, {1.0, 1.0}},
         (renderer_gl_vertex){{-0.5, 0.5, 0.5}, (vector3){-1, 0, 0}, {1.0, 0.0}},
 
         (renderer_gl_vertex){{-0.5, 0.5, 0.5}, (vector3){-1, 0, 0}, {1.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){-1, 0, 0}, {0.0, 0.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){-1, 0, 0}, {0.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, 0.5}, (vector3){-1, 0, 0}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){-1, 0, 0}, {0.0, 1.0}},
 
         (renderer_gl_vertex){{0.5, 0.5, 0.5}, (vector3){1, 0, 0}, {1.0, 0.0}},
         (renderer_gl_vertex){{0.5, 0.5, -0.5}, (vector3){1, 0, 0}, {1.0, 1.0}},
@@ -630,11 +659,15 @@ renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
         (renderer_gl_vertex){{0.5, 0.5, 0.5}, (vector3){1, 0, 0}, {1.0, 0.0}},
 
         (renderer_gl_vertex){{0.5, -0.5, 0.5}, (vector3){0, -1, 0}, {1.0, 0.0}},
-        (renderer_gl_vertex){{0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {1.0, 1.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {0.0, 1.0}},
+        (renderer_gl_vertex){
+            {0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {1.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {0.0, 1.0}},
 
-        (renderer_gl_vertex){{-0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {0.0, 1.0}},
-        (renderer_gl_vertex){{-0.5, -0.5, 0.5}, (vector3){0, -1, 0}, {0.0, 0.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, -0.5}, (vector3){0, -1, 0}, {0.0, 1.0}},
+        (renderer_gl_vertex){
+            {-0.5, -0.5, 0.5}, (vector3){0, -1, 0}, {0.0, 0.0}},
         (renderer_gl_vertex){{0.5, -0.5, 0.5}, (vector3){0, -1, 0}, {1.0, 0.0}},
 
         (renderer_gl_vertex){{-0.5, 0.5, -0.5}, (vector3){0, 1, 0}, {0.0, 1.0}},
@@ -648,9 +681,9 @@ renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
 
     batch.vertices = sc_list_renderer_gl_vertex_alloc_from_array(vertices, 36);
 
-    renderer_gl__buffer_vertex_array(&batch.VAO, &batch.VBO,
-                             sc_list_renderer_gl_vertex_count(batch.vertices),
-                             batch.vertices);
+    renderer_gl__buffer_vertex_array(
+        &batch.VAO, &batch.VBO,
+        sc_list_renderer_gl_vertex_count(batch.vertices), batch.vertices);
   } break;
   }
 
@@ -662,17 +695,18 @@ void renderer_gl_lines_alloc(renderer_gl_batch *batch, sc_list_vector3 points) {
   batch->vertices = sc_list_renderer_gl_vertex_alloc();
 
   for (unsigned int i = 0; i < sc_list_vector3_count(points); i++) {
-    renderer_gl_vertex vertex = (renderer_gl_vertex){points[i], (vector3){0, 0, 0}, (vector2){0, 0}};
+    renderer_gl_vertex vertex =
+        (renderer_gl_vertex){points[i], (vector3){0, 0, 0}, (vector2){0, 0}};
     sc_list_renderer_gl_vertex_add(&batch->vertices, vertex);
   }
 
-  renderer_gl__buffer_vertex_array(&batch->VAO, &batch->VBO,
-                           sc_list_renderer_gl_vertex_count(batch->vertices),
-                           batch->vertices);
+  renderer_gl__buffer_vertex_array(
+      &batch->VAO, &batch->VBO,
+      sc_list_renderer_gl_vertex_count(batch->vertices), batch->vertices);
 }
 
 void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
-                              const unsigned int subdivisions) {
+                                      const unsigned int subdivisions) {
 
   const GLfloat t = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -710,7 +744,8 @@ void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
     }
   }
 
-  for (unsigned int i = 0; i < sc_list_renderer_gl_vertex_count(batch->vertices); i++) {
+  for (unsigned int i = 0;
+       i < sc_list_renderer_gl_vertex_count(batch->vertices); i++) {
     vector3_normalize(&batch->vertices[i].position);
     batch->vertices[i].normal = batch->vertices[i].position;
   }
@@ -746,20 +781,23 @@ void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
         const renderer_gl_vertex v2 = batch->vertices[i2];
         const renderer_gl_vertex v3 = batch->vertices[i3];
         // create middle vertices
-        const renderer_gl_vertex m1 =
-            (renderer_gl_vertex){.position = vector3_lerp(v1.position, v2.position, 0.5)};
-        const renderer_gl_vertex m2 =
-            (renderer_gl_vertex){.position = vector3_lerp(v2.position, v3.position, 0.5)};
-        const renderer_gl_vertex m3 =
-            (renderer_gl_vertex){.position = vector3_lerp(v3.position, v1.position, 0.5)};
+        const renderer_gl_vertex m1 = (renderer_gl_vertex){
+            .position = vector3_lerp(v1.position, v2.position, 0.5)};
+        const renderer_gl_vertex m2 = (renderer_gl_vertex){
+            .position = vector3_lerp(v2.position, v3.position, 0.5)};
+        const renderer_gl_vertex m3 = (renderer_gl_vertex){
+            .position = vector3_lerp(v3.position, v1.position, 0.5)};
         sc_list_renderer_gl_vertex_add(&batch->vertices, m1);
         sc_list_renderer_gl_vertex_add(&batch->vertices, m2);
         sc_list_renderer_gl_vertex_add(&batch->vertices, m3);
       }
       { // get new indices
-        const unsigned int i4 = sc_list_renderer_gl_vertex_count(batch->vertices) - 3;
-        const unsigned int i5 = sc_list_renderer_gl_vertex_count(batch->vertices) - 2;
-        const unsigned int i6 = sc_list_renderer_gl_vertex_count(batch->vertices) - 1;
+        const unsigned int i4 =
+            sc_list_renderer_gl_vertex_count(batch->vertices) - 3;
+        const unsigned int i5 =
+            sc_list_renderer_gl_vertex_count(batch->vertices) - 2;
+        const unsigned int i6 =
+            sc_list_renderer_gl_vertex_count(batch->vertices) - 1;
 
         sc_list_GLuint_add(&new_indices, i4);
         sc_list_GLuint_add(&new_indices, i5);
@@ -781,8 +819,8 @@ void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
     sc_list_GLuint_free(batch->indices);
     batch->indices = new_indices;
 
-    for (unsigned int i = 0; i < sc_list_renderer_gl_vertex_count(batch->vertices);
-         i++) {
+    for (unsigned int i = 0;
+         i < sc_list_renderer_gl_vertex_count(batch->vertices); i++) {
       vector3_normalize(&batch->vertices[i].position);
       batch->vertices[i].normal = batch->vertices[i].position;
     }
@@ -810,7 +848,8 @@ void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
       sc_list_GLuint_count(batch->indices), batch->indices);
 }
 
-void renderer_gl_mesh_obj_alloc(renderer_gl_batch *batch, const char *filepath) {
+void renderer_gl_mesh_obj_alloc(renderer_gl_batch *batch,
+                                const char *filepath) {
   file_buffer file = file_buffer_alloc(filepath);
 
   batch->primitive = RENDERER_GL_PRIMITIVE_TRIANGLES_INDEXED;
@@ -901,9 +940,10 @@ void renderer_gl_batch_free(renderer_gl_batch batch) {
   glDeleteVertexArrays(1, &batch.VAO);
 }
 
-renderer_gl_framebuffer renderer_gl_framebuffer_alloc(GLuint shader, GLuint samples,
-                                      GLuint num_color_attachments,
-                                      GLuint width, GLuint height) {
+renderer_gl_framebuffer
+renderer_gl_framebuffer_alloc(GLuint shader, GLuint samples,
+                              GLuint num_color_attachments, GLuint width,
+                              GLuint height) {
 
   renderer_gl_framebuffer frame;
 
@@ -1009,26 +1049,30 @@ void renderer_gl_framebuffer_free(renderer_gl_framebuffer frame) {
   glDeleteRenderbuffers(1, &frame.RBO);
 }
 
-static void renderer_gl__framebuffer_resize(renderer_gl_framebuffer *frame, unsigned int width,
-                                    unsigned int height) {
+static void renderer_gl__framebuffer_resize(renderer_gl_framebuffer *frame,
+                                            unsigned int width,
+                                            unsigned int height) {
 
   GLuint shader = frame->quad.shader;
   GLuint samples = frame->samples;
   GLuint color_buffers_count = frame->color_buffers_count;
 
   renderer_gl_framebuffer_free(*frame);
-  *frame = renderer_gl_framebuffer_alloc(shader, samples, color_buffers_count, width,
-                                 height);
+  *frame = renderer_gl_framebuffer_alloc(shader, samples, color_buffers_count,
+                                         width, height);
 }
 
-void renderer_gl__framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void renderer_gl__framebuffer_size_callback(GLFWwindow *window, int width,
+                                            int height) {
   (void)window;
 
   glViewport(0, 0, width, height);
   if (renderer_gl__active_framebuffer)
-    renderer_gl__framebuffer_resize(renderer_gl__active_framebuffer, width, height);
+    renderer_gl__framebuffer_resize(renderer_gl__active_framebuffer, width,
+                                    height);
   if (renderer_gl__active_framebuffer_MSAA)
-    renderer_gl__framebuffer_resize(renderer_gl__active_framebuffer_MSAA, width, height);
+    renderer_gl__framebuffer_resize(renderer_gl__active_framebuffer_MSAA, width,
+                                    height);
 
 #if 0
   debug_log("WIDTH %d HEIGHT %d FBO %d NUM_COLOR_ATTACHMENTS %d",
@@ -1098,7 +1142,8 @@ renderer_gl_context *renderer_gl_start(const int width, const int height) {
     unsigned int position_x = (-width / 2) + resolution_width / 2;
     unsigned int position_y = (-height / 2) + resolution_height / 2;
 
-    glfwSetWindowPos(renderer_gl__active_context->GLFWwindow, position_x, position_y);
+    glfwSetWindowPos(renderer_gl__active_context->GLFWwindow, position_x,
+                     position_y);
   }
   glfwShowWindow(renderer_gl__active_context->GLFWwindow);
 
@@ -1134,7 +1179,8 @@ void renderer_gl_update_window_title(void) {
 
     snprintf(window_title, sizeof(window_title),
              "Lite-Engine Demo. | %.0lf FPS | %.4f DT | BATCHES %d",
-             renderer_gl__active_context->time_FPS, renderer_gl__active_context->time_delta,
+             renderer_gl__active_context->time_FPS,
+             renderer_gl__active_context->time_delta,
              renderer_gl__active_context->draw_calls);
 
     glfwSetWindowTitle(renderer_gl__active_context->GLFWwindow, window_title);
@@ -1144,9 +1190,12 @@ void renderer_gl_update_window_title(void) {
 void renderer_gl__time_update(void) {
   renderer_gl__active_context->time_current = glfwGetTime();
   renderer_gl__active_context->time_delta =
-      renderer_gl__active_context->time_current - renderer_gl__active_context->time_last;
-  renderer_gl__active_context->time_last = renderer_gl__active_context->time_current;
-  renderer_gl__active_context->time_FPS = 1 / renderer_gl__active_context->time_delta;
+      renderer_gl__active_context->time_current -
+      renderer_gl__active_context->time_last;
+  renderer_gl__active_context->time_last =
+      renderer_gl__active_context->time_current;
+  renderer_gl__active_context->time_FPS =
+      1 / renderer_gl__active_context->time_delta;
   renderer_gl__active_context->frame_current++;
 
 #if 0  // log time

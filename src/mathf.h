@@ -2,11 +2,11 @@
 #define MATHF_H
 
 #include <assert.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #define MATHF_API static inline
 #define MATHF_PI 3.14159265358
@@ -23,11 +23,19 @@ MATHF_API float mathf_rad2deg(const float n) { return n * (180.0 / MATHF_PI); }
 MATHF_API float mathf_deg2rad(const float n) { return n * (MATHF_PI / 180.0); }
 
 MATHF_API float mathf_max(float a, float b) {
-  if (a > b) { return a; } else { return b; }
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
 }
 
 MATHF_API float mathf_min(float a, float b) {
-  if (a < b) { return a; } else { return b; }
+  if (a < b) {
+    return a;
+  } else {
+    return b;
+  }
 }
 
 MATHF_API void mathf_swap(float *a, float *b) {
@@ -54,7 +62,9 @@ MATHF_API float mathf_clamp01(float n) {
   return n > 1 ? 1 : n;
 }
 
-MATHF_API float mathf_lerp(float a, float b, float t) { return a + (b - a) * t; }
+MATHF_API float mathf_lerp(float a, float b, float t) {
+  return a + (b - a) * t;
+}
 
 MATHF_API float mathf_lerpclamped(float a, float b, float t) {
   return a + (b - a) * mathf_clamp01(t);
@@ -65,7 +75,7 @@ MATHF_API float mathf_norm(float n, float min, float max) {
 }
 
 MATHF_API float mathf_map(float n, float fromMin, float fromMax, float toMin,
-                        float toMax) {
+                          float toMax) {
   // return lerp(norm(n, fromMin, fromMax), toMin, toMax);
   return (n - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin;
 }
@@ -119,8 +129,9 @@ MATHF_API float mathf_noise3(unsigned int x, unsigned int y, unsigned int z) {
 
 // Three dimensional pseudo-random noise
 MATHF_API float mathf_noise3_interpolated(float x, float y, float z) {
-  float fractX = mathf_fraction(x), fractY = mathf_fraction(y), fractZ = mathf_fraction(z),
-        floorX = mathf_floor(x), floorY = mathf_floor(y), floorZ = mathf_floor(z);
+  float fractX = mathf_fraction(x), fractY = mathf_fraction(y),
+        fractZ = mathf_fraction(z), floorX = mathf_floor(x),
+        floorY = mathf_floor(y), floorZ = mathf_floor(z);
 
   // interpolate between adjacent noise values
   // ==================================================
@@ -161,16 +172,19 @@ MATHF_API float mathf_noise3_fbm(float x, float y, float z) {
   for (int i = 0; i < octaves; i++) {
     freq = mathf_pow(2, i);
     amplitude = mathf_pow(persistance, i);
-    total += mathf_noise3_interpolated(x * freq, y * freq, z * freq) * amplitude;
+    total +=
+        mathf_noise3_interpolated(x * freq, y * freq, z * freq) * amplitude;
   }
   return total;
 }
 
 MATHF_API float mathf_noise3_fbm_warped(float x, float y, float z,
-                                      float warpFactor) {
+                                        float warpFactor) {
   float fbm1 = mathf_noise3_fbm(x, y, z);
-  float fbm2 = mathf_noise3_fbm(x + 5.2, y + 1.3 * warpFactor, z + 6.4 * warpFactor);
-  float fbm3 = mathf_noise3_fbm(x + 7.5, y + 0.3 * warpFactor, z + 3.6 * warpFactor);
+  float fbm2 =
+      mathf_noise3_fbm(x + 5.2, y + 1.3 * warpFactor, z + 6.4 * warpFactor);
+  float fbm3 =
+      mathf_noise3_fbm(x + 7.5, y + 0.3 * warpFactor, z + 3.6 * warpFactor);
   return mathf_noise3_fbm(fbm1, fbm2, fbm3);
 }
 

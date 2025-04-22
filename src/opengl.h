@@ -12,8 +12,8 @@
 extern "C" {
 #endif // ifdef __cplusplus
 
-#include "math3d.h"
 #include "collections.h"
+#include "math3d.h"
 
 SC_LIST(vector3)
 SC_LIST(vector2)
@@ -57,7 +57,8 @@ typedef struct {
   vector4 rotation;
 } renderer_gl_transform;
 
-void renderer_gl_camera_update(GLfloat *matrix, renderer_gl_transform transform);
+void renderer_gl_camera_update(GLfloat *matrix,
+                               renderer_gl_transform transform);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
@@ -106,9 +107,10 @@ typedef struct {
   renderer_gl_batch quad;
 } renderer_gl_framebuffer;
 
-renderer_gl_framebuffer renderer_gl_framebuffer_alloc(GLuint shader, GLuint samples,
-                                      GLuint num_color_attachments,
-                                      GLuint width, GLuint height);
+renderer_gl_framebuffer
+renderer_gl_framebuffer_alloc(GLuint shader, GLuint samples,
+                              GLuint num_color_attachments, GLuint width,
+                              GLuint height);
 
 void renderer_gl_framebuffer_free(renderer_gl_framebuffer frame);
 
@@ -151,17 +153,18 @@ GLuint renderer_gl_shader_compile(const char *file_path, GLenum type);
 GLuint renderer_gl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
 renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
-                          const unsigned int archetype);
+                                          const unsigned int archetype);
 
 void renderer_gl_batch_free(renderer_gl_batch batch);
 void renderer_gl_lines_alloc(renderer_gl_batch *batch, sc_list_vector3 points);
 void renderer_gl_mesh_obj_alloc(renderer_gl_batch *batch, const char *filepath);
 
 void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
-                              const unsigned int subdivisions);
+                                      const unsigned int subdivisions);
 
-void renderer_gl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
-                     const GLfloat near, const GLfloat far);
+void renderer_gl_perspective(GLfloat *mat, const GLfloat fov,
+                             const GLfloat aspect, const GLfloat near,
+                             const GLfloat far);
 
 GLuint renderer_gl_texture_alloc(const char *imageFile);
 
