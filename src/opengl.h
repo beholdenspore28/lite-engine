@@ -5,8 +5,8 @@
   /                                                                           /
   /--------------------------------------------------------------------------*/
 
-#ifndef LGL_H
-#define LGL_H
+#ifndef renderer_gl_H
+#define renderer_gl_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,8 +35,8 @@ typedef struct {
   vector3 position;
   vector3 normal;
   vector2 texture_coordinates;
-} lgl_vertex;
-SC_LIST(lgl_vertex)
+} renderer_gl_vertex;
+SC_LIST(renderer_gl_vertex)
 
 typedef struct {
   int type;
@@ -49,15 +49,15 @@ typedef struct {
   GLfloat quadratic;
   vector3 diffuse;
   vector3 specular;
-} lgl_light;
+} renderer_gl_light;
 
 typedef struct {
   vector3 position;
   vector3 scale;
   vector4 rotation;
-} lgl_transform;
+} renderer_gl_transform;
 
-void lgl_camera_update(GLfloat *matrix, lgl_transform transform);
+void renderer_gl_camera_update(GLfloat *matrix, renderer_gl_transform transform);
 
 typedef struct {
   GLFWwindow *GLFWwindow;
@@ -69,10 +69,10 @@ typedef struct {
   double time_last;
   double time_FPS;
   unsigned int draw_calls;
-} lgl_context;
+} renderer_gl_context;
 
 typedef struct {
-  lgl_transform *transform;
+  renderer_gl_transform *transform;
   GLfloat *matrices;
 
   GLuint VAO;
@@ -80,7 +80,7 @@ typedef struct {
   GLuint EBO;
   GLuint model_matrix_buffer;
 
-  sc_list_lgl_vertex vertices;
+  sc_list_renderer_gl_vertex vertices;
   sc_list_GLuint indices;
 
   GLuint shader;
@@ -88,12 +88,12 @@ typedef struct {
   GLuint specular_map;
   vector4 color;
 
-  lgl_light *lights;
+  renderer_gl_light *lights;
   GLuint lights_count;
   GLenum primitive;
   GLint render_flags;
   unsigned int count;
-} lgl_batch;
+} renderer_gl_batch;
 
 typedef struct {
   GLuint FBO;
@@ -103,70 +103,70 @@ typedef struct {
   GLuint width;
   GLuint height;
   GLuint samples;
-  lgl_batch quad;
-} lgl_framebuffer;
+  renderer_gl_batch quad;
+} renderer_gl_framebuffer;
 
-lgl_framebuffer lgl_framebuffer_alloc(GLuint shader, GLuint samples,
+renderer_gl_framebuffer renderer_gl_framebuffer_alloc(GLuint shader, GLuint samples,
                                       GLuint num_color_attachments,
                                       GLuint width, GLuint height);
 
-void lgl_framebuffer_free(lgl_framebuffer frame);
+void renderer_gl_framebuffer_free(renderer_gl_framebuffer frame);
 
-void lgl_active_framebuffer_set(lgl_framebuffer *frame);
-void lgl_active_framebuffer_set_MSAA(lgl_framebuffer *frame);
+void renderer_gl_active_framebuffer_set(renderer_gl_framebuffer *frame);
+void renderer_gl_active_framebuffer_set_MSAA(renderer_gl_framebuffer *frame);
 
-void lgl_draw(const lgl_batch *batch);
+void renderer_gl_draw(const renderer_gl_batch *batch);
 
 enum {
-  LGL__FLAGS_BEGIN = 1,
-  LGL_FLAG_ENABLED = 1 << 1,
-  LGL_FLAG_USE_STENCIL = 1 << 2,
-  LGL_FLAG_DRAW_POINTS = 1 << 3,
-  LGL_FLAG_USE_WIREFRAME = 1 << 4,
-  LGL_FLAG_USE_INSTANCING = 1 << 5,
-  LGL__FLAGS_END,
+  RENDERER_GL__FLAGS_BEGIN = 1,
+  RENDERER_GL_FLAG_ENABLED = 1 << 1,
+  RENDERER_GL_FLAG_USE_STENCIL = 1 << 2,
+  RENDERER_GL_FLAG_DRAW_POINTS = 1 << 3,
+  RENDERER_GL_FLAG_USE_WIREFRAME = 1 << 4,
+  RENDERER_GL_FLAG_USE_INSTANCING = 1 << 5,
+  RENDERER_GL__FLAGS_END,
 
-  LGL__PRIMITIVES_BEGIN,
-  LGL_PRIMITIVE_TRIANGLES,
-  LGL_PRIMITIVE_TRIANGLES_INDEXED,
-  LGL_PRIMITIVE_POINTS,
-  LGL_PRIMITIVE_LINES,
-  LGL__PRIMITIVES_END,
+  RENDERER_GL__PRIMITIVES_BEGIN,
+  RENDERER_GL_PRIMITIVE_TRIANGLES,
+  RENDERER_GL_PRIMITIVE_TRIANGLES_INDEXED,
+  RENDERER_GL_PRIMITIVE_POINTS,
+  RENDERER_GL_PRIMITIVE_LINES,
+  RENDERER_GL__PRIMITIVES_END,
 
-  LGL__ARCHETYPES_BEGIN,
-  LGL_ARCHETYPE_EMPTY,
-  LGL_ARCHETYPE_CUBE,
-  LGL_ARCHETYPE_QUAD,
-  LGL_ARCHETYPE_PYRAMID,
-  LGL__ARCHETYPES_END,
+  RENDERER_GL__ARCHETYPES_BEGIN,
+  RENDERER_GL_ARCHETYPE_EMPTY,
+  RENDERER_GL_ARCHETYPE_CUBE,
+  RENDERER_GL_ARCHETYPE_QUAD,
+  RENDERER_GL_ARCHETYPE_PYRAMID,
+  RENDERER_GL__ARCHETYPES_END,
 };
 
-lgl_context *lgl_start(const int width, const int height);
-void lgl_update_window_title(void);
-void lgl_end_frame(void);
-void lgl_free(lgl_context *context);
-void lgl_viewport_set(const GLfloat width, const GLfloat height);
+renderer_gl_context *renderer_gl_start(const int width, const int height);
+void renderer_gl_update_window_title(void);
+void renderer_gl_end_frame(void);
+void renderer_gl_free(renderer_gl_context *context);
+void renderer_gl_viewport_set(const GLfloat width, const GLfloat height);
 
-GLuint lgl_shader_compile(const char *file_path, GLenum type);
-GLuint lgl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
+GLuint renderer_gl_shader_compile(const char *file_path, GLenum type);
+GLuint renderer_gl_shader_link(GLuint vertex_shader, GLuint fragment_shader);
 
-lgl_batch lgl_batch_alloc(const unsigned int count,
+renderer_gl_batch renderer_gl_batch_alloc(const unsigned int count,
                           const unsigned int archetype);
 
-void lgl_batch_free(lgl_batch batch);
-void lgl_lines_alloc(lgl_batch *batch, sc_list_vector3 points);
-void lgl_mesh_obj_alloc(lgl_batch *batch, const char *filepath);
+void renderer_gl_batch_free(renderer_gl_batch batch);
+void renderer_gl_lines_alloc(renderer_gl_batch *batch, sc_list_vector3 points);
+void renderer_gl_mesh_obj_alloc(renderer_gl_batch *batch, const char *filepath);
 
-void lgl_icosphere_mesh_alloc(lgl_batch *batch,
+void renderer_gl_icosphere_mesh_alloc(renderer_gl_batch *batch,
                               const unsigned int subdivisions);
 
-void lgl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
+void renderer_gl_perspective(GLfloat *mat, const GLfloat fov, const GLfloat aspect,
                      const GLfloat near, const GLfloat far);
 
-GLuint lgl_texture_alloc(const char *imageFile);
+GLuint renderer_gl_texture_alloc(const char *imageFile);
 
 #ifdef __cplusplus
 }
 #endif // ifdef __cplusplus
 
-#endif // LGL_H
+#endif // renderer_gl_H
