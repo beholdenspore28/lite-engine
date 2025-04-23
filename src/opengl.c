@@ -1132,7 +1132,7 @@ renderer_gl_context *renderer_gl_start(const int width, const int height) {
   glfwSetFramebufferSizeCallback(renderer_gl__active_context->GLFWwindow,
                                  renderer_gl__framebuffer_size_callback);
 
-  glfwSwapInterval(0); // disable vsync
+  glfwSwapInterval(1); // disable vsync
 
   { // center the window
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
