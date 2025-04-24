@@ -268,8 +268,42 @@ MATH_3D_API float vector4_magnitude(const vector4 v) {
 
 // Returns a vector which points in the same direction as v, but has a magnitude
 // of 1
+MATH_3D_API vector2 vector2_normalized(vector2 v) {
+  float m = vector2_magnitude(v);
+  if (m == 0) { // prevent NAN values
+    return (vector2){0, 0};
+  }
+  return vector2_scaled(v, 1 / m);
+}
+
+// Returns a vector which points in the same direction as v, but has a magnitude
+// of 1
+MATH_3D_API vector3 vector3_normalized(vector3 v) {
+  float m = vector3_magnitude(v);
+  if (m == 0) { // prevent NAN values
+    return (vector3){0, 0, 0};
+  }
+  return vector3_scaled(v, 1 / m);
+}
+
+// Returns a vector which points in the same direction as v, but has a magnitude
+// of 1
+MATH_3D_API vector4 vector4_normalized(vector4 v) {
+  float m = vector4_magnitude(v);
+  if (m == 0) { // prevent NAN values
+    return (vector4){0, 0, 0, 1};
+  }
+  return vector4_scaled(v, 1 / m);
+}
+
+// Returns a vector which points in the same direction as v, but has a magnitude
+// of 1
 MATH_3D_API void vector2_normalize(vector2 *v) {
   float m = vector2_magnitude(*v);
+  if (m == 0) { // prevent NAN values
+    *v = (vector2){0, 0};
+    return;
+  }
   vector2_scale(v, 1 / m);
 }
 
@@ -288,6 +322,10 @@ MATH_3D_API void vector3_normalize(vector3 *v) {
 // of 1
 MATH_3D_API void vector4_normalize(vector4 *v) {
   float m = vector4_magnitude(*v);
+  if (m == 0) { // prevent NAN values
+    *v = (vector4){0, 0, 0, 1};
+    return;
+  }
   vector4_scale(v, 1 / m);
 }
 
