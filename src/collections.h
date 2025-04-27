@@ -91,33 +91,4 @@ enum {
   COLLECTIONS_OCT_TREE_RIGHT_TOP_FRONT,
 };
 
-#define COLLECTIONS_TREE(type)                                                 \
-  typedef struct tree_##type {                                                 \
-    type *bucket;                                                                 \
-    struct tree_##type *children;                                              \
-  } tree_##type;                                                               \
-                                                                               \
-  void tree_##type##__subdivide(tree_##type *tree, const unsigned int breadth, \
-                                const unsigned int starting_depth,             \
-                                const unsigned int max_depth) {                \
-                                                                               \
-    if (starting_depth < max_depth) {                                          \
-      tree->children = calloc(sizeof(*tree->children), 8);                     \
-      for (unsigned int i = 0; i < 8; i++) {                                   \
-        tree->children[i] = (tree_##type){0};                                  \
-        tree_##type##__subdivide(tree->children + i, breadth,                  \
-                                 starting_depth + 1, max_depth);               \
-      }                                                                        \
-    } else {                                                                   \
-      tree->children = NULL;                                                   \
-    }                                                                          \
-  }                                                                            \
-                                                                               \
-  tree_##type tree_##type##_alloc(const unsigned int breadth,                  \
-                                  const unsigned int max_depth) {              \
-    tree_##type tree = {0};                                                    \
-    tree_##type##__subdivide(&tree, breadth, 0, max_depth);                    \
-    return tree;                                                               \
-  }
-
 #endif // SC_LIST_H
